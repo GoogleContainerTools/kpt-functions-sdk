@@ -1,0 +1,32 @@
+{
+  "name": "{{{package_name}}}",
+  "version": "0.0.1",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -Rf node_modules/ dist/",
+    "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
+    "add-function": "npm init kpt-functions add-function",
+    "update-generated-types": "npm init kpt-functions update-generated-types",
+    "local": "npm init kpt-functions run-local",
+    "build-functions": "npm test && npm init kpt-functions build-functions",
+    "push-functions": "npm init kpt-functions push-functions",
+    "gen-workflow-configs": "npm init kpt-functions gen-workflow-configs",
+    "publish-functions": "npm init kpt-functions build-functions && npm init kpt-functions push-functions && npm init kpt-functions gen-workflow-configs"
+  },
+  "dependencies": {
+    "kpt-functions": "{{{kpt_functions_path}}}"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^3.3.12",
+    "@types/node": "^12.7.2",
+    "jasmine": "^3.4.0",
+    "tslint": "^5.19.0",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.5.3"
+  },
+  "dev_kpt": {
+    "docker_repo_base": "{{{docker_repo_base}}}"
+  }
+}

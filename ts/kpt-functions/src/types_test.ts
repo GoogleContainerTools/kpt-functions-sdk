@@ -1,0 +1,255 @@
+/**
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import _ from 'lodash';
+import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
+import { ConfigError, Configs, isConfigError, KubernetesObject, Param } from './types';
+
+class Role implements KubernetesObject {
+  public readonly apiVersion: string = 'rbac.authorization.k8s.io/v1';
+  public readonly kind: string = 'Role';
+  public metadata: ObjectMeta;
+
+  public roleField: string = '';
+
+  constructor(name: string, roleField?: string) {
+    if (roleField) {
+      this.roleField = roleField;
+    }
+    this.metadata = { name };
+  }
+}
+
+function isRole(o: any): o is Role {
+  return o.apiVersion === 'rbac.authorization.k8s.io/v1' && o.kind === 'Role';
+}
+
+class Pod implements KubernetesObject {
+  public readonly apiVersion: string = 'v1';
+  public readonly kind: string = 'Pod';
+  public metadata: ObjectMeta;
+
+  public roleBindingField: string = '';
+
+  constructor(name: string) {
+    this.metadata = { name };
+  }
+}
+
+function isPod(o: any): o is Pod {
+  return o.apiVersion === 'v1' && o.kind === 'Pod';
+}
+
+describe('getAll', () => {
+  it('works on empty Configs', () => {
+    const configs = new Configs();
+    const all = configs.getAll();
+
+    expect(all).toEqual([]);
+  });
+
+  it('returns one object if only one is present', () => {
+    const configs = new Configs([new Role('alice')]);
+    const all = configs.getAll();
+
+    expect(all).toEqual([new Role('alice')]);
+  });
+
+  it('returns two objects if both are present', () => {
+    const configs = new Configs([new Role('alice'), new Pod('backend')]);
+    const all = configs.getAll();
+
+    expect(all).toEqual([new Role('alice'), new Pod('backend')]);
+  });
+});
+
+describe('get', () => {
+  it('only gets Roles if passed isRoles', () => {
+    const configs = new Configs([
+      new Role('alice'),
+      new Role('bob'),
+      new Pod('frontend'),
+      new Pod('backend'),
+    ]);
+    const roles = configs.get(isRole);
+
+    expect(roles).toEqual([new Role('alice'), new Role('bob')]);
+  });
+
+  it('only gets Pods if passed isPods', () => {
+    const configs = new Configs([
+      new Role('alice'),
+      new Role('bob'),
+      new Pod('frontend'),
+      new Pod('backend'),
+    ]);
+    const roles = configs.get(isPod);
+
+    expect(roles).toEqual([new Pod('backend'), new Pod('frontend')]);
+  });
+
+  it('sorts values passed to the constructor', () => {
+    const names = [
+      'ailen',
+      'bodil',
+      'caligula',
+      'freya',
+      'gerulf',
+      'moirin',
+      'onisimu',
+      'tasnim',
+      'tinek',
+      'walherich',
+    ];
+    const roles = names.map((name) => new Role(name));
+    _.shuffle(roles);
+
+    const configs = new Configs(roles);
+
+    expect(configs.getAll()).toEqual(names.map((name) => new Role(name)));
+  });
+});
+
+describe('insert', () => {
+  it('inserts values into Configs', () => {
+    const configs = new Configs();
+
+    configs.insert(new Role('alice'));
+
+    expect(configs.getAll()).toEqual([new Role('alice')]);
+  });
+
+  it('overwrites previous values Configs', () => {
+    const configs = new Configs([new Role('alice', 'backend')]);
+    configs.insert(new Role('alice', 'admin'));
+
+    configs.insert(new Role('alice', 'qa'));
+
+    expect(configs.getAll()).toEqual([new Role('alice', 'qa')]);
+  });
+
+  it('sorts values passed to insert', () => {
+    const names = [
+      'colbert',
+      'dzafer',
+      'ina',
+      'kay',
+      'naama',
+      'sephora',
+      'slaven',
+      'terra',
+      'theo',
+      'zuzka',
+    ];
+    const roles = names.map((name) => new Role(name));
+    _.shuffle(roles);
+
+    const configs = new Configs();
+    configs.insert(...roles);
+
+    expect(configs.getAll()).toEqual(names.map((name) => new Role(name)));
+  });
+});
+
+describe('delete', () => {
+  it('does not throw if value is missing', () => {
+    const configs = new Configs();
+    configs.delete(new Role('alice'));
+
+    expect(configs.getAll()).toEqual([]);
+  });
+
+  it('removes values from Configs', () => {
+    const configs = new Configs([new Role('alice')]);
+    configs.delete(new Role('alice'));
+
+    expect(configs.getAll()).toEqual([]);
+  });
+
+  it('does not require objects to equal to remove object with key', () => {
+    const configs = new Configs([new Role('alice', 'qa')]);
+    configs.delete(new Role('alice', 'admin'));
+
+    expect(configs.getAll()).toEqual([]);
+  });
+
+  it('respects namespace boundaries', () => {
+    const r1 = new Role('alice', 'qa');
+    r1.metadata.namespace = 'shipping';
+    const configs = new Configs([r1]);
+
+    const r2 = new Role('alice', 'qa');
+    r2.metadata.namespace = 'frontend';
+    configs.delete(new Role('alice'));
+
+    expect(configs.getAll()).toEqual([r1]);
+  });
+});
+
+describe('groupBy', () => {
+  const keyFn = (o: KubernetesObject) => o.metadata.name.charAt(0) || '';
+
+  it('returns empty if passed empty', () => {
+    const configs = new Configs();
+    const grouped = configs.groupBy(keyFn);
+
+    expect(grouped).toEqual([]);
+  });
+
+  it('returns single element if passed single element', () => {
+    const configs = new Configs([new Role('alice')]);
+    const grouped = configs.groupBy(keyFn);
+
+    expect(grouped).toEqual([['a', [new Role('alice')]]]);
+  });
+
+  it('partitions into two if they map to different keys', () => {
+    const configs = new Configs([new Role('alice'), new Role('bob')]);
+    const grouped = configs.groupBy(keyFn);
+
+    expect(grouped).toEqual([['a', [new Role('alice')]], ['b', [new Role('bob')]]]);
+  });
+
+  it('uses a single partition for elements mapping to the same key', () => {
+    const configs = new Configs([new Role('alice'), new Role('andrew')]);
+    const grouped = configs.groupBy(keyFn);
+
+    expect(grouped).toEqual([['a', [new Role('alice'), new Role('andrew')]]]);
+  });
+
+  it('set and get params', () => {
+    const p = new Map();
+    p.set('k1', 'v1');
+    const configs = new Configs(undefined, p);
+    expect(configs.getParam('k1')).toEqual('v1');
+    expect(configs.getParam(new Param('k1'))).toEqual('v1');
+    expect(configs.getParam('k3')).toBeUndefined();
+  });
+});
+
+describe('isConfigError', () => {
+  it('returns false for undefined', () => {
+    expect(isConfigError(undefined)).toBe(false);
+  });
+
+  it('returns true for ConfigError', () => {
+    expect(isConfigError(new ConfigError(''))).toBe(true);
+  });
+
+  it('returns false for empty object', () => {
+    expect(isConfigError({})).toBe(false);
+  });
+});
