@@ -1,7 +1,11 @@
-# Go SDK
+## Build
 
-## Pushing function docker images
+```bash
+make
+```
 
-```console
-./scripts/publish-functions.sh
+## Publish docker images
+
+```bash
+make publish
 ```
