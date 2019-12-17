@@ -1,11 +1,18 @@
-# kpt Functions User Guide
+# KPT Functions SDK
 
-## Required Dependencies
+## Using Typescript SDK
 
-- npm
-- docker
+Using KPT Functions Typescript SDK, it is easy to implement [Configuration Functions][0].
+The framework provides a simple, yet powerful API for querying and manipulating configuration
+files and provides all the scaffolding required to develop, build, test, and publish functions so
+the user can focus on implementing their business-logic.
 
-## Required Kubernetes Feature
+### Required Dependencies
+
+- [npm](https://www.npmjs.com/get-npm)
+- [docker](https://docs.docker.com/v17.09/engine/installation/)
+
+### Required Kubernetes Feature
 
 For the type generation to work, you need this
 [beta feature](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing).
@@ -17,12 +24,9 @@ gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cl
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
 
-## Developing kpt functions
-
-`create-kpt-functions` is the CLI for generating and interacting with NPM packages containing kpt functions. The CLI
-takes care of all the scaffolding, so the user can focus on developing the business-logic.
-
 ### Create a NPM package
+
+`create-kpt-functions` NPM package is the CLI for creating and managing NPM packages containing one or more KPT functions.
 
 To start a new NPM package, run the following and follow the instructions and prompts:
 
@@ -36,7 +40,7 @@ npm init kpt-functions
 
 This will create the following files:
 
-- `package.json` that declares `kpt-functions` as the only `dependencies` . Everything required to compile, lint and test a kpt function is declared as a `devDependencies` .
+- `package.json` that declares `kpt-functions` as the only `dependencies` . Everything required to compile, lint and test a KPT function is declared as a `devDependencies` .
 - Typescript classes for core and any custom resources generated using the OpenAPI spec published by the chosen cluster.
 - Stub for the first function and the corresponding test file.
 
@@ -48,7 +52,7 @@ npm install
 
 ### Coding
 
-You can now start developing the function using your favorite IDE, e.g.:
+You can now start coding the function using your favorite IDE, e.g. [VSCode][3]:
 
 ```console
 code .
@@ -56,7 +60,7 @@ code .
 
 You can follow [these example functions][1] to understand how to use `kpt-functions` framework library.
 
-Each function has a [Configs][2] parameter represents a document store for Kubernetes objects populated from/to configuration files. It enables performing rich query and mutation operations.
+A function has a [Configs][2] parameter representing a document store for Kubernetes objects populated from/to configuration files. It enables performing rich query and mutation operations.
 
 A function can also declare additional input parameters it requires. The framework will automatically
 create corresponding CLI flags and pass the values as parameters.
@@ -79,9 +83,9 @@ To run the tests:
 npm test
 ```
 
-### Running a kpt function during development
+### Running a KPT function during development
 
-You can run a kpt function on an existing directory of YAML configs.
+You can run a KPT function on an existing directory of YAML configs.
 
 The general form is:
 
@@ -117,9 +121,9 @@ If enabled, recursively looks for all YAML files in the directory to overwrite.
 3. If would not modify the contents of a YAML file, does nothing.
 4. If would write no KubernetesObjects to a file, deletes the YAML file if it exists.
 
-### Adding a new kpt function
+### Adding a new KPT function
 
-To add a new kpt functions to an existing package, run:
+To add a new KPT functions to an existing package, run:
 
 ```console
 npm run add-function
@@ -133,7 +137,7 @@ If want to regenerate classes for core and CRD types that exist on one of your c
 npm run update-generated-types
 ```
 
-### Publishing kpt functions
+### Publishing functions
 
 To build and push docker images for all the functions in the package:
 
@@ -147,7 +151,7 @@ This uses the `docker_repo_base` from `package.json` file and configured during 
 npm run publish-functions -- --tag=demo
 ```
 
-## Running kpt functions
+## Running KPT functions
 
 ### Using `docker run`
 
@@ -201,6 +205,10 @@ You should see these changes:
 1. `podsecuritypolicy_psp.yaml` should have been mutated by `recommend-psp` function.
 1. `payments-dev` and `payments-prod` directories created by `hydrate-anthos-team` function.
 
+### Using `kustomize config run`
+
+KPT functions can be run using `kustomize` as [documented here][4].
+
 ### Using Workflow Orchestrators
 
 `publish-functions` also generates corresponding custom resources for running your functions using different workflow orchestrators. Currently, the following are supported:
@@ -208,5 +216,8 @@ You should see these changes:
 - [Argo Workflow](https://github.com/argoproj/argo/blob/master/examples/README.md)
 - [Tekton Task](https://github.com/tektoncd/pipeline/tree/master/docs/README.md)
 
-[1]: todo/path/demo-functions/src/
-[2]: ../ts/kpt-functions/src/types.ts
+[0]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
+[1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
+[2]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
+[3]: https://code.visualstudio.com/
+[4]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md
