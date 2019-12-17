@@ -20,7 +20,13 @@ import { resolve } from 'path';
 import { createPackage } from './create_package';
 import { updateGeneratedTypes } from './update_generated_types';
 import { addFunc } from './add_func';
-import { buildFunc, pushFunc, genWorkflowConfig, processDocker } from './process_docker';
+import {
+  buildFunc,
+  createDockerfiles,
+  pushFunc,
+  genWorkflowConfig,
+  processDocker,
+} from './process_docker';
 import { runLocal } from './run_local';
 
 async function main() {
@@ -57,7 +63,14 @@ async function main() {
     help: addFuncHelp,
   });
 
-  const buildFuncsHelp = 'Build docker images for all functions in a NPM package.';
+  const createDockHelp = 'Create dockerfiles for all functions in an NPM package.';
+  subparsers.addParser('create-dockerfiles', {
+    addHelp: true,
+    description: createDockHelp,
+    help: createDockHelp,
+  });
+
+  const buildFuncsHelp = 'Build docker images for all functions in an NPM package.';
   const buildFunctions = subparsers.addParser('build-functions', {
     addHelp: true,
     description: buildFuncsHelp,
@@ -68,7 +81,7 @@ async function main() {
     help: 'Docker tag used for all function images.',
   });
 
-  const pushFuncsHelp = 'Push docker images for all functions in a NPM package.';
+  const pushFuncsHelp = 'Push docker images for all functions in an NPM package.';
   const pushFunctions = subparsers.addParser('push-functions', {
     addHelp: true,
     description: pushFuncsHelp,
@@ -79,7 +92,7 @@ async function main() {
     help: 'Docker tag used for all function images.',
   });
 
-  const genWorkflowConfigsHelp = 'Generate workflow configs for all functions in a NPM package.';
+  const genWorkflowConfigsHelp = 'Generate workflow configs for all functions in an NPM package.';
   const genWorkflowConfigs = subparsers.addParser('gen-workflow-configs', {
     addHelp: true,
     description: genWorkflowConfigsHelp,
@@ -122,6 +135,9 @@ async function main() {
       break;
     case 'add-function':
       addFunc(resolve('.'));
+      break;
+    case 'create-dockerfiles':
+      createDockerfiles(resolve('.'));
       break;
     case 'build-functions':
       processDocker(resolve('.'), args.get('tag'), buildFunc);

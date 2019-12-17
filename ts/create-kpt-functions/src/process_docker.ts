@@ -18,10 +18,31 @@ import { spawnSync } from 'child_process';
 import { copySync, removeSync } from 'fs-extra';
 import * as glob from 'glob';
 import * as path from 'path';
-import { BUILD_DIR, DEPS_DIR, WORKFLOWS_DIR } from './constants';
+import { SOURCE_DIR, BUILD_DIR, DEPS_DIR, WORKFLOWS_DIR } from './constants';
 import { log } from './log';
 import { Templates } from './templates';
 import * as validator from './validator';
+
+export function createDockerfiles(packageDir: string) {
+  const srcDir = path.join(packageDir, SOURCE_DIR);
+  const buildDir = path.join(packageDir, BUILD_DIR);
+
+  const funcFiles = glob.sync(path.join(srcDir, '*_run.js'));
+  log(`Found ${funcFiles.length} function(s).\n`);
+
+  for (const f of funcFiles) {
+    const name = path.basename(f, '_run.js');
+    new Templates([
+      {
+        templateFile: 'Dockerfile.mustache',
+        outputPath: path.join(buildDir, name + '.Dockerfile'),
+        view: {
+          file_name: f,
+        },
+      },
+    ]).render();
+  }
+}
 
 export function processDocker(packageDir: string, dockerTag: string, func: Function) {
   const dockerRepoBase = process.env.npm_package_dev_kpt_docker_repo_base;
@@ -55,9 +76,9 @@ export function processDocker(packageDir: string, dockerTag: string, func: Funct
   }
 }
 
-export function buildFunc(d: string, workflowsDir: string, name: string, image: string) {
+export function buildFunc(dockerFile: string, workflowsDir: string, name: string, image: string) {
   log('Building image...\n');
-  const build = spawnSync('docker', ['build', '-q', '-t', image, '-f', d, '.'], {
+  const build = spawnSync('docker', ['build', '-q', '-t', image, '-f', dockerFile, '.'], {
     stdio: 'inherit',
   });
   if (build.status !== 0) {
@@ -65,7 +86,7 @@ export function buildFunc(d: string, workflowsDir: string, name: string, image: 
   }
 }
 
-export function pushFunc(d: string, workflowsDir: string, name: string, image: string) {
+export function pushFunc(dockerFile: string, workflowsDir: string, name: string, image: string) {
   log('\nPushing image...\n');
   // TODO(frankf): prompt before pushing (getYesNo() fro cli-interact).
   const push = spawnSync('docker', ['push', image], { stdio: 'inherit' });
@@ -74,7 +95,12 @@ export function pushFunc(d: string, workflowsDir: string, name: string, image: s
   }
 }
 
-export function genWorkflowConfig(d: string, workflowsDir: string, name: string, image: string) {
+export function genWorkflowConfig(
+  dockerFile: string,
+  workflowsDir: string,
+  name: string,
+  image: string,
+) {
   log('\nGenerating workflow configs...\n');
   new Templates([
     {
