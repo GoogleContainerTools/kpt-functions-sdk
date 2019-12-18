@@ -16,7 +16,7 @@
 
 import { question } from 'cli-interact';
 import * as path from 'path';
-import { BUILD_DIR, SOURCE_DIR } from './constants';
+import { SOURCE_DIR } from './constants';
 import * as format from './format';
 import { log } from './log';
 import { Templates } from './templates';
@@ -38,7 +38,6 @@ export function addFunc(appDir: string) {
   const tsFuncName = validator.toTSName(funcName);
 
   const srcDir = path.join(appDir, SOURCE_DIR);
-  const buildDir = path.join(appDir, BUILD_DIR);
 
   new Templates([
     {
@@ -62,13 +61,6 @@ export function addFunc(appDir: string) {
       view: {
         file_name: funcName,
         func_name: tsFuncName,
-      },
-    },
-    {
-      templateFile: 'Dockerfile.mustache',
-      outputPath: path.join(buildDir, funcName + '.Dockerfile'),
-      view: {
-        file_name: funcName + '_run.js',
       },
     },
   ]).render();
