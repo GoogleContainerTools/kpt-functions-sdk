@@ -23,21 +23,22 @@ import { log } from './log';
 import { Templates } from './templates';
 import * as validator from './validator';
 
+// Creates Dockerfiles for all functions in an NPM package. Overwrites files if they exist.
 export function createDockerfiles(packageDir: string) {
   const srcDir = path.join(packageDir, SOURCE_DIR);
   const buildDir = path.join(packageDir, BUILD_DIR);
 
-  const funcFiles = glob.sync(path.join(srcDir, '*_run.js'));
+  const funcFiles = glob.sync(path.join(srcDir, '*_run.ts'));
   log(`Found ${funcFiles.length} function(s).\n`);
 
   for (const f of funcFiles) {
-    const name = path.basename(f, '_run.js');
+    const name = path.basename(f, '_run.ts');
     new Templates([
       {
         templateFile: 'Dockerfile.mustache',
         outputPath: path.join(buildDir, name + '.Dockerfile'),
         view: {
-          file_name: f,
+          file_name: name + '_run.js',
         },
       },
     ]).render();

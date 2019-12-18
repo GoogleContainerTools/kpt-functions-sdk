@@ -63,7 +63,8 @@ async function main() {
     help: addFuncHelp,
   });
 
-  const createDockHelp = 'Create dockerfiles for all functions in an NPM package.';
+  const createDockHelp =
+    'Create Dockerfiles for all functions in an NPM package. Overwrite files if they exist.';
   subparsers.addParser('create-dockerfiles', {
     addHelp: true,
     description: createDockHelp,
