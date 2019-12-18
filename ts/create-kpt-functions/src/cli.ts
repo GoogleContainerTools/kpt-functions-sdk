@@ -50,14 +50,14 @@ async function main() {
   });
 
   const updateTypesHelp = 'Update generated types for an existing NPM package.';
-  subparsers.addParser('update-generated-types', {
+  subparsers.addParser('type-write', {
     addHelp: true,
     description: updateTypesHelp,
     help: updateTypesHelp,
   });
 
   const addFuncHelp = 'Add a new function to a NPM package.';
-  subparsers.addParser('add-function', {
+  subparsers.addParser('function-write', {
     addHelp: true,
     description: addFuncHelp,
     help: addFuncHelp,
@@ -65,14 +65,14 @@ async function main() {
 
   const createDockHelp =
     'Create Dockerfiles for all functions in an NPM package. Overwrite files if they exist.';
-  subparsers.addParser('create-dockerfiles', {
+  subparsers.addParser('docker-write', {
     addHelp: true,
     description: createDockHelp,
     help: createDockHelp,
   });
 
   const buildFuncsHelp = 'Build docker images for all functions in an NPM package.';
-  const buildFunctions = subparsers.addParser('build-functions', {
+  const buildFunctions = subparsers.addParser('docker-build', {
     addHelp: true,
     description: buildFuncsHelp,
     help: buildFuncsHelp,
@@ -83,7 +83,7 @@ async function main() {
   });
 
   const pushFuncsHelp = 'Push docker images for all functions in an NPM package.';
-  const pushFunctions = subparsers.addParser('push-functions', {
+  const pushFunctions = subparsers.addParser('docker-push', {
     addHelp: true,
     description: pushFuncsHelp,
     help: pushFuncsHelp,
@@ -94,7 +94,7 @@ async function main() {
   });
 
   const genWorkflowConfigsHelp = 'Generate workflow configs for all functions in an NPM package.';
-  const genWorkflowConfigs = subparsers.addParser('gen-workflow-configs', {
+  const genWorkflowConfigs = subparsers.addParser('workflow-config-write', {
     addHelp: true,
     description: genWorkflowConfigsHelp,
     help: genWorkflowConfigsHelp,
@@ -105,7 +105,7 @@ async function main() {
   });
 
   const runLocalHelp = 'Run a kpt function locally.';
-  subparsers.addParser('run-local', {
+  subparsers.addParser('function-run', {
     addHelp: true,
     description: runLocalHelp,
     help: runLocalHelp,
@@ -117,7 +117,7 @@ async function main() {
     process.argv.push('create-package');
   }
 
-  if (process.argv[2] === 'run-local') {
+  if (process.argv[2] === 'function-run') {
     // parser.parseArgs() simply fails if it sees any unregistered flags, which we have to allow
     // to support user-specified properties.
     runLocal(parser);
@@ -131,22 +131,22 @@ async function main() {
     case 'create-package':
       await createPackage();
       break;
-    case 'update-generated-types':
+    case 'type-write':
       await updateGeneratedTypes(resolve('.'));
       break;
-    case 'add-function':
+    case 'function-write':
       addFunc(resolve('.'));
       break;
-    case 'create-dockerfiles':
+    case 'docker-write':
       createDockerfiles(resolve('.'));
       break;
-    case 'build-functions':
+    case 'docker-build':
       processDocker(resolve('.'), args.get('tag'), buildFunc);
       break;
-    case 'push-functions':
+    case 'docker-push':
       processDocker(resolve('.'), args.get('tag'), pushFunc);
       break;
-    case 'gen-workflow-configs':
+    case 'workflow-config-write':
       processDocker(resolve('.'), args.get('tag'), genWorkflowConfig);
       break;
     default:
