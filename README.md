@@ -131,7 +131,7 @@ npm run kpt:function-create
 
 ### Generating client types
 
-If want to generate or regenerate classes for core and CRD types that exist on one of your clusters:
+If want to generate or update existing classes for core and CRD types that exist on one of your clusters:
 
 ```console
 npm run kpt:type-create

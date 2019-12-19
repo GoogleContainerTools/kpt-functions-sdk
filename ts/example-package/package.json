@@ -13,7 +13,7 @@
     "kpt:docker-build": "npm test && npm init kpt-functions docker-build",
     "kpt:docker-push": "npm init kpt-functions docker-push",
     "kpt:docker-publish": "npm init kpt-functions docker-build && npm init kpt-functions docker-push",
-    "kpt:workflow-config-create": "npm init kpt-functions workflow-config-create"
+    "kpt:workflow-create": "npm init kpt-functions workflow-create"
   },
   "dependencies": {
     "kpt-functions": "file:/deps/kpt-functions/kpt-functions-0.0.1.tgz"

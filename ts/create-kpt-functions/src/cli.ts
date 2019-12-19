@@ -93,14 +93,14 @@ async function main() {
     help: typeCreateHelp,
   });
 
-  const workflowConfigCreateHelp =
+  const workflowCreateHelp =
     'Create workflow configs for all functions in an NPM package. Overwrite configs if they exist.';
-  const workflowConfigCreate = subparsers.addParser('workflow-config-create', {
+  const workflowCreate = subparsers.addParser('workflow-create', {
     addHelp: true,
-    description: workflowConfigCreateHelp,
-    help: workflowConfigCreateHelp,
+    description: workflowCreateHelp,
+    help: workflowCreateHelp,
   });
-  workflowConfigCreate.addArgument('--tag', {
+  workflowCreate.addArgument('--tag', {
     defaultValue: 'dev',
     help: 'Docker tag used for all function images.',
   });
@@ -133,7 +133,7 @@ async function main() {
     case 'docker-push':
       processDocker(resolve('.'), args.get('tag'), pushFunc);
       break;
-    case 'workflow-config-create':
+    case 'workflow-create':
       processDocker(resolve('.'), args.get('tag'), genWorkflowConfig);
       break;
     default:
