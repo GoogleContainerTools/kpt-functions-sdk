@@ -27,14 +27,13 @@ import {
   genWorkflowConfig,
   processDocker,
 } from './process_docker';
-import { runLocal } from './run_local';
 
 async function main() {
   // TODO: Add usage examples.
   const parser = new ArgumentParser({
     version: '0.0.1',
     addHelp: true,
-    description: 'Create or update a NPM package.',
+    description: 'Create or update an NPM package.',
   });
 
   const subparsers = parser.addSubparsers({
@@ -42,102 +41,90 @@ async function main() {
     dest: 'subcommand',
   });
 
-  const createPackageHelp = 'Create a new NPM package.';
-  subparsers.addParser('create-package', {
+  const packageCreateHelp = 'Create a new NPM package.';
+  subparsers.addParser('package-create', {
     addHelp: true,
-    description: createPackageHelp,
-    help: createPackageHelp,
+    description: packageCreateHelp,
+    help: packageCreateHelp,
   });
 
-  const updateTypesHelp = 'Update generated types for an existing NPM package.';
-  subparsers.addParser('type-write', {
-    addHelp: true,
-    description: updateTypesHelp,
-    help: updateTypesHelp,
-  });
-
-  const addFuncHelp = 'Add a new function to a NPM package.';
-  subparsers.addParser('function-write', {
-    addHelp: true,
-    description: addFuncHelp,
-    help: addFuncHelp,
-  });
-
-  const createDockHelp =
+  const dockerCreateHelp =
     'Create Dockerfiles for all functions in an NPM package. Overwrite files if they exist.';
-  subparsers.addParser('docker-write', {
+  subparsers.addParser('docker-create', {
     addHelp: true,
-    description: createDockHelp,
-    help: createDockHelp,
+    description: dockerCreateHelp,
+    help: dockerCreateHelp,
   });
 
-  const buildFuncsHelp = 'Build docker images for all functions in an NPM package.';
-  const buildFunctions = subparsers.addParser('docker-build', {
+  const dockerBuildHelp = 'Build docker images for all functions in an NPM package.';
+  const dockerBuild = subparsers.addParser('docker-build', {
     addHelp: true,
-    description: buildFuncsHelp,
-    help: buildFuncsHelp,
+    description: dockerBuildHelp,
+    help: dockerBuildHelp,
   });
-  buildFunctions.addArgument('--tag', {
+  dockerBuild.addArgument('--tag', {
     defaultValue: 'dev',
     help: 'Docker tag used for all function images.',
   });
 
-  const pushFuncsHelp = 'Push docker images for all functions in an NPM package.';
-  const pushFunctions = subparsers.addParser('docker-push', {
+  const dockerPushHelp = 'Push docker images for all functions in an NPM package.';
+  const dockerPush = subparsers.addParser('docker-push', {
     addHelp: true,
-    description: pushFuncsHelp,
-    help: pushFuncsHelp,
+    description: dockerPushHelp,
+    help: dockerPushHelp,
   });
-  pushFunctions.addArgument('--tag', {
+  dockerPush.addArgument('--tag', {
     defaultValue: 'dev',
     help: 'Docker tag used for all function images.',
   });
 
-  const genWorkflowConfigsHelp = 'Generate workflow configs for all functions in an NPM package.';
-  const genWorkflowConfigs = subparsers.addParser('workflow-config-write', {
+  const functionCreateHelp = 'Create a function in an NPM package.';
+  subparsers.addParser('function-create', {
     addHelp: true,
-    description: genWorkflowConfigsHelp,
-    help: genWorkflowConfigsHelp,
-  });
-  genWorkflowConfigs.addArgument('--tag', {
-    defaultValue: 'dev',
-    help: 'Docker tag used for all function images.',
+    description: functionCreateHelp,
+    help: functionCreateHelp,
   });
 
-  const runLocalHelp = 'Run a kpt function locally.';
-  subparsers.addParser('function-run', {
+  const typeCreateHelp =
+    'Create or update client code in an existing NPM package based on CRDs from a kubeconfig context.';
+  subparsers.addParser('type-create', {
     addHelp: true,
-    description: runLocalHelp,
-    help: runLocalHelp,
+    description: typeCreateHelp,
+    help: typeCreateHelp,
+  });
+
+  const workflowConfigCreateHelp =
+    'Create workflow configs for all functions in an NPM package. Overwrite configs if they exist.';
+  const workflowConfigCreate = subparsers.addParser('workflow-config-create', {
+    addHelp: true,
+    description: workflowConfigCreateHelp,
+    help: workflowConfigCreateHelp,
+  });
+  workflowConfigCreate.addArgument('--tag', {
+    defaultValue: 'dev',
+    help: 'Docker tag used for all function images.',
   });
 
   // There doesn't seem to be any other way to mark subcommands
-  // as optional, so manually add create-package to argv.
+  // as optional, so manually add package-create to argv.
   if (process.argv.length === 2) {
-    process.argv.push('create-package');
-  }
-
-  if (process.argv[2] === 'function-run') {
-    // parser.parseArgs() simply fails if it sees any unregistered flags, which we have to allow
-    // to support user-specified properties.
-    runLocal(parser);
-    return;
+    process.argv.push('package-create');
   }
 
   const args = parser.parseArgs();
 
   // TODO(b/141943296): Ensure subcommands handle choosing the package directory
   switch (args.subcommand) {
-    case 'create-package':
+    case 'package-create':
       await createPackage();
       break;
-    case 'type-write':
+    case 'type-create':
       await updateGeneratedTypes(resolve('.'));
       break;
-    case 'function-write':
+    case 'function-create':
       addFunc(resolve('.'));
       break;
-    case 'docker-write':
+    case 'docker-create':
       createDockerfiles(resolve('.'));
       break;
     case 'docker-build':
@@ -146,7 +133,7 @@ async function main() {
     case 'docker-push':
       processDocker(resolve('.'), args.get('tag'), pushFunc);
       break;
-    case 'workflow-config-write':
+    case 'workflow-config-create':
       processDocker(resolve('.'), args.get('tag'), genWorkflowConfig);
       break;
     default:

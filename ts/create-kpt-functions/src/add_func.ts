@@ -22,6 +22,7 @@ import { log } from './log';
 import { Templates } from './templates';
 import * as validator from './validator';
 
+// Create a function in an NPM package. Overwrite the function if it exists.
 export function addFunc(appDir: string) {
   const desc = 'Adding a kpt function.';
   log(format.startMarker(desc));

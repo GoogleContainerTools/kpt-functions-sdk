@@ -7,14 +7,13 @@
     "watch": "tsc --watch",
     "clean": "rm -Rf node_modules/ dist/",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
-    "kpt:type-write": "npm init kpt-functions type-write",
-    "kpt:function-write": "npm init kpt-functions function-write",
-    "kpt:function-run": "npm init kpt-functions function-run",
-    "kpt:docker-write": "npm init kpt-functions docker-write",
+    "kpt:type-create": "npm init kpt-functions type-create",
+    "kpt:function-create": "npm init kpt-functions function-create",
+    "kpt:docker-create": "npm init kpt-functions docker-create",
     "kpt:docker-build": "npm test && npm init kpt-functions docker-build",
     "kpt:docker-push": "npm init kpt-functions docker-push",
-    "kpt:docker-publish": "npm init kpt-functions docker-build && npm init kpt-functions docker-push && npm init kpt-functions workflow-config-write",
-    "kpt:workflow-config-write": "npm init kpt-functions workflow-config-write"
+    "kpt:docker-publish": "npm init kpt-functions docker-build && npm init kpt-functions docker-push",
+    "kpt:workflow-config-create": "npm init kpt-functions workflow-config-create"
   },
   "dependencies": {
     "kpt-functions": "{{{kpt_functions_path}}}"

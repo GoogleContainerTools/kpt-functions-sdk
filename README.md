@@ -14,7 +14,7 @@ the user can focus on implementing their business-logic.
 
 ### Required Kubernetes Feature
 
-For the type generation to work, you need this
+For the type creation to work, you need this
 [beta feature](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing).
 
 If using GKE, this feature is available using an alpha cluster:
@@ -24,7 +24,7 @@ gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cl
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
 
-### Create a NPM package
+### Create an NPM package
 
 `create-kpt-functions` NPM package is the CLI for creating and managing NPM packages containing one or more KPT functions.
 
@@ -126,7 +126,7 @@ If enabled, recursively looks for all YAML files in the directory to overwrite.
 To add a new KPT functions to an existing package, run:
 
 ```console
-npm run kpt:function-write
+npm run kpt:function-create
 ```
 
 ### Generating client types
@@ -134,7 +134,7 @@ npm run kpt:function-write
 If want to generate or regenerate classes for core and CRD types that exist on one of your clusters:
 
 ```console
-npm run kpt:type-write
+npm run kpt:type-create
 ```
 
 ### Publishing functions
@@ -208,13 +208,6 @@ You should see these changes:
 ### Using `kustomize config run`
 
 KPT functions can be run using `kustomize` as [documented here][4].
-
-### Using Workflow Orchestrators
-
-`kpt:docker-publish` also generates corresponding custom resources for running your functions using different workflow orchestrators. Currently, the following are supported:
-
-- [Argo Workflow](https://github.com/argoproj/argo/blob/master/examples/README.md)
-- [Tekton Task](https://github.com/tektoncd/pipeline/tree/master/docs/README.md)
 
 [0]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
 [1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
