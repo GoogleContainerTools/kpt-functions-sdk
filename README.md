@@ -14,7 +14,7 @@ the user can focus on implementing their business-logic.
 
 ### Required Kubernetes Feature
 
-For the type generation to work, you need this
+For the type creation to work, you need this
 [beta feature](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing).
 
 If using GKE, this feature is available using an alpha cluster:
@@ -24,7 +24,7 @@ gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cl
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
 
-### Create a NPM package
+### Create an NPM package
 
 `create-kpt-functions` NPM package is the CLI for creating and managing NPM packages containing one or more KPT functions.
 
@@ -90,7 +90,7 @@ You can run a KPT function on an existing directory of YAML configs.
 The general form is:
 
 ```console
-npm run local -- [function_name] --source_dir=[source_dir] --sink_dir=[sink_dir] [PARAMS]
+npm run kpt:function-run -- [function_name] --source_dir=[source_dir] --sink_dir=[sink_dir] [PARAMS]
 ```
 
 where parameters are of the form:
@@ -102,13 +102,13 @@ where parameters are of the form:
 Sample usage below. The '--' before arguments passed to the script are required.
 
 ```console
-npm run local -- validate_rolebinding --source_dir=path/to/configs/dir/ --sink_dir=output-dir/ --subject_name=alice@foo-corp.com
+npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --sink_dir=output-dir/ --subject_name=alice@foo-corp.com
 ```
 
 You can choose to overwrite source YAML files by passing `--overwrite`.
 
 ```console
-npm run local -- validate_rolebinding --source_dir=path/to/configs/dir/ --overwrite --subject_name=alice@foo-corp.com
+npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --overwrite --subject_name=alice@foo-corp.com
 ```
 
 If `--sink_dir` is defined, overwrites YAML files in `--sink_dir`.
@@ -126,15 +126,15 @@ If enabled, recursively looks for all YAML files in the directory to overwrite.
 To add a new KPT functions to an existing package, run:
 
 ```console
-npm run add-function
+npm run kpt:function-create
 ```
 
-### Regenerating client types
+### Generating client types
 
-If want to regenerate classes for core and CRD types that exist on one of your clusters:
+If want to generate or update existing classes for core and CRD types that exist on one of your clusters:
 
 ```console
-npm run update-generated-types
+npm run kpt:type-create
 ```
 
 ### Publishing functions
@@ -142,20 +142,20 @@ npm run update-generated-types
 To build and push docker images for all the functions in the package:
 
 ```console
-npm run publish-functions
+npm run kpt:docker-publish
 ```
 
 This uses the `docker_repo_base` from `package.json` file and configured during initialization. The default value for docker image tag is `dev`. This can be overriden using`--tag` flag:
 
 ```console
-npm run publish-functions -- --tag=demo
+npm run kpt:docker-publish -- --tag=demo
 ```
 
 ## Running KPT functions
 
 ### Using `docker run`
 
-After `publish-functions` completes, you can now run the function using `docker run`:
+After `kpt:docker-publish` completes, you can now run the function using `docker run`:
 
 ```console
 docker run gcr.io/kpt-functions/validate-rolebinding:demo --help
@@ -208,13 +208,6 @@ You should see these changes:
 ### Using `kustomize config run`
 
 KPT functions can be run using `kustomize` as [documented here][4].
-
-### Using Workflow Orchestrators
-
-`publish-functions` also generates corresponding custom resources for running your functions using different workflow orchestrators. Currently, the following are supported:
-
-- [Argo Workflow](https://github.com/argoproj/argo/blob/master/examples/README.md)
-- [Tekton Task](https://github.com/tektoncd/pipeline/tree/master/docs/README.md)
 
 [0]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
 [1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
