@@ -20,6 +20,7 @@ import { isEmpty } from 'validator';
 import { addFunc } from './add_func';
 import * as format from './format';
 import { log } from './log';
+import { createDockerfiles } from './process_docker';
 import { Templates } from './templates';
 import { updateGeneratedTypes } from './update_generated_types';
 import * as validator from './validator';
@@ -32,6 +33,7 @@ export async function createPackage() {
   await updateGeneratedTypes(pkgDir);
 
   addFunc(pkgDir);
+  createDockerfiles(pkgDir);
 
   log(
     format.success('Success!') +

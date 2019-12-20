@@ -7,13 +7,13 @@
     "watch": "tsc --watch",
     "clean": "rm -Rf node_modules/ dist/",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
-    "add-function": "npm init kpt-functions add-function",
-    "update-generated-types": "npm init kpt-functions update-generated-types",
-    "local": "npm init kpt-functions run-local",
-    "build-functions": "npm test && npm init kpt-functions build-functions",
-    "push-functions": "npm init kpt-functions push-functions",
-    "gen-workflow-configs": "npm init kpt-functions gen-workflow-configs",
-    "publish-functions": "npm init kpt-functions build-functions && npm init kpt-functions push-functions && npm init kpt-functions gen-workflow-configs"
+    "kpt:type-create": "npm init kpt-functions type-create",
+    "kpt:function-create": "npm init kpt-functions function-create",
+    "kpt:docker-create": "npm init kpt-functions docker-create",
+    "kpt:docker-build": "npm test && npm init kpt-functions docker-build",
+    "kpt:docker-push": "npm init kpt-functions docker-push",
+    "kpt:docker-publish": "npm init kpt-functions docker-build && npm init kpt-functions docker-push",
+    "kpt:workflow-create": "npm init kpt-functions workflow-create"
   },
   "dependencies": {
     "kpt-functions": "{{{kpt_functions_path}}}"
