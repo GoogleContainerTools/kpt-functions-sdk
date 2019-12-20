@@ -126,13 +126,13 @@ where parameters are of the form:
 Sample usage below. The '--' before arguments passed to the script are required.
 
 ```console
-npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --sink_dir=output-dir/ --subject_name=alice@foo-corp.com
+npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --sink_dir=output-dir/ -d subject_name=alice@foo-corp.com
 ```
 
 You can choose to overwrite source YAML files by passing `--overwrite`.
 
 ```console
-npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --overwrite --subject_name=alice@foo-corp.com
+npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --overwrite -d subject_name=alice@foo-corp.com
 ```
 
 If `--sink_dir` is defined, overwrites YAML files in `--sink_dir`.
@@ -196,11 +196,11 @@ docker pull gcr.io/kpt-functions/hydrate-anthos-team
 docker pull gcr.io/kpt-functions/validate-rolebinding
 docker pull gcr.io/kpt-functions/sink-yaml-dir
 
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/source  gcr.io/kpt-functions/source-yaml-dir --input /dev/null --source_dir /source |
+docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/source  gcr.io/kpt-functions/source-yaml-dir --input /dev/null -d source_dir=/source |
 docker run -i gcr.io/kpt-functions/recommend-psp |
 docker run -i gcr.io/kpt-functions/hydrate-anthos-team |
-docker run -i gcr.io/kpt-functions/validate-rolebinding --subject_name alice@foo-corp.com |
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/sink gcr.io/kpt-functions/sink-yaml-dir --sink_dir /sink --output /dev/null --overwrite true
+docker run -i gcr.io/kpt-functions/validate-rolebinding -d subject_name=alice@foo-corp.com |
+docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/sink gcr.io/kpt-functions/sink-yaml-dir -output /dev/null -d sink_dir=/sink -d overwrite=true
 ```
 
 Let's walk through each step:
