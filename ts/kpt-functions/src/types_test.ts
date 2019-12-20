@@ -16,7 +16,7 @@
 
 import _ from 'lodash';
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
-import { ConfigError, Configs, isConfigError, KubernetesObject, Param } from './types';
+import { ConfigError, Configs, isConfigError, KubernetesObject } from './types';
 
 class Role implements KubernetesObject {
   public readonly apiVersion: string = 'rbac.authorization.k8s.io/v1';
@@ -229,14 +229,43 @@ describe('groupBy', () => {
 
     expect(grouped).toEqual([['a', [new Role('alice'), new Role('andrew')]]]);
   });
+});
 
-  it('set and get params', () => {
-    const p = new Map();
-    p.set('k1', 'v1');
-    const configs = new Configs(undefined, p);
-    expect(configs.getParam('k1')).toEqual('v1');
-    expect(configs.getParam(new Param('k1'))).toEqual('v1');
-    expect(configs.getParam('k3')).toBeUndefined();
+describe('functionConfig', () => {
+  it('ConfigMap kind', () => {
+    const cm = {
+      apiVersion: 'v1',
+      kind: 'ConfigMap',
+      metadata: {
+        name: 'my-config',
+      },
+      data: {
+        k1: 'v1',
+        k2: 'v2',
+      },
+    };
+    const configs = new Configs(undefined, cm);
+    expect(configs.getFunctionConfig()).toEqual(cm);
+    expect(configs.getFunctionConfigValue('k1')).toEqual('v1');
+    expect(configs.getFunctionConfigValue('k2')).toEqual('v2');
+    expect(configs.getFunctionConfigValue('k3')).toBeUndefined();
+    expect(configs.getFunctionConfigValueOrThrow('k1')).toEqual('v1');
+    expect(() => configs.getFunctionConfigValueOrThrow('k3')).toThrow();
+  });
+
+  it('no object', () => {
+    const configs = new Configs(undefined);
+    expect(configs.getFunctionConfig()).toBeUndefined();
+    expect(configs.getFunctionConfigValue('k3')).toBeUndefined();
+    expect(() => configs.getFunctionConfigValueOrThrow('k3')).toThrow();
+  });
+
+  it('other kinds', () => {
+    const r1 = new Role('alice');
+    const configs = new Configs(undefined, r1);
+    expect(configs.getFunctionConfig()).toEqual(r1);
+    expect(() => configs.getFunctionConfigValue('k1')).toThrow();
+    expect(() => configs.getFunctionConfigValueOrThrow('k1')).toThrow();
   });
 });
 

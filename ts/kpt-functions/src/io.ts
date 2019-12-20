@@ -17,7 +17,7 @@
 import * as fs from 'fs';
 import { DumpOptions, safeDump, safeLoad } from 'js-yaml';
 import * as rw from 'rw';
-import { Configs } from './types';
+import { Configs, KubernetesObject } from './types';
 
 export enum FileFormat {
   YAML,
@@ -37,55 +37,88 @@ const YAML_STYLE: DumpOptions = {
 };
 
 /**
- * Reads Configs from the file with standard intermediate data format.
+ * Reads an input file as defined in Configuration Functions spec and constructs a Configs object.
+ *
+ * @param input Path to input file.
+ * @param format File format
+ * @param functionConfig Either a path to the functionConfig file containing the object or the object itself.
  */
-export function readConfigs(inputFile: string, format: FileFormat): Configs {
-  switch (inputFile) {
+export function readConfigs(
+  input: string,
+  format: FileFormat,
+  functionConfig?: string | KubernetesObject,
+): Configs {
+  let inputRaw: string;
+
+  switch (input) {
     case '/dev/null':
-      return new Configs();
+      inputRaw = '{"items":[]}';
+      break;
     case '/dev/stdin':
       if (process.stdin.isTTY) {
-        throw new Error('Cannot read configs. Neither stdin or --input was provided.');
+        throw new Error('Cannot read input. Neither stdin or --input was provided.');
       }
-      break;
     default:
-      if (!fs.existsSync(inputFile)) {
-        throw new Error(`Input file does not exist: ${inputFile}`);
+      if (!fs.existsSync(input)) {
+        throw new Error(`Input file does not exist: ${input}`);
       }
+      inputRaw = rw.readFileSync(input, 'utf8');
   }
 
-  const raw = rw.readFileSync(inputFile, 'utf8');
-  return read(raw, format);
+  let functionConfigRaw: string | KubernetesObject | undefined;
+  if (typeof functionConfig === 'string') {
+    if (!fs.existsSync(functionConfig)) {
+      throw new Error(`functionConfig file does not exist: ${functionConfig}`);
+    }
+    functionConfigRaw = rw.readFileSync(functionConfig, 'utf8');
+  } else {
+    functionConfigRaw = functionConfig;
+  }
+
+  return parse(inputRaw, format, functionConfigRaw);
 }
 
 /**
- * @param raw The string to read Configs from.
+ * Parses stringified data and constructs a Configs object.
+ *
+ * @param input Stringified input objects.
  * @param format defines whether to parse the Configs as YAML or JSON.
+ * @param functionConfig Either stringified functionCOnfig object or the object itself.
  */
-export function read(raw: string, format: FileFormat): Configs {
-  let input;
+export function parse(
+  input: string,
+  format: FileFormat,
+  functionConfig?: string | KubernetesObject,
+): Configs {
+  let i = load(input, format);
+  let f;
+  if (typeof functionConfig === 'string') {
+    f = load(functionConfig, format);
+  } else {
+    f = functionConfig;
+  }
+
+  // TODO(b/144499462): Throw error if missing apiVersion/kind/items?
+  return new Configs(i.items, f || i.functionConfig);
+}
+
+function load(raw: string, format: FileFormat): any {
   switch (format) {
     case FileFormat.JSON:
-      input = JSON.parse(raw);
-      break;
+      return JSON.parse(raw);
     case FileFormat.YAML:
       // safeLoad returns undefined if raw is empty string.
-      input = safeLoad(raw) || {};
-      break;
+      return safeLoad(raw) || {};
     default:
       throw new Error(`Unsupported file format ${format}`);
   }
-  // TODO(b/144499462): Throw error if missing apiVersion/kind/items?
-
-  const params = new Map(Object.entries((input.functionConfig && input.functionConfig.data) || {}));
-  return new Configs(input.items, params);
 }
 
 /**
- * Writes Configs to the file with standard intermediate data format.
+ * Writes an output file as defined in Configuration Functions spec.
  *
  * @param outputFile Path to to the file to be created, it must not exist.
- * @param configs list of configs to write to the disk as a Kubernetes List.
+ * @param configs Contains objects to write to the output file.
  * @param format defines whether to write the Configs as YAML or JSON.
  */
 export function writeConfigs(outputFile: string, configs: Configs, format: FileFormat): void {
@@ -93,14 +126,16 @@ export function writeConfigs(outputFile: string, configs: Configs, format: FileF
     return;
   }
 
-  rw.writeFileSync(outputFile, write(configs, format), 'utf8');
+  rw.writeFileSync(outputFile, stringify(configs, format), 'utf8');
 }
 
 /**
+ * Stringifies Configs object to raw data.
+ *
  * @param configs The configs to convert to a string.
  * @param format defines whether to write the configs as YAML or JSON.
  */
-export function write(configs: Configs, format: FileFormat): string {
+export function stringify(configs: Configs, format: FileFormat): string {
   const output = {
     apiVersion: 'v1',
     kind: 'List',

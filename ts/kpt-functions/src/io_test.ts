@@ -14,35 +14,25 @@
  * limitations under the License.
  */
 
-import { FileFormat, read, write } from './io';
-import { Configs } from './types';
-
-namespace Namespace {
-  export const apiVersion: string = 'v1';
-  export const kind: string = 'Namespace';
-}
-
-namespace Role {
-  export const apiVersion: string = 'rbac.authorization.k8s.io/v1';
-  export const kind: string = 'Role';
-}
+import { FileFormat, parse, stringify } from './io';
+import { Configs, KubernetesObject } from './types';
 
 describe('read', () => {
   describe('in YAML format', () => {
     it('parses empty string to empty Configs', () => {
-      const result = read('', FileFormat.YAML);
+      const result = parse('', FileFormat.YAML);
 
       expect(result.getAll()).toEqual([]);
     });
 
     it('parses single object', () => {
-      const result = read(
+      const result = parse(
         `
 apiVersion: v1
 kind: List
 items:
-- apiVersion: ${Namespace.apiVersion}
-  kind: ${Namespace.kind}
+- apiVersion: v1
+  kind: Namespace
   metadata:
     name: foo
 `,
@@ -50,8 +40,8 @@ items:
       );
       expect(result.getAll()).toEqual([
         {
-          apiVersion: Namespace.apiVersion,
-          kind: Namespace.kind,
+          apiVersion: 'v1',
+          kind: 'Namespace',
           metadata: {
             name: 'foo',
           },
@@ -59,47 +49,175 @@ items:
       ]);
     });
 
-    it('parses single object with functionConfig', () => {
-      const result = read(
+    it('parses undefined functionConfig', () => {
+      const result = parse('', FileFormat.YAML);
+
+      expect(result.getFunctionConfig()).toBeUndefined();
+    });
+
+    it('parses functionConfig from input', () => {
+      const result = parse(
         `
 apiVersion: v1
 kind: List
 items:
-- apiVersion: ${Namespace.apiVersion}
-  kind: ${Namespace.kind}
+- apiVersion: v1
+  kind: Namespace
   metadata:
     name: foo
 functionConfig:
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: bar
   data:
     a: b
 `,
         FileFormat.YAML,
       );
 
-      expect(result.getAll()).toEqual([
-        {
-          apiVersion: Namespace.apiVersion,
-          kind: Namespace.kind,
-          metadata: {
-            name: 'foo',
-          },
+      expect(result.getFunctionConfig()).toEqual({
+        apiVersion: 'v1',
+        kind: 'ConfigMap',
+        metadata: {
+          name: 'bar',
         },
-      ]);
-      expect(result.params).toEqual(new Map([['a', 'b']]));
+        data: {
+          a: 'b',
+        },
+      } as KubernetesObject);
     });
 
-    it('parses multiple objects', () => {
-      const result = read(
+    it('parses functionConfig from string', () => {
+      const result = parse(
         `
 apiVersion: v1
 kind: List
 items:
-- apiVersion: ${Namespace.apiVersion}
-  kind: ${Namespace.kind}
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: foo
+`,
+        FileFormat.YAML,
+        `
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: baz
+data:
+  x: y
+`,
+      );
+
+      expect(result.getFunctionConfig()).toEqual({
+        apiVersion: 'v1',
+        kind: 'ConfigMap',
+        metadata: {
+          name: 'baz',
+        },
+        data: {
+          x: 'y',
+        },
+      } as KubernetesObject);
+    });
+
+    it('parses functionConfig overrides input', () => {
+      const result = parse(
+        `
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: foo
+functionConfig:
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: bar
+  data:
+    a: b
+`,
+        FileFormat.YAML,
+        `
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: baz
+data:
+  x: y
+`,
+      );
+
+      expect(result.getFunctionConfig()).toEqual({
+        apiVersion: 'v1',
+        kind: 'ConfigMap',
+        metadata: {
+          name: 'baz',
+        },
+        data: {
+          x: 'y',
+        },
+      } as KubernetesObject);
+    });
+
+    it('parses functionConfig from object', () => {
+      const result = parse(
+        `
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: foo
+functionConfig:
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: bar
+  data:
+    a: b
+`,
+        FileFormat.YAML,
+        {
+          apiVersion: 'v1',
+          kind: 'ConfigMap',
+          metadata: {
+            name: 'baz',
+          },
+          data: {
+            x: 'y',
+          },
+        } as KubernetesObject,
+      );
+
+      expect(result.getFunctionConfig()).toEqual({
+        apiVersion: 'v1',
+        kind: 'ConfigMap',
+        metadata: {
+          name: 'baz',
+        },
+        data: {
+          x: 'y',
+        },
+      } as KubernetesObject);
+    });
+
+    it('parses multiple objects', () => {
+      const result = parse(
+        `
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Namespace
   metadata:
     name: backend
-- apiVersion: ${Role.apiVersion}
-  kind: ${Role.kind}
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: Role
   metadata:
     name: my-role
 `,
@@ -108,15 +226,15 @@ items:
 
       expect(result.getAll()).toEqual([
         {
-          apiVersion: Role.apiVersion,
-          kind: Role.kind,
+          apiVersion: 'rbac.authorization.k8s.io/v1',
+          kind: 'Role',
           metadata: {
             name: 'my-role',
           },
         },
         {
-          apiVersion: Namespace.apiVersion,
-          kind: Namespace.kind,
+          apiVersion: 'v1',
+          kind: 'Namespace',
           metadata: {
             name: 'backend',
           },
@@ -127,19 +245,19 @@ items:
 
   describe('in JSON format', () => {
     it('parses empty array to empty Configs', () => {
-      const result = read('[]', FileFormat.JSON);
+      const result = parse('[]', FileFormat.JSON);
 
       expect(result.getAll()).toEqual([]);
     });
 
     it('parses single object', () => {
-      const result = read(
+      const result = parse(
         `{
 "apiVersion": "v1",
 "kind": "List",
 "items": [{
-  "apiVersion": "${Namespace.apiVersion}",
-  "kind": "${Namespace.kind}",
+  "apiVersion": "v1",
+  "kind": "Namespace",
   "metadata": {"name": "foo"}
 }]}`,
         FileFormat.JSON,
@@ -157,17 +275,17 @@ items:
     });
 
     it('parses multiple objects', () => {
-      const result = read(
+      const result = parse(
         `{
 "apiVersion": "v1",
 "kind": "List",
 "items": [{
-  "apiVersion": "${Namespace.apiVersion}",
-  "kind": "${Namespace.kind}",
+  "apiVersion": "v1",
+  "kind": "Namespace",
   "metadata": {"name": "backend"}
 }, {
-  "apiVersion": "${Role.apiVersion}",
-  "kind": "${Role.kind}",
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "kind": "Role",
   "metadata": {"name": "my-role"}
 }]}`,
         FileFormat.JSON,
@@ -175,15 +293,15 @@ items:
 
       expect(result.getAll()).toEqual([
         {
-          apiVersion: Role.apiVersion,
-          kind: Role.kind,
+          apiVersion: 'rbac.authorization.k8s.io/v1',
+          kind: 'Role',
           metadata: {
             name: 'my-role',
           },
         },
         {
-          apiVersion: Namespace.apiVersion,
-          kind: Namespace.kind,
+          apiVersion: 'v1',
+          kind: 'Namespace',
           metadata: {
             name: 'backend',
           },
@@ -195,7 +313,7 @@ items:
   describe('special cases', () => {
     // These don't need to be tested in both langauges since the logic is duplicated.
     it('parses empty List to empty Configs', () => {
-      const result = read(
+      const result = parse(
         `
 apiVersion: v1
 kind: List
@@ -215,7 +333,7 @@ items:
 - kind: List
 - items: []
 `;
-      expect(() => read(raw, FileFormat.YAML)).toThrow();
+      expect(() => parse(raw, FileFormat.YAML)).toThrow();
     });
 
     it('throws on encountering simple types', () => {
@@ -225,7 +343,7 @@ kind: List
 items:
 - {}
 `;
-      expect(() => read(raw, FileFormat.YAML)).toThrow();
+      expect(() => parse(raw, FileFormat.YAML)).toThrow();
     });
   });
 });
@@ -233,7 +351,7 @@ items:
 describe('write', () => {
   describe('in YAML format', () => {
     it('writes empty Configs as empty List', () => {
-      const result = write(new Configs(), FileFormat.YAML);
+      const result = stringify(new Configs(), FileFormat.YAML);
 
       expect(result).toEqual(`apiVersion: v1
 kind: List
@@ -242,11 +360,11 @@ items: []
     });
 
     it('writes single object', () => {
-      const result = write(
+      const result = stringify(
         new Configs([
           {
-            apiVersion: Namespace.apiVersion,
-            kind: Namespace.kind,
+            apiVersion: 'v1',
+            kind: 'Namespace',
             metadata: {
               name: 'foo',
             },
@@ -259,8 +377,8 @@ items: []
         `apiVersion: v1
 kind: List
 items:
-- apiVersion: ${Namespace.apiVersion}
-  kind: ${Namespace.kind}
+- apiVersion: v1
+  kind: Namespace
   metadata:
     name: foo
 `,
@@ -268,18 +386,18 @@ items:
     });
 
     it('writes multiple objects', () => {
-      const result = write(
+      const result = stringify(
         new Configs([
           {
-            apiVersion: Role.apiVersion,
-            kind: Role.kind,
+            apiVersion: 'rbac.authorization.k8s.io/v1',
+            kind: 'Role',
             metadata: {
               name: 'my-role',
             },
           },
           {
-            apiVersion: Namespace.apiVersion,
-            kind: Namespace.kind,
+            apiVersion: 'v1',
+            kind: 'Namespace',
             metadata: {
               name: 'backend',
             },
@@ -291,12 +409,12 @@ items:
       expect(result).toEqual(`apiVersion: v1
 kind: List
 items:
-- apiVersion: ${Role.apiVersion}
-  kind: ${Role.kind}
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: Role
   metadata:
     name: my-role
-- apiVersion: ${Namespace.apiVersion}
-  kind: ${Namespace.kind}
+- apiVersion: v1
+  kind: Namespace
   metadata:
     name: backend
 `);
@@ -305,7 +423,7 @@ items:
 
   describe('in JSON format', () => {
     it('parses empty array to empty Configs', () => {
-      const result = write(new Configs(), FileFormat.JSON);
+      const result = stringify(new Configs(), FileFormat.JSON);
 
       expect(result).toEqual(`{
   "apiVersion": "v1",
@@ -316,7 +434,7 @@ items:
     });
 
     it('writes single object', () => {
-      const result = write(
+      const result = stringify(
         new Configs([
           {
             apiVersion: 'v1',
@@ -334,8 +452,8 @@ items:
   "kind": "List",
   "items": [
     {
-      "apiVersion": "${Namespace.apiVersion}",
-      "kind": "${Namespace.kind}",
+      "apiVersion": "v1",
+      "kind": "Namespace",
       "metadata": {
         "name": "foo"
       }
@@ -346,18 +464,18 @@ items:
     });
 
     it('writes multiple objects', () => {
-      const result = write(
+      const result = stringify(
         new Configs([
           {
-            apiVersion: Role.apiVersion,
-            kind: Role.kind,
+            apiVersion: 'rbac.authorization.k8s.io/v1',
+            kind: 'Role',
             metadata: {
               name: 'my-role',
             },
           },
           {
-            apiVersion: Namespace.apiVersion,
-            kind: Namespace.kind,
+            apiVersion: 'v1',
+            kind: 'Namespace',
             metadata: {
               name: 'backend',
             },
@@ -371,15 +489,15 @@ items:
   "kind": "List",
   "items": [
     {
-      "apiVersion": "${Role.apiVersion}",
-      "kind": "${Role.kind}",
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
       "metadata": {
         "name": "my-role"
       }
     },
     {
-      "apiVersion": "${Namespace.apiVersion}",
-      "kind": "${Namespace.kind}",
+      "apiVersion": "v1",
+      "kind": "Namespace",
       "metadata": {
         "name": "backend"
       }
