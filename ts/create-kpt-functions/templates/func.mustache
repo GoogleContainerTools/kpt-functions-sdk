@@ -1,12 +1,13 @@
-import { Configs, Runner } from 'kpt-functions';
+import { KptFunc } from 'kpt-functions';
 
-/**
- * A stub kpt function.
- *
- * @param configs The configs to validate/mutate.
- */
-export function {{{func_name}}}(configs: Configs) {
-  return;
-}
+export const {{func_name}}: KptFunc = (configs) => {
+  // TODO: implement.
+};
 
-export const RUNNER = Runner.newFunc({{{func_name}}});
+{{func_name}}.usage = `
+TODO: Describe what the function does.
+
+TODO: Describe how to configure the function.
+
+TODO: Provide an example configuration.
+`;

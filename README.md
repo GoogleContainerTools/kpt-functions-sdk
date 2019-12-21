@@ -1,11 +1,11 @@
-# KPT Functions SDK
-
-## Using Typescript SDK
+# KPT Functions
 
 Using KPT Functions Typescript SDK, it is easy to implement [Configuration Functions][0].
 The framework provides a simple, yet powerful API for querying and manipulating configuration
 files and provides all the scaffolding required to develop, build, test, and publish functions so
 the user can focus on implementing their business-logic.
+
+## Using Typescript SDK
 
 ### Required Dependencies
 
@@ -24,7 +24,7 @@ gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cl
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
 
-### Create an NPM package
+### Create the NPM package
 
 `create-kpt-functions` NPM package is the CLI for creating and managing NPM packages containing one or more KPT functions.
 
@@ -40,30 +40,54 @@ npm init kpt-functions
 
 This will create the following files:
 
-- `package.json` that declares `kpt-functions` as the only `dependencies` . Everything required to compile, lint and test a KPT function is declared as a `devDependencies` .
-- Typescript classes for core and any custom resources generated using the OpenAPI spec published by the chosen cluster.
-- Stub for the first function and the corresponding test file.
+1. `package.json` that has `kpt-functions` library as its only `dependencies` . Everything required to compile, lint and test a KPT function is declared as `devDependencies` .
+2. `src/` directory containing function source files:
 
-Run the following command to install all the dependencies and build the generated code:
+   - `my_func.ts`: This is where you implement the function interface.
+   - `my_func_test.ts`: This is where you add your unit test.
+   - `my_func_run.ts`: The entry point that runs the function.
+
+3. `src/gen/` directory containing Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
+
+Run the following command to install all the dependencies and build the functions:
 
 ```console
 npm install
 ```
 
-### Coding
+### Implementing the function
 
-You can now start coding the function using your favorite IDE, e.g. [VSCode][3]:
+You can now start implementing the function using your favorite IDE, e.g. [VSCode][3]:
 
 ```console
 code .
 ```
 
-You can follow [these example functions][1] to understand how to use `kpt-functions` framework library.
+In `src/my_func.ts` you need to implement this simple interface:
 
-A function has a [Configs][2] parameter representing a document store for Kubernetes objects populated from/to configuration files. It enables performing rich query and mutation operations.
+```ts
+/**
+ * Interface describing KPT functions.
+ */
+export interface KptFunc {
+  /**
+   * A function reads and potentially mutates configs using the Configs document store API.
+   *
+   * Returns a ConfigError if there are non-exceptional issues with the configs.
+   * For operational errors such as IO operation failures, throw errors instead of returning a ConfigError.
+   */
+  (configs: Configs): void | ConfigError;
 
-A function can also declare additional input parameters it requires. The framework will automatically
-create corresponding CLI flags and pass the values as parameters.
+  /**
+   * Usage message describing what the function does, how to use it, and how to configure it.
+   */
+  usage: string;
+}
+```
+
+[Configs][2] parameter is a document store for Kubernetes objects populated from/to configuration files. It enables performing rich query and mutation operations.
+
+Take a look at [these example functions][1] to better understand how to use `kpt-functions` framework.
 
 To build the package:
 
@@ -90,7 +114,7 @@ You can run a KPT function on an existing directory of YAML configs.
 The general form is:
 
 ```console
-npm run kpt:function-run -- [function_name] --source_dir=[source_dir] --sink_dir=[sink_dir] [PARAMS]
+npm run kpt:function-run -- my_func --source_dir=[source_dir] --sink_dir=[sink_dir] [PARAMS]
 ```
 
 where parameters are of the form:
@@ -102,13 +126,13 @@ where parameters are of the form:
 Sample usage below. The '--' before arguments passed to the script are required.
 
 ```console
-npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --sink_dir=output-dir/ --subject_name=alice@foo-corp.com
+npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --sink_dir=output-dir/ -d subject_name=alice@foo-corp.com
 ```
 
 You can choose to overwrite source YAML files by passing `--overwrite`.
 
 ```console
-npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --overwrite --subject_name=alice@foo-corp.com
+npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --overwrite -d subject_name=alice@foo-corp.com
 ```
 
 If `--sink_dir` is defined, overwrites YAML files in `--sink_dir`.
@@ -148,7 +172,7 @@ npm run kpt:docker-publish
 This uses the `docker_repo_base` from `package.json` file and configured during initialization. The default value for docker image tag is `dev`. This can be overriden using`--tag` flag:
 
 ```console
-npm run kpt:docker-publish -- --tag=demo
+npm run kpt:docker-publish -- --tag=latest
 ```
 
 ## Running KPT functions
@@ -158,25 +182,25 @@ npm run kpt:docker-publish -- --tag=demo
 After `kpt:docker-publish` completes, you can now run the function using `docker run`:
 
 ```console
-docker run gcr.io/kpt-functions/validate-rolebinding:demo --help
+docker run my-docker-repo/my-func:dev --help
 ```
 
-Functions can be piped to form sophisticated pipelines:
+Functions can be piped to form sophisticated pipelines, for example:
 
 ```console
 git clone git@github.com:frankfarzan/foo-corp-configs.git
 
-docker pull gcr.io/kpt-functions/source-yaml-dir:demo
-docker pull gcr.io/kpt-functions/recommend-psp:demo
-docker pull gcr.io/kpt-functions/hydrate-anthos-team:demo
-docker pull gcr.io/kpt-functions/validate-rolebinding:demo
-docker pull gcr.io/kpt-functions/sink-yaml-dir:demo
+docker pull gcr.io/kpt-functions/source-yaml-dir
+docker pull gcr.io/kpt-functions/recommend-psp
+docker pull gcr.io/kpt-functions/hydrate-anthos-team
+docker pull gcr.io/kpt-functions/validate-rolebinding
+docker pull gcr.io/kpt-functions/sink-yaml-dir
 
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/source  gcr.io/kpt-functions/source-yaml-dir:demo --input /dev/null --source_dir /source |
-docker run -i gcr.io/kpt-functions/recommend-psp:demo |
-docker run -i gcr.io/kpt-functions/hydrate-anthos-team:demo |
-docker run -i gcr.io/kpt-functions/validate-rolebinding:demo --subject_name alice@foo-corp.com |
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/sink gcr.io/kpt-functions/sink-yaml-dir:demo --sink_dir /sink --output /dev/null --overwrite true
+docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/source  gcr.io/kpt-functions/source-yaml-dir --input /dev/null -d source_dir=/source |
+docker run -i gcr.io/kpt-functions/recommend-psp |
+docker run -i gcr.io/kpt-functions/hydrate-anthos-team |
+docker run -i gcr.io/kpt-functions/validate-rolebinding -d subject_name=alice@foo-corp.com |
+docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/sink gcr.io/kpt-functions/sink-yaml-dir -output /dev/null -d sink_dir=/sink -d overwrite=true
 ```
 
 Let's walk through each step:
@@ -210,7 +234,7 @@ You should see these changes:
 KPT functions can be run using `kustomize` as [documented here][4].
 
 [0]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
-[1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
+[1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/latest-functions/src
 [2]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
 [3]: https://code.visualstudio.com/
 [4]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md

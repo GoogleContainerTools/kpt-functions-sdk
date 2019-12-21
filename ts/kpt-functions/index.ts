@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-export * from './src/io'
-export * from './src/metadata'
-export * from './src/runners'
-export * from './src/testing'
-export * from './src/types'
+export * from './src/io';
+export * from './src/metadata';
+export * from './src/run';
+export * from './src/testing';
+export * from './src/types';

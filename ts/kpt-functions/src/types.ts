@@ -18,9 +18,22 @@ import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
 import { getAnnotation, SOURCE_PATH_ANNOTATION } from './metadata';
 
 /**
- * Interface implemented by all kpt functions.
+ * Interface describing KPT functions.
  */
-export type KptFunc = (configs: Configs) => void | ConfigError;
+export interface KptFunc {
+  /**
+   * A function reads and potentially mutates configuration objects using the {@link Configs}.
+   *
+   * Returns a {@link ConfigError} if there are non-exceptional issues with the configs.
+   * For operational errors such as IO operation failures, throw errors instead of returning a ConfigError.
+   */
+  (configs: Configs): void | ConfigError;
+
+  /**
+   * Usage message describing what the function does, how to use it, and how to configure it.
+   */
+  usage: string;
+}
 
 /**
  * Configs is a document store for Kubernetes objects populated from/to configuration files.
@@ -31,54 +44,43 @@ export class Configs {
   /**
    * A sorted array of the contained objects and their keys.
    */
-  private objects: Array<[string, KubernetesObject]> = [];
+  private items: Array<[string, KubernetesObject]> = [];
 
   /**
-   * Parameters used to configure a kpt function.
+   * Object used to configure this invocation of the function.
    */
-  public readonly params: Map<string, string>;
+  private readonly functionConfig: KubernetesObject | undefined;
 
   /**
    * Creates a Config.
    *
-   * @param objects Kubernetes objects to initialize this Configs with.
-   * @param params Parameters used to configure a kpt function.
+   * @param items Input Objects to initialize this Configs with.
+   * @param functionConfig Object used to configure this invocation of the function.
    *
    * If supplied multiple objects with the same Group, Kind, Namespace, and Name, discards all but the last one.
    *
    * Does not preserve insertion order of the passed objects.
    */
-  constructor(objects: KubernetesObject[] = [], params: Map<string, string> = new Map()) {
-    this.params = params;
-    this.insert(...objects);
+  constructor(items: KubernetesObject[] = [], functionConfig?: KubernetesObject) {
+    this.functionConfig = functionConfig;
+    this.insert(...items);
   }
 
   /**
-   * Returns the parameter value.
-   *
-   * @param param Name of the parameter or the {@link Param} to get the value for.
-   */
-  public getParam(param: string | Param): string | undefined {
-    if (typeof param === 'string') {
-      return this.params.get(param);
-    }
-    return this.params.get(param.name);
-  }
-
-  /**
-   * Returns an array of objects in this Configs.
+   * Returns an array of all the objects in this Configs.
    *
    * The ordering of objects is deterministic.
    *
    * Returned objects are pass-by-reference; mutating them results in changes being persisted.
    */
   public getAll(): KubernetesObject[] {
-    return this.objects.map((e) => e[1]);
+    return this.items.map((e) => e[1]);
   }
 
   /**
-   * Returns an array of objects matching the passed Kind type predicate. Casts to an
-   * array of Kind. May throw if isKind is incorrect.
+   * Returns an array of objects matching the passed Kind type predicate.
+   *
+   * Casts to an array of Kind. May throw if isKind is incorrect.
    *
    * The ordering of objects is deterministic.
    *
@@ -105,8 +107,8 @@ export class Configs {
   public insert(...objects: KubernetesObject[]): void {
     objects.forEach((o) => {
       const key: string = kubernetesKeyFn(o);
-      const [index, found] = this.indexOf(key, this.objects, 0);
-      this.objects.splice(index, found ? 1 : 0, [key, o]);
+      const [index, found] = this.indexOf(key, this.items, 0);
+      this.items.splice(index, found ? 1 : 0, [key, o]);
     });
   }
 
@@ -120,9 +122,9 @@ export class Configs {
   public delete(...objects: KubernetesObject[]): void {
     objects.forEach((o) => {
       const key: string = kubernetesKeyFn(o);
-      const [index, found] = this.indexOf(key, this.objects, 0);
+      const [index, found] = this.indexOf(key, this.items, 0);
       if (found) {
-        this.objects.splice(index, 1);
+        this.items.splice(index, 1);
       }
     });
   }
@@ -131,11 +133,11 @@ export class Configs {
    * Deletes all objects.
    */
   public deleteAll(): void {
-    this.objects = [];
+    this.items = [];
   }
 
   /**
-   * Partition the objects using the provided key function
+   * Partitions the objects using the provided key function
    *
    * The ordering of objects with the same key is deterministic.
    *
@@ -156,7 +158,46 @@ export class Configs {
   }
 
   /**
-   * Get the index a key should go in a sorted array, and whether the key already exists.
+   * Returns the functionConfig if defined.
+   */
+  public getFunctionConfig(): KubernetesObject | undefined {
+    return this.functionConfig;
+  }
+
+  /**
+   * Returns the value for the given key if functionConfig is of kind ConfigMap.
+   *
+   * Throws an exception if functionConfig kind is not a ConfigMap.
+   *
+   * Returns undefined if functionConfig is undefined OR
+   * if the ConfigMap has no such key in the 'data' section.
+   *
+   * @key key The key in the 'data' field in the ConfigMap object passed as the functionConfig.
+   */
+  public getFunctionConfigValue(key: string): string | undefined {
+    const cm = this.functionConfig;
+    if (!cm) {
+      return undefined;
+    }
+    if (!isConfigMap(cm)) {
+      throw new Error(`functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`);
+    }
+    return cm.data && cm.data[key];
+  }
+
+  /**
+   * Similar to {@link getFunctionConfigValue} except it throws an exception if the given key is undefined.
+   */
+  public getFunctionConfigValueOrThrow(key: string): string {
+    const val = this.getFunctionConfigValue(key);
+    if (val === undefined) {
+      throw new Error(`Missing key ${key} in ConfigMap data provided as functionConfig`);
+    }
+    return val;
+  }
+
+  /**
+   * Gets the index a key should go in a sorted array, and whether the key already exists.
    *
    * @param key The key to find.
    * @param array The array to search.
@@ -198,13 +239,7 @@ export interface KubernetesObject {
  * Type guard for KubernetesObject.
  */
 export function isKubernetesObject(o: any): o is KubernetesObject {
-  return (
-    (o as KubernetesObject) !== undefined &&
-    o.apiVersion !== '' &&
-    o.kind !== '' &&
-    o.metadata &&
-    o.metadata.name !== ''
-  );
+  return o && o.apiVersion !== '' && o.kind !== '' && o.metadata && o.metadata.name !== '';
 }
 
 /**
@@ -213,31 +248,6 @@ export function isKubernetesObject(o: any): o is KubernetesObject {
 export function kubernetesKeyFn(o: KubernetesObject): string {
   const namespace = o.metadata.namespace || '';
   return `${o.apiVersion}/${o.kind}/${namespace}/${o.metadata.name}`;
-}
-
-/**
- * An input parameter declaration.
- */
-export class Param {
-  public name: string;
-  public options?: ParamOptions;
-
-  constructor(name: string, options?: ParamOptions) {
-    this.name = name;
-    this.options = options;
-  }
-}
-
-/**
- * Defines paramter options.
- */
-export class ParamOptions {
-  // The default value to provide the Paramter.
-  public readonly defaultValue?: string;
-  // If true and the Paramter is not provided at runtime, display an error and do not run the kpt function.
-  public readonly required?: boolean;
-  // A description of the Paramter and what it is used for.
-  public readonly help?: string;
 }
 
 /**
@@ -287,4 +297,12 @@ kind: "${o.kind}"
 metadata.namespace: "${namespace}"
 metadata.name: "${o.metadata.name}"
 `;
+}
+
+interface ConfigMap extends KubernetesObject {
+  data?: { [key: string]: string };
+}
+
+function isConfigMap(o: any): o is ConfigMap {
+  return o && o.apiVersion === 'v1' && o.kind === 'ConfigMap';
 }
