@@ -24,6 +24,8 @@ export enum FileFormat {
   JSON,
 }
 
+type FilePath = string;
+
 const YAML_STYLE: DumpOptions = {
   // indentation width to use (in spaces).
   indent: 2,
@@ -44,9 +46,9 @@ const YAML_STYLE: DumpOptions = {
  * @param functionConfig Either a path to the functionConfig file containing the object or the object itself.
  */
 export function readConfigs(
-  input: string,
+  input: FilePath,
   format: FileFormat,
-  functionConfig?: string | KubernetesObject,
+  functionConfig?: FilePath | KubernetesObject,
 ): Configs {
   let inputRaw: string;
 
@@ -56,7 +58,7 @@ export function readConfigs(
       break;
     case '/dev/stdin':
       if (process.stdin.isTTY) {
-        throw new Error('Cannot read input. Neither stdin or --input was provided.');
+        throw new Error('Cannot read input. Need either stdin or --input file');
       }
     default:
       if (!fs.existsSync(input)) {
@@ -117,16 +119,16 @@ function load(raw: string, format: FileFormat): any {
 /**
  * Writes an output file as defined in Configuration Functions spec.
  *
- * @param outputFile Path to to the file to be created, it must not exist.
+ * @param output Path to to the file to be created, it must not exist.
  * @param configs Contains objects to write to the output file.
  * @param format defines whether to write the Configs as YAML or JSON.
  */
-export function writeConfigs(outputFile: string, configs: Configs, format: FileFormat): void {
-  if (outputFile == '/dev/null') {
+export function writeConfigs(output: FilePath, configs: Configs, format: FileFormat): void {
+  if (output == '/dev/null') {
     return;
   }
 
-  rw.writeFileSync(outputFile, stringify(configs, format), 'utf8');
+  rw.writeFileSync(output, stringify(configs, format), 'utf8');
 }
 
 /**
