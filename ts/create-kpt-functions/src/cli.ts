@@ -33,7 +33,7 @@ async function main() {
   const parser = new ArgumentParser({
     version: '0.0.1',
     addHelp: true,
-    description: 'Create or update an NPM package.',
+    description: 'KPT functions CLI.',
   });
 
   const subparsers = parser.addSubparsers({
@@ -48,15 +48,14 @@ async function main() {
     help: packageCreateHelp,
   });
 
-  const dockerCreateHelp =
-    'Create Dockerfiles for all functions in an NPM package. Overwrite files if they exist.';
+  const dockerCreateHelp = 'Generate Dockerfiles for all functions. Overwrite files if they exist.';
   subparsers.addParser('docker-create', {
     addHelp: true,
     description: dockerCreateHelp,
     help: dockerCreateHelp,
   });
 
-  const dockerBuildHelp = 'Build docker images for all functions in an NPM package.';
+  const dockerBuildHelp = 'Build docker images for all functions.';
   const dockerBuild = subparsers.addParser('docker-build', {
     addHelp: true,
     description: dockerBuildHelp,
@@ -67,7 +66,7 @@ async function main() {
     help: 'Docker tag used for all function images.',
   });
 
-  const dockerPushHelp = 'Push docker images for all functions in an NPM package.';
+  const dockerPushHelp = 'Push docker images to the registry for all functions.';
   const dockerPush = subparsers.addParser('docker-push', {
     addHelp: true,
     description: dockerPushHelp,
@@ -78,15 +77,14 @@ async function main() {
     help: 'Docker tag used for all function images.',
   });
 
-  const functionCreateHelp = 'Create a function in an NPM package.';
+  const functionCreateHelp = 'Generate stubs for a new function. Overwrites files if they exist.';
   subparsers.addParser('function-create', {
     addHelp: true,
     description: functionCreateHelp,
     help: functionCreateHelp,
   });
 
-  const typeCreateHelp =
-    'Create or update client code in an existing NPM package based on CRDs from a kubeconfig context.';
+  const typeCreateHelp = 'Generate classes for core and CRD types. Overwrite files if they exist.';
   subparsers.addParser('type-create', {
     addHelp: true,
     description: typeCreateHelp,
@@ -94,7 +92,7 @@ async function main() {
   });
 
   const workflowCreateHelp =
-    'Create workflow configs for all functions in an NPM package. Overwrite configs if they exist.';
+    'Generate workflow configs for all functions. Overwrite configs if they exist.';
   const workflowCreate = subparsers.addParser('workflow-create', {
     addHelp: true,
     description: workflowCreateHelp,

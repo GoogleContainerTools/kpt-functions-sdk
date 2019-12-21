@@ -36,7 +36,7 @@ export async function createPackage() {
   createDockerfiles(pkgDir);
 
   log(
-    format.success('Success!') +
+    format.success('\nSuccess!') +
       ' Run `npm install` next to install dependencies and build the package.\n',
   );
 }
@@ -89,8 +89,6 @@ export function initializePackage() {
       outputPath: path.join(packageDir, 'package.json'),
       view: {
         package_name: packageName,
-        // TODO(b/141115380): Remove this hack when NPM packages are published.
-        kpt_functions_path: 'file:/deps/kpt-functions/kpt-functions-0.0.1.tgz',
         docker_repo_base: dockerRepoBase,
       },
     },

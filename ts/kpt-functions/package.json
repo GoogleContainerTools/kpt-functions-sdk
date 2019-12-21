@@ -1,9 +1,14 @@
 {
-  "name": "kpt-functions",
-  "version": "0.0.1",
-  "description": "Framework library used by kpt functions",
-  "author": "kpt Authors",
+  "name": "@googlecontainertools/kpt-functions",
+  "version": "0.1.0",
+  "description": "KPT functions framework library",
+  "author": "KPT Authors",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:GoogleContainerTools/kpt-functions-sdk.git",
+    "directory": "ts/kpt-functions"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

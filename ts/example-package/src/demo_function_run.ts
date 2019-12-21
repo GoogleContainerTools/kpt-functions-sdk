@@ -1,4 +1,4 @@
 import { demoFunction } from './demo_function';
-import { run } from 'kpt-functions';
+import { run } from '@googlecontainertools/kpt-functions';
 
 run(demoFunction);

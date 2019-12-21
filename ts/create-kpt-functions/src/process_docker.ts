@@ -15,7 +15,7 @@
  */
 
 import { spawnSync } from 'child_process';
-import { copySync, removeSync } from 'fs-extra';
+import { removeSync } from 'fs-extra';
 import * as glob from 'glob';
 import * as path from 'path';
 import { SOURCE_DIR, BUILD_DIR, DEPS_DIR, WORKFLOWS_DIR } from './constants';
@@ -56,9 +56,6 @@ export function processDocker(packageDir: string, dockerTag: string, func: Funct
   const workflowsDir = path.join(packageDir, WORKFLOWS_DIR);
 
   try {
-    // TODO(b/141115380): Remove this hack when NPM packages are published.
-    copySync('/deps', depsDir, { dereference: true, recursive: false });
-
     const dockerFiles = glob.sync(path.join(buildDir, '*.Dockerfile'));
     log(`Found ${dockerFiles.length} Dockerfile(s).\n`);
 

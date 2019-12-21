@@ -24,7 +24,7 @@ import * as validator from './validator';
 
 // Create a function in an NPM package. Overwrite the function if it exists.
 export function addFunc(appDir: string) {
-  const desc = 'Adding a kpt function.';
+  const desc = 'Adding a KPT function.';
   log(format.startMarker(desc));
 
   const defaultFuncName = 'demo_function';

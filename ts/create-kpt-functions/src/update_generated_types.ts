@@ -26,6 +26,7 @@ import { TYPEGEN_BIN } from './constants';
 import * as format from './format';
 import { log } from './log';
 import * as validator from './validator';
+import { failure } from './format';
 
 /**
  * updateGeneratedTypes asks the user to pick a kubeconfig context, gets CRDs from that context, and then generates
@@ -41,6 +42,11 @@ export async function updateGeneratedTypes(packageDir: string) {
   kc.loadFromDefault();
 
   const contexts = kc.contexts;
+  if (contexts.length == 0) {
+    log(failure('No contexts found in kubeconfig file. Please set a context entry in kubeconfig.'));
+    process.exit(1);
+  }
+
   const currentContext = kc.currentContext;
   const contextIdx = chooseContext(contexts, currentContext);
   const useContext = contexts[contextIdx];
@@ -73,9 +79,8 @@ export async function updateGeneratedTypes(packageDir: string) {
 }
 
 function chooseContext(contexts: Context[], currentContext: string): number {
-  // Is -1 if current context is not set.
-  const currentContextIndex = contexts.findIndex((c) => c.name === currentContext);
-  log('Contexts:');
+  const defaultContext = contexts.findIndex((c) => c.name === currentContext) || 0;
+  log('Contexts:\n');
   contexts.forEach((c, idx) => {
     if (c.name === currentContext) {
       // Will match no contexts if current context is not set.
@@ -84,29 +89,13 @@ function chooseContext(contexts: Context[], currentContext: string): number {
       log(`${idx}) ${c.name}`);
     }
   });
-
-  log('');
-  let idxValidator = validator.isEmptyOrMaxInt(contexts.length - 1);
-  if (currentContextIndex === -1) {
-    idxValidator = (s: string) => {
-      if (!idxValidator(s)) {
-        return false;
-      }
-      if (s === '') {
-        log(`Current context not found. Must specify a context.`);
-        return false;
-      }
-      return true;
-    };
-  }
+  log();
 
   const context = validator.getValidString(
     () =>
-      question(
-        `> What is the kubeconfig context in which to create types (${currentContextIndex})? `,
-      ),
-    idxValidator,
-    currentContextIndex.toString(),
+      question(`> What is the kubeconfig context in which to create types (${defaultContext})? `),
+    validator.isEmptyOrMaxInt(contexts.length - 1),
+    defaultContext.toString(),
   );
 
   log(`Using kubeconfig context "${context}".\n`);

@@ -23,6 +23,10 @@ test-e2e:
 vet:
 	go vet ./...
 
-publish: all
+publish-functions: all
 	./scripts/publish-functions.sh
+
+publish-typegen: all
+	go install ./cmd/typegen
+	cp $(GOPATH)/bin/typegen ../ts/create-kpt-functions/bin/
 

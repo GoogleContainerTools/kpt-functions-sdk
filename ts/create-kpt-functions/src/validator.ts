@@ -72,7 +72,11 @@ export function isValidDirectory(path: string): boolean {
   }
 
   const files = fs.readdirSync(path);
-  return files.filter((n) => n.charAt(0) !== '.').length <= 0;
+  if (files.length > 0) {
+    log(failure(`Directory must be empty. Found: ${files}`));
+    return false;
+  }
+  return true;
 }
 
 export function isValidPackageName(name: string): boolean {
@@ -93,9 +97,9 @@ export function isValidPackageName(name: string): boolean {
  *
  * Validates each potential name readString provides.
  *
- * @param defaultString The initial value to suggest to the user.
  * @param isValid A predicate which returns true if the passed string is valid.
  * @param readString A callback producing a string to be validated.
+ * @param defaultString The initial value to suggest to the user.
  */
 export function getValidString(
   readString: () => string,
@@ -145,7 +149,7 @@ export function toDockerName(funcName: string): string {
 
 export function isEmptyOrMaxInt(max: number): (s: string) => boolean {
   return (s: string) => {
-    if (s === '' || validator.isInt(s, { max: max })) {
+    if (validator.isInt(s, { min: 0, max: max })) {
       return true;
     }
     log(`Must enter a number from 0 to ${max}.`);
