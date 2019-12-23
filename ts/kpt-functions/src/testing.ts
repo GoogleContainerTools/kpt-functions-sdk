@@ -58,7 +58,7 @@ class TestCase {
   public run(): () => void {
     return () => {
       // We must clone the input as runner.fn may mutate its input Configs.
-      const configs = JSON.parse(JSON.stringify(this.input));
+      const configs = deepClone(this.input);
 
       let configError: ConfigError | void;
       let caughtException = false;
@@ -96,7 +96,18 @@ class TestCase {
       //  We know the configs are sorted, but not elements of sub-fields which are arrays.
       //  The comparison doesn't try to smartly find plausible near-misses in the case of missing
       //  elements, so missing the first element of 8 will throw a large, hard-to-read error message.
-      expect(configs).toEqual(this.expectedOutput || this.input);
+      expect(valueOf(configs)).toEqual(valueOf(this.expectedOutput) || valueOf(this.input));
     };
   }
+}
+
+function deepClone(configs: Configs): Configs {
+  const items = JSON.parse(JSON.stringify(configs.getAll()));
+  const functionConfig =
+    configs.getFunctionConfig() && JSON.parse(JSON.stringify(configs.getFunctionConfig()));
+  return new Configs(items, functionConfig);
+}
+
+function valueOf(configs?: Configs) {
+  return configs && JSON.parse(JSON.stringify(configs.getAll()));
 }

@@ -7,20 +7,13 @@
     "watch": "tsc --watch",
     "clean": "rm -Rf node_modules/ dist/",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
-    "kpt": "node node_modules/@googlecontainertools/create-kpt-functions/dist/cli.js",
-    "kpt:type-create": "npm run kpt type-create",
-    "kpt:function-create": "npm run kpt function-create",
-    "kpt:docker-create": "npm run kpt docker-create",
-    "kpt:docker-build": "npm test && npm run kpt docker-build",
-    "kpt:docker-push": "npm run kpt docker-push",
-    "kpt:docker-publish": "npm run kpt docker-build && npm run kpt docker-push",
-    "kpt:workflow-create": "npm run kpt workflow-create"
+    "kpt": "node node_modules/@googlecontainertools/create-kpt-functions/dist/cli.js"
   },
   "dependencies": {
-    "@googlecontainertools/kpt-functions": "^0.1.0"
+    "@googlecontainertools/kpt-functions": "^0.5.0"
   },
   "devDependencies": {
-    "@googlecontainertools/create-kpt-functions": "^0.3.0",
+    "@googlecontainertools/create-kpt-functions": "^0.6.0",
     "@types/jasmine": "^3.3.12",
     "@types/node": "^12.7.2",
     "jasmine": "^3.4.0",
