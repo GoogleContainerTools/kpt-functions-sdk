@@ -1,6 +1,6 @@
-import { KptFunc } from "@googlecontainertools/kpt-functions";
+import { KptFunc } from '@googlecontainertools/kpt-functions';
 
-export const demoFunction: KptFunc = configs => {
+export const demoFunction: KptFunc = (configs) => {
   // TODO: implement.
 };
 
