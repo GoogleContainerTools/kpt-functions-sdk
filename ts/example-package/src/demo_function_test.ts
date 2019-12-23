@@ -1,4 +1,4 @@
-import { Configs } from 'kpt-functions';
+import { Configs } from '@googlecontainertools/kpt-functions';
 import { demoFunction } from './demo_function';
 
 describe('demoFunction', () => {

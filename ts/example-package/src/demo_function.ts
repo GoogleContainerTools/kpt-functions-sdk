@@ -1,4 +1,4 @@
-import { KptFunc } from 'kpt-functions';
+import { KptFunc } from '@googlecontainertools/kpt-functions';
 
 export const demoFunction: KptFunc = (configs) => {
   // TODO: implement.

@@ -30,9 +30,12 @@ fi
 
 export KUBECONFIG="$(kind get kubeconfig-path --name="recreate-example-pkg")"
 
-cd ts
+cd ts/create-kpt-functions
+npm run build
+
+cd ..
 rm -rf example-package
 mkdir example-package
 cd example-package
 
-npm init kpt-functions
+./../create-kpt-functions/dist/cli.js

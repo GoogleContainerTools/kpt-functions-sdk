@@ -1,14 +1,21 @@
 {
-  "name": "create-kpt-functions",
-  "version": "0.0.1",
-  "description": "CLI for creating and modifying kpt functions packages.",
-  "author": "kpt Authors",
+  "name": "@googlecontainertools/create-kpt-functions",
+  "version": "0.3.0",
+  "description": "KPT functions CLI",
+  "author": "KPT Authors",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:GoogleContainerTools/kpt-functions-sdk.git",
+    "directory": "ts/create-kpt-functions"
+  },
   "bin": {
     "create-kpt-functions": "dist/cli.js"
   },
   "files": [
-    "dist/**/*"
+    "bin/typegen",
+    "dist/**/*",
+    "templates/**/*"
   ],
   "scripts": {
     "prepare": "npm run build",

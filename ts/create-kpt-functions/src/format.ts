@@ -27,7 +27,7 @@ export function success(s: string): string {
  * Formats an input string to indicate an error condition.
  */
 export function failure(s: string): string {
-  return chalk.underline(chalk.red(chalk.bold(s)));
+  return chalk.red(chalk.bold(s));
 }
 
 /**

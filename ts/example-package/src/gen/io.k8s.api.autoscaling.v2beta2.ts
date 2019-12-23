@@ -1,4 +1,4 @@
-import { KubernetesObject } from 'kpt-functions';
+import { KubernetesObject } from '@googlecontainertools/kpt-functions';
 import * as pkgApiResource from './io.k8s.apimachinery.pkg.api.resource';
 import * as apisMetaV1 from './io.k8s.apimachinery.pkg.apis.meta.v1';
 

@@ -7,18 +7,20 @@
     "watch": "tsc --watch",
     "clean": "rm -Rf node_modules/ dist/",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
-    "kpt:type-create": "npm init kpt-functions type-create",
-    "kpt:function-create": "npm init kpt-functions function-create",
-    "kpt:docker-create": "npm init kpt-functions docker-create",
-    "kpt:docker-build": "npm test && npm init kpt-functions docker-build",
-    "kpt:docker-push": "npm init kpt-functions docker-push",
-    "kpt:docker-publish": "npm init kpt-functions docker-build && npm init kpt-functions docker-push",
-    "kpt:workflow-create": "npm init kpt-functions workflow-create"
+    "kpt": "node node_modules/@googlecontainertools/create-kpt-functions/dist/cli.js",
+    "kpt:type-create": "npm run kpt type-create",
+    "kpt:function-create": "npm run kpt function-create",
+    "kpt:docker-create": "npm run kpt docker-create",
+    "kpt:docker-build": "npm test && npm run kpt docker-build",
+    "kpt:docker-push": "npm run kpt docker-push",
+    "kpt:docker-publish": "npm run kpt docker-build && npm run kpt docker-push",
+    "kpt:workflow-create": "npm run kpt workflow-create"
   },
   "dependencies": {
-    "kpt-functions": "{{{kpt_functions_path}}}"
+    "@googlecontainertools/kpt-functions": "^0.1.0"
   },
   "devDependencies": {
+    "@googlecontainertools/create-kpt-functions": "^0.3.0",
     "@types/jasmine": "^3.3.12",
     "@types/node": "^12.7.2",
     "jasmine": "^3.4.0",
