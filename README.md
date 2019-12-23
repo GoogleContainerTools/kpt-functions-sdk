@@ -190,17 +190,17 @@ Functions can be piped to form sophisticated pipelines, for example:
 ```console
 git clone git@github.com:frankfarzan/foo-corp-configs.git
 
-docker pull gcr.io/kpt-functions/source-yaml-dir
-docker pull gcr.io/kpt-functions/recommend-psp
-docker pull gcr.io/kpt-functions/hydrate-anthos-team
+docker pull gcr.io/kpt-functions/read-yaml
+docker pull gcr.io/kpt-functions/mutate-psp
+docker pull gcr.io/kpt-functions/expand-team-cr
 docker pull gcr.io/kpt-functions/validate-rolebinding
-docker pull gcr.io/kpt-functions/sink-yaml-dir
+docker pull gcr.io/kpt-functions/write-yaml
 
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/source  gcr.io/kpt-functions/source-yaml-dir --input /dev/null -d source_dir=/source |
-docker run -i gcr.io/kpt-functions/recommend-psp |
-docker run -i gcr.io/kpt-functions/hydrate-anthos-team |
+docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/source  gcr.io/kpt-functions/read-yaml --input /dev/null -d source_dir=/source |
+docker run -i gcr.io/kpt-functions/mutate-psp |
+docker run -i gcr.io/kpt-functions/expand-team-cr |
 docker run -i gcr.io/kpt-functions/validate-rolebinding -d subject_name=alice@foo-corp.com |
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/sink gcr.io/kpt-functions/sink-yaml-dir -output /dev/null -d sink_dir=/sink -d overwrite=true
+docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/sink gcr.io/kpt-functions/write-yaml -output /dev/null -d sink_dir=/sink -d overwrite=true
 ```
 
 Let's walk through each step:
