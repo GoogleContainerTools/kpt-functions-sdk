@@ -1,11 +1,19 @@
-## Build
+## Build all
 
-```bash
+```console
 make
 ```
 
 ## Publish docker images
 
-```bash
-make publish
+```console
+make publish-functions
+```
+
+## Update typegen binary
+
+To updated typgen binary in `create-kpt-functions` package:
+
+```console
+make publish-typegen
 ```
