@@ -1,6 +1,6 @@
 {
   "name": "@googlecontainertools/kpt-functions",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "KPT functions framework library",
   "author": "KPT Authors",
   "license": "Apache-2.0",

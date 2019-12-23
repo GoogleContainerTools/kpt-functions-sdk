@@ -107,50 +107,12 @@ To run the tests:
 npm test
 ```
 
-### Running a KPT function during development
-
-You can run a KPT function on an existing directory of YAML configs.
-
-The general form is:
-
-```console
-npm run kpt:function-run -- my_func --source_dir=[source_dir] --sink_dir=[sink_dir] [PARAMS]
-```
-
-where parameters are of the form:
-
-```console
---param1=value1 --param2=value2
-```
-
-Sample usage below. The '--' before arguments passed to the script are required.
-
-```console
-npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --sink_dir=output-dir/ -d subject_name=alice@foo-corp.com
-```
-
-You can choose to overwrite source YAML files by passing `--overwrite`.
-
-```console
-npm run kpt:function-run -- validate_rolebinding --source_dir=path/to/configs/dir/ --overwrite -d subject_name=alice@foo-corp.com
-```
-
-If `--sink_dir` is defined, overwrites YAML files in `--sink_dir`.
-If `--sink_dir` is not defined, overwrites YAML files in `--source_dir`.
-
-If enabled, recursively looks for all YAML files in the directory to overwrite.
-
-1. If would write KubernetesObjects to a file that does not exist, creates the file.
-2. If would modify the contents of a file, modifies the file.
-3. If would not modify the contents of a YAML file, does nothing.
-4. If would write no KubernetesObjects to a file, deletes the YAML file if it exists.
-
 ### Adding a new KPT function
 
 To add a new KPT functions to an existing package, run:
 
 ```console
-npm run kpt:function-create
+npm run kpt function-create
 ```
 
 ### Generating client types
@@ -158,7 +120,7 @@ npm run kpt:function-create
 If want to generate or update existing classes for core and CRD types that exist on one of your clusters:
 
 ```console
-npm run kpt:type-create
+npm run kpt type-create
 ```
 
 ### Publishing functions
@@ -166,20 +128,22 @@ npm run kpt:type-create
 To build and push docker images for all the functions in the package:
 
 ```console
-npm run kpt:docker-publish
+npm run kpt docker-build
+npm run kpt docker-push
 ```
 
 This uses the `docker_repo_base` from `package.json` file and configured during initialization. The default value for docker image tag is `dev`. This can be overriden using`--tag` flag:
 
 ```console
-npm run kpt:docker-publish -- --tag=latest
+npm run kpt docker-build -- --tag=latest
+npm run kpt docker-publish -- --tag=latest
 ```
 
 ## Running KPT functions
 
 ### Using `docker run`
 
-After `kpt:docker-publish` completes, you can now run the function using `docker run`:
+After completing `docker-push` step above, you can now run the function using `docker run`:
 
 ```console
 docker run my-docker-repo/my-func:dev --help
