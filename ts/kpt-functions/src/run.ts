@@ -21,6 +21,8 @@ import { KptFunc, isConfigError, KubernetesObject } from './types';
 const INVOCATIONS = `
 Example invocations:
 
+  1. Using regular files:
+
   $ FUNC --input in.yaml --output out.yaml
 
   2. Print to stdout:
