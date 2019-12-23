@@ -15,7 +15,6 @@
  */
 
 import { fail } from 'assert';
-import * as _ from 'lodash';
 import { ConfigError, Configs, isConfigError, KptFunc } from './types';
 
 /**
@@ -59,7 +58,7 @@ class TestCase {
   public run(): () => void {
     return () => {
       // We must clone the input as runner.fn may mutate its input Configs.
-      const configs = _.cloneDeep(this.input);
+      const configs = JSON.parse(JSON.stringify(this.input));
 
       let configError: ConfigError | void;
       let caughtException = false;
