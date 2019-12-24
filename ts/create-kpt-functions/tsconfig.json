@@ -17,5 +17,5 @@
     "rootDir": "src/"
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*", "cmd/create_package.ts", "cmd/add_func.ts"]
+  "include": ["src/**/*"]
 }
