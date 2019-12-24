@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-import { resolve } from 'path';
+import { spawnSync } from 'child_process';
+import { processDocker } from './docker_create';
+import { log } from '../utils/log';
 
-// Path to the typegen binary.
-export const TYPEGEN_BIN = resolve(__dirname, '..', 'bin', 'typegen');
-
-// Top-level directories within user packages.
-export const SOURCE_DIR = 'src';
-export const BUILD_DIR = 'build';
-export const DEPS_DIR = 'deps';
-export const WORKFLOWS_DIR = 'workflows';
+export function dockerBuild(packageDir: string, dockerTag: string) {
+  log('Building image...\n');
+  processDocker(packageDir, dockerTag, (dockerFile, functionName, image) => {
+    const build = spawnSync('docker', ['build', '-q', '-t', image, '-f', dockerFile, '.'], {
+      stdio: 'inherit',
+    });
+    if (build.status !== 0) {
+      process.exit(1);
+    }
+  });
+}

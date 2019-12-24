@@ -17,16 +17,13 @@
 
 import { ArgumentParser } from 'argparse';
 import { resolve } from 'path';
-import { createPackage } from './create_package';
-import { updateGeneratedTypes } from './update_generated_types';
-import { addFunc } from './add_func';
-import {
-  buildFunc,
-  createDockerfiles,
-  pushFunc,
-  genWorkflowConfig,
-  processDocker,
-} from './process_docker';
+import { packageCreate } from './cmd/package_create';
+import { typeCreate } from './cmd/type_create';
+import { functionCreate } from './cmd/function_create';
+import { dockerCreate } from './cmd/docker_create';
+import { dockerBuild } from './cmd/docker_build';
+import { dockerPush } from './cmd/docker_push';
+import { workflowCreate } from './cmd/workflow_create';
 
 async function main() {
   // TODO: Add usage examples.
@@ -56,23 +53,23 @@ async function main() {
   });
 
   const dockerBuildHelp = 'Build docker images for all functions.';
-  const dockerBuild = subparsers.addParser('docker-build', {
+  const db = subparsers.addParser('docker-build', {
     addHelp: true,
     description: dockerBuildHelp,
     help: dockerBuildHelp,
   });
-  dockerBuild.addArgument('--tag', {
+  db.addArgument('--tag', {
     defaultValue: 'dev',
     help: 'Docker tag used for all function images.',
   });
 
   const dockerPushHelp = 'Push docker images to the registry for all functions.';
-  const dockerPush = subparsers.addParser('docker-push', {
+  const dp = subparsers.addParser('docker-push', {
     addHelp: true,
     description: dockerPushHelp,
     help: dockerPushHelp,
   });
-  dockerPush.addArgument('--tag', {
+  dp.addArgument('--tag', {
     defaultValue: 'dev',
     help: 'Docker tag used for all function images.',
   });
@@ -93,12 +90,12 @@ async function main() {
 
   const workflowCreateHelp =
     'Generate workflow configs for all functions. Overwrite configs if they exist.';
-  const workflowCreate = subparsers.addParser('workflow-create', {
+  const wc = subparsers.addParser('workflow-create', {
     addHelp: true,
     description: workflowCreateHelp,
     help: workflowCreateHelp,
   });
-  workflowCreate.addArgument('--tag', {
+  wc.addArgument('--tag', {
     defaultValue: 'dev',
     help: 'Docker tag used for all function images.',
   });
@@ -114,25 +111,25 @@ async function main() {
   // TODO(b/141943296): Ensure subcommands handle choosing the package directory
   switch (args.subcommand) {
     case 'package-create':
-      await createPackage();
+      await packageCreate();
       break;
     case 'type-create':
-      await updateGeneratedTypes(resolve('.'));
+      await typeCreate(resolve('.'));
       break;
     case 'function-create':
-      addFunc(resolve('.'));
+      functionCreate(resolve('.'));
       break;
     case 'docker-create':
-      createDockerfiles(resolve('.'));
+      dockerCreate(resolve('.'));
       break;
     case 'docker-build':
-      processDocker(resolve('.'), args.get('tag'), buildFunc);
+      dockerBuild(resolve('.'), args.get('tag'));
       break;
     case 'docker-push':
-      processDocker(resolve('.'), args.get('tag'), pushFunc);
+      dockerPush(resolve('.'), args.get('tag'));
       break;
     case 'workflow-create':
-      processDocker(resolve('.'), args.get('tag'), genWorkflowConfig);
+      workflowCreate(resolve('.'), args.get('tag'));
       break;
     default:
       parser.exit(1, 'invalid args');

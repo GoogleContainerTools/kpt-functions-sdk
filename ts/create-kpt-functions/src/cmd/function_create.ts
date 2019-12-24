@@ -16,14 +16,13 @@
 
 import { question } from 'cli-interact';
 import * as path from 'path';
-import { SOURCE_DIR } from './constants';
-import * as format from './format';
-import { log } from './log';
-import { Templates } from './templates';
-import * as validator from './validator';
+import { USER_PACKAGE } from '../paths';
+import * as format from '../utils/format';
+import { log } from '../utils/log';
+import { Templates } from '../utils/templates';
+import * as validator from '../utils/validator';
 
-// Create a function in an NPM package. Overwrite the function if it exists.
-export function addFunc(appDir: string) {
+export function functionCreate(appDir: string) {
   const desc = 'Adding a KPT function.';
   log(format.startMarker(desc));
 
@@ -38,7 +37,7 @@ export function addFunc(appDir: string) {
 
   const tsFuncName = validator.toTSName(funcName);
 
-  const srcDir = path.join(appDir, SOURCE_DIR);
+  const srcDir = path.join(appDir, USER_PACKAGE.src);
 
   new Templates([
     {

@@ -16,10 +16,9 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { render } from 'mustache';
-import { dirname, isAbsolute, join, resolve } from 'path';
+import { dirname, isAbsolute, join } from 'path';
+import { CLI_PACKAGE } from '../paths';
 import { log } from './log';
-
-const TEMPLATE_DIR = resolve(__dirname, '..', 'templates');
 
 interface Template {
   // Template file relative to TEMPLATE_DIR
@@ -36,7 +35,7 @@ export class Templates {
 
   public render() {
     for (const t of this.templates) {
-      const before = readFileSync(join(TEMPLATE_DIR, t.templateFile), 'utf8').toString();
+      const before = readFileSync(join(CLI_PACKAGE.templates, t.templateFile), 'utf8').toString();
       const after = t.view ? render(before, t.view) : before;
       if (!isAbsolute(t.outputPath)) {
         throw new Error(`outputPath must be absolute: ${t.outputPath}`);

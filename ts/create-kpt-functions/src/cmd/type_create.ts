@@ -22,18 +22,13 @@ import { mkdtempSync, unlinkSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { resolve } from 'path';
 import * as request from 'request-promise';
-import { TYPEGEN_BIN } from './constants';
-import * as format from './format';
-import { log } from './log';
-import * as validator from './validator';
-import { failure } from './format';
+import { CLI_PACKAGE } from '../paths';
+import * as format from '../utils/format';
+import { log } from '../utils/log';
+import * as validator from '../utils/validator';
+import { failure } from '../utils/format';
 
-/**
- * updateGeneratedTypes asks the user to pick a kubeconfig context, gets CRDs from that context, and then generates
- * Typescript client code from them.
- * @param packageDir The root directory of the NPM package..
- */
-export async function updateGeneratedTypes(packageDir: string) {
+export async function typeCreate(packageDir: string) {
   const desc = 'Generating types from OpenAPI spec.';
   log(format.startMarker(desc));
 
@@ -68,7 +63,7 @@ export async function updateGeneratedTypes(packageDir: string) {
   try {
     writeFileSync(swaggerFile, out);
     // Generate types.
-    execSync(`${TYPEGEN_BIN} ${swaggerFile} ${typegenOutDir}`);
+    execSync(`${CLI_PACKAGE.typegen} ${swaggerFile} ${typegenOutDir}`);
     log(`Generated ${typegenOutDir}`);
   } finally {
     // Delete swagger.json.
