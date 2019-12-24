@@ -17,23 +17,23 @@
 import { question } from 'cli-interact';
 import * as path from 'path';
 import { isEmpty } from 'validator';
-import { addFunc } from './add_func';
-import * as format from './format';
-import { log } from './log';
-import { createDockerfiles } from './process_docker';
-import { Templates } from './templates';
-import { updateGeneratedTypes } from './update_generated_types';
-import * as validator from './validator';
+import { functionCreate } from './function_create';
+import * as format from '../utils/format';
+import { log } from '../utils/log';
+import { dockerCreate } from './docker_create';
+import { Templates } from '../utils/templates';
+import { typeCreate } from './type_create';
+import * as validator from '../utils/validator';
 
-export async function createPackage() {
-  const pkgDir = initializePackage();
+export async function packageCreate() {
+  const pkgDir = initPackage();
 
   // TODO(b/142241787): Don't just crash if type generation fails. Handle this gracefully.
   // TODO(b/142242496): Add option to skip type generation.
-  await updateGeneratedTypes(pkgDir);
+  await typeCreate(pkgDir);
 
-  addFunc(pkgDir);
-  createDockerfiles(pkgDir);
+  functionCreate(pkgDir);
+  dockerCreate(pkgDir);
 
   log(
     format.success('\nSuccess!') +
@@ -41,7 +41,7 @@ export async function createPackage() {
   );
 }
 
-export function initializePackage() {
+function initPackage() {
   const desc = 'Initializing the NPM package';
   log(format.startMarker(desc));
 
