@@ -38,4 +38,4 @@ rm -rf example-package
 mkdir example-package
 cd example-package
 
-./../create-kpt-functions/dist/cli.js
+node ./../create-kpt-functions/dist/cli.js
