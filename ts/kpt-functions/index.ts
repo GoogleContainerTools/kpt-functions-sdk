@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+export * from './src/errors';
 export * from './src/io';
 export * from './src/metadata';
 export * from './src/run';
