@@ -15,7 +15,8 @@
  */
 
 import { fail } from 'assert';
-import { ConfigError, Configs, isConfigError, KptFunc } from './types';
+import { Configs, KptFunc } from './types';
+import { ConfigError } from './errors';
 
 /**
  * TestRunner generates callbacks for test frameworks to execute as tests.
@@ -33,7 +34,7 @@ export class TestRunner {
    *   By default assumes an empty set of Configs.
    * @param expectedOutput is the expected resulting Configs or ConfigError produced by the KptFunc.
    *   If undefined, assumes the output should remain unchanged.
-   * @param expectException indicates that KptFunc is expected to throw an exception if true.
+   * @param expectException indicates that KptFunc is expected to throw an exception.
    */
   run(
     input: Configs = new Configs(),
@@ -60,35 +61,33 @@ class TestCase {
       // We must clone the input as runner.fn may mutate its input Configs.
       const configs = deepClone(this.input);
 
-      let configError: ConfigError | void;
-      let caughtException = false;
+      let out: ConfigError | void;
+      let err = false;
       try {
-        configError = this.fn(configs);
+        out = this.fn(configs);
       } catch (e) {
         // The KptFunc threw an exception.
-        caughtException = true;
+        err = true;
         if (!this.expectException) {
           // We didn't expect an exception, but got one.
           fail(`Unexpected exception: ${e.toString()}`);
         }
       } finally {
-        if (this.expectException && !caughtException) {
+        if (this.expectException && !err) {
           fail('Expected exception.');
         }
       }
 
-      if (isConfigError(this.expectedOutput)) {
-        // We expect an error.
-        if (isConfigError(configError)) {
-          // We got an error.
-          // TODO(b/142072352): More fine-grained checking of the actual error thrown may be required. As-is just
-          //  answers "yes, a ConfigError was expected and one was thrown."
+      if (this.expectedOutput instanceof ConfigError) {
+        if (out instanceof ConfigError) {
+          // We got an excected error.
+          // This only checks message string not any specific properties in child classes of ConfigError.
+          expect(out).toEqual(this.expectedOutput);
+          return;
         } else {
-          // We did not get an error.
           fail('Expected ConfigError but got undefined.');
         }
-        return;
-      } else if (isConfigError(configError)) {
+      } else if (out instanceof ConfigError) {
         fail('Unexpected ConfigError');
       }
 

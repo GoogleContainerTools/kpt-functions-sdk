@@ -136,7 +136,7 @@ This uses the `docker_repo_base` from `package.json` file and configured during 
 
 ```console
 npm run kpt docker-build -- --tag=latest
-npm run kpt docker-publish -- --tag=latest
+npm run kpt docker-push -- --tag=latest
 ```
 
 ## Running KPT functions
@@ -198,7 +198,7 @@ You should see these changes:
 KPT functions can be run using `kustomize` as [documented here][4].
 
 [0]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
-[1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/latest-functions/src
+[1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
 [2]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
 [3]: https://code.visualstudio.com/
 [4]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md

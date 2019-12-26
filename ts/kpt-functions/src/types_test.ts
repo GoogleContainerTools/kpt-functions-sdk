@@ -16,7 +16,7 @@
 
 import _ from 'lodash';
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
-import { ConfigError, Configs, isConfigError, KubernetesObject } from './types';
+import { Configs, KubernetesObject } from './types';
 
 class Role implements KubernetesObject {
   public readonly apiVersion: string = 'rbac.authorization.k8s.io/v1';
@@ -266,19 +266,5 @@ describe('functionConfig', () => {
     expect(configs.getFunctionConfig()).toEqual(r1);
     expect(() => configs.getFunctionConfigValue('k1')).toThrow();
     expect(() => configs.getFunctionConfigValueOrThrow('k1')).toThrow();
-  });
-});
-
-describe('isConfigError', () => {
-  it('returns false for undefined', () => {
-    expect(isConfigError(undefined)).toBe(false);
-  });
-
-  it('returns true for ConfigError', () => {
-    expect(isConfigError(new ConfigError(''))).toBe(true);
-  });
-
-  it('returns false for empty object', () => {
-    expect(isConfigError({})).toBe(false);
   });
 });

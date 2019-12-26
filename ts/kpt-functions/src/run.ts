@@ -16,7 +16,8 @@
 
 import { ArgumentParser, RawTextHelpFormatter } from 'argparse';
 import { FileFormat, readConfigs, writeConfigs } from './io';
-import { KptFunc, isConfigError, KubernetesObject } from './types';
+import { KptFunc, KubernetesObject } from './types';
+import { ConfigError } from './errors';
 
 const INVOCATIONS = `
 Example invocations:
@@ -54,7 +55,11 @@ Example invocations:
 
   $ cat in.yaml | FUNC --function-config-literal=key1=value1 --function-config-literal=key2=value2 
 `;
-const CONFIG_ERROR_EXIT_CODE = 1;
+
+export enum ExitCode {
+  CONFIG_ERROR = 1,
+  EXCEPTION_ERROR,
+}
 
 /**
  * Executes the KptFunc. This is the main entrypoint for all kpt functions.
@@ -108,24 +113,25 @@ Use this ONLY if the function accepts a ConfigMap.`,
 
   // Parse Config.
   let configs = readConfigs(inputFile, fileFormat, functionConfig);
-  if (isConfigError(configs)) {
-    configs.log();
-    process.exitCode = CONFIG_ERROR_EXIT_CODE;
-    return;
-  }
 
   // Run the function.
-  const funcErr = fn(configs);
-  if (isConfigError(funcErr)) {
-    funcErr.log();
-    process.exitCode = CONFIG_ERROR_EXIT_CODE;
+  try {
+    const err = fn(configs);
+    if (err) {
+      throw err;
+    }
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.error(err.toString());
+      process.exitCode = ExitCode.CONFIG_ERROR;
+    } else {
+      console.error(err);
+      process.exitCode = ExitCode.EXCEPTION_ERROR;
+    }
     return;
   }
 
   // Write output.
-  // TODO(frankf): When writing to stdout, the function MUST NOT pollute the stdout by e.g. using
-  // the global console.log. Explore the best way to handle this pitfall.
-  // One possible solution: Framework provides a logger that prints to stderr.
   writeConfigs(outputFile, configs, fileFormat);
 }
 

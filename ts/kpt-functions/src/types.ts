@@ -15,17 +15,19 @@
  */
 
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
-import { getAnnotation, SOURCE_PATH_ANNOTATION } from './metadata';
+import { ConfigError } from './errors';
 
 /**
  * Interface describing KPT functions.
  */
 export interface KptFunc {
   /**
-   * A function reads and potentially mutates configuration objects using the {@link Configs}.
+   * A function consumes and optionally mutates configuration objects using the Configs object.
    *
-   * Returns a {@link ConfigError} if there are non-exceptional issues with the configs.
-   * For operational errors such as IO operation failures, throw errors instead of returning a ConfigError.
+   * The function should return a ConfigError when encountering one or more configuration-related issues.
+   * This includes encountering invalid input for validation use cases.
+   *
+   * The function can throw any other error types when encountering operational issues such as IO exceptions.
    */
   (configs: Configs): void | ConfigError;
 
@@ -248,55 +250,6 @@ export function isKubernetesObject(o: any): o is KubernetesObject {
 export function kubernetesKeyFn(o: KubernetesObject): string {
   const namespace = o.metadata.namespace || '';
   return `${o.apiVersion}/${o.kind}/${namespace}/${o.metadata.name}`;
-}
-
-/**
- * Represents a non-exceptional issue with configuration.
- *
- * For operational errors such as IO operation failures, throw errors instead of returning a ConfigError.
- */
-export class ConfigError {
-  public readonly error: string;
-
-  constructor(error: string, detail?: any) {
-    if (detail) {
-      this.error = `${error}: ${detail}`;
-    } else {
-      this.error = error;
-    }
-  }
-
-  public toString(): string {
-    return this.error;
-  }
-
-  public log(): void {
-    console.error(this.toString());
-  }
-}
-
-/**
- * Type guard for ConfigError.
- */
-export function isConfigError(o: any): o is ConfigError {
-  return o instanceof ConfigError;
-}
-
-export function newManifestError(msg: string, ...objects: KubernetesObject[]): ConfigError {
-  return new ConfigError(msg, objects.map(printManifest).join('\n'));
-}
-
-function printManifest(o: KubernetesObject): string {
-  const file = getAnnotation(o, SOURCE_PATH_ANNOTATION) || '[no source file]';
-  const namespace = o.metadata.namespace || '';
-  return `
-
-file: "${file}"
-apiVersion: "${o.apiVersion}"
-kind: "${o.kind}"
-metadata.namespace: "${namespace}"
-metadata.name: "${o.metadata.name}"
-`;
 }
 
 interface ConfigMap extends KubernetesObject {
