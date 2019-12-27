@@ -49,14 +49,14 @@ Example invocations:
   $ cat in.yaml | FUNC -f run1.yaml
   $ cat in.yaml | FUNC -f run2.yaml
 
-  7. Overriding 'functionConfig' filed using key/value literals:
+  7. Overriding 'functionConfig' field using key/value literals:
   
-  A convinient way to populate the functionConfig if it's a ConfigMap.
+  A convenient way to populate the functionConfig if it's a ConfigMap.
 
   $ cat in.yaml | FUNC -d key1=value1 -d key2=value2
 `;
 
-export enum ExitCode {
+enum ExitCode {
   CONFIG_ERROR = 1,
   EXCEPTION_ERROR,
 }
@@ -111,24 +111,33 @@ Use this ONLY if the function accepts a ConfigMap.`,
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
 
-  // Parse Config.
-  let configs = readConfigs(inputFile, fileFormat, functionConfig);
-
-  // Run the function.
   try {
-    const err = fn(configs);
-    if (err) {
-      throw err;
-    }
+    runFn(fn, inputFile, outputFile, fileFormat, functionConfig);
   } catch (err) {
     if (err instanceof ConfigError) {
       console.error(err.toString());
       process.exitCode = ExitCode.CONFIG_ERROR;
     } else {
-      console.error(err);
+      console.error(err.stack);
       process.exitCode = ExitCode.EXCEPTION_ERROR;
     }
-    return;
+  }
+}
+
+function runFn(
+  fn: KptFunc,
+  inputFile: string,
+  outputFile: string,
+  fileFormat: FileFormat,
+  functionConfig?: string | KubernetesObject,
+) {
+  // Parse Config.
+  let configs = readConfigs(inputFile, fileFormat, functionConfig);
+
+  // Run the function.
+  const err = fn(configs);
+  if (err) {
+    throw err;
   }
 
   // Write output.
