@@ -18,12 +18,12 @@ import * as path from 'path';
 import { USER_PACKAGE } from '../paths';
 import { log } from '../utils/log';
 import { Templates } from '../utils/templates';
-import { processDocker } from './docker_create';
+import { processDockerfile } from './docker_create';
 
 export function workflowCreate(packageDir: string, dockerTag: string) {
   log('\nGenerating workflow configs...\n');
   const workflowsDir = path.join(packageDir, USER_PACKAGE.workflows);
-  processDocker(packageDir, dockerTag, (dockerFile, functionName, image) => {
+  processDockerfile(packageDir, dockerTag, (dockerFile, functionName, image) => {
     new Templates([
       {
         outputPath: path.join(workflowsDir, 'argo', `${functionName}.yaml`),

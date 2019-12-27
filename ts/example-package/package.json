@@ -25,7 +25,7 @@
     "tslint": "^5.19.0",
     "typescript": "^3.5.3"
   },
-  "dev_kpt": {
+  "kpt": {
     "docker_repo_base": "gcr.io/kpt-functions-demo"
   }
 }

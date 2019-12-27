@@ -15,12 +15,12 @@
  */
 
 import { spawnSync } from 'child_process';
-import { processDocker } from './docker_create';
+import { processDockerfile } from './docker_create';
 import { log } from '../utils/log';
 
 export function dockerBuild(packageDir: string, dockerTag: string) {
   log('Building image...\n');
-  processDocker(packageDir, dockerTag, (dockerFile, functionName, image) => {
+  processDockerfile(packageDir, dockerTag, (dockerFile, functionName, image) => {
     const build = spawnSync('docker', ['build', '-q', '-t', image, '-f', dockerFile, '.'], {
       stdio: 'inherit',
     });

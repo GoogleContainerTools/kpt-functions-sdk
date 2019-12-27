@@ -44,10 +44,10 @@ export function dockerCreate(packageDir: string) {
 
 export type ConsumeDockerfiles = (dockerFile: string, functionName: string, image: string) => void;
 
-export function processDocker(packageDir: string, dockerTag: string, func: ConsumeDockerfiles) {
-  const dockerRepoBase = process.env.npm_package_dev_kpt_docker_repo_base;
+export function processDockerfile(packageDir: string, dockerTag: string, func: ConsumeDockerfiles) {
+  const dockerRepoBase = process.env.npm_package_kpt_docker_repo_base;
   if (!dockerRepoBase) {
-    throw new Error('Env variable not set: npm_package_dev_kpt_docker_repo_base\n');
+    throw new Error('Env variable not set: npm_package_kpt_docker_repo_base\n');
   }
 
   const buildDir = path.join(packageDir, USER_PACKAGE.build);

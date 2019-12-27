@@ -16,11 +16,11 @@
 
 import { spawnSync } from 'child_process';
 import { log } from '../utils/log';
-import { processDocker } from './docker_create';
+import { processDockerfile } from './docker_create';
 
 export function dockerPush(packageDir: string, dockerTag: string) {
   log('Pushing image...\n');
-  processDocker(packageDir, dockerTag, (dockerFile, functionName, image) => {
+  processDockerfile(packageDir, dockerTag, (dockerFile, functionName, image) => {
     const push = spawnSync('docker', ['push', image], { stdio: 'inherit' });
     if (push.status !== 0) {
       process.exit(1);
