@@ -186,7 +186,7 @@ cp ~/.npmrc .
 To build the image:
 
 ```sh
-npm run kpt docker-build
+npm run kpt:docker-build
 ```
 
 You can now run the function container, e.g.:
@@ -198,7 +198,7 @@ docker run gcr.io/kpt-functions-demo/my-func:dev --help
 To push the image to the registry:
 
 ```sh
-npm run kpt docker-push
+npm run kpt:docker-push
 ```
 
 This uses the `docker_repo_base` from `package.json` file which you chose during initialization.
@@ -206,19 +206,16 @@ This uses the `docker_repo_base` from `package.json` file which you chose during
 The default value for docker image tag is `dev`. This can be overridden using`--tag` flag:
 
 ```sh
-npm run kpt docker-build -- --tag=latest
-npm run kpt docker-push -- --tag=latest
+npm run kpt:docker-build -- --tag=latest
+npm run kpt:docker-push -- --tag=latest
 ```
 
 ### SDK CLI
 
-`create-kpt-functions` package which is installed as a `devDependencies`, provides the CLI
-for interacting with the NPM package created above.
-
-It can be invoked as such:
+`create-kpt-functions` package which is installed as a `devDependencies` provides the `kpt` CLI
+for interacting with the NPM package:
 
 ```console
-$ npm run kpt -- --help
 KPT functions CLI.
 
 Optional arguments:
@@ -240,13 +237,15 @@ subcommands:
                         Overwrite configs if they exist.
 ```
 
-**Note:** Flags are passed to the CLI after `--` separator.
+There are corresponding scripts in `package.json` for sub-commands provided by the CLI.
 
-To get help for sub-commands:
+To see the help message:
 
 ```console
-npm run kpt docker-build -- --help
+npm run kpt:docker-build -- --help
 ```
+
+**Note:** Flags are passed to the CLI after `--` separator.
 
 ## Running KPT functions
 
