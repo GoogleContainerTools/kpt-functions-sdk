@@ -14,8 +14,9 @@
   },
   "files": [
     "bin/typegen",
-    "dist/**/*",
-    "templates/**/*"
+    "dist/",
+    "!**/*_test.*",
+    "templates/"
   ],
   "scripts": {
     "prepare": "npm run build",
