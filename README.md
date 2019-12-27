@@ -201,7 +201,7 @@ To push the image to the registry:
 npm run kpt:docker-push
 ```
 
-This uses the `docker_repo_base` from `package.json` file which you chose during initialization.
+This uses the `kpt.docker_repo_base` field in `package.json` populated during initialization.
 
 The default value for docker image tag is `dev`. This can be overridden using`--tag` flag:
 
