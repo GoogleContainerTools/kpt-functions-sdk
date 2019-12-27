@@ -85,7 +85,7 @@ export function readConfigs(
  *
  * @param input Stringified input objects.
  * @param format defines whether to parse the Configs as YAML or JSON.
- * @param functionConfig Either stringified functionCOnfig object or the object itself.
+ * @param functionConfig Either stringified functionConfig object or the object itself.
  */
 export function parse(
   input: string,

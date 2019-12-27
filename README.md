@@ -97,7 +97,7 @@ This will create the following files:
 
    - `my_func.ts`: This is where you implement the function interface.
    - `my_func_test.ts`: This is where you add your unit test.
-   - `my_func_run.ts`: The entry point that runs the function.
+   - `my_func_run.ts`: The main entry point that runs the function.
 
 1. `src/gen/`: Contains Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
 1. `build/`: Contains Dockerfile for each function, e.g.:
