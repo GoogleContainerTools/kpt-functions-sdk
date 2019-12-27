@@ -1,6 +1,6 @@
 # KPT Functions
 
-Using KPT Functions Typescript SDK, it is easy to implement [Configuration Functions][0].
+Using KPT Functions Typescript SDK, it is easy to implement [Configuration Functions][spec].
 The framework provides a simple, yet powerful API for querying and manipulating configuration
 files and provides all the scaffolding required to develop, build, test, and publish functions so
 the user can focus on implementing their business-logic.
@@ -9,57 +9,120 @@ the user can focus on implementing their business-logic.
 
 ### Required Dependencies
 
-- [npm](https://www.npmjs.com/get-npm)
-- [docker](https://docs.docker.com/v17.09/engine/installation/)
+#### Local Environment
 
-### Required Kubernetes Feature
+- Install [npm](https://www.npmjs.com/get-npm)
+- Install [docker](https://docs.docker.com/v17.09/engine/installation/)
 
-For the type creation to work, you need this
+##### `.npmrc` file
+
+Currently, NPM packages in the SDK are published to [private GitHub package in this repo][npm-packages].
+
+In order to install these packages, you need to configure your `.npmrc` file to authenticate to GitHub.
+
+1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens` in GitHub. Specify `read:packages` scope.
+1. Create the `.npmrc` file, replacing `<TOKEN>`:
+
+   ```sh
+   cat > ~/.npmrc <<EOF
+   registry=https://npm.pkg.github.com/googlecontainertools
+   //npm.pkg.github.com/:_authToken=<TOKEN>
+   EOF
+   ```
+
+#### Kubernetes Cluster
+
+For the type generation feature to work, you need a Kubernetes cluster with this
 [beta feature](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing).
 
-If using GKE, this feature is available using an alpha cluster:
+##### Using a `Kind` cluster
 
-```console
+The easiest way is to use `Kind` to bring up a local cluster running as a docker container.
+
+1. Download the [kind binary][kind-binary]
+1. Use this config file:
+
+   ```sh
+   cat > kind.yaml <<EOF
+   kind: Cluster
+   apiVersion: kind.sigs.k8s.io/v1alpha3
+   kubeadmConfigPatches:
+   - |
+     apiVersion: kubeadm.k8s.io/v1beta1 # Use v1beta1 for 1.14, v1beta2 for 1.15+
+     kind: ClusterConfiguration
+     metadata:
+       name: config
+     apiServer:
+       extraArgs:
+         "feature-gates": "CustomResourcePublishOpenAPI=true"
+   nodes:
+   - role: control-plane
+   EOF
+   ```
+
+1. Create the cluster and point your KUBECONFIG to it:
+
+   ```sh
+   kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.14.6
+   export KUBECONFIG="$(kind get kubeconfig-path --name="kpt-functions")"
+   ```
+
+##### Using a GKE cluster
+
+On GKE, this feature is available using an alpha cluster:
+
+```sh
 gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cluster-version=latest --region=us-central1-a --project <PROJECT>
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
 
 ### Create the NPM package
 
-`create-kpt-functions` NPM package is the CLI for creating and managing NPM packages containing one or more KPT functions.
-
 To start a new NPM package, run the following and follow the instructions and prompts:
 
-```console
+```sh
 mkdir my-package
 cd my-package
-npm init kpt-functions
+npm init @googlecontainertools/kpt-functions
 ```
 
 **Note:** Going forward, all the commands are assumed to be run from `my-package` directory.
 
 This will create the following files:
 
-1. `package.json` that has `kpt-functions` library as its only `dependencies` . Everything required to compile, lint and test a KPT function is declared as `devDependencies` .
-2. `src/` directory containing function source files:
+1. `package.json`: Declares `kpt-functions` framework library as the only item in `dependencies`.
+   Everything required to compile, lint and test a KPT function is declared as `devDependencies`,
+   including the `create-kpt-functions` CLI discussed later.
+1. `src/`: Contains the source files for all your functions, e.g.:
 
    - `my_func.ts`: This is where you implement the function interface.
    - `my_func_test.ts`: This is where you add your unit test.
    - `my_func_run.ts`: The entry point that runs the function.
 
-3. `src/gen/` directory containing Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
+1. `src/gen/`: Contains Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
+1. `build/`: Contains Dockerfile for each function, e.g.:
+   - `my_func.Dockerfile`
 
-Run the following command to install all the dependencies and build the functions:
+Run the following command to install all the dependencies and compile the functions into `dist/` directory.
 
-```console
+```sh
 npm install
 ```
 
+You can run your function at this point:
+
+```sh
+node dist/my_func_run.js --help
+```
+
+Although it's not very interesting as it simply passes the input unchanged to the output.
+Let's remedy this.
+
 ### Implementing the function
 
-You can now start implementing the function using your favorite IDE, e.g. [VSCode][3]:
+You can now start implementing the function using your favorite IDE, e.g. [VSCode][vscode]:
 
-```console
+```sh
 code .
 ```
 
@@ -71,10 +134,12 @@ In `src/my_func.ts` you need to implement this simple interface:
  */
 export interface KptFunc {
   /**
-   * A function reads and potentially mutates configs using the Configs document store API.
+   * A function consumes and optionally mutates configuration objects using the Configs object.
    *
-   * Returns a ConfigError if there are non-exceptional issues with the configs.
-   * For operational errors such as IO operation failures, throw errors instead of returning a ConfigError.
+   * The function should return a ConfigError when encountering one or more configuration-related issues.
+   * This includes encountering invalid input for validation use cases.
+   *
+   * The function can throw any other error types when encountering operational issues such as IO exceptions.
    */
   (configs: Configs): void | ConfigError;
 
@@ -85,120 +150,171 @@ export interface KptFunc {
 }
 ```
 
-[Configs][2] parameter is a document store for Kubernetes objects populated from/to configuration files. It enables performing rich query and mutation operations.
+[Configs][configs-api] parameter is a document store for Kubernetes objects populated from/to configuration files.
+It enables performing rich query and mutation operations.
 
-Take a look at [these example functions][1] to better understand how to use `kpt-functions` framework.
+Take a look at [these example functions][demo-funcs] to better understand how to use `kpt-functions` library.
 
 To build the package:
 
-```console
+```sh
 npm run build
 ```
 
-To build in interactive mode:
+Alternatively, run this in a separate terminal to continuously build as you make changes:
 
-```console
+```sh
 npm run watch
 ```
 
 To run the tests:
 
-```console
+```sh
 npm test
 ```
 
-### Adding a new KPT function
+### Container images
 
-To add a new KPT functions to an existing package, run:
+At this point you're ready to package and run your function as an executable container image.
 
-```console
-npm run kpt function-create
+Docker build also requires authentication to GitHub:
+
+```sh
+cp ~/.npmrc .
 ```
 
-### Generating client types
+To build the image:
 
-If want to generate or update existing classes for core and CRD types that exist on one of your clusters:
-
-```console
-npm run kpt type-create
-```
-
-### Publishing functions
-
-To build and push docker images for all the functions in the package:
-
-```console
+```sh
 npm run kpt docker-build
+```
+
+You can now run the function container, e.g.:
+
+```sh
+docker run gcr.io/kpt-functions-demo/my-func:dev --help
+```
+
+To push the image to the registry:
+
+```sh
 npm run kpt docker-push
 ```
 
-This uses the `docker_repo_base` from `package.json` file and configured during initialization. The default value for docker image tag is `dev`. This can be overriden using`--tag` flag:
+This uses the `docker_repo_base` from `package.json` file which you chose during initialization.
 
-```console
+The default value for docker image tag is `dev`. This can be overridden using`--tag` flag:
+
+```sh
 npm run kpt docker-build -- --tag=latest
 npm run kpt docker-push -- --tag=latest
+```
+
+### SDK CLI
+
+`create-kpt-functions` package which is installed as a `devDependencies`, provides the CLI
+for interacting with the NPM package created above.
+
+It can be invoked as such:
+
+```console
+$ npm run kpt -- --help
+KPT functions CLI.
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  -v, --version         Show program's version number and exit.
+
+subcommands:
+  {package-create,docker-create,docker-build,docker-push,function-create,type-create,workflow-create}
+    package-create      Create a new NPM package.
+    docker-create       Generate Dockerfiles for all functions. Overwrite
+                        files if they exist.
+    docker-build        Build docker images for all functions.
+    docker-push         Push docker images to the registry for all functions.
+    function-create     Generate stubs for a new function. Overwrites files
+                        if they exist.
+    type-create         Generate classes for core and CRD types. Overwrite
+                        files if they exist.
+    workflow-create     Generate workflow configs for all functions.
+                        Overwrite configs if they exist.
+```
+
+**Note:** Flags are passed to the CLI after `--` separator.
+
+To get help for sub-commands:
+
+```console
+npm run kpt docker-build -- --help
 ```
 
 ## Running KPT functions
 
 ### Using `docker run`
 
-After completing `docker-push` step above, you can now run the function using `docker run`:
+Following steps above, you have a function container that can be run locally:
 
-```console
-docker run my-docker-repo/my-func:dev --help
+```sh
+docker run gcr.io/kpt-functions-demo/my-func:dev --help
 ```
 
-Functions can be piped to form sophisticated pipelines, for example:
+But how do you read and write configuration files?
 
-```console
-git clone git@github.com:frankfarzan/foo-corp-configs.git
+You need to use `Source` and `Sink` functions, for example, `read-yaml` and `write-yaml`
+functions from the [KPT functions catalog][catalog].
 
-docker pull gcr.io/kpt-functions/read-yaml
-docker pull gcr.io/kpt-functions/mutate-psp
-docker pull gcr.io/kpt-functions/expand-team-cr
-docker pull gcr.io/kpt-functions/validate-rolebinding
-docker pull gcr.io/kpt-functions/write-yaml
+1. Pull function images:
 
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/source  gcr.io/kpt-functions/read-yaml --input /dev/null -d source_dir=/source |
-docker run -i gcr.io/kpt-functions/mutate-psp |
-docker run -i gcr.io/kpt-functions/expand-team-cr |
-docker run -i gcr.io/kpt-functions/validate-rolebinding -d subject_name=alice@foo-corp.com |
-docker run -i -u $(id -u) -v $(pwd)/foo-corp-configs:/sink gcr.io/kpt-functions/write-yaml -output /dev/null -d sink_dir=/sink -d overwrite=true
-```
+   ```sh
+   docker pull gcr.io/kpt-functions/read-yaml
+   docker pull gcr.io/kpt-functions/write-yaml
+   ```
 
-Let's walk through each step:
+1. Using a configs directory, e.g.:
 
-1. Clone the `foo-corp-configs` repo containing example configs.
-1. Pull all the docker images.
-1. `source-yaml-dir` function recursively **reads** all YAML files from `foo-corp-configs` directory on the host.
-   It outputs the content of the directory in a standard format to `stdout`. By default, docker containers
-   runs as a non-privileged user. You need to specify `-u` with your user id to access host files as shown above.
-1. `recommend-psp` function reads the output of `source-yaml-dir` from `stdin`. This function **mutates** any `PodSecurityPolicy` resources by setting a field called `allowPrivilegeEscalation` to `false`.
-1. `hydrate-anthos-team` function similarly operates on the result of the previous function. It looks
-   for Kubernetes custom resource of kind `Team`, and based on that **generates** new resources (e.g. `Namespaces` and `RoleBindings`).
-1. `validate-rolebinding` function **enforces** a policy that disallows any `RoleBindings` with `subject`
-   set to `alice@foo-corp.com`. This steps fails with a non-zero exit code if this policy is violated.
-1. `sink-yaml-dir` **writes** the result of the pipeline back to `foo-corp-configs` directory on the host.
+   ```sh
+   git clone git@github.com:frankfarzan/foo-corp-configs.git
+   cd foo-corp-configs
+   ```
 
-Let's see what changes were made to the repo:
+1. Run `read-yaml` function, and pipe its output to `less` command:
 
-```console
-cd foo-corp-configs
-git status
-```
+   ```sh
+   docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
+   less
+   ```
 
-You should see these changes:
+1. Pipe the output of `read-yaml` to your function and pipe its output to `less` command:
 
-1. `podsecuritypolicy_psp.yaml` should have been mutated by `recommend-psp` function.
-1. `payments-dev` and `payments-prod` directories created by `hydrate-anthos-team` function.
+   ```sh
+   docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
+   docker run -i gcr.io/kpt-functions-demo/my-func:dev |
+   less
+   ```
+
+1. Pipe the output of your function to `write-yaml` function:
+
+   ```sh
+   docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
+   docker run -i gcr.io/kpt-functions-demo/my-func:dev |
+   docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /dev/null -d sink_dir=/sink -d overwrite=true
+   ```
+
+1. See the changes made to the configs directory:
+
+   ```sh
+   git status
+   ```
 
 ### Using `kustomize config run`
 
-KPT functions can be run using `kustomize` as [documented here][4].
+KPT functions can be run using `kustomize` as [documented here][kustomize-run].
 
-[0]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
-[1]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
-[2]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
-[3]: https://code.visualstudio.com/
-[4]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md
+[spec]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
+[demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
+[catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
+[configs-api]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
+[vscode]: https://code.visualstudio.com/
+[kustomize-run]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md
+[kind-binary]: https://github.com/kubernetes-sigs/kind
+[npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
