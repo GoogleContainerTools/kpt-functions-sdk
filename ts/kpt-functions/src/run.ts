@@ -24,11 +24,11 @@ Example invocations:
 
   1. Using regular files:
 
-  $ FUNC --input in.yaml --output out.yaml
+  $ FUNC -i in.yaml -o out.yaml
 
   2. Print to stdout:
 
-  $ FUNC --input in.yaml
+  $ FUNC -i in.yaml
 
   3. Using redirection:
 
@@ -40,20 +40,20 @@ Example invocations:
 
   5. Using /dev/null for source/sink use cases:
 
-  $ FUNC --input /dev/null --output /dev/null
+  $ FUNC -i /dev/null -o /dev/null
 
   6. Overriding 'functionConfig' field using a separate file:
   
-  --functionConfig can be used to override 'functionConfig' field in the input file:
+  -f can be used to override 'functionConfig' field in the input file:
 
-  $ cat in.yaml | FUNC --function-config run1.yaml
-  $ cat in.yaml | FUNC --function-config run2.yaml
+  $ cat in.yaml | FUNC -f run1.yaml
+  $ cat in.yaml | FUNC -f run2.yaml
 
   7. Overriding 'functionConfig' filed using key/value literals:
   
   A convinient way to populate the functionConfig if it's a ConfigMap.
 
-  $ cat in.yaml | FUNC --function-config-literal=key1=value1 --function-config-literal=key2=value2 
+  $ cat in.yaml | FUNC -d key1=value1 -d key2=value2
 `;
 
 export enum ExitCode {
