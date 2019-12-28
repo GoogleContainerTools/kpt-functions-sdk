@@ -1,6 +1,6 @@
 {
   "name": "@googlecontainertools/create-kpt-functions",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "KPT functions CLI",
   "author": "KPT Authors",
   "license": "Apache-2.0",
