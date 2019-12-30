@@ -1,18 +1,48 @@
 # KPT Functions
 
-Using KPT Functions Typescript SDK, it is easy to implement [Configuration Functions][spec].
-The framework provides a simple, yet powerful API for querying and manipulating configuration
-files and provides all the scaffolding required to develop, build, test, and publish functions so
-the user can focus on implementing their business-logic.
+KPT Functions are client-side programs that operate on Kubernetes Configuration files.
+
+## Why KPT Functions
+
+- **Configuration is Data:** Many configuration tools conflate data and operations on that data
+  (e.g. YAML files embedding a templating language).
+  As the configuration becomes complex, it becomes hard to read and understand intent.
+  Our design philosophy is to have a clean separation
+  between human-readable data and the state-less programs that manipulate this data.
+  We call these programs `functions`.
+- **Unix philosophy:** Functions should be small, reusable, and composable.
+  By implementing the [Configuration Functions Specification][spec],
+  we can develop an ever-growing catalog of useful functions which are interoperable.
+
+## Why a Typescript SDK
+
+We provide an opinionated Typescript SDK for implementing functions for the following reasons:
+
+- **General-purpose language:** Many Domain-Specific languages start off with a small feature set,
+  but over time, grow more complex or even become turing-complete in order to accommodate different use cases.
+  After a certain amount of complexity, you are better of using a general-purpose language to get the benefits of:
+  - Proper abstractions and well thought-out language features
+  - Large, existing ecosystem of tooling (e.g. IDE support)
+  - Large, existing catalog of well-supported libraries
+  - Community support and good documentation
+- **Type-safety:** Kubernetes configuration are typed, and their schema is defined using the OpenAPI spec.
+  Typescript has a sophisticated type system that makes dealing with Kubernetes objects easier and safer.
+- **Batteries-included:** The SDK provides a simple, yet powerful API for querying and manipulating configuration
+  files and provides all the scaffolding required to develop, build, test, and publish functions so
+  you can focus on implementing your business-logic.
 
 ## Using Typescript SDK
 
-### Required Dependencies
+### System Requirements
+
+Current release requires x86 64-bit Linux. Other platforms will be supported in 1.0.0 release.
 
 #### Local Environment
 
-- Install [npm](https://www.npmjs.com/get-npm)
-- Install [docker](https://docs.docker.com/v17.09/engine/installation/)
+- Install [node][download-node]
+  - SDK requires npm version 6 or higher.
+  - If downloading binaries, follow these [installation instructions][install-node].
+- Install [docker][install-docker]
 
 ##### `.npmrc` file
 
@@ -20,7 +50,8 @@ Currently, NPM packages in the SDK are published to [private GitHub package in t
 
 In order to install these packages, you need to configure your `.npmrc` file to authenticate to GitHub.
 
-1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens` in GitHub. Specify `read:packages` scope.
+1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens`
+   in GitHub. Specify `read:packages` scope.
 1. Create the `.npmrc` file, replacing `<TOKEN>`:
 
    ```sh
@@ -32,14 +63,13 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 
 #### Kubernetes Cluster
 
-For the type generation feature to work, you need a Kubernetes cluster with this
-[beta feature](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing).
+For the type generation feature to work, you need a Kubernetes cluster with this [beta feature][beta-feature].
 
 ##### Using a `Kind` cluster
 
 The easiest way is to use `Kind` to bring up a local cluster running as a docker container.
 
-1. Download the [kind binary][kind-binary]
+1. Download the [kind binary][download-kind] version 0.5.1 or higher
 1. Use this config file:
 
    ```sh
@@ -201,8 +231,11 @@ To push the image to the registry:
 npm run kpt:docker-push
 ```
 
-This uses the `kpt.docker_repo_base` field in `package.json` populated during initialization.
+You need to have proper authentication/authorization to be able to push to the registry using
+the credentials used by `docker push`.
 
+This uses the `kpt.docker_repo_base` field in `package.json` which was set during package creation.
+You can manually edit this field at any time.
 The default value for docker image tag is `dev`. This can be overridden using`--tag` flag:
 
 ```sh
@@ -315,5 +348,9 @@ KPT functions can be run using `kustomize` as [documented here][kustomize-run].
 [configs-api]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
 [vscode]: https://code.visualstudio.com/
 [kustomize-run]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md
-[kind-binary]: https://github.com/kubernetes-sigs/kind
 [npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
+[download-node]: https://nodejs.org/en/download/
+[download-kind]: https://github.com/kubernetes-sigs/kind
+[install-node]: https://github.com/nodejs/help/wiki/Installation
+[install-docker]: https://docs.docker.com/v17.09/engine/installation
+[beta-feature]: https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing
