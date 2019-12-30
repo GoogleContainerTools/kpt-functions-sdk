@@ -33,4 +33,4 @@ WORKDIR /home/node/app
 
 COPY --from=builder /home/node/app /home/node/app
 
-ENTRYPOINT ["node", "/home/node/app/dist/demo_function_run.js"]
+ENTRYPOINT ["node", "/home/node/app/dist/my_func_run.js"]

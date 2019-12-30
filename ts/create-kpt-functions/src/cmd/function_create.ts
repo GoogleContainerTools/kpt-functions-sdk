@@ -26,7 +26,7 @@ export function functionCreate(appDir: string) {
   const desc = 'Adding a KPT function.';
   log(format.startMarker(desc));
 
-  const defaultFuncName = 'demo_function';
+  const defaultFuncName = 'my_func';
   const funcName = validator.getValidString(
     () => question(`> What is the function name (${defaultFuncName})? `),
     validator.isValidFuncName,
