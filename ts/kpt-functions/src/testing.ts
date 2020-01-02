@@ -39,7 +39,7 @@ export class TestRunner {
   run(
     input: Configs = new Configs(),
     expectedOutput?: Configs | ConfigError,
-    expectException?: boolean,
+    expectException?: boolean
   ): () => void {
     return new TestCase(this.fn, input, expectedOutput, expectException).run();
   }
@@ -53,10 +53,10 @@ class TestCase {
     private readonly fn: KptFunc,
     private readonly input: Configs = new Configs(),
     private readonly expectedOutput?: Configs | ConfigError,
-    private readonly expectException?: boolean,
+    private readonly expectException?: boolean
   ) {}
 
-  public run(): () => void {
+  run(): () => void {
     return () => {
       // We must clone the input as runner.fn may mutate its input Configs.
       const configs = deepClone(this.input);

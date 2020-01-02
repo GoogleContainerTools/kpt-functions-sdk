@@ -46,12 +46,12 @@
     "tslint": "^5.19.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
-    "typescript": "^3.4.1"
+    "typescript": "^3.7.0"
   },
   "prettier": {
     "arrowParens": "always",
     "printWidth": 100,
     "singleQuote": true,
-    "trailingComma": "all"
+    "trailingComma": "es5"
   }
 }

@@ -1,6 +1,6 @@
 {
   "spec_dir": ".",
-  "spec_files": ["dist/**/*_test.js"],
+  "spec_files": ["build/**/*_test.js"],
   "helpers": [],
   "stopSpecOnExpectationFailure": false,
   "random": true

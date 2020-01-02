@@ -26,9 +26,9 @@ import {
 import { KubernetesObject } from './types';
 
 class Namespace implements KubernetesObject {
-  public readonly apiVersion: string = 'v1';
-  public readonly kind: string = 'Namespace';
-  public metadata: ObjectMeta;
+  readonly apiVersion: string = 'v1';
+  readonly kind: string = 'Namespace';
+  metadata: ObjectMeta;
 
   constructor(name: string) {
     this.metadata = { name };

@@ -19,11 +19,11 @@ import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
 import { Configs, KubernetesObject } from './types';
 
 class Role implements KubernetesObject {
-  public readonly apiVersion: string = 'rbac.authorization.k8s.io/v1';
-  public readonly kind: string = 'Role';
-  public metadata: ObjectMeta;
+  readonly apiVersion: string = 'rbac.authorization.k8s.io/v1';
+  readonly kind: string = 'Role';
+  metadata: ObjectMeta;
 
-  public roleField: string = '';
+  roleField = '';
 
   constructor(name: string, roleField?: string) {
     if (roleField) {
@@ -33,23 +33,23 @@ class Role implements KubernetesObject {
   }
 }
 
-function isRole(o: any): o is Role {
+function isRole(o: KubernetesObject): o is Role {
   return o.apiVersion === 'rbac.authorization.k8s.io/v1' && o.kind === 'Role';
 }
 
 class Pod implements KubernetesObject {
-  public readonly apiVersion: string = 'v1';
-  public readonly kind: string = 'Pod';
-  public metadata: ObjectMeta;
+  readonly apiVersion: string = 'v1';
+  readonly kind: string = 'Pod';
+  metadata: ObjectMeta;
 
-  public roleBindingField: string = '';
+  roleBindingField = '';
 
   constructor(name: string) {
     this.metadata = { name };
   }
 }
 
-function isPod(o: any): o is Pod {
+function isPod(o: KubernetesObject): o is Pod {
   return o.apiVersion === 'v1' && o.kind === 'Pod';
 }
 

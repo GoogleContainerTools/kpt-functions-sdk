@@ -75,7 +75,7 @@ export class Configs {
    *
    * Returned objects are pass-by-reference; mutating them results in changes being persisted.
    */
-  public getAll(): KubernetesObject[] {
+  getAll(): KubernetesObject[] {
     return this.items.map((e) => e[1]);
   }
 
@@ -90,7 +90,7 @@ export class Configs {
    *
    * @param isKind is a type predicate on the desired type.
    */
-  public get<Kind extends KubernetesObject>(isKind: (o: KubernetesObject) => o is Kind): Kind[] {
+  get<Kind extends KubernetesObject>(isKind: (o: KubernetesObject) => o is Kind): Kind[] {
     return this.getAll().filter(isKind) as Kind[];
   }
 
@@ -106,7 +106,7 @@ export class Configs {
    *
    * @param objects The objects to insert.
    */
-  public insert(...objects: KubernetesObject[]): void {
+  insert(...objects: KubernetesObject[]): void {
     objects.forEach((o) => {
       const key: string = kubernetesKeyFn(o);
       const [index, found] = this.indexOf(key, this.items, 0);
@@ -121,7 +121,7 @@ export class Configs {
    *
    * @param objects The objects to delete.
    */
-  public delete(...objects: KubernetesObject[]): void {
+  delete(...objects: KubernetesObject[]): void {
     objects.forEach((o) => {
       const key: string = kubernetesKeyFn(o);
       const [index, found] = this.indexOf(key, this.items, 0);
@@ -134,7 +134,7 @@ export class Configs {
   /**
    * Deletes all objects.
    */
-  public deleteAll(): void {
+  deleteAll(): void {
     this.items = [];
   }
 
@@ -149,7 +149,7 @@ export class Configs {
    *
    * @param keyFn Generates a key for each Value.
    */
-  public groupBy(keyFn: (object: KubernetesObject) => string): Array<[string, KubernetesObject[]]> {
+  groupBy(keyFn: (object: KubernetesObject) => string): Array<[string, KubernetesObject[]]> {
     const map = new Map<string, KubernetesObject[]>();
     this.getAll().forEach((o) => {
       const key = keyFn(o);
@@ -162,7 +162,7 @@ export class Configs {
   /**
    * Returns the functionConfig if defined.
    */
-  public getFunctionConfig(): KubernetesObject | undefined {
+  getFunctionConfig(): KubernetesObject | undefined {
     return this.functionConfig;
   }
 
@@ -176,7 +176,7 @@ export class Configs {
    *
    * @key key The key in the 'data' field in the ConfigMap object passed as the functionConfig.
    */
-  public getFunctionConfigValue(key: string): string | undefined {
+  getFunctionConfigValue(key: string): string | undefined {
     const cm = this.functionConfig;
     if (!cm) {
       return undefined;
@@ -190,7 +190,7 @@ export class Configs {
   /**
    * Similar to {@link getFunctionConfigValue} except it throws an exception if the given key is undefined.
    */
-  public getFunctionConfigValueOrThrow(key: string): string {
+  getFunctionConfigValueOrThrow(key: string): string {
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
       throw new Error(`Missing key ${key} in ConfigMap data provided as functionConfig`);
@@ -208,7 +208,7 @@ export class Configs {
   private indexOf(
     key: string,
     array: Array<[string, KubernetesObject]>,
-    offset: number,
+    offset: number
   ): [number, boolean] {
     if (array.length === 0) {
       // array is empty so the value cannot be in it.
