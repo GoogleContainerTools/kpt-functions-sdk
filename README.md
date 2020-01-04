@@ -1,10 +1,21 @@
 # KPT Functions
 
-KPT Functions are client-side programs that operate on Kubernetes Configuration files.
+KPT Functions are client-side programs that operate on Kubernetes configuration files.
+
+Example use cases:
+
+- **Enforce policy:** e.g. A linter that enforces all `Namespace` configurations have a `cost-center` label.
+- **Generate configuration:** e.g. Streamline configuration of a new service by generating a `Namespace` with organization-mandated defaults for `RBAC` and `ResourceQuota`, etc.
+- **Mutate/migrate configuration:** e.g. Change a field in all `PodSecurityPolicy` configurations to make them more secure.
+
+In a GitOps setup, KPT functions read and write configuration files from a Git repo. Any changes made
+to configuration files are typically reviewed before being committed and applied to a cluster.
+
+KPT functions can be run as a one-off or run as part of a CI/CD pipeline.
 
 ## Why KPT Functions
 
-- **Configuration is Data:** Many configuration tools conflate data and operations on that data
+- **Configuration is data:** Many configuration tools conflate data and operations on that data
   (e.g. YAML files embedding a templating language).
   As the configuration becomes complex, it becomes hard to read and understand intent.
   Our design philosophy is to have a clean separation
@@ -25,11 +36,45 @@ We provide an opinionated Typescript SDK for implementing functions for the foll
   - Large, existing ecosystem of tooling (e.g. IDE support)
   - Large, existing catalog of well-supported libraries
   - Community support and good documentation
-- **Type-safety:** Kubernetes configuration are typed, and their schema is defined using the OpenAPI spec.
+- **Type-safety:** Kubernetes configuration are typed, and their schema defined using the OpenAPI spec.
   Typescript has a sophisticated type system that makes dealing with Kubernetes objects easier and safer.
+  The SDK enables generating Typescript classes for core and CRD types.
 - **Batteries-included:** The SDK provides a simple, yet powerful API for querying and manipulating configuration
   files and provides all the scaffolding required to develop, build, test, and publish functions so
   you can focus on implementing your business-logic.
+
+## Concepts
+
+At a high level a function can be conceptualized like this:
+
+![function][img-func]
+
+- `FUNC`: A program, packaged as a docker container, that performs CRUD (Create, Read, Update, Delete) on the input.
+- `input`: A List type containing the Kubernetes objects to operate on.
+- `output`: A List type containing the resultant Kubernetes objects.
+- `functionConfig`: A Kubernetes object used to used to parameterize the function's behavior. This is
+  optional.
+
+Functions can be composed into a pipeline:
+
+![pipeline][img-pipeline]
+
+There are two special case of functions:
+
+A **source function** takes no `input`:
+
+![source][img-source]
+
+Instead a source function typically produces the `output` by reading configurations from an external
+system (e.g. reading files from a filesystem).
+
+A **sink function** produces no `output`:
+
+![sink][img-sink]
+
+Instead a sink function typically writes configurations to an external system (e.g. writing files to a filesystem).
+
+See [Configuration Functions Specification][spec] for more details.
 
 ## Using Typescript SDK
 
@@ -183,7 +228,7 @@ export interface KptFunc {
 [Configs][configs-api] parameter is a document store for Kubernetes objects populated from/to configuration files.
 It enables performing rich query and mutation operations.
 
-Take a look at [these example functions][demo-funcs] to better understand how to use `kpt-functions` library.
+Take a look at [these example functions][demo-funcs] to better understand how to use `kpt-functions` library. These functions are available as docker images documented in the [catalog][catalog].
 
 To build the package:
 
@@ -284,7 +329,13 @@ npm run kpt:docker-build -- --help
 
 ### Using `docker run`
 
-Following steps above, you have a function container that can be run locally:
+Following steps above, you have a function container that can be run locally using node:
+
+```sh
+node dist/my_func_run.js --help
+```
+
+and docker if you built an image:
 
 ```sh
 docker run gcr.io/kpt-functions-demo/my-func:dev --help
@@ -292,7 +343,7 @@ docker run gcr.io/kpt-functions-demo/my-func:dev --help
 
 But how do you read and write configuration files?
 
-You need to use `Source` and `Sink` functions, for example, `read-yaml` and `write-yaml`
+You need to use source and sink functions, for example, `read-yaml` and `write-yaml`
 functions from the [KPT functions catalog][catalog].
 
 1. Pull function images:
@@ -309,20 +360,23 @@ functions from the [KPT functions catalog][catalog].
    cd foo-corp-configs
    ```
 
-1. Run `read-yaml` function, and pipe its output to `less` command:
+1. Run `read-yaml` function, and look at its output by piping to `less` command:
 
    ```sh
    docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
    less
    ```
 
-1. Pipe the output of `read-yaml` to your function and pipe its output to `less` command:
+1. Pipe the output of `read-yaml` to your function and look at its output:
 
    ```sh
    docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
    docker run -i gcr.io/kpt-functions-demo/my-func:dev |
    less
    ```
+
+   During development, you can run your function directly using `node` to avoid having to rebuild
+   the docker image.
 
 1. Pipe the output of your function to `write-yaml` function:
 
@@ -338,12 +392,94 @@ functions from the [KPT functions catalog][catalog].
    git status
    ```
 
+#### Example
+
+Let's take a look at `label_namespace.ts` [here][label-namespace].
+
+Its help message tells us how to configure and run the function:
+
+```sh
+node dist/label_namespace_run.js --help
+```
+
+It takes a `functionConfig` of kind `ConfigMap` with the following keys:
+
+```sh
+cat > /tmp/fc.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+data:
+  label_name: color
+  label_value: orange
+metadata:
+  name: my-config
+EOF
+```
+
+We'll use the following example input defining 2 Namespaces and a ResourceQuota (This is the
+output of running `read-yaml` source function described in previous step).
+
+```sh
+cat > /tmp/input.yaml <<EOF
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: audit
+    annotations:
+      config.kubernetes.io/path: audit/namespace.yaml
+      config.kubernetes.io/index: '0'
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: shipping-dev
+    annotations:
+      config.kubernetes.io/path: shipping-dev/namespace.yaml
+      config.kubernetes.io/index: '0'
+- apiVersion: v1
+  kind: ResourceQuota
+  metadata:
+    name: rq
+    namespace: shipping-dev
+    annotations:
+      config.kubernetes.io/path: shipping-dev/resource-quota.yaml
+      config.kubernetes.io/index: '0'
+  spec:
+    hard:
+      cpu: 100m
+      memory: 100Mi
+      pods: '1'
+EOF
+```
+
+If you run the function:
+
+```sh
+node dist/label_namespace_run.js -i /tmp/input.yaml -f /tmp/fc.yaml
+```
+
+You should see that Namespaces now have label `color: orange`.
+
+It's a common to use a `ConfigMap` for `functionConfig` when the function needs a simple
+list of key/value pairs. For these cases, you can also run the function this way:
+
+```sh
+node dist/label_namespace_run.js -i /tmp/input.yaml -d label_name=color -d label_value=orange
+```
+
 ### Using `kustomize config run`
 
 KPT functions can be run using `kustomize` as [documented here][kustomize-run].
 
+[img-func]: docs/func.png
+[img-pipeline]: docs/pipeline.png
+[img-source]: docs/source.png
+[img-sink]: docs/sink.png
 [spec]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
+[label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src/label_namespace.ts
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
 [configs-api]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
 [vscode]: https://code.visualstudio.com/

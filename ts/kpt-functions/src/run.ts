@@ -22,38 +22,37 @@ import { ConfigError } from './errors';
 const INVOCATIONS = `
 Example invocations:
 
-  1. Using regular files:
+  1. Using regular files for input and output:
 
-  $ FUNC -i in.yaml -o out.yaml
+    $ FUNC -i in.yaml -o out.yaml
 
-  2. Print to stdout:
+  2. Print output to stdout:
 
-  $ FUNC -i in.yaml
+    $ FUNC -i in.yaml
 
   3. Using redirection:
 
-  $ FUNC < in.yaml > out.yaml
+    $ FUNC < in.yaml > out.yaml
 
   4. Using pipes:
 
-  $ cat in.yaml | FUNC | cat
+    $ cat in.yaml | FUNC | cat
 
-  5. Using /dev/null for source/sink use cases:
+  5. Using /dev/null for source/sink functions:
 
-  $ FUNC -i /dev/null -o /dev/null
+    $ FUNC -i /dev/null -o /dev/null
 
-  6. Overriding 'functionConfig' field using a separate file:
+  6. Specifying 'functionConfig' as a separate file:
   
-  -f can be used to override 'functionConfig' field in the input file:
+    $ cat in.yaml | FUNC -f fc.yaml
 
-  $ cat in.yaml | FUNC -f run1.yaml
-  $ cat in.yaml | FUNC -f run2.yaml
+    If the input contains 'functionConfig' field, it will be ignored.
 
-  7. Overriding 'functionConfig' field using key/value literals:
+  7. Specifying 'functionConfig' using key/value literals:
   
-  A convenient way to populate the functionConfig if it's a ConfigMap.
+    $ cat in.yaml | FUNC -d key1=value1 -d key2=value2
 
-  $ cat in.yaml | FUNC -d key1=value1 -d key2=value2
+    This is a convenient way to populate the functionConfig if it's a ConfigMap.
 `;
 
 enum ExitCode {

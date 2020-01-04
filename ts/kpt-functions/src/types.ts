@@ -49,15 +49,15 @@ export class Configs {
   private items: Array<[string, KubernetesObject]> = [];
 
   /**
-   * Object used to configure this invocation of the function.
+   * Object used as parameters to the function.
    */
   private readonly functionConfig: KubernetesObject | undefined;
 
   /**
    * Creates a Config.
    *
-   * @param items Input Objects to initialize this Configs with.
-   * @param functionConfig Object used to configure this invocation of the function.
+   * @param items Input object that the function is going to operate on.
+   * @param functionConfig Object used to parameterize the function's behavior.
    *
    * If supplied multiple objects with the same Group, Kind, Namespace, and Name, discards all but the last one.
    *
