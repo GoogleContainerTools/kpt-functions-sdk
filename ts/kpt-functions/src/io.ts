@@ -129,7 +129,7 @@ function load(raw: string, format: FileFormat): any {
  * @param format defines whether to write the Configs as YAML or JSON.
  */
 export function writeConfigs(output: FilePath, configs: Configs, format: FileFormat): void {
-  if (output.toString() === '/dev/null') {
+  if (output === '/dev/null') {
     return;
   }
 
