@@ -59,7 +59,7 @@ At a high level a function can be conceptualized like this:
 
 See [Configuration Functions Specification][spec] for details.
 
-There are two special case of functions:
+There are two special cases functions:
 
 ### Source Function
 
