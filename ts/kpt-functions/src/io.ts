@@ -48,7 +48,7 @@ const YAML_STYLE: DumpOptions = {
 export function readConfigs(
   input: FilePath,
   format: FileFormat,
-  functionConfig?: FilePath | KubernetesObject,
+  functionConfig?: FilePath | KubernetesObject
 ): Configs {
   let inputRaw: string;
 
@@ -60,6 +60,11 @@ export function readConfigs(
       if (process.stdin.isTTY) {
         throw new Error('Cannot read input. Need either stdin or --input file');
       }
+      if (!fs.existsSync(input)) {
+        throw new Error(`Input file does not exist: ${input}`);
+      }
+      inputRaw = rw.readFileSync(input, 'utf8');
+      break;
     default:
       if (!fs.existsSync(input)) {
         throw new Error(`Input file does not exist: ${input}`);
@@ -90,9 +95,9 @@ export function readConfigs(
 export function parse(
   input: string,
   format: FileFormat,
-  functionConfig?: string | KubernetesObject,
+  functionConfig?: string | KubernetesObject
 ): Configs {
-  let i = load(input, format);
+  const i = load(input, format);
   let f;
   if (typeof functionConfig === 'string') {
     f = load(functionConfig, format);
@@ -124,7 +129,7 @@ function load(raw: string, format: FileFormat): any {
  * @param format defines whether to write the Configs as YAML or JSON.
  */
 export function writeConfigs(output: FilePath, configs: Configs, format: FileFormat): void {
-  if (output == '/dev/null') {
+  if (output === '/dev/null') {
     return;
   }
 

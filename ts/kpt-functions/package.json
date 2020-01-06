@@ -20,7 +20,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "clean": "rm -Rf dist/ node_modules/",
-    "lint": "tslint -p package.json; prettier \"src/**\" \"*.json\" --check",
+    "lint": "tslint -p package.json && prettier \"src/**\" \"*.json\" --check",
     "lint-license": "jsgl --local .",
     "format": "prettier \"src/**\" \"*.json\" --write",
     "pretest": "npm run build",
@@ -46,12 +46,6 @@
     "tslint": "^5.19.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
-    "typescript": "^3.4.1"
-  },
-  "prettier": {
-    "arrowParens": "always",
-    "printWidth": 100,
-    "singleQuote": true,
-    "trailingComma": "all"
+    "typescript": "^3.7.0"
   }
 }

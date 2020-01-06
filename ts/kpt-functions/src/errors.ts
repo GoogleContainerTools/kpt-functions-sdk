@@ -33,7 +33,7 @@ export class ConfigError extends Error {
  * Wraps multiple ConfigError objects.
  */
 export class MultiConfigError extends ConfigError {
-  public readonly errors: ConfigError[];
+  readonly errors: ConfigError[];
 
   constructor(message: string, errors: ConfigError[]) {
     super(message);
@@ -58,7 +58,7 @@ export class MultiConfigError extends ConfigError {
  * Represents an error with a configuration file.
  */
 export class ConfigFileError extends ConfigError {
-  constructor(message: string, public readonly path: string) {
+  constructor(message: string, readonly path: string) {
     super(message);
     this.name = 'ConfigFileError';
   }
@@ -72,7 +72,7 @@ export class ConfigFileError extends ConfigError {
  * Represents an error with a KubernetesObject.
  */
 export class KubernetesObjectError extends ConfigError {
-  constructor(message: string, public readonly object: KubernetesObject) {
+  constructor(message: string, readonly object: KubernetesObject) {
     super(message);
     this.name = 'KubernetesObjectError';
   }

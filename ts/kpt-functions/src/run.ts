@@ -98,12 +98,12 @@ Use this ONLY if the function accepts a ConfigMap.`,
   });
 
   // Parse args.
-  let args = new Map(Object.entries(parser.parseArgs()));
-  let fileFormat = Boolean(args.get('json')) ? FileFormat.JSON : FileFormat.YAML;
-  let inputFile = args.get('input') || '/dev/stdin';
-  let outputFile = args.get('output') || '/dev/stdout';
+  const args = new Map(Object.entries(parser.parseArgs()));
+  const fileFormat = Boolean(args.get('json')) ? FileFormat.JSON : FileFormat.YAML;
+  const inputFile = args.get('input') || '/dev/stdin';
+  const outputFile = args.get('output') || '/dev/stdout';
   let functionConfig: string | KubernetesObject | undefined = args.get('function_config');
-  let functionConfigLiterals = args.get('function_config_literal');
+  const functionConfigLiterals = args.get('function_config_literal');
   if (functionConfigLiterals) {
     if (functionConfig) {
       parser.error('--function-config and --function-config-literal are mutually exclusive');
@@ -129,10 +129,10 @@ function runFn(
   inputFile: string,
   outputFile: string,
   fileFormat: FileFormat,
-  functionConfig?: string | KubernetesObject,
+  functionConfig?: string | KubernetesObject
 ) {
   // Parse Config.
-  let configs = readConfigs(inputFile, fileFormat, functionConfig);
+  const configs = readConfigs(inputFile, fileFormat, functionConfig);
 
   // Run the function.
   const err = fn(configs);
@@ -145,7 +145,7 @@ function runFn(
 }
 
 function parseToConfigMap(parser: ArgumentParser, args: string[][]): KubernetesObject {
-  let cm: any = {
+  const cm: any = {
     apiVersion: 'v1',
     kind: 'ConfigMap',
     metadata: {

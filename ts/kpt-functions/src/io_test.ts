@@ -36,7 +36,7 @@ items:
   metadata:
     name: foo
 `,
-        FileFormat.YAML,
+        FileFormat.YAML
       );
       expect(result.getAll()).toEqual([
         {
@@ -73,7 +73,7 @@ functionConfig:
   data:
     a: b
 `,
-        FileFormat.YAML,
+        FileFormat.YAML
       );
 
       expect(result.getFunctionConfig()).toEqual({
@@ -107,7 +107,7 @@ metadata:
   name: baz
 data:
   x: y
-`,
+`
       );
 
       expect(result.getFunctionConfig()).toEqual({
@@ -148,7 +148,7 @@ metadata:
   name: baz
 data:
   x: y
-`,
+`
       );
 
       expect(result.getFunctionConfig()).toEqual({
@@ -191,7 +191,7 @@ functionConfig:
           data: {
             x: 'y',
           },
-        } as KubernetesObject,
+        } as KubernetesObject
       );
 
       expect(result.getFunctionConfig()).toEqual({
@@ -221,7 +221,7 @@ items:
   metadata:
     name: my-role
 `,
-        FileFormat.YAML,
+        FileFormat.YAML
       );
 
       expect(result.getAll()).toEqual([
@@ -260,7 +260,7 @@ items:
   "kind": "Namespace",
   "metadata": {"name": "foo"}
 }]}`,
-        FileFormat.JSON,
+        FileFormat.JSON
       );
 
       expect(result.getAll()).toEqual([
@@ -288,7 +288,7 @@ items:
   "kind": "Role",
   "metadata": {"name": "my-role"}
 }]}`,
-        FileFormat.JSON,
+        FileFormat.JSON
       );
 
       expect(result.getAll()).toEqual([
@@ -318,7 +318,7 @@ items:
 apiVersion: v1
 kind: List
 `,
-        FileFormat.YAML,
+        FileFormat.YAML
       );
 
       expect(result.getAll()).toEqual([]);
@@ -370,7 +370,7 @@ items: []
             },
           },
         ]),
-        FileFormat.YAML,
+        FileFormat.YAML
       );
 
       expect(result).toEqual(
@@ -381,7 +381,7 @@ items:
   kind: Namespace
   metadata:
     name: foo
-`,
+`
       );
     });
 
@@ -403,7 +403,7 @@ items:
             },
           },
         ]),
-        FileFormat.YAML,
+        FileFormat.YAML
       );
 
       expect(result).toEqual(`apiVersion: v1
@@ -444,7 +444,7 @@ items:
             },
           },
         ]),
-        FileFormat.JSON,
+        FileFormat.JSON
       );
 
       expect(result).toEqual(`{
@@ -481,7 +481,7 @@ items:
             },
           },
         ]),
-        FileFormat.JSON,
+        FileFormat.JSON
       );
 
       expect(result).toEqual(`{

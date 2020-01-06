@@ -31,7 +31,7 @@ export const SOURCE_INDEX_ANNOTATION = `${ANNOTATION_PREFIX}/index`;
 export function addAnnotation(
   o: KubernetesObject,
   annotation: string,
-  value: string,
+  value: string
 ): KubernetesObject {
   o.metadata.annotations = addToObject(o.metadata.annotations, annotation, value);
   return o;
@@ -103,7 +103,7 @@ export function getLabel(o: KubernetesObject, label: string): string | undefined
 function addToObject(
   object: { [key: string]: string } | undefined,
   key: string,
-  value: string,
+  value: string
 ): { [key: string]: string } {
   return Object.assign(object || {}, { [key]: value });
 }
@@ -116,7 +116,7 @@ function removeFromObject(object: { [key: string]: string } | undefined, key: st
 
 function getFromObject(
   object: { [key: string]: string } | undefined,
-  key: string,
+  key: string
 ): string | undefined {
   return object && object[key];
 }
