@@ -25,7 +25,6 @@ export interface KptFunc {
    * A function consumes and optionally mutates configuration objects using the Configs object.
    *
    * The function should return a ConfigError when encountering one or more configuration-related issues.
-   * This includes encountering invalid input for validation use cases.
    *
    * The function can throw any other error types when encountering operational issues such as IO exceptions.
    */
@@ -44,20 +43,10 @@ export interface KptFunc {
  */
 export class Configs {
   /**
-   * A sorted array of the contained objects and their keys.
-   */
-  private items: Array<[string, KubernetesObject]> = [];
-
-  /**
-   * Object used to configure this invocation of the function.
-   */
-  private readonly functionConfig: KubernetesObject | undefined;
-
-  /**
    * Creates a Config.
    *
-   * @param items Input Objects to initialize this Configs with.
-   * @param functionConfig Object used to configure this invocation of the function.
+   * @param items Input objects that the function is going to operate on.
+   * @param functionConfig Object used to parameterize the function's behavior.
    *
    * If supplied multiple objects with the same Group, Kind, Namespace, and Name, discards all but the last one.
    *
@@ -226,6 +215,16 @@ export class Configs {
     // mid is the object we're looking for.
     return [offset + mid, true];
   }
+
+  /**
+   * A sorted array of the contained objects and their keys.
+   */
+  private items: Array<[string, KubernetesObject]> = [];
+
+  /**
+   * Object used as parameters to the function.
+   */
+  private readonly functionConfig: KubernetesObject | undefined;
 }
 
 /**
