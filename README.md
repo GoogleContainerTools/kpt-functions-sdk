@@ -505,13 +505,13 @@ KPT functions can be run using `kustomize` as [documented here][kustomize-run].
 [img-pipeline]: docs/pipeline.png
 [img-source]: docs/source.png
 [img-sink]: docs/sink.png
-[spec]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
+[spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
+[kustomize-run]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-impl.md
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src/label_namespace.ts
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
 [configs-api]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
 [vscode]: https://code.visualstudio.com/
-[kustomize-run]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md
 [npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
 [download-node]: https://nodejs.org/en/download/
 [download-kind]: https://github.com/kubernetes-sigs/kind
