@@ -404,7 +404,7 @@ functions from the [KPT functions catalog][catalog].
 
    ```sh
    git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
-   cd example-configs
+   cd kpt-functions-sdk/example-configs
    ```
 
 1. Run `read-yaml` function, and look at its output by piping to `less` command:
@@ -589,7 +589,7 @@ Finally, let's mutate the configuration files by using a source and sink functio
 
 ```sh
 git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
-cd example-configs
+cd kpt-functions-sdk/example-configs
 
 docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
@@ -610,7 +610,7 @@ First, grab `example-configs` directory and pull the docker images:
 
 ```sh
 git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
-cd example-configs
+cd kpt-functions-sdk/example-configs
 
 docker pull gcr.io/kpt-functions/read-yaml
 docker pull gcr.io/kpt-functions/mutate-psp
@@ -666,7 +666,7 @@ export KUSTOMIZE_ENABLE_ALPHA_COMMANDS=true # enable kustomize alpha commands
 
 ```sh
 git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
-cd example-configs
+cd kpt-functions-sdk/example-configs
 ```
 
 `config source` and `config sink` sub-commands are implementations of a [source and sink functions](#source-function)
