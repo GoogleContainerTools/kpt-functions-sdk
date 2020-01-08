@@ -23,7 +23,7 @@ applied to a cluster.
   - [Source Function](#source-function)
   - [Sink Function](#sink-function)
   - [Pipeline](#pipeline)
-- [Using Typescript SDK](#using-typescript-sdk)
+- [Developing KPT functions](#developing-kpt-functions)
   - [System Requirements](#system-requirements)
     - [Local Environment](#local-environment)
       - [`.npmrc` file](#npmrc-file)
@@ -71,7 +71,7 @@ We provide an opinionated Typescript SDK for implementing functions for the foll
 - **Type-safety:** Kubernetes configuration are typed, and their schema defined using the OpenAPI spec.
   Typescript has a sophisticated type system that makes dealing with Kubernetes objects easier and safer.
   The SDK enables generating Typescript classes for core and CRD types.
-- **Batteries-included:** The SDK provides a simple, yet powerful API for querying and manipulating configuration
+- **Batteries-included:** The SDK provides a simple, yet powerful [document store][document-store] API for querying and manipulating configuration
   files and provides all the scaffolding required to develop, build, test, and publish functions so
   you can focus on implementing your business-logic.
 
@@ -115,7 +115,9 @@ Functions can be composed into a pipeline:
 
 ![pipeline][img-pipeline]
 
-## Using Typescript SDK
+## Developing KPT Functions
+
+This section covers how to use the Typescript SDK to develop KPT functions.
 
 ### System Requirements
 
@@ -337,7 +339,7 @@ npm run kpt:docker-push -- --tag=latest
 
 ### SDK CLI
 
-`create-kpt-functions` package which is installed as a `devDependencies` provides the `kpt` CLI
+`create-kpt-functions` package whcih was installed as a `devDependencies` provides the `kpt` CLI binary
 for interacting with the NPM package:
 
 ```console
@@ -367,12 +369,18 @@ There are corresponding scripts in `package.json` for sub-commands provided by t
 To see the help message:
 
 ```console
-npm run kpt:docker-build -- --help
+npm run kpt:function-create -- --help
 ```
 
 > **Note:** Flags are passed to the CLI after `--` separator.
 
 ## Running KPT functions
+
+KPT functions can be executed using different orchestrators. This section covers two ways of running
+functions:
+
+1. Directly using `docker run`
+1. Using `kustomize config`
 
 ### Using `docker run`
 
@@ -759,3 +767,4 @@ kustomize config run --help
 [install-node]: https://github.com/nodejs/help/wiki/Installation
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
 [beta-feature]: https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing
+[document-store]: https://en.wikipedia.org/wiki/Document-oriented_database
