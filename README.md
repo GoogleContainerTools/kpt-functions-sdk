@@ -692,6 +692,7 @@ metadata:
     config.k8s.io/function: |
       container:
         image:  gcr.io/kpt-functions/label-namespace
+    config.kubernetes.io/local-config: "true"
 data:
   label_name: color
   label_value: orange
@@ -705,7 +706,7 @@ kustomize config run .
 git status
 ```
 
-You can have multiple function declarations in a directory. Let's add second function:
+You can have multiple function declarations in a directory. Let's add a second function:
 
 ```sh
 cat << EOF > kpt-func2.yaml
@@ -717,6 +718,7 @@ metadata:
     config.k8s.io/function: |
       container:
         image:  gcr.io/kpt-functions/validate-rolebinding
+    config.kubernetes.io/local-config: "true"
 data:
   subject_name: bob@foo-corp.com
 EOF
