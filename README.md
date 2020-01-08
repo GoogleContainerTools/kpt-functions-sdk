@@ -585,7 +585,7 @@ docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_
 
 > **Note:** This causes an error if the function takes another kind of `functionConfig`.
 
-Finally, let's mutate the configuration files by using a source and sink functions:
+Finally, let's mutate the configuration files by using a source and sink function:
 
 ```sh
 git clone git@github.com:frankfarzan/foo-corp-configs.git
@@ -705,7 +705,32 @@ kustomize config run .
 git status
 ```
 
-You can have multiple function declarations in a directory, see help message for details:
+You can have multiple function declarations in a directory. Let's add second function:
+
+```sh
+cat << EOF > kpt-func2.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/validate-rolebinding
+data:
+  subject_name: bob@foo-corp.com
+EOF
+```
+
+`config run` executes both functions:
+
+```sh
+kustomize config run .
+```
+
+In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.
+
+To see help message for details:
 
 ```sh
 kustomize config run --help
