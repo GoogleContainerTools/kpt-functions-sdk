@@ -403,8 +403,8 @@ functions from the [KPT functions catalog][catalog].
 1. Using a configs directory, e.g.:
 
    ```sh
-   git clone git@github.com:frankfarzan/foo-corp-configs.git
-   cd foo-corp-configs
+   git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+   cd example-configs
    ```
 
 1. Run `read-yaml` function, and look at its output by piping to `less` command:
@@ -577,7 +577,7 @@ docker run -i -u $(id -u) -v /tmp/fc.yaml:/tmp/fc.yaml gcr.io/kpt-functions/labe
 
 ##### functionConfig from literal values
 
-It's common for functions to accept a `ConfigMap` when requiring a simple list of key/value pairs as parameters. We provide porcelain to make this easier. This is functionally equivalent to the invocation above:
+It's common for functions to use a `ConfigMap` to provide a simple list of key/value pairs as parameters. We provide porcelain to make this easier. This is functionally equivalent to the invocation above:
 
 ```sh
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange < /tmp/input2.yaml
@@ -588,8 +588,8 @@ docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_
 Finally, let's mutate the configuration files by using a source and sink function:
 
 ```sh
-git clone git@github.com:frankfarzan/foo-corp-configs.git
-cd foo-corp-configs
+git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+cd example-configs
 
 docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
@@ -604,18 +604,24 @@ git status
 
 #### Example 2
 
-Functions can be piped to form sophisticated pipelines, for example:
+Functions can be piped to form sophisticated pipelines.
+
+First, grab `example-configs` directory and pull the docker images:
 
 ```sh
-git clone git@github.com:frankfarzan/foo-corp-configs.git
-cd foo-corp-configs
+git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+cd example-configs
 
 docker pull gcr.io/kpt-functions/read-yaml
 docker pull gcr.io/kpt-functions/mutate-psp
 docker pull gcr.io/kpt-functions/expand-team-cr
 docker pull gcr.io/kpt-functions/validate-rolebinding
 docker pull gcr.io/kpt-functions/write-yaml
+```
 
+Run these functions:
+
+```sh
 docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
 docker run -i gcr.io/kpt-functions/mutate-psp |
 docker run -i gcr.io/kpt-functions/expand-team-cr |
@@ -625,8 +631,6 @@ docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /de
 
 Let's walk through each step:
 
-1. Clone the `foo-corp-configs` repo containing example configs.
-1. Pull all the docker images.
 1. `read-yaml` function recursively reads all YAML files from `foo-corp-configs` directory on the host.
 1. `mutate-psp` function reads the output of `read-yaml`. This function **mutates** any `PodSecurityPolicy` resources by setting a field called `allowPrivilegeEscalation` to `false`.
 1. `expand-team-cr` function similarly operates on the result of the previous function. It looks
@@ -661,8 +665,8 @@ export KUSTOMIZE_ENABLE_ALPHA_COMMANDS=true # enable kustomize alpha commands
 #### Example 1
 
 ```sh
-git clone git@github.com:frankfarzan/foo-corp-configs.git
-cd foo-corp-configs
+git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+cd example-configs
 ```
 
 `config source` and `config sink` sub-commands are implementations of a [source and sink functions](#source-function)
