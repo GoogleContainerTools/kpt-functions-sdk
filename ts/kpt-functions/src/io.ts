@@ -128,7 +128,11 @@ function load(raw: string, format: FileFormat): any {
  * @param configs Contains objects to write to the output file.
  * @param format defines whether to write the Configs as YAML or JSON.
  */
-export function writeConfigs(output: FilePath, configs: Configs, format: FileFormat): void {
+export function writeConfigs(
+  output: FilePath,
+  configs: Configs,
+  format: FileFormat
+): void {
   if (output === '/dev/null') {
     return;
   }
