@@ -98,14 +98,20 @@ Use this ONLY if the function accepts a ConfigMap.`,
 
   // Parse args.
   const args = new Map(Object.entries(parser.parseArgs()));
-  const fileFormat = Boolean(args.get('json')) ? FileFormat.JSON : FileFormat.YAML;
+  const fileFormat = Boolean(args.get('json'))
+    ? FileFormat.JSON
+    : FileFormat.YAML;
   const inputFile = args.get('input') || '/dev/stdin';
   const outputFile = args.get('output') || '/dev/stdout';
-  let functionConfig: string | KubernetesObject | undefined = args.get('function_config');
+  let functionConfig: string | KubernetesObject | undefined = args.get(
+    'function_config'
+  );
   const functionConfigLiterals = args.get('function_config_literal');
   if (functionConfigLiterals) {
     if (functionConfig) {
-      parser.error('--function-config and --function-config-literal are mutually exclusive');
+      parser.error(
+        '--function-config and --function-config-literal are mutually exclusive'
+      );
     }
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
@@ -143,7 +149,10 @@ function runFn(
   writeConfigs(outputFile, configs, fileFormat);
 }
 
-function parseToConfigMap(parser: ArgumentParser, args: string[][]): KubernetesObject {
+function parseToConfigMap(
+  parser: ArgumentParser,
+  args: string[][]
+): KubernetesObject {
   const cm: any = {
     apiVersion: 'v1',
     kind: 'ConfigMap',
@@ -154,7 +163,9 @@ function parseToConfigMap(parser: ArgumentParser, args: string[][]): KubernetesO
   };
   for (const a of args) {
     if (a.length !== 1) {
-      parser.error('Exactly one value is required for --function-config-literal');
+      parser.error(
+        'Exactly one value is required for --function-config-literal'
+      );
     }
     const kv = a[0].split('=');
     if (kv.length !== 2) {
