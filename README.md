@@ -8,62 +8,72 @@ Example use cases:
 - **Generate configuration:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
 - **Mutate/migrate configuration:** e.g. Change a field in all `PodSecurityPolicy` configurations to make them more secure.
 
-KPT functions can be run as a one-off or run as part of a CI/CD pipeline.
-With GitOps workflows, KPT functions read and write configuration files from a Git repo. Changes
-to the system authored by humans and mutating KPT functions are reviewed before being committed to the repo. KPT functions
-can be run as pre-commit or post-commit steps to check for compliance before configurations are
-applied to a cluster.
+KPT functions can be run independently or as part of a CI/CD pipeline.
+
+Functions that run independently inject configuration and output new configuration.  The functions
+serve as a tool to generate large amounts of varied configuration that can be subsequently
+reviewed and applied.
+
+In CI/CD, KPT Functions can validate your configuration before committing, much like one might
+unit-test a piece of application code.  This can be extended into a GitOps workflow, where commits
+to one repo might trigger a mutating KPT Function that writes to another.
+
+KPT Functions are versatile and composable; they can be mixed and matched to meet the unique needs
+of your infrastructure.
 
 ## Why KPT Functions
 
-- **Configuration is data:** Many configuration tools conflate data and operations on that data
-  (e.g. YAML files embedding a templating language).
-  As the configuration becomes complex, it becomes hard to read and understand intent.
-  Our design philosophy is to have a clean separation
-  between human-readable data and the state-less programs that manipulate this data.
-  We call these programs `functions`.
+- **Configuration is data:** Many configuration tools conflate data with the operations on that
+  data (e.g. YAML files embedding a templating language).
+  As configuration becomes complex, it becomes hard to read and understand.
+  Our design philosophy is to separate human-readable data from the state-less programs that
+  manipulate that data.  We call these programs `functions`.
 - **Unix philosophy:** Functions should be small, reusable, and composable.
   By implementing the [Configuration Functions Specification][spec],
-  we can develop an ever-growing catalog of useful functions which are interoperable.
+  we can develop an ever-growing catalog of useful, interoperable functions.
 
 ## Why a Typescript SDK
 
-We provide an opinionated Typescript SDK for implementing functions for the following reasons:
+We provide an opinionated Typescript SDK for implementing KPT Functions. This provides various
+advantages:
 
-- **General-purpose language:** Many Domain-Specific languages start off with a small feature set,
-  but over time, grow more complex or even become turing-complete in order to accommodate different use cases.
-  After a certain amount of complexity, you are better of using a general-purpose language to get the benefits of:
-  - Proper abstractions and well thought-out language features
-  - Large, existing ecosystem of tooling (e.g. IDE support)
-  - Large, existing catalog of well-supported libraries
-  - Community support and good documentation
-- **Type-safety:** Kubernetes configuration are typed, and their schema defined using the OpenAPI spec.
-  Typescript has a sophisticated type system that makes dealing with Kubernetes objects easier and safer.
-  The SDK enables generating Typescript classes for core and CRD types.
-- **Batteries-included:** The SDK provides a simple, yet powerful API for querying and manipulating configuration
-  files and provides all the scaffolding required to develop, build, test, and publish functions so
-  you can focus on implementing your business-logic.
+- **General-purpose language:** Domain-Specific Languages begin their life with a reasonable
+  feature set, often but grow over time.  They bloat in order to accommodate the expansive variety
+  of customer use cases. Rather than follow this same course, KPT functions employ a true,
+  general-purpose programmaing language that provides:
+  - Proper abstractions and language features
+  - A extensive ecosystem of tooling (e.g. IDE support)
+  - A comprehensive catalog of well-supported libraries
+  - Robust community support and detailed documentation
+- **Type-safety:** Kubernetes configuration is typed, and its schema is defined using the OpenAPI spec.
+  Typescript has a sophisticated type system that accomodates the complexity of Kubernetes resource.
+  The SDK enables generating Typescript classes for core and CRD types, providing safe and easy
+  interaction with Kubernetes objects.
+- **Batteries-included:** The SDK provides a simple, powerful API for querying and manipulating configuration
+  files. It provides the scaffolding required to develop, build, test, and publish functions, 
+  allowing you to focus on implementing your business-logic.
 
 ## Concepts
 
 ### Function
 
-At a high level a function can be conceptualized like this:
+At a high level, a function can be conceptualized like so:
 
 ![function][img-func]
 
-- `FUNC`: A program, packaged as a docker container, that performs CRUD (Create, Read, Update, Delete) on the input.
-- `input`: A List type containing the Kubernetes objects to operate on.
-- `output`: A List type containing the resultant Kubernetes objects.
-- `functionConfig`: An optional Kubernetes object used to used to parameterize the function's behavior.
+- `FUNC`: A program, packaged as a docker container, that performs CRUD (Create, Read, Update,
+  Delete) operations on the input.
+- `input`: A Kubernetes List type containing objects to operate on.
+- `output`: A Kubernetes List type containing the resultant Kubernetes objects.
+- `functionConfig`: An optional Kubernetes object used to parameterize the function's behavior.
 
-See [Configuration Functions Specification][spec] for details.
+See [Configuration Functions Specification][spec] for further details.
 
-There are two special cases functions:
+There are two special-case functions:
 
 ### Source Function
 
-A source function takes no `input`:
+A Source Function takes no `input`:
 
 ![source][img-source]
 
@@ -72,7 +82,7 @@ system (e.g. reading files from a filesystem).
 
 ### Sink Function
 
-A sink function produces no `output`:
+A Sink Function produces no `output`:
 
 ![sink][img-sink]
 
@@ -84,20 +94,21 @@ Functions can be composed into a pipeline:
 
 ![pipeline][img-pipeline]
 
-## Using Typescript SDK
+## Using The Typescript SDK
 
 ### System Requirements
 
-Current release requires x86 64-bit Linux. Other platforms will be supported in 1.0.0 release.
+The current release requires x86 64-bit Linux. Other platforms will be supported in version 1.0.0.
 
-#### Local Environment
+#### Setting Up Your Local Environment
 
 - Install [node][download-node]
-  - SDK requires npm version 6 or higher.
-  - If downloading binaries, follow these [installation instructions][install-node].
+  - The SDK requires `npm` version 6 or higher.
+  - If installig node from binaries (i.e. without a package manager), follow these
+  [installation instructions][install-node].
 - Install [docker][install-docker]
 
-##### `.npmrc` file
+##### `.npmrc` File
 
 Currently, NPM packages in the SDK are published to [private GitHub package in this repo][npm-packages].
 
@@ -114,13 +125,14 @@ In order to install these packages, you need to configure your `.npmrc` file to 
    EOF
    ```
 
-#### Kubernetes Cluster
+#### Your Kubernetes Cluster
 
-For the type generation feature to work, you need a Kubernetes cluster with this [beta feature][beta-feature].
+For the type generation functionality to work, you need a Kubernetes cluster with this [beta feature][beta-feature].
 
-##### Using a `Kind` cluster
+##### Using a `kind` Cluster
 
-The easiest way is to use `Kind` to bring up a local cluster running as a docker container.
+The easiest way to get developing is to use `kind` to bring up a local cluster, running in a docker
+container.
 
 1. Download the [kind binary][download-kind] version 0.5.1 or higher
 1. Use this config file:
@@ -143,7 +155,9 @@ The easiest way is to use `Kind` to bring up a local cluster running as a docker
    EOF
    ```
 
-1. Create the cluster and point your KUBECONFIG to it:
+   Note the use of the beta feature.
+
+1. Create the cluster and point the KUBECONFIG environment variable to it:
 
    ```sh
    kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.14.6
@@ -152,17 +166,21 @@ The easiest way is to use `Kind` to bring up a local cluster running as a docker
 
 ##### Using a GKE cluster
 
-On GKE, this feature is available using an alpha cluster:
+You can also use a deployed cluster in GKE.  The beta k8s feature is avilable only when using GKE's
+`--enable-kubernetes-alpha` flag, as seen here:
 
 ```sh
 gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cluster-version=latest --region=us-central1-a --project <PROJECT>
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
 
-##### Working with CRDs
+The second command will update your `~/.kube/config`, so no need to set the env variable.
 
-If your function uses a Custom Resource Definition, make sure you apply it to the cluster at
-this point:
+### Working with CRDs
+
+If your function uses a Custom Resource Definition, make sure you apply it to the cluster before
+generating the SDK.  Typescript uses the k8s server to generate the types represented there,
+including your CR.
 
 ```sh
 kubectl apply -f /path/to/my/crd.yaml
@@ -170,7 +188,7 @@ kubectl apply -f /path/to/my/crd.yaml
 
 ### Create the NPM package
 
-To start a new NPM package, run the following and follow the instructions and prompts:
+To initialize a new NPM package, run the following:
 
 ```sh
 mkdir my-package
@@ -178,37 +196,40 @@ cd my-package
 npm init @googlecontainertools/kpt-functions
 ```
 
-**Note:** Going forward, all the commands are assumed to be run from `my-package` directory.
+Follow the instructions and respond to all prompts.
 
-This will create the following files:
+<sub>_**Note:** Going forward, all commands are assumed to be run from the `my-package` directory._<sub>
 
-1. `package.json`: Declares `kpt-functions` framework library as the only item in `dependencies`.
-   Everything required to compile, lint and test a KPT function is declared as `devDependencies`,
-   including the `create-kpt-functions` CLI discussed later.
-1. `src/`: Contains the source files for all your functions, e.g.:
+`npm init` will create the following files:
 
-   - `my_func.ts`: This is where you implement the function interface.
-   - `my_func_test.ts`: This is where you add your unit test.
-   - `my_func_run.ts`: The main entry point that runs the function.
+1. `package.json`: The `kpt-functions` framework library is the only item declared in `dependencies`.
+   Everything required to compile, lint and test your KPT function is declared as `devDependencies`,
+   including the `create-kpt-functions` CLI discussed later in the `README`.
+1. `src/`: Directory containing the source files for all your functions, e.g.:
+
+   - `my_func.ts`: Implement your function's interface here.
+   - `my_func_test.ts`: Unit tests for your function.
+   - `my_func_run.ts`: The entry point from which your function is run.
 
 1. `src/gen/`: Contains Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
 1. `build/`: Contains Dockerfile for each function, e.g.:
    - `my_func.Dockerfile`
 
-Run the following command to install all the dependencies and compile the functions into `dist/` directory.
+Next, install all project dependencies:
 
 ```sh
 npm install
 ```
 
-You can run your function at this point:
+In addition to installation, `install` compiles your function into the `dist/` directory.
+
+You can run your function directly:
 
 ```sh
 node dist/my_func_run.js --help
 ```
 
-Although it's not very interesting as it simply passes the input unchanged to the output.
-Let's remedy this.
+Currently, it simply passes through the input configuration data.  Let's remedy this.
 
 ### Implementing the function
 
@@ -218,7 +239,7 @@ You can now start implementing the function using your favorite IDE, e.g. [VSCod
 code .
 ```
 
-In `src/my_func.ts` you need to implement this simple interface:
+In `src/my_func.ts`, implement this simple interface:
 
 ```ts
 /**
@@ -241,24 +262,26 @@ export interface KptFunc {
 }
 ```
 
-[Configs][configs-api] parameter is an in-memory document store for Kubernetes objects populated from/to configuration files.
-It enables performing rich query and mutation operations.
+The [configs][configs-api] parameter is an in-memory document store of Kubernetes objects populated
+from/to configuration files. It enables rich query and mutation operations.
 
-Take a look at [these example functions][demo-funcs] to better understand how to use `kpt-functions` library. These functions are available as docker images documented in the [catalog][catalog].
+Take a look at [these example functions][demo-funcs] to better understand how to use
+`kpt-functions` library. These functions are available as docker images documented in the [catalog][catalog].
 
-To build the package:
+Once you've written some code, build the package with:
 
 ```sh
 npm run build
 ```
 
-Alternatively, run this in a separate terminal to continuously build as you make changes:
+Alternatively, run the following in a separate terminal.  It will continuously build your function
+as you make changes:
 
 ```sh
 npm run watch
 ```
 
-To run the tests:
+To run the tests, use:
 
 ```sh
 npm test
@@ -266,38 +289,39 @@ npm test
 
 ### Container images
 
-At this point you're ready to package and run your function as an executable container image.
+With your working function in-hand, it's time to package your function into an executable docker 
+image.
 
-Docker build also requires authentication to GitHub:
+`docker build` also requires authentication to GitHub, via the aforementioned credentials:
 
 ```sh
 cp ~/.npmrc .
 ```
 
-To build the image:
+To build the docker image:
 
 ```sh
 npm run kpt:docker-build
 ```
 
-You can now run the function container, e.g.:
+You can now run the image as a docker container, e.g.:
 
 ```sh
 docker run gcr.io/kpt-functions-demo/my-func:dev --help
 ```
 
-To push the image to the registry:
+Docker images are often held in a docker registry.  To push the image to your registry of choice:
 
 ```sh
 npm run kpt:docker-push
 ```
 
-You need to have proper authentication/authorization to be able to push to the registry using
-the credentials used by `docker push`.
+You'll need proper authentication/authorization to push to your registry.
 
-This uses the `kpt.docker_repo_base` field in `package.json` which was set during package creation.
+`kpt:docker-push` pushes to the registry specified in the `kpt.docker_repo_base` field in `package.json`.
 You can manually edit this field at any time.
-The default value for docker image tag is `dev`. This can be overridden using`--tag` flag:
+
+The default value for the docker image tag is `dev`. This can be overridden using`--tag` flag:
 
 ```sh
 npm run kpt:docker-build -- --tag=latest
@@ -306,8 +330,8 @@ npm run kpt:docker-push -- --tag=latest
 
 ### SDK CLI
 
-`create-kpt-functions` package which is installed as a `devDependencies` provides the `kpt` CLI
-for interacting with the NPM package:
+The `create-kpt-functions` package, which is installed via `devDependencies`, provides the `kpt` CLI
+for interacting with the KPT functions libraries:
 
 ```console
 KPT functions CLI.
@@ -331,7 +355,7 @@ subcommands:
                         Overwrite configs if they exist.
 ```
 
-There are corresponding scripts in `package.json` for sub-commands provided by the CLI.
+There are corresponding scripts in `package.json` for the sub-commands provided by the CLI.
 
 To see the help message:
 
@@ -339,13 +363,13 @@ To see the help message:
 npm run kpt:docker-build -- --help
 ```
 
-**Note:** Flags are passed to the CLI after `--` separator.
+<sub>_**Note:** Flags are passed to the CLI after the `--` separator._<sub>
 
 ## Running KPT functions
 
 ### Using `node` or `docker run`
 
-Following steps above, you have a function that can be run locally using `node`:
+After following the steps above, you'll have a function that can be run locally using `node`:
 
 ```sh
 node dist/my_func_run.js --help
@@ -359,31 +383,33 @@ docker run gcr.io/kpt-functions-demo/my-func:dev --help
 
 But how do you read and write configuration files?
 
-You need to use [source and sink functions](#source-function), for example, `read-yaml` and `write-yaml`
-functions from the [KPT functions catalog][catalog].
+### Constructing Pipelines
 
-1. Pull function images:
+Pipelines usually require [source and sink functions](#source-function), for example, the `read-yaml` and `write-yaml`
+functions from the [KPT functions catalog][catalog].  Pull them from the kpt-functions docker registry:
 
    ```sh
    docker pull gcr.io/kpt-functions/read-yaml
    docker pull gcr.io/kpt-functions/write-yaml
    ```
 
-1. Using a configs directory, e.g.:
+You'll also need some source configuration.  You can try this example configuration:
 
    ```sh
    git clone git@github.com:frankfarzan/foo-corp-configs.git
    cd foo-corp-configs
    ```
 
-1. Run `read-yaml` function, and look at its output by piping to `less` command:
+With these tools prepared, construct your pipeline like so:
+
+1. Run the `read-yaml` function and view its output by piping to the `less` command:
 
    ```sh
    docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
    less
    ```
 
-1. Pipe the output of `read-yaml` to your function and look at its output:
+1. Include your function in the pipeline:
 
    ```sh
    docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
@@ -400,7 +426,7 @@ functions from the [KPT functions catalog][catalog].
    less
    ```
 
-1. Pipe the output of your function to `write-yaml` function:
+1. To persist the changes on the file system, pipe the output to the `write-yaml` function:
 
    ```sh
    docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
@@ -414,24 +440,31 @@ functions from the [KPT functions catalog][catalog].
    git status
    ```
 
-#### Docker flags
+#### Understanding Docker Flags
 
-- `-u`: By default, docker containers runs as a non-privileged user. You need to specify a privileged user id if the function needs access to host filesystem or makes network calls for example.
-- `-v`: You need to specify a volume mount if the function needs access to the host filesystem. For example, `read-yaml` function reads
-  the git repo mounted to `/source` directory in the container.
-- `-i`: Needed when using pipes to be able to consume from stdin.
+- `-u`: By default, docker containers run as a non-privileged user.  Privileged actions, like
+filesystem access or calls to the network, require escalated access.  Note the example usages of
+`read-yaml`, which include `docker run -u $(id -u)`, running docker with your user ID.
+- `-v`: Filesystem access requires a mounting your container's filesystem onto your local
+filesystem. For example, the `read-yaml` includes the following: `-v $(pwd):/source`.  This connects
+the container's `/source` directory to the current directory on your filesystem.
+- `-i`: This flag keeps STDIN open for use in pipelines.
 
 #### Example
 
-Let's take a look at `label_namespace.ts` [here][label-namespace].
+Let's demo the `label_namespace.ts` function.  Find the source [here][label-namespace].
 
-Its help message tells us how to configure and run the function:
+Begin by running the function with the `--help` option:
 
 ```sh
 node dist/label_namespace_run.js --help
 ```
 
-It takes a `functionConfig` of kind `ConfigMap` with the following keys:
+This provides guidance on how to use the function, much like any unix program.
+
+`label_namespace` is configured with a `functionConfig` of kind `ConfigMap`.  It takes the keys
+`label_name` and `label_value`.  Let's create a `ConfigMap` with those keys and values of our
+choice, writing it to `/tmp/fc.yaml`:
 
 ```sh
 cat > /tmp/fc.yaml <<EOF
@@ -445,8 +478,8 @@ metadata:
 EOF
 ```
 
-We'll use the following example input defining 2 Namespaces and a ResourceQuota
-(An example output of `read-yaml` [source function](#source-function)).
+Next, we'll need some configuration to mutate.  As our source config, we'll use the following,
+written to `tmp/input.yaml`:
 
 ```sh
 cat > /tmp/input.yaml <<EOF
@@ -482,16 +515,22 @@ items:
       pods: '1'
 EOF
 ```
+This `List` object defines two Namespaces and a ResourceQuota.  In a dockerized pipeline of
+kpt-functions, we'd read the file in via a [source function](#source-function) like `read-yaml`.
 
-If you run the function:
+For development purposes, we'll run `label_namespace` in isolation using `node`.  This allows us
+to interact with the function more easily:
 
 ```sh
 node dist/label_namespace_run.js -i /tmp/input.yaml -f /tmp/fc.yaml
 ```
 
-You should see that Namespaces now have label `color: orange`.
+In the function's output, you'll see that the Namespaces now have the label `color: orange`.
 
-It's common for functions to need a simple list of key/value pairs as parameters. `functionConfig` of kind `ConfigMap` can be used for this purpose. We provide porcelain to make this easier. This is functionally equivalent to the invocation above:
+Passing key/value pairs as parameters to your function is a common pattern, and we recommend
+using `functionConfig` of type `ConfigMap` as demonstrated above.
+
+Key/value pairs can also be passed in directly from the command line, like so:
 
 ```sh
 node dist/label_namespace_run.js -i /tmp/input.yaml -d label_name=color -d label_value=orange
