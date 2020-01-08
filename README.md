@@ -339,7 +339,7 @@ npm run kpt:docker-push -- --tag=latest
 
 ### SDK CLI
 
-`create-kpt-functions` package whcih was installed as a `devDependencies` provides the `kpt` CLI binary
+`create-kpt-functions` package which was installed as a `devDependencies` provides the `kpt` CLI binary
 for interacting with the NPM package:
 
 ```console
