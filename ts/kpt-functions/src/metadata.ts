@@ -33,7 +33,11 @@ export function addAnnotation(
   annotation: string,
   value: string
 ): KubernetesObject {
-  o.metadata.annotations = addToObject(o.metadata.annotations, annotation, value);
+  o.metadata.annotations = addToObject(
+    o.metadata.annotations,
+    annotation,
+    value
+  );
   return o;
 }
 
@@ -44,9 +48,16 @@ export function addAnnotation(
  * @param o The object to remove the annotation from.
  * @param annotation The annotation to remove.
  */
-export function removeAnnotation(o: KubernetesObject, annotation: string): KubernetesObject {
+export function removeAnnotation(
+  o: KubernetesObject,
+  annotation: string
+): KubernetesObject {
   removeFromObject(o.metadata.annotations, annotation);
-  if (o.metadata && o.metadata.annotations && Object.keys(o.metadata.annotations).length === 0) {
+  if (
+    o.metadata &&
+    o.metadata.annotations &&
+    Object.keys(o.metadata.annotations).length === 0
+  ) {
     delete o.metadata.annotations;
   }
   return o;
@@ -58,7 +69,10 @@ export function removeAnnotation(o: KubernetesObject, annotation: string): Kuber
  * @param o The object to get the annotation from.
  * @param annotation The annotation to get.
  */
-export function getAnnotation(o: KubernetesObject, annotation: string): string | undefined {
+export function getAnnotation(
+  o: KubernetesObject,
+  annotation: string
+): string | undefined {
   return getFromObject(o.metadata.annotations, annotation);
 }
 
@@ -70,7 +84,11 @@ export function getAnnotation(o: KubernetesObject, annotation: string): string |
  * @param label The label to set.
  * @param value The value to set the label to.
  */
-export function addLabel(o: KubernetesObject, label: string, value: string): KubernetesObject {
+export function addLabel(
+  o: KubernetesObject,
+  label: string,
+  value: string
+): KubernetesObject {
   o.metadata.labels = addToObject(o.metadata.labels, label, value);
   return o;
 }
@@ -82,9 +100,16 @@ export function addLabel(o: KubernetesObject, label: string, value: string): Kub
  * @param o The object to remove the label from.
  * @param label The label to remove.
  */
-export function removeLabel(o: KubernetesObject, label: string): KubernetesObject {
+export function removeLabel(
+  o: KubernetesObject,
+  label: string
+): KubernetesObject {
   removeFromObject(o.metadata.labels, label);
-  if (o.metadata && o.metadata.labels && Object.keys(o.metadata.labels).length === 0) {
+  if (
+    o.metadata &&
+    o.metadata.labels &&
+    Object.keys(o.metadata.labels).length === 0
+  ) {
     delete o.metadata.labels;
   }
   return o;
@@ -96,7 +121,10 @@ export function removeLabel(o: KubernetesObject, label: string): KubernetesObjec
  * @param o The object to get the label from.
  * @param label The label to get.
  */
-export function getLabel(o: KubernetesObject, label: string): string | undefined {
+export function getLabel(
+  o: KubernetesObject,
+  label: string
+): string | undefined {
   return getFromObject(o.metadata.labels, label);
 }
 
@@ -108,7 +136,10 @@ function addToObject(
   return Object.assign(object || {}, { [key]: value });
 }
 
-function removeFromObject(object: { [key: string]: string } | undefined, key: string) {
+function removeFromObject(
+  object: { [key: string]: string } | undefined,
+  key: string
+) {
   if (object && object[key]) {
     delete object[key];
   }

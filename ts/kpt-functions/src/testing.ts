@@ -95,7 +95,9 @@ class TestCase {
       //  We know the configs are sorted, but not elements of sub-fields which are arrays.
       //  The comparison doesn't try to smartly find plausible near-misses in the case of missing
       //  elements, so missing the first element of 8 will throw a large, hard-to-read error message.
-      expect(valueOf(configs)).toEqual(valueOf(this.expectedOutput) || valueOf(this.input));
+      expect(valueOf(configs)).toEqual(
+        valueOf(this.expectedOutput) || valueOf(this.input)
+      );
     };
   }
 }
@@ -103,7 +105,8 @@ class TestCase {
 function deepClone(configs: Configs): Configs {
   const items = JSON.parse(JSON.stringify(configs.getAll()));
   const functionConfig =
-    configs.getFunctionConfig() && JSON.parse(JSON.stringify(configs.getFunctionConfig()));
+    configs.getFunctionConfig() &&
+    JSON.parse(JSON.stringify(configs.getFunctionConfig()));
   return new Configs(items, functionConfig);
 }
 

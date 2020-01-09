@@ -78,7 +78,9 @@ export class KubernetesObjectError extends ConfigError {
   }
 
   toString(): string {
-    const path = getAnnotation(this.object, SOURCE_PATH_ANNOTATION) || 'No path annotation';
+    const path =
+      getAnnotation(this.object, SOURCE_PATH_ANNOTATION) ||
+      'No path annotation';
     const namespace = this.object.metadata.namespace || '';
     return `${this.name}: ${this.message}
 path: ${path}

@@ -4,13 +4,13 @@ KPT Functions are client-side programs that operate on Kubernetes configuration 
 
 Example use cases:
 
-- **Enforce policy:** e.g. Require all `Namespace` configurations to have a `cost-center` label.
-- **Generate configuration:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
-- **Mutate/migrate configuration:** e.g. Change a field in all `PodSecurityPolicy` configurations to make them more secure.
+- **Configuration Compliance:** e.g. Require all `Namespace` configurations to have a `cost-center` label.
+- **Configuration Generation:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
+- **Configuration Mutation/Migration:** e.g. Change a field in all `PodSecurityPolicy` configurations to make them more secure.
 
 KPT functions can be run as one-off functions or as part of a CI/CD pipeline.
 
-With GitOps workflows, KPT functions read and write configuration files from a Git repo. Changes
+In GitOps workflows, KPT functions read and write configuration files from a Git repo. Changes
 to the system authored by humans and mutating KPT functions are reviewed before being committed to the repo. KPT functions
 can be run as pre-commit or post-commit steps to check for compliance before configurations are
 applied to a cluster.
@@ -19,6 +19,37 @@ In CI/CD, KPT Functions can validate your configuration before committing.  Many
 are caused by misconfiguration, with code review serving as the only config validation.  KPT Functions
 can programmatically enforce standards and practices, building safety into your infrastructure
 development flow.
+
+## Table of Contents
+
+- [Why KPT Functions](#why-kpt-functions)
+- [Why a Typescript SDK](#why-a-typescript-sdk)
+- [Concepts](#concepts)
+  - [Function](#function)
+  - [Source Function](#source-function)
+  - [Sink Function](#sink-function)
+  - [Pipeline](#pipeline)
+- [Developing KPT functions](#developing-kpt-functions)
+  - [System Requirements](#system-requirements)
+    - [Local Environment](#local-environment)
+      - [`.npmrc` file](#npmrc-file)
+    - [Kubernetes Cluster](#kubernetes-cluster)
+      - [Using a `Kind` cluster](#using-a-kind-cluster)
+      - [Using a GKE cluster](#using-a-gke-cluster)
+      - [Working with CRDs](#working-with-crds)
+  - [Create the NPM package](#create-the-npm-package)
+  - [Implementing the function](#implementing-the-function)
+  - [Container images](#container-images)
+  - [SDK CLI](#sdk-cli)
+- [Running KPT functions](#running-kpt-functions)
+  - [Using `docker run`](#using-docker-run)
+    - [Docker flags](#docker-flags)
+    - [Example 1](#example-1)
+      - [functionConfig as part of input](#functionconfig-as-part-of-input)
+      - [functionConfig from a file](#functionconfig-from-a-file)
+      - [functionConfig from literal values](#functionconfig-from-literal-values)
+    - [Example 2](#example-2)
+  - [Using `kustomize config`](#using-kustomize-config)
 
 ## Why KPT Functions
 
@@ -70,7 +101,7 @@ See [Configuration Functions Specification][spec] for further details.
 
 There are two special-case functions:
 
-### Source Function
+### Source Functions
 
 A Source Function takes no `input`:
 
@@ -79,7 +110,7 @@ A Source Function takes no `input`:
 Instead, the function typically produces the `output` by reading configurations from an external
 system (e.g. reading files from a filesystem).
 
-### Sink Function
+### Sink Functions
 
 A Sink Function produces no `output`:
 
@@ -87,13 +118,15 @@ A Sink Function produces no `output`:
 
 Instead, the function typically writes configurations to an external system (e.g. writing files to a filesystem).
 
-### Pipeline
+### Pipelines
 
 Functions can be composed into a pipeline:
 
 ![pipeline][img-pipeline]
 
-## Using the Typescript SDK
+## Developing KPT Functions
+
+This section covers how to use the Typescript SDK to develop KPT functions.
 
 ### System Requirements
 
@@ -197,7 +230,7 @@ npm init @googlecontainertools/kpt-functions
 
 Follow the instructions and respond to all prompts.
 
->**Note:** All subsequent commands are run from the `my-package/` directory.
+> **Note:** All subsequent commands are run from the `my-package/` directory.
 
 `npm init` will create the following files:
 
@@ -359,14 +392,20 @@ There are corresponding scripts in `package.json` for the sub-commands provided 
 To see the help message:
 
 ```console
-npm run kpt:docker-build -- --help
+npm run kpt:function-create -- --help
 ```
 
->**Note:** Flags are passed to the CLI after the `--` separator.
+> **Note:** Flags are passed to the CLI after the `--` separator.
 
 ## Running KPT functions
 
-### Using `node` or `docker run`
+KPT functions can be executed using different orchestrators. This section covers two ways of running
+functions:
+
+1. Directly using `docker run`
+1. Using `kustomize config`
+
+### Using `docker run`
 
 After following the steps above, you'll have a function that can be run locally using `node`:
 
@@ -395,8 +434,8 @@ functions from the [KPT functions catalog][catalog].  Pull them from the kpt-fun
 You'll also need some source configuration.  You can try this example configuration:
 
    ```sh
-   git clone git@github.com:frankfarzan/foo-corp-configs.git
-   cd foo-corp-configs
+   git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+   cd kpt-functions-sdk/example-configs
    ```
 
 With these tools prepared, construct your pipeline like so:
@@ -449,21 +488,79 @@ filesystem. For example, the `read-yaml` command includes the following: `-v $(p
 the container's `/source` directory to the current directory on your filesystem.
 - `-i`: This flag keeps STDIN open for use in pipelines.
 
-#### Example
+#### Example 1
 
 Let's demo the `label_namespace.ts` function.  Find the source [here][label-namespace].
 
 Begin by running the function with the `--help` option:
 
 ```sh
-node dist/label_namespace_run.js --help
+docker run gcr.io/kpt-functions/label-namespace --help
 ```
 
-This provides guidance on how to use the function, much like any unix program.
+The `label_namespace` function is configured with a `functionConfig` of kind `ConfigMap`.  It takes the keys
+`label_name` and `label_value`.  The function adds the label `[label_name]: [label_value]` to the
+`Namespace` objects in the input.
 
-`label_namespace` is configured with a `functionConfig` of kind `ConfigMap`.  It takes the keys
-`label_name` and `label_value`.  Let's create a `ConfigMap` with those keys and values of our
-choice, writing it to `/tmp/fc.yaml`:
+##### functionConfig as part of input
+
+[Configuration Functions Specification][spec] allow specifying functionConfig as part of the input
+resource as such:
+
+```sh
+cat > /tmp/input.yaml <<EOF
+apiVersion: v1
+kind: ResourceList
+functionConfig:
+  apiVersion: v1
+  kind: ConfigMap
+  data:
+    label_name: color
+    label_value: orange
+  metadata:
+    name: my-config
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: audit
+    annotations:
+      config.kubernetes.io/path: audit/namespace.yaml
+      config.kubernetes.io/index: '0'
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: shipping-dev
+    annotations:
+      config.kubernetes.io/path: shipping-dev/namespace.yaml
+      config.kubernetes.io/index: '0'
+- apiVersion: v1
+  kind: ResourceQuota
+  metadata:
+    name: rq
+    namespace: shipping-dev
+    annotations:
+      config.kubernetes.io/path: shipping-dev/resource-quota.yaml
+      config.kubernetes.io/index: '0'
+  spec:
+    hard:
+      cpu: 100m
+      memory: 100Mi
+      pods: '1'
+EOF
+```
+
+When you run the function:
+
+```sh
+docker run -i gcr.io/kpt-functions/label-namespace < /tmp/input.yaml
+```
+
+you should see the `audit` and `shipping-dev` Namespaces now include the label `color: orange`.
+
+##### functionConfig from a file
+
+Alternatively, the `functionConfig` can be specified as its own file:
 
 ```sh
 cat > /tmp/fc.yaml <<EOF
@@ -477,11 +574,10 @@ metadata:
 EOF
 ```
 
-Next, we'll need some configuration to mutate.  As our source config, we'll use the following,
-written to `tmp/input.yaml`:
+separate from the input configuration data:
 
 ```sh
-cat > /tmp/input.yaml <<EOF
+cat > /tmp/input2.yaml <<EOF
 apiVersion: v1
 kind: List
 items:
@@ -514,45 +610,203 @@ items:
       pods: '1'
 EOF
 ```
+
 This `List` object defines two Namespaces and a ResourceQuota.  In a dockerized pipeline of
 kpt-functions, we'd read the file in via a [source function](#source-function) like `read-yaml`.
-
-For development purposes, we'll run `label_namespace` in isolation using `node`.  This allows us
-to interact with the function more easily:
+For now, we'll use a bash redirection:
 
 ```sh
-node dist/label_namespace_run.js -i /tmp/input.yaml -f /tmp/fc.yaml
+docker run -i -u $(id -u) -v /tmp/fc.yaml:/tmp/fc.yaml gcr.io/kpt-functions/label-namespace -f /tmp/fc.yaml < /tmp/input2.yaml
 ```
 
-In the function's output, you'll see that the Namespaces now have the label `color: orange`.
+##### functionConfig from literal values
 
-Passing key/value pairs as parameters to your function is a common pattern, and we recommend
-using `functionConfig` of type `ConfigMap` as demonstrated above.
-
-Key/value pairs can also be passed in directly from the command line, like so:
+Key/value parameters can also be assigned inline, like so:
 
 ```sh
-node dist/label_namespace_run.js -i /tmp/input.yaml -d label_name=color -d label_value=orange
+docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange < /tmp/input2.yaml
 ```
 
-### Using `kustomize config run`
+This is functionally equivalent to the `ConfigMap` used earlier.
 
-KPT functions can be run using `kustomize` as [documented here][kustomize-run].
+> **Note:** This causes an error if the function takes another kind of `functionConfig`.
+
+Finally, let's mutate the configuration files by using source and sink functions:
+
+```sh
+git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+cd kpt-functions-sdk/example-configs
+
+docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
+docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
+docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /dev/null -d sink_dir=/sink -d overwrite=true
+```
+
+You should see labels added to `Namespace` configuration files:
+
+```sh
+git status
+```
+
+#### Example 2
+
+Functions can be piped to form sophisticated pipelines.
+
+First, grab the `example-configs` directory and pull the docker images:
+
+```sh
+git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+cd kpt-functions-sdk/example-configs
+
+docker pull gcr.io/kpt-functions/read-yaml
+docker pull gcr.io/kpt-functions/mutate-psp
+docker pull gcr.io/kpt-functions/expand-team-cr
+docker pull gcr.io/kpt-functions/validate-rolebinding
+docker pull gcr.io/kpt-functions/write-yaml
+```
+
+Run these functions:
+
+```sh
+docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
+docker run -i gcr.io/kpt-functions/mutate-psp |
+docker run -i gcr.io/kpt-functions/expand-team-cr |
+docker run -i gcr.io/kpt-functions/validate-rolebinding -d subject_name=alice@foo-corp.com |
+docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /dev/null -d sink_dir=/sink -d overwrite=true
+```
+
+Let's walk through each step:
+
+1. `read-yaml` recursively reads all YAML files from the `foo-corp-configs` directory on the host.
+1. `mutate-psp` reads the output of `read-yaml`. This function **mutates** any `PodSecurityPolicy`
+resources by setting the `allowPrivilegeEscalation` field to `false`.
+1. `expand-team-cr` similarly operates on the result of the previous function. It looks
+   for Kubernetes custom resource of kind `Team`, and **generates** new resources based on that
+   (e.g. `Namespaces` and `RoleBindings`).
+1. `validate-rolebinding` **enforces** a policy that disallows any `RoleBindings` with `subject`
+   set to `alice@foo-corp.com`. This steps fails with a non-zero exit code if the policy is violated.
+1. `write-yaml` writes the result of the pipeline back to the `foo-corp-configs` directory on the host.
+
+Let's see what changes were made to the repo:
+
+```sh
+git status
+```
+
+You should see the following changes:
+
+1. An updated `podsecuritypolicy_psp.yaml`, mutated by the `mutate-psp` function.
+1. The `payments-dev` and `payments-prod` directories, created by `expand-team-cr` function.
+
+### Using `kustomize config`
+
+`kustomize config` provides utilities for working with configuration, including running KPT functions.
+
+#### Downloading `kustomize`
+
+1. Download the `kustomize` binary [here][download-kustomize].
+1. Enable alpha commands:
+
+   ```sh
+   export KUSTOMIZE_ENABLE_ALPHA_COMMANDS=true
+   ```
+
+#### Example
+
+```sh
+git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+cd kpt-functions-sdk/example-configs
+```
+
+The `config source` and `config sink` sub-commands are implementations of [source and sink functions](#source-function)
+
+```sh
+kustomize config source . |
+docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
+kustomize config sink .
+```
+
+You should see labels added to `Namespace` configuration files:
+
+```sh
+git status
+```
+
+Using `config run`, you can declare a function and its `functionConfig` like any other configuration
+file:
+
+```sh
+cat << EOF > kpt-func.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/label-namespace
+    config.kubernetes.io/local-config: "true"
+data:
+  label_name: color
+  label_value: orange
+EOF
+```
+
+You should see the same results as in the previous examples:
+
+```sh
+kustomize config run .
+git status
+```
+
+You can have multiple function declarations in a directory. Let's add a second function:
+
+```sh
+cat << EOF > kpt-func2.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/validate-rolebinding
+    config.kubernetes.io/local-config: "true"
+data:
+  subject_name: bob@foo-corp.com
+EOF
+```
+
+`config run` executes both functions:
+
+```sh
+kustomize config run .
+```
+
+In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.
+
+To see help message for details:
+
+```sh
+kustomize config run --help
+```
 
 [img-func]: docs/func.png
 [img-pipeline]: docs/pipeline.png
 [img-source]: docs/source.png
 [img-sink]: docs/sink.png
-[spec]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-spec.md
+[spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
+[kustomize-run]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-impl.md
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-catalog/tree/master/demo-functions/src/label_namespace.ts
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
 [configs-api]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
 [vscode]: https://code.visualstudio.com/
-[kustomize-run]: https://github.com/frankfarzan/kustomize/blob/functions-doc/cmd/config/docs/api-conventions/functions-impl.md
 [npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
 [download-node]: https://nodejs.org/en/download/
 [download-kind]: https://github.com/kubernetes-sigs/kind
+[download-kustomize]: https://storage.googleapis.com/kpt-temp/kustomize
 [install-node]: https://github.com/nodejs/help/wiki/Installation
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
 [beta-feature]: https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing
+[document-store]: https://en.wikipedia.org/wiki/Document-oriented_database

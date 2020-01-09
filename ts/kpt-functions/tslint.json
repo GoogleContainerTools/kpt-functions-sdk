@@ -84,7 +84,11 @@
     "object-literal-key-quotes": [true, "as-needed"],
     "object-literal-shorthand": true,
     "object-literal-sort-keys": false,
-    "only-arrow-functions": [true, "allow-declarations", "allow-named-functions"],
+    "only-arrow-functions": [
+      true,
+      "allow-declarations",
+      "allow-named-functions"
+    ],
     "prefer-const": true,
     "radix": true,
     "rulesDirectory": ["tslint-consistent-codestyle"],

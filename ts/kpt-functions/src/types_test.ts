@@ -114,12 +114,12 @@ describe('get', () => {
       'tinek',
       'walherich',
     ];
-    const roles = names.map((name) => new Role(name));
+    const roles = names.map(name => new Role(name));
     _.shuffle(roles);
 
     const configs = new Configs(roles);
 
-    expect(configs.getAll()).toEqual(names.map((name) => new Role(name)));
+    expect(configs.getAll()).toEqual(names.map(name => new Role(name)));
   });
 });
 
@@ -154,13 +154,13 @@ describe('insert', () => {
       'theo',
       'zuzka',
     ];
-    const roles = names.map((name) => new Role(name));
+    const roles = names.map(name => new Role(name));
     _.shuffle(roles);
 
     const configs = new Configs();
     configs.insert(...roles);
 
-    expect(configs.getAll()).toEqual(names.map((name) => new Role(name)));
+    expect(configs.getAll()).toEqual(names.map(name => new Role(name)));
   });
 });
 
@@ -220,7 +220,10 @@ describe('groupBy', () => {
     const configs = new Configs([new Role('alice'), new Role('bob')]);
     const grouped = configs.groupBy(keyFn);
 
-    expect(grouped).toEqual([['a', [new Role('alice')]], ['b', [new Role('bob')]]]);
+    expect(grouped).toEqual([
+      ['a', [new Role('alice')]],
+      ['b', [new Role('bob')]],
+    ]);
   });
 
   it('uses a single partition for elements mapping to the same key', () => {

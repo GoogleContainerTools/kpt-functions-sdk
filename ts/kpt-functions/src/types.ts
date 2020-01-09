@@ -52,7 +52,10 @@ export class Configs {
    *
    * Does not preserve insertion order of the passed objects.
    */
-  constructor(items: KubernetesObject[] = [], functionConfig?: KubernetesObject) {
+  constructor(
+    items: KubernetesObject[] = [],
+    functionConfig?: KubernetesObject
+  ) {
     this.functionConfig = functionConfig;
     this.insert(...items);
   }
@@ -65,7 +68,7 @@ export class Configs {
    * Returned objects are pass-by-reference; mutating them results in changes being persisted.
    */
   getAll(): KubernetesObject[] {
-    return this.items.map((e) => e[1]);
+    return this.items.map(e => e[1]);
   }
 
   /**
@@ -79,7 +82,9 @@ export class Configs {
    *
    * @param isKind is a type predicate on the desired type.
    */
-  get<Kind extends KubernetesObject>(isKind: (o: KubernetesObject) => o is Kind): Kind[] {
+  get<Kind extends KubernetesObject>(
+    isKind: (o: KubernetesObject) => o is Kind
+  ): Kind[] {
     return this.getAll().filter(isKind) as Kind[];
   }
 
@@ -96,7 +101,7 @@ export class Configs {
    * @param objects The objects to insert.
    */
   insert(...objects: KubernetesObject[]): void {
-    objects.forEach((o) => {
+    objects.forEach(o => {
       const key: string = kubernetesKeyFn(o);
       const [index, found] = this.indexOf(key, this.items, 0);
       this.items.splice(index, found ? 1 : 0, [key, o]);
@@ -111,7 +116,7 @@ export class Configs {
    * @param objects The objects to delete.
    */
   delete(...objects: KubernetesObject[]): void {
-    objects.forEach((o) => {
+    objects.forEach(o => {
       const key: string = kubernetesKeyFn(o);
       const [index, found] = this.indexOf(key, this.items, 0);
       if (found) {
@@ -138,9 +143,11 @@ export class Configs {
    *
    * @param keyFn Generates a key for each Value.
    */
-  groupBy(keyFn: (object: KubernetesObject) => string): Array<[string, KubernetesObject[]]> {
+  groupBy(
+    keyFn: (object: KubernetesObject) => string
+  ): Array<[string, KubernetesObject[]]> {
     const map = new Map<string, KubernetesObject[]>();
-    this.getAll().forEach((o) => {
+    this.getAll().forEach(o => {
       const key = keyFn(o);
       const valuesAtKey = map.get(key) || [];
       map.set(key, [...valuesAtKey, o]);
@@ -171,7 +178,9 @@ export class Configs {
       return undefined;
     }
     if (!isConfigMap(cm)) {
-      throw new Error(`functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`);
+      throw new Error(
+        `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
+      );
     }
     return cm.data && cm.data[key];
   }
@@ -182,7 +191,9 @@ export class Configs {
   getFunctionConfigValueOrThrow(key: string): string {
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
-      throw new Error(`Missing key ${key} in ConfigMap data provided as functionConfig`);
+      throw new Error(
+        `Missing key ${key} in ConfigMap data provided as functionConfig`
+      );
     }
     return val;
   }
@@ -210,7 +221,11 @@ export class Configs {
       return this.indexOf(key, array.slice(0, mid), offset);
     } else if (key > array[mid][0]) {
       // Look after mid.
-      return this.indexOf(key, array.slice(mid + 1, array.length), offset + mid + 1);
+      return this.indexOf(
+        key,
+        array.slice(mid + 1, array.length),
+        offset + mid + 1
+      );
     }
     // mid is the object we're looking for.
     return [offset + mid, true];
@@ -240,7 +255,13 @@ export interface KubernetesObject {
  * Type guard for KubernetesObject.
  */
 export function isKubernetesObject(o: any): o is KubernetesObject {
-  return o && o.apiVersion !== '' && o.kind !== '' && o.metadata && o.metadata.name !== '';
+  return (
+    o &&
+    o.apiVersion !== '' &&
+    o.kind !== '' &&
+    o.metadata &&
+    o.metadata.name !== ''
+  );
 }
 
 /**
