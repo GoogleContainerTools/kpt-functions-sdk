@@ -664,11 +664,12 @@ You should see these changes:
 
 #### Downloading `kustomize`
 
-TODO: Provide a link to kustomize binary that has required changes.
+1. Download the `kustomize` binary [here][download-kustomize].
+1. Enable alpha commands:
 
-```sh
-export KUSTOMIZE_ENABLE_ALPHA_COMMANDS=true # enable kustomize alpha commands
-```
+   ```sh
+   export KUSTOMIZE_ENABLE_ALPHA_COMMANDS=true
+   ```
 
 #### Example 1
 
@@ -764,6 +765,7 @@ kustomize config run --help
 [npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
 [download-node]: https://nodejs.org/en/download/
 [download-kind]: https://github.com/kubernetes-sigs/kind
+[download-kustomize]: https://storage.googleapis.com/kpt-temp/kustomize
 [install-node]: https://github.com/nodejs/help/wiki/Installation
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
 [beta-feature]: https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.15.md#customresourcedefinition-openapi-publishing
