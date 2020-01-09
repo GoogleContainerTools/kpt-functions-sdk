@@ -8,27 +8,12 @@ Example use cases:
 - **Generate configuration:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
 - **Mutate/migrate configuration:** e.g. Change a field in all `PodSecurityPolicy` configurations to make them more secure.
 
-<<<<<<< HEAD
 KPT functions can be run as one-off functions or as part of a CI/CD pipeline.
 
 With GitOps workflows, KPT functions read and write configuration files from a Git repo. Changes
 to the system authored by humans and mutating KPT functions are reviewed before being committed to the repo. KPT functions
 can be run as pre-commit or post-commit steps to check for compliance before configurations are
 applied to a cluster.
-=======
-KPT functions can be run independently or as part of a CI/CD pipeline.
-
-Functions that run independently inject configuration and output new configuration.  The functions
-serve as a tool to generate large amounts of varied configuration that can be subsequently
-reviewed and applied.
-
-In CI/CD, KPT Functions can validate your configuration before committing, much like one might
-unit-test a piece of application code.  This can be extended into a GitOps workflow, where commits
-to one repo might trigger a mutating KPT Function that writes to another.
-
-KPT Functions are versatile and composable; they can be mixed and matched to meet the unique needs
-of your infrastructure.
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
 
 In CI/CD, KPT Functions can validate your configuration before committing.  Many production outages
 are caused by misconfiguration, with code review serving as the only config validation.  KPT Functions
@@ -52,11 +37,7 @@ We provide an opinionated Typescript SDK for implementing KPT Functions. This pr
 advantages:
 
 - **General-purpose language:** Domain-Specific Languages begin their life with a reasonable
-<<<<<<< HEAD
   feature set, but often grow over time.  They bloat in order to accommodate the tremendous variety
-=======
-  feature set, often but grow over time.  They bloat in order to accommodate the expansive variety
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
   of customer use cases. Rather than follow this same course, KPT functions employ a true,
   general-purpose programmaing language that provides:
   - Proper abstractions and language features
@@ -64,19 +45,11 @@ advantages:
   - A comprehensive catalog of well-supported libraries
   - Robust community support and detailed documentation
 - **Type-safety:** Kubernetes configuration is typed, and its schema is defined using the OpenAPI spec.
-<<<<<<< HEAD
   Typescript has a sophisticated type system that accomodates the complexity of Kubernetes resources.
   The SDK enables generating Typescript classes for core and CRD types, providing safe and easy
   interaction with Kubernetes objects.
 - **Batteries-included:** The SDK provides a simple, powerful API for querying and manipulating configuration
   files. It provides the scaffolding required to develop, build, test, and publish functions,
-=======
-  Typescript has a sophisticated type system that accomodates the complexity of Kubernetes resource.
-  The SDK enables generating Typescript classes for core and CRD types, providing safe and easy
-  interaction with Kubernetes objects.
-- **Batteries-included:** The SDK provides a simple, powerful API for querying and manipulating configuration
-  files. It provides the scaffolding required to develop, build, test, and publish functions, 
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
   allowing you to focus on implementing your business-logic.
 
 ## Concepts
@@ -120,11 +93,7 @@ Functions can be composed into a pipeline:
 
 ![pipeline][img-pipeline]
 
-<<<<<<< HEAD
 ## Using the Typescript SDK
-=======
-## Using The Typescript SDK
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
 
 ### System Requirements
 
@@ -134,11 +103,7 @@ The current release requires x86 64-bit Linux. Other platforms will be supported
 
 - Install [node][download-node]
   - The SDK requires `npm` version 6 or higher.
-<<<<<<< HEAD
   - If installig node from binaries (i.e. without a package manager), follow these
-=======
-  - If installig node from binaries (i.e. without a package manager ), follow these
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
   [installation instructions][install-node].
 - Install [docker][install-docker]
 
@@ -209,21 +174,12 @@ gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a 
 ```
 
 The second command will update your `~/.kube/config`, so no need to set the env variable.
-<<<<<<< HEAD
 
 ### Working with CRDs
 
 If your function uses a Custom Resource Definition, make sure you apply it to the cluster before
 generating the SDK.  Typescript uses the k8s server to generate the types represented there,
 including your CRD.
-=======
-
-### Working with CRDs
-
-If your function uses a Custom Resource Definition, make sure you apply it to the cluster before
-generating the SDK.  Typescript uses the k8s server to generate the types represented there,
-including your CR.
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
 
 ```sh
 kubectl apply -f /path/to/my/crd.yaml
@@ -241,20 +197,12 @@ npm init @googlecontainertools/kpt-functions
 
 Follow the instructions and respond to all prompts.
 
-<<<<<<< HEAD
 >**Note:** All subsequent commands are run from the `my-package/` directory.
-=======
-<sub>_**Note:** Going forward, all commands are assumed to be run from the `my-package` directory._<sub>
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
 
 `npm init` will create the following files:
 
 1. `package.json`: The `kpt-functions` framework library is the only item declared in `dependencies`.
-<<<<<<< HEAD
    Everything required to compile and test your KPT function is declared as `devDependencies`,
-=======
-   Everything required to compile, lint and test your KPT function is declared as `devDependencies`,
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
    including the `create-kpt-functions` CLI discussed later in the `README`.
 1. `src/`: Directory containing the source files for all your functions, e.g.:
 
@@ -382,11 +330,7 @@ npm run kpt:docker-push -- --tag=latest
 ### SDK CLI
 
 The `create-kpt-functions` package, which is installed via `devDependencies`, provides the `kpt` CLI
-<<<<<<< HEAD
 to help develop new functions.  It includes commands to create, build, publish, and more:
-=======
-for interacting with the KPT functions libraries:
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
 
 ```console
 KPT functions CLI.
@@ -418,11 +362,7 @@ To see the help message:
 npm run kpt:docker-build -- --help
 ```
 
-<<<<<<< HEAD
 >**Note:** Flags are passed to the CLI after the `--` separator.
-=======
-<sub>_**Note:** Flags are passed to the CLI after the `--` separator._<sub>
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
 
 ## Running KPT functions
 
@@ -504,13 +444,8 @@ With these tools prepared, construct your pipeline like so:
 - `-u`: By default, docker containers run as a non-privileged user.  Privileged actions, like
 filesystem access or calls to the network, require escalated access.  Note the example usages of
 `read-yaml`, which include `docker run -u $(id -u)`, running docker with your user ID.
-<<<<<<< HEAD
 - `-v`: Filesystem access requires mounting your container's filesystem onto your local
 filesystem. For example, the `read-yaml` command includes the following: `-v $(pwd):/source`.  This connects
-=======
-- `-v`: Filesystem access requires a mounting your container's filesystem onto your local
-filesystem. For example, the `read-yaml` includes the following: `-v $(pwd):/source`.  This connects
->>>>>>> f934d5f... Wordsmithing and clarifying the readme
 the container's `/source` directory to the current directory on your filesystem.
 - `-i`: This flag keeps STDIN open for use in pipelines.
 
