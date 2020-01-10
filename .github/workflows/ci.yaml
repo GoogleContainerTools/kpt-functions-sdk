@@ -46,6 +46,9 @@ jobs:
         path: ./src/github.com/${{ github.repository }}
     - name: make all
       run: |
+        ls .
+        ls $GITHUB_WORKSPACE
+        ls ./src/github.com/${{ github.repository }}
         cd ./src/github.com/${{ github.repository }}/go
         make all
       env:
