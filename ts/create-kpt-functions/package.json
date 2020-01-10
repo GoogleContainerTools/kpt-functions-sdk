@@ -1,6 +1,6 @@
 {
   "name": "@googlecontainertools/create-kpt-functions",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "KPT functions CLI",
   "author": "KPT Authors",
   "license": "Apache-2.0",
@@ -13,7 +13,7 @@
     "kpt": "dist/cli.js"
   },
   "files": [
-    "bin/typegen",
+    "bin/",
     "dist/",
     "!**/*_test.*",
     "templates/"

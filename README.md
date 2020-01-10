@@ -131,7 +131,7 @@ This section covers how to use the Typescript SDK to develop KPT functions.
 
 ### System Requirements
 
-The current release requires x86 64-bit Linux. Other platforms will be supported in version 1.0.0.
+Supported platforms: amd64 Linux/Mac/Windows
 
 #### Setting Up Your Local Environment
 

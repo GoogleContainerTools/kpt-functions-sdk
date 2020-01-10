@@ -3,3 +3,5 @@ dist
 node_modules
 *.iml
 .npmrc
+go/.out
+ts/create-kpt-functions/bin
