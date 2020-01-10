@@ -34,9 +34,6 @@ jobs:
         
   go-ci:
     runs-on: ubuntu-latest
-    env:
-      GOPATH: ${{ runner.workspace }}
-      GO111MODULE: off  
     steps:
     - name: Set up Go 1.13
       uses: actions/setup-go@v1
@@ -46,8 +43,11 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
       with:
-        path: ./src/github.com/${{ github.repository }}
+        path: ./src/github.com/$GITHUB_REPOSITORY
     - name: make all
       run: |
-        cd go
+        cd ./src/github.com/$GITHUB_REPOSITORY/go
         make all
+      env:
+        GOPATH: $GITHUB_WORKSPACE
+        GO111MODULE: off  
