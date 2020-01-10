@@ -12,14 +12,11 @@ on:
 
 jobs:
   node-ci:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [12.x]
         package: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package]
-
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -34,3 +31,23 @@ jobs:
         npm test
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  go-ci:
+    runs-on: ubuntu-latest
+    env:
+      GOPATH: /home/runner/work/kpt-functions-sdk/go
+      GO111MODULE: off  
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+      with:
+        path: go/src/github.com/${{ github.repository }}
+    - name: make all
+      run: |
+        cd go
+        make all
