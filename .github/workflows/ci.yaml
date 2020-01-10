@@ -35,7 +35,7 @@ jobs:
   go-ci:
     runs-on: ubuntu-latest
     env:
-      GOPATH: ${GITHUB_WORKSPACE}/go
+      GOPATH: /home/runner/work/kpt-functions-sdk/go
       GO111MODULE: off  
     steps:
     - name: Set up Go 1.13
