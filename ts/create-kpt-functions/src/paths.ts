@@ -30,7 +30,7 @@ function typegenBin(): string {
       arch = 'amd64';
       break;
     default:
-      throw new Error(`${os.arch()} architecture not currently support`);
+      throw new Error(`${os.arch()} architecture is currently not supported`);
   }
 
   let platform;
@@ -45,7 +45,7 @@ function typegenBin(): string {
       platform = 'windows';
       break;
     default:
-      throw new Error(`${os.platform()} OS not currently support`);
+      throw new Error(`${os.platform()} platform is currently not supported`);
   }
 
   return `typegen_${platform}_${arch}`;
