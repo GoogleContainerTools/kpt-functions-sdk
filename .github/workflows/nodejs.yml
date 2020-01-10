@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        packages: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package]
+        package: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package]
 
     steps:
     - uses: actions/checkout@v1
