@@ -34,6 +34,9 @@ jobs:
         
   go-ci:
     runs-on: ubuntu-latest
+    env:
+      GOPATH: $GITHUB_WORKSPACE
+      GO111MODULE: off  
     steps:
     - name: Set up Go 1.13
       uses: actions/setup-go@v1
@@ -48,6 +51,3 @@ jobs:
       run: |
         cd go
         make all
-      env:
-        GOPATH: $GITHUB_WORKSPACE
-        GO111MODULE: off  
