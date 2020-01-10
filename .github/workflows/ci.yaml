@@ -43,10 +43,10 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
       with:
-        path: ./src/github.com/$GITHUB_REPOSITORY
+        path: ./src/github.com/${{ github.repository }}
     - name: make all
       run: |
-        cd ./src/github.com/$GITHUB_REPOSITORY/go
+        cd ./src/github.com/${{ github.repository }}/go
         make all
       env:
         GOPATH: $GITHUB_WORKSPACE
