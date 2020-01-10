@@ -18,6 +18,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
+        packages: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package]
 
     steps:
     - uses: actions/checkout@v1
@@ -28,21 +29,7 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
     - name: kpt-functions
       run: |
-        cd ts/kpt-functions
-        npm ci
-        npm test
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: create-kpt-functions
-      run: |
-        cd ts/create-kpt-functions
-        npm ci
-        npm test
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: example-package
-      run: |
-        cd ts/example-package
+        cd ${{ matrix.package }}
         npm ci
         npm test
       env:
