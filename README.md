@@ -1,4 +1,5 @@
 # KPT Functions
+![](https://github.com/GoogleContainerTools/kpt-functions-sdk/workflows/CI/badge.svg)
 
 KPT Functions are client-side programs that operate on Kubernetes configuration files.
 
