@@ -13,7 +13,7 @@
     "kpt": "dist/cli.js"
   },
   "files": [
-    "bin/typegen",
+    "bin/",
     "dist/",
     "!**/*_test.*",
     "templates/"
