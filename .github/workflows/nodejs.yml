@@ -27,7 +27,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://npm.pkg.github.com'
-    - name: kpt-functions
+    - name: install, test
       run: |
         cd ${{ matrix.package }}
         npm ci
