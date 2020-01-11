@@ -98,7 +98,7 @@ func TestProperties(t *testing.T) {
 			},
 		},
 		{
-			name: "invalid property",
+			name: "unsupported property name",
 			input: map[string]interface{}{
 				"properties": map[string]interface{}{
 					"x-kubernetes-embedded-resource": map[string]interface{}{},
