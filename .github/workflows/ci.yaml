@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        package: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package]
+        package: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package, ts/demo-functions]
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -24,7 +24,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://npm.pkg.github.com'
-    - name: install, test
+    - name: Install and test NPM packages
       run: |
         cd ${{ matrix.package }}
         npm ci
@@ -43,11 +43,41 @@ jobs:
       with:
         go-version: 1.13
       id: go
-    - name: Check out code into the Go module directory
+    - name: Check out code into GOPATH
       uses: actions/checkout@v1
       with:
         path: go/src/github.com/${{ github.repository }}
-    - name: make all
+    - name: Build, Test, Lint
       run: |
         cd go
         make all
+
+  e2e-ci:
+    needs: [node-ci, go-ci]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+        package: [ts/demo-functions]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: 'https://npm.pkg.github.com'
+    - name: Install NPM packages
+      run: |
+        cd ${{ matrix.package }}
+        npm ci
+        envsubst < $NPM_CONFIG_USERCONFIG  > .npmrc
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build docker images
+      run: |
+        cd ${{ matrix.package }}
+        npm run kpt:docker-build
+    - name: Run e2e tests
+      run: |
+        npm install -g bats
+        bats tests/e2e.bats
