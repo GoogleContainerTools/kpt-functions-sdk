@@ -53,6 +53,10 @@ func (p parser) parseProperties(definitionMeta DefinitionMeta, model map[string]
 	properties := make(map[string]Property)
 	var nestedTypes []Object
 	for name := range propertiesMap {
+		if isUnsupportedProperty(name) {
+			continue
+		}
+
 		propertyMap := getRequiredMap(name, propertiesMap)
 
 		description, _ := getString("description", propertyMap)
@@ -86,4 +90,12 @@ func (p parser) parseProperties(definitionMeta DefinitionMeta, model map[string]
 	}
 
 	return properties, nestedTypes
+}
+
+// Excludes properties that are k8s extensions (e.g. x-kubernetes-*) since they cause issues when generating fields in e.g. TS.
+// This currently only affects CRD definition like
+// io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSONSchemaProps
+// We can consider better handling this if it's a real use case.
+func isUnsupportedProperty(name string) bool {
+	return strings.Contains(name, "x-kubernetes-")
 }
