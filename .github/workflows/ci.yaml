@@ -66,15 +66,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://npm.pkg.github.com'
-    - name: install, docker-build
+    - name: install
       run: |
         cd ${{ matrix.package }}
         npm ci
-        env
         cp $NPM_CONFIG_USERCONFIG .
-        npm run kpt:docker-build
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: docker-build
+      run: |
+        npm run kpt:docker-build
     - name: e2e-test
       run: |
         npm install -g bats
