@@ -97,5 +97,5 @@ func (p parser) parseProperties(definitionMeta DefinitionMeta, model map[string]
 // io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSONSchemaProps
 // We can consider better handling this if it's a real use case.
 func isUnsupportedProperty(name string) bool {
-	return strings.Contains(name, "-")
+	return strings.Contains(name, "x-kubernetes-")
 }
