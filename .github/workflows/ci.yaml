@@ -75,6 +75,7 @@ jobs:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: docker-build
       run: |
+        cd ${{ matrix.package }}
         npm run kpt:docker-build
     - name: e2e-test
       run: |
