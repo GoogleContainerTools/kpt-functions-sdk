@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-export EXAMPLE_CONFIGS=/usr/local/google/home/frankf/code/konduct/kpt-functions-sdk/example-configs
+export EXAMPLE_CONFIGS=${BATS_TEST_DIRNAME}/../example-configs
 export TAG=dev
 export EMPTY_OUTPUT=$(cat <<-EOF
 apiVersion: v1
