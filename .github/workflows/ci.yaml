@@ -70,6 +70,8 @@ jobs:
       run: |
         cd ${{ matrix.package }}
         npm ci
+        env
+        cp $NPM_CONFIG_USERCONFIG .
         npm run kpt:docker-build
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
