@@ -24,7 +24,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://npm.pkg.github.com'
-    - name: install, test
+    - name: Install and test NPM packages
       run: |
         cd ${{ matrix.package }}
         npm ci
@@ -43,11 +43,11 @@ jobs:
       with:
         go-version: 1.13
       id: go
-    - name: Check out code into the Go module directory
+    - name: Check out code into GOPATH
       uses: actions/checkout@v1
       with:
         path: go/src/github.com/${{ github.repository }}
-    - name: make all
+    - name: Build, Test, Lint
       run: |
         cd go
         make all
@@ -66,18 +66,18 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://npm.pkg.github.com'
-    - name: install
+    - name: Install NPM packages
       run: |
         cd ${{ matrix.package }}
         npm ci
-        cp $NPM_CONFIG_USERCONFIG .
+        envsubst < $NPM_CONFIG_USERCONFIG  > .npmrc
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: docker-build
+    - name: Build docker images
       run: |
         cd ${{ matrix.package }}
         npm run kpt:docker-build
-    - name: e2e-test
+    - name: Run e2e tests
       run: |
         npm install -g bats
         bats tests/e2e.bats
