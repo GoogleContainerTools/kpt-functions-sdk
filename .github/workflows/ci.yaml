@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        package: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package]
+        package: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package, ts/demo-functions]
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -51,3 +51,29 @@ jobs:
       run: |
         cd go
         make all
+
+  e2e-ci:
+    needs: [node-ci, go-ci]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+        package: [ts/demo-functions]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: 'https://npm.pkg.github.com'
+    - name: install, docker-build
+      run: |
+        cd ${{ matrix.package }}
+        npm ci
+        npm run kpt:docker-build
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: e2e-test
+      run: |
+        npm install -g bats
+        bats tests/e2e.bats
