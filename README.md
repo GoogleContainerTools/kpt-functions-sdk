@@ -225,19 +225,31 @@ kubectl apply -f /path/to/my/crd.yaml
 
 ### Create the NPM package
 
-To initialize a new NPM package, run the following:
+To initialize a new NPM package, first create a package directory:
 
 ```sh
 mkdir my-package
 cd my-package
+```
+
+> **Note:** All subsequent commands are run from the `my-package/` directory.
+
+Run the interactive initializer:
+
+```sh
 npm init @googlecontainertools/kpt-functions
+```
+
+Or, alternatively install the package globally and then run it:
+
+```sh
+npm install -g @googlecontainertools/create-kpt-functions
+create-kpt-functions
 ```
 
 Follow the instructions and respond to all prompts.
 
-> **Note:** All subsequent commands are run from the `my-package/` directory.
-
-`npm init` will create the following files:
+This process will create the following:
 
 1. `package.json`: The `kpt-functions` framework library is the only item declared in `dependencies`.
    Everything required to compile and test your KPT function is declared as `devDependencies`,

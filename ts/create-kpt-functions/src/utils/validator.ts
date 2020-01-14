@@ -23,7 +23,7 @@ import validator from 'validator';
 export const MAX_FUNC_NAME_LENGTH = 253;
 
 /**
- * Returns true if the function name is valid. Otherwise logs why the name is invalid.
+ * Returns whether function name is valid. Otherwise logs why the name is invalid.
  * @param name The name to validate.
  */
 export function isValidFuncName(name: string): boolean {
@@ -65,7 +65,10 @@ export function isValidFuncName(name: string): boolean {
   return isValid;
 }
 
-export function isValidDirectory(path: string): boolean {
+/**
+ * Return whether the given path is either does not exist or is empty.
+ */
+export function isValidPackageDir(path: string): boolean {
   path = resolve(path);
   if (!fs.existsSync(path)) {
     return true;
@@ -79,6 +82,9 @@ export function isValidDirectory(path: string): boolean {
   return true;
 }
 
+/**
+ * Returns whether given string is a valid NPM package name
+ */
 export function isValidPackageName(name: string): boolean {
   const isValidNpmName = require('is-valid-npm-name');
 
@@ -86,10 +92,30 @@ export function isValidPackageName(name: string): boolean {
 
   // `check` is `true` or a String (e.g. why it was not a valid npm name)
   if (check !== true) {
-    console.error(check);
-    // 'package name cannot use built-in core Node module name'
+    log(failure(`Package name is not valid: ${check}`));
+    return false;
   }
-  return check === true;
+  return true;
+}
+
+/**
+ * Return whether given string is a valid docker repository.
+ *
+ * See:
+ * https://docs.docker.com/registry/spec/api/#overview
+ */
+export function isValidDockerRepo(name: string): boolean {
+  const pathRegex = '^[a-z0-9]+(?:[._-][a-z0-9]+)*$';
+  const paths = name.split('/');
+  if (paths.length < 2) {
+    return false;
+  }
+  for (const p of paths) {
+    if (!p.match(pathRegex)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
