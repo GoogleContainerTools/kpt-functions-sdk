@@ -15,7 +15,7 @@
  */
 
 import { disableLogForTesting } from './log';
-import { isValidFuncName, MAX_FUNC_NAME_LENGTH } from './validator';
+import { isValidFuncName, MAX_FUNC_NAME_LENGTH, isValidDockerRepo } from './validator';
 
 describe('isValidFuncName', () => {
   disableLogForTesting();
@@ -42,5 +42,37 @@ describe('isValidFuncName', () => {
 
   it('rejects names with invalid characters', () => {
     expect(isValidFuncName('A3')).toBe(false);
+  });
+});
+
+describe('isValidDockerRepo', () => {
+  disableLogForTesting();
+
+  it('rejects empty names', () => {
+    expect(isValidDockerRepo('')).toBe(false);
+  });
+
+  it('rejects white sapce', () => {
+    expect(isValidDockerRepo(' ')).toBe(false);
+  });
+
+  it('rejects special characters', () => {
+    expect(isValidDockerRepo('%')).toBe(false);
+  });
+
+  it('rejects less than 2 paths', () => {
+    expect(isValidDockerRepo('hello')).toBe(false);
+  });
+
+  it('allows docker hub', () => {
+    expect(isValidDockerRepo('hello/world')).toBe(true);
+  });
+
+  it('rejects trailing slash', () => {
+    expect(isValidDockerRepo('hello/hello')).toBe(true);
+  });
+
+  it('allows gcr.io', () => {
+    expect(isValidDockerRepo('gr.io/hello/world')).toBe(true);
   });
 });

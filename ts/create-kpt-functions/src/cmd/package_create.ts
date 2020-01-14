@@ -16,7 +16,6 @@
 
 import { question } from 'cli-interact';
 import * as path from 'path';
-import { isEmpty } from 'validator';
 import { functionCreate } from './function_create';
 import * as format from '../utils/format';
 import { log } from '../utils/log';
@@ -53,7 +52,7 @@ function initPackage() {
         question(
           `> What is the absolute path where the package is located (${defaultPackageDir})? `,
         ),
-      validator.isValidDirectory,
+      validator.isValidPackageDir,
       defaultPackageDir,
     ),
   );
@@ -77,7 +76,7 @@ function initPackage() {
       question(
         `> What is the docker repository prefix where this package's functions will be published (${defaultDockerRepoBase})? `,
       ),
-    (s) => !isEmpty(s),
+    validator.isValidDockerRepo,
     defaultDockerRepoBase,
   );
 
