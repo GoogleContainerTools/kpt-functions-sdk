@@ -106,12 +106,18 @@ export function isValidPackageName(name: string): boolean {
  */
 export function isValidDockerRepo(name: string): boolean {
   const pathRegex = '^[a-z0-9]+(?:[._-][a-z0-9]+)*$';
+  if (name.endsWith('/')) {
+    log(failure(`Trailing slash is not allowed`));
+    return false;
+  }
   const paths = name.split('/');
   if (paths.length < 2) {
+    log(failure(`Need at least 2 path components`));
     return false;
   }
   for (const p of paths) {
     if (!p.match(pathRegex)) {
+      log(failure(`Invalid path component: ${p}`));
       return false;
     }
   }

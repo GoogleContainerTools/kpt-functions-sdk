@@ -68,8 +68,8 @@ fdescribe('isValidDockerRepo', () => {
     expect(isValidDockerRepo('hello/world')).toBe(true);
   });
 
-  it('allows trailing slash', () => {
-    expect(isValidDockerRepo('hello/hello/')).toBe(true);
+  it('rejects trailing slash', () => {
+    expect(isValidDockerRepo('hello/hello')).toBe(true);
   });
 
   it('allows gcr.io', () => {
