@@ -24,6 +24,12 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 
 1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens`
    in GitHub. Specify `read:packages` scope.
+1. Back up any existing `.npmrc` if it exist:
+
+   ```sh
+   mv ~/.npmrc{,.backup}
+   ```
+
 1. Create the `.npmrc` file, replacing `<TOKEN>`:
 
    ```sh
@@ -250,37 +256,26 @@ npm run kpt:docker-push -- --tag=latest
 
 ## SDK CLI
 
-The `create-kpt-functions` package, which is installed via `devDependencies`, provides the `kpt` CLI
-to help develop new functions. It includes commands to create, build, publish, and more:
+The `create-kpt-functions` package (installed as `devDependencies`), provides a CLI
+for working with the NPM package you created above.
 
-```console
-KPT functions CLI.
-
-Optional arguments:
-  -h, --help            Show this help message and exit.
-  -v, --version         Show program's version number and exit.
-
-subcommands:
-  {package-create,docker-create,docker-build,docker-push,function-create,type-create,workflow-create}
-    package-create      Create a new NPM package.
-    docker-create       Generate Dockerfiles for all functions. Overwrite
-                        files if they exist.
-    docker-build        Build docker images for all functions.
-    docker-push         Push docker images to the registry for all functions.
-    function-create     Generate stubs for a new function. Overwrites files
-                        if they exist.
-    type-create         Generate classes for core and CRD types. Overwrite
-                        files if they exist.
-    workflow-create     Generate workflow configs for all functions.
-                        Overwrite configs if they exist.
-```
-
-There are corresponding scripts in `package.json` for the sub-commands provided by the CLI.
-
-To see the help message:
+They can be invoked using `npm run`:
 
 ```console
 npm run kpt:function-create -- --help
+```
+
+They commands are available:
+
+```console
+kpt:docker-create       Generate Dockerfiles for all functions. Overwrite
+                        files if they exist.
+kpt:docker-build        Build docker images for all functions.
+kpt:docker-push         Push docker images to the registry for all functions.
+kpt:function-create     Generate stubs for a new function. Overwrites files
+                        if they exist.
+kpt:type-create         Generate classes for core and CRD types. Overwrite
+                        files if they exist.
 ```
 
 > **Note:** Flags are passed to the CLI after the `--` separator.
