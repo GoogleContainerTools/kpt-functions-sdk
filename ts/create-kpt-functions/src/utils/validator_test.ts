@@ -45,7 +45,7 @@ describe('isValidFuncName', () => {
   });
 });
 
-fdescribe('isValidDockerRepo', () => {
+describe('isValidDockerRepo', () => {
   disableLogForTesting();
 
   it('rejects empty names', () => {
