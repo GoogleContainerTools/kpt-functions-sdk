@@ -1,0 +1,28 @@
+name: release-kpt-functions
+
+on:
+  push:
+    tags:
+      - release-kpt-functions-*
+
+jobs:
+  node-ci:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+        registry-url: 'https://npm.pkg.github.com'
+    - name: Install, test
+      run: |
+        cd ts/kpt-functions
+        npm ci
+        npm test
+    - name: Publish
+      run: |
+        cd ts/kpt-functions
+        ../../scripts/publish-npm.sh $GITHUB_REF
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
