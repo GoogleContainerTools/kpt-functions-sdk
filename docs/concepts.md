@@ -33,7 +33,7 @@ A Sink Function produces no `output`:
 
 Instead, the function typically writes configurations to an external system (e.g. writing files to a filesystem).
 
-## Pipelines
+## Pipeline
 
 Functions can be composed into a pipeline:
 

@@ -3,7 +3,7 @@
 This guide covers running KPT functions using two approaches:
 
 - [Using `docker run`](#using-docker-run)
-- [Using `kustomize config`](#using-kustomize-config)
+- [Using `kpt functions`](#using-kpt-functions)
 
 ## Using `docker run`
 
@@ -23,7 +23,7 @@ But how do you read and write configuration files?
 
 ### Constructing Pipelines
 
-Pipelines usually require [source and sink functions][concept-source], for example, the `read-yaml` and `write-yaml`
+[Pipelines][concept-pipeline] usually require source and sink functions, for example, the `read-yaml` and `write-yaml`
 functions from the [KPT functions catalog][catalog]. Pull them from the kpt-functions docker registry:
 
 ```sh
@@ -298,18 +298,13 @@ You should see the following changes:
 1. An updated `podsecuritypolicy_psp.yaml`, mutated by the `mutate-psp` function.
 1. The `payments-dev` and `payments-prod` directories, created by `expand-team-cr` function.
 
-## Using `kustomize config`
+## Using `kpt functions`
 
-`kustomize config` provides utilities for working with configuration, including running KPT functions.
+`kpt functions` provides utilities for working with configuration, including running KPT functions.
 
-### Downloading `kustomize`
+### Installing `kpt` CLI
 
-1. Download the `kustomize` binary [here][download-kustomize].
-1. Enable alpha commands:
-
-   ```sh
-   export KUSTOMIZE_ENABLE_ALPHA_COMMANDS=true
-   ```
+Follow [installation instructions][download-kpt] to get the `kpt` CLI.
 
 ### Example
 
@@ -321,9 +316,9 @@ cd kpt-functions-sdk/example-configs
 The `config source` and `config sink` sub-commands are implementations of [source and sink functions][concept-source]
 
 ```sh
-kustomize config source . |
+kpt functions source . |
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
-kustomize config sink .
+kpt functions sink .
 ```
 
 You should see labels added to `Namespace` configuration files:
@@ -355,7 +350,7 @@ EOF
 You should see the same results as in the previous examples:
 
 ```sh
-kustomize config run .
+kpt functions run .
 git status
 ```
 
@@ -380,7 +375,7 @@ EOF
 `config run` executes both functions:
 
 ```sh
-kustomize config run .
+kpt functions run .
 ```
 
 In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.
@@ -388,14 +383,15 @@ In this case, `validate-rolebinding` will find policy violations and fail with a
 To see help message for details:
 
 ```sh
-kustomize config run --help
+kpt functions run --help
 ```
 
 ## Next Steps
 
-- [Check out the catalog of KPT functions][catalog]
+- [Check out KPT Functions Catalog][catalog]
 
 [concept-source]: concepts.md#source-function
+[concept-pipeline]: concepts.md#pipeline
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src/label_namespace.ts
-[download-kustomize]: https://storage.googleapis.com/kpt-temp/kustomize
+[download-kpt]: https://github.com/GoogleContainerTools/kpt

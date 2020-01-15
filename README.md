@@ -1,14 +1,14 @@
 # KPT Functions
 
-![][ci-badge]
+![badge][ci-badge]
 
-KPT Functions are client-side programs that make it easy to operate on a directory of Kubernetes configuration files.
+KPT Functions are client-side programs that make it easy to operate on a repository of Kubernetes configuration files.
 
 Use cases:
 
 - **Configuration Compliance:** e.g. Require all `Namespace` configurations to have a `cost-center` label.
 - **Configuration Generation:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
-- **Configuration Mutation/Migration:** e.g. Update all `PodSecurityPolicy` configurations to improve
+- **Configuration Migration:** e.g. Update all `PodSecurityPolicy` configurations to improve the
 security posture.
 
 KPT functions can be run as one-off functions or as part of a CI/CD pipeline.
@@ -20,9 +20,9 @@ applied to a cluster.
 
 ## Next Steps
 
-- [Learn the concepts](docs/concepts.md)
-- [Develop a KPT Function](docs/develop.md)
-- [Run a KPT Function](docs/run.md)
+- [Learn about the concepts](docs/concepts.md)
+- [Develop a KPT Function using the Typescript SDK](docs/develop.md)
+- [Run KPT Functions](docs/run.md)
 
 ## FAQ
 
@@ -31,8 +31,8 @@ applied to a cluster.
 - **Configuration is data:** Many configuration tools conflate data with the operations on that
   data (e.g. YAML files embedding a templating language).
   As configuration becomes complex, it becomes hard to read and understand.
-  Our design philosophy is to separate human-readable data from the state-less programs that
-  manipulate that data. We call these programs `functions`.
+  Our design philosophy is to separate *human-readable data* from the *state-less programs* that
+  manipulate that data. We call these programs *functions*.
 - **Unix philosophy:** Functions should be small, reusable, and composable.
   By implementing the [Configuration Functions Specification][spec],
   we can develop an ever-growing catalog of useful, interoperable functions.
@@ -45,13 +45,13 @@ advantages:
 - **General-purpose language:** Domain-Specific Languages begin their life with a reasonable
   feature set, but often grow over time. They bloat in order to accommodate the tremendous variety
   of customer use cases. Rather than follow this same course, KPT functions employ a true,
-  general-purpose programmaing language that provides:
+  general-purpose programming language that provides:
   - Proper abstractions and language features
   - A extensive ecosystem of tooling (e.g. IDE support)
   - A comprehensive catalog of well-supported libraries
   - Robust community support and detailed documentation
 - **Type-safety:** Kubernetes configuration is typed, and its schema is defined using the OpenAPI spec.
-  Typescript has a sophisticated type system that accomodates the complexity of Kubernetes resources.
+  Typescript has a sophisticated type system that accommodates the complexity of Kubernetes resources.
   The SDK enables generating Typescript classes for core and CRD types, providing safe and easy
   interaction with Kubernetes objects.
 - **Batteries-included:** The SDK provides a simple, powerful API for querying and manipulating configuration

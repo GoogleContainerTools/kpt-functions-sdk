@@ -1,6 +1,6 @@
 # Developing KPT Functions
 
-This guide will take you through developing a KPT function using the Typescript SDK.
+This guide will walk you through developing a KPT function using the Typescript SDK.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Supported platforms: amd64 Linux/Mac/Windows
 
 - Install [node][download-node]
   - The SDK requires `npm` version 6 or higher.
-  - If installig node from binaries (i.e. without a package manager), follow these
+  - If installing node from binaries (i.e. without a package manager), follow these
     [installation instructions][install-node].
 - Install [docker][install-docker]
 
@@ -236,7 +236,7 @@ You can now run the image as a docker container, e.g.:
 docker run gcr.io/kpt-functions-demo/my-func:dev --help
 ```
 
-Docker images are often held in a docker registry. To push the image to your registry of choice:
+To push the image to your container registry of choice:
 
 ```sh
 npm run kpt:docker-push
@@ -256,16 +256,14 @@ npm run kpt:docker-push -- --tag=latest
 
 ## SDK CLI
 
-The `create-kpt-functions` package (installed as `devDependencies`), provides a CLI
-for working with the NPM package you created above.
-
-They can be invoked using `npm run`:
+The `create-kpt-functions` package (installed as `devDependencies`), provides a CLI for managing
+the NPM package you created above. The CLI sub-commands can be invoked via `npm run`, e.g.:
 
 ```console
 npm run kpt:function-create -- --help
 ```
 
-They commands are available:
+These sub-commands are available:
 
 ```console
 kpt:docker-create       Generate Dockerfiles for all functions. Overwrite
