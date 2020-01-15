@@ -39,6 +39,11 @@ Functions can be composed into a pipeline:
 
 ![pipeline][img-pipeline]
 
+## Next Steps
+
+- [Develop a KPT Function](develop.md)
+- [Run a KPT Function](run.md)
+
 [spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 [img-func]: func.png
 [img-pipeline]: pipeline.png

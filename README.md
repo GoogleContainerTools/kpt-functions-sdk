@@ -2,13 +2,14 @@
 
 ![][ci-badge]
 
-KPT Functions are client-side programs that operate on Kubernetes configuration files.
+KPT Functions are client-side programs that make it easy to operate on a directory of Kubernetes configuration files.
 
-Example use cases:
+Use cases:
 
 - **Configuration Compliance:** e.g. Require all `Namespace` configurations to have a `cost-center` label.
 - **Configuration Generation:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
-- **Configuration Mutation/Migration:** e.g. Change a field in all `PodSecurityPolicy` configurations to make them more secure.
+- **Configuration Mutation/Migration:** e.g. Update all `PodSecurityPolicy` configurations to improve
+security posture.
 
 KPT functions can be run as one-off functions or as part of a CI/CD pipeline.
 
@@ -17,12 +18,15 @@ to the system authored by humans and mutating KPT functions are reviewed before 
 can be run as pre-commit or post-commit steps to check for compliance before configurations are
 applied to a cluster.
 
-In CI/CD, KPT Functions can validate your configuration before committing. Many production outages
-are caused by misconfiguration, with code review serving as the only config validation. KPT Functions
-can programmatically enforce standards and practices, building safety into your infrastructure
-development flow.
+## Next Steps
 
-## Why KPT Functions
+- [Learn the concepts](docs/concepts.md)
+- [Develop a KPT Function](docs/develop.md)
+- [Run a KPT Function](docs/run.md)
+
+## FAQ
+
+### Why KPT Functions
 
 - **Configuration is data:** Many configuration tools conflate data with the operations on that
   data (e.g. YAML files embedding a templating language).
@@ -33,7 +37,7 @@ development flow.
   By implementing the [Configuration Functions Specification][spec],
   we can develop an ever-growing catalog of useful, interoperable functions.
 
-## Why a Typescript SDK
+### Why a Typescript SDK
 
 We provide an opinionated Typescript SDK for implementing KPT Functions. This provides various
 advantages:
@@ -54,5 +58,12 @@ advantages:
   files. It provides the scaffolding required to develop, build, test, and publish functions,
   allowing you to focus on implementing your business-logic.
 
+## Community
+
+**We'd love to hear from you!**
+
+- [kpt-users mailing list][kpt-users]
+
 [ci-badge]: https://github.com/GoogleContainerTools/kpt-functions-sdk/workflows/CI/badge.svg
 [spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
+[kpt-users]: https://groups.google.com/forum/#!forum/kpt-users

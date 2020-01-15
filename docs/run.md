@@ -2,12 +2,12 @@
 
 This guide covers running KPT functions using two approaches:
 
-1. Directly using `docker run`
-1. Using `kustomize config`
+- [Using `docker run`](#using-docker-run)
+- [Using `kustomize config`](#using-kustomize-config)
 
 ## Using `docker run`
 
-After following the steps above, you'll have a function that can be run locally using `node`:
+After completing the [Development Guide](develop.md), you'll have a function that can be run locally using `node`:
 
 ```sh
 node dist/my_func_run.js --help
@@ -390,6 +390,10 @@ To see help message for details:
 ```sh
 kustomize config run --help
 ```
+
+## Next Steps
+
+- [Check out the catalog of KPT functions][catalog]
 
 [concept-source]: concepts.md#source-function
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog

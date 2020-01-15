@@ -1,6 +1,6 @@
 # Developing KPT Functions
 
-This guide will take you through developing a KPT using the Typescript SDK.
+This guide will take you through developing a KPT function using the Typescript SDK.
 
 ## Prerequisites
 
@@ -279,6 +279,10 @@ kpt:type-create         Generate classes for core and CRD types. Overwrite
 ```
 
 > **Note:** Flags are passed to the CLI after the `--` separator.
+
+## Next Steps
+
+- [Run a KPT Function](run.md)
 
 [spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 [kustomize-run]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-impl.md
