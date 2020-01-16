@@ -41,7 +41,10 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 
 ### Your Kubernetes Cluster
 
-For the type generation functionality to work, you need a Kubernetes cluster with this [beta feature][beta-feature].
+For the type generation functionality to work, you need a Kubernetes cluster with [CRD OpenAPI Publishing][beta-feature] feature which is beta with Kubernetes 1.15.
+
+Alternatively, you can use an existing NPM package with pre-generated types such as the `hello-world`
+package discussed in the [Quickstart](develop-quickstart.md) and skip to [implementing the function](#implementing-the-function).
 
 #### Using a `kind` Cluster
 
@@ -257,7 +260,8 @@ npm run kpt:docker-push -- --tag=latest
 ## SDK CLI
 
 The `create-kpt-functions` package (installed as `devDependencies`), provides a CLI for managing
-the NPM package you created above. The CLI sub-commands can be invoked via `npm run`, e.g.:
+the NPM package you created above. The CLI sub-commands can be invoked via `npm run`. For example,
+to add a new function to the package:
 
 ```console
 npm run kpt:function-create -- --help
