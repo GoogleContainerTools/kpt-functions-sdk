@@ -23,10 +23,10 @@ applied to a cluster.
 ## Next Steps
 
 - [Learn about the concepts](docs/concepts.md)
-- [Run KPT Functions](docs/run.md)
 - Develop a KPT Function using the Typescript SDK
   - [Quickstart](docs/develop-quickstart.md)
   - [Complete Guide](docs/develop.md)
+- [Run KPT Functions](docs/run.md)
 
 ## FAQ
 

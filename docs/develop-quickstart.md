@@ -79,3 +79,4 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 [install-node]: https://github.com/nodejs/help/wiki/Installation
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
 [download-kpt]: https://github.com/GoogleContainerTools/kpt
+[demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
