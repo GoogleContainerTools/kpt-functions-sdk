@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        package: [ts/kpt-functions, ts/create-kpt-functions, ts/example-package, ts/demo-functions]
+        package: [ts/kpt-functions, ts/create-kpt-functions, ts/init-package, ts/hello-world, ts/demo-functions]
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}

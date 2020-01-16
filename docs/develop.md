@@ -141,7 +141,7 @@ This process will create the following:
 1. `build/`: Contains Dockerfile for each function, e.g.:
    - `my_func.Dockerfile`
 
-Next, install all project dependencies:
+Next, install all package dependencies:
 
 ```sh
 npm install

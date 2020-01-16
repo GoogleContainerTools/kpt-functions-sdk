@@ -16,26 +16,26 @@
 
 set -euo pipefail
 
-# Fail if kind cluster recreate-example-pkg already exists.
-if [[ $(kind get clusters | grep -w "recreate-example-pkg") ]]
+# Fail if kind cluster generate-init-pkg already exists.
+if [[ $(kind get clusters | grep -w "generate-init-pkg") ]]
 then
-  echo "Kind cluster recreate-example-pkg already exists."
+  echo "Kind cluster generate-init-pkg already exists."
   echo "Delete the cluster with:"
-  echo "kind delete cluster --name=recreate-example-pkg"
+  echo "kind delete cluster --name=generate-init-pkg"
 else
     # Use images from https://hub.docker.com/r/kindest/node/tags
-    kind create cluster --name=recreate-example-pkg --config=scripts/kind-config.yaml --image=kindest/node:v1.14.6@sha256:464a43f5cf6ad442f100b0ca881a3acae37af069d5f96849c1d06ced2870888d
+    kind create cluster --name=generate-init-pkg --config=scripts/kind-config.yaml --image=kindest/node:v1.14.6@sha256:464a43f5cf6ad442f100b0ca881a3acae37af069d5f96849c1d06ced2870888d
     sleep 10 # Wait for cluster to become fully available. Potentially flaky.
 fi
 
-export KUBECONFIG="$(kind get kubeconfig-path --name="recreate-example-pkg")"
+export KUBECONFIG="$(kind get kubeconfig-path --name="generate-init-pkg")"
 
 cd ts/create-kpt-functions
 npm run build
 
 cd ..
-rm -rf example-package
-mkdir example-package
-cd example-package
+rm -rf init-package
+mkdir init-package
+cd init-package
 
 node ./../create-kpt-functions/dist/cli.js

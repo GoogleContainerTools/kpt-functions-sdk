@@ -1,12 +1,5 @@
 # Running KPT functions
 
-This guide covers running KPT functions using two approaches:
-
-- [Using `docker run`](#using-docker-run)
-- [Using `kpt fn`](#using-kpt-fn)
-
-## Using `docker run`
-
 After completing the [Development Guide](develop.md), you'll have a function that can be run locally using `node`:
 
 ```sh
@@ -19,12 +12,22 @@ or as a docker container:
 docker run gcr.io/kpt-functions-demo/my-func:dev --help
 ```
 
-But how do you read and write configuration files?
+In order do something useful with a function, we need to compose a [Pipeline][concept-pipeline] with a
+Source and a Sink function.
 
-### Constructing Pipelines
+This guide covers two approaches to running a pipeline of functions:
 
-[Pipelines][concept-pipeline] usually require source and sink functions, for example, the `read-yaml` and `write-yaml`
-functions from the [KPT functions catalog][catalog]. Pull them from the kpt-functions docker registry:
+- [Using `docker run`](#using-docker-run)
+- [Using `kpt fn`](#using-kpt-fn)
+
+You can also use a container-based workflow orchestrator like [Cloud Build][cloud-build], [Tekton][tekton], or [Argo Workflows][argo].
+
+## Using `docker run`
+
+We can use any Source and Sink function to compose a pipeline. Here, we'll use `read-yaml` and `write-yaml`
+functions from the [KPT functions catalog][catalog].
+
+Pull the images:
 
 ```sh
 docker pull gcr.io/kpt-functions/read-yaml
@@ -34,7 +37,7 @@ docker pull gcr.io/kpt-functions/write-yaml
 You'll also need some source configuration. You can try this example configuration:
 
 ```sh
-git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
 cd kpt-functions-sdk/example-configs
 ```
 
@@ -339,3 +342,6 @@ kpt fn run --help
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src/label_namespace.ts
 [download-kpt]: https://github.com/GoogleContainerTools/kpt
+[cloud-build]: https://cloud.google.com/cloud-build/
+[tekton]: https://cloud.google.com/tekton/
+[argo]: https://github.com/argoproj/argo
