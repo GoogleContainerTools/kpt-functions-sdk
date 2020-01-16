@@ -11,6 +11,8 @@ Use cases:
 - **Configuration Migration:** e.g. Update all `PodSecurityPolicy` configurations to improve the
 security posture.
 
+![demo][demo-run]
+
 KPT functions can be run as one-off functions or as part of a CI/CD pipeline.
 
 In GitOps workflows, KPT functions read and write configuration files from a Git repo. Changes
@@ -67,3 +69,4 @@ advantages:
 [ci-badge]: https://github.com/GoogleContainerTools/kpt-functions-sdk/workflows/CI/badge.svg
 [spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 [kpt-users]: https://groups.google.com/forum/#!forum/kpt-users
+[demo-run]: https://storage.googleapis.com/kpt-functions/docs/run.gif
