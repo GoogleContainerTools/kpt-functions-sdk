@@ -16,7 +16,7 @@
 . demo-magic/demo-magic.sh
 
 EXAMPLE_CONFIGS="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"/../../example-configs
-PROMPT_TIMEOUT=5
+PROMPT_TIMEOUT=8
 TAG=demo
 NO_WAIT=true
 # Disable interative "less" behavior for e.g. git diff
@@ -32,7 +32,7 @@ export PKG=git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-con
 # start demo
 clear
 
-p "# Fetch example configs"
+p "# Fetch configs"
 p "kpt pkg get ${PKG} example-configs"
 cp -r ${EXAMPLE_CONFIGS} .
 pe "git add . && git commit -m 'fetched example-configs'"
@@ -40,9 +40,9 @@ pe "git add . && git commit -m 'fetched example-configs'"
 clear
 
 p "# Generate configs"
-pe "kpt functions source . |
-  docker run -i gcr.io/kpt-functions/expand-team-cr |
-  kpt functions sink ."
+pe "kpt fn source . |
+  kpt fn run --image gcr.io/kpt-functions/expand-team-cr |
+  kpt fn sink ."
 pe "git status -u"
 wait
 
@@ -50,9 +50,9 @@ git clean -fd
 clear
 
 p "# Mutate configs"
-pe "kpt functions source . |
-  docker run -i gcr.io/kpt-functions/mutate-psp |
-  kpt functions sink ."
+pe "kpt fn source . |
+  kpt fn run --image gcr.io/kpt-functions/mutate-psp |
+  kpt fn sink ."
 pe "git diff"
 wait
 
@@ -60,15 +60,41 @@ git reset HEAD --hard
 clear
 
 p "# Enforce compliance"
-pe "kpt functions source . |
-  docker run -i gcr.io/kpt-functions/validate-rolebinding -d subject_name=bob@foo-corp.com"
+pe "kpt fn source . |
+  kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=bob@foo-corp.com"
+wait
+
+clear
+
+p "# Swap out sources and sinks"
+p "kubectl get rolebinding --all-namespaces -o yaml |
+  kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=bob@foo-corp.com"
+cat <<EOF
+MultiConfigErrors: Found RoleBindings with banned subjects
+
+[1] KubernetesObjectError: Object has banned subject
+path: No path annotation
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata.namespace: "kube-public"
+metadata.name: "system:controller:bootstrap-signer"
+
+[2] KubernetesObjectError: Object has banned subject
+path: No path annotation
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "RoleBinding"
+metadata.namespace: "kube-system"
+metadata.name: "system:controller:bootstrap-signer"
+EOF
 wait
 
 clear
 
 p "# Compose a pipeline of functions"
-pe "kpt functions source . |
-  docker run -i gcr.io/kpt-functions/expand-team-cr |
-  docker run -i gcr.io/kpt-functions/mutate-psp |
-  docker run -i gcr.io/kpt-functions/validate-rolebinding -d subject_name=alice@foo-corp.com |
-  kpt functions sink ."
+pe "kpt fn source . |
+  kpt fn run --image gcr.io/kpt-functions/expand-team-cr |
+  kpt fn run --image gcr.io/kpt-functions/mutate-psp |
+  kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=alice@foo-corp.com |
+  kpt fn sink ."
+
+wait

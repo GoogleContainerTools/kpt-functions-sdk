@@ -3,7 +3,7 @@
 This guide covers running KPT functions using two approaches:
 
 - [Using `docker run`](#using-docker-run)
-- [Using `kpt functions`](#using-kpt-functions)
+- [Using `kpt fn`](#using-kpt-fn)
 
 ## Using `docker run`
 
@@ -242,9 +242,9 @@ You should see the following changes:
 1. An updated `podsecuritypolicy_psp.yaml`, mutated by the `mutate-psp` function.
 1. The `payments-dev` and `payments-prod` directories, created by `expand-team-cr` function.
 
-## Using `kpt functions`
+## Using `kpt fn`
 
-`kpt functions` provides utilities for working with configuration, including running KPT functions.
+`kpt fn` provides utilities for working with configuration, including running KPT functions.
 
 ### Installing `kpt` CLI
 
@@ -257,12 +257,12 @@ kpt pkg get git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-co
 cd example-configs
 ```
 
-The `functions source` and `functions sink` sub-commands are implementations of [source and sink functions][concept-source]
+The `fn source` and `fn sink` sub-commands are implementations of [source and sink functions][concept-source] respectively:
 
 ```sh
-kpt functions source . |
-docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
-kpt functions sink .
+kpt fn source . |
+kpt fn run --image gcr.io/kpt-functions/label-namespace -- label_name=color label_value=orange |
+kpt fn sink .
 ```
 
 You should see labels added to `Namespace` configuration files:
@@ -271,7 +271,7 @@ You should see labels added to `Namespace` configuration files:
 git status
 ```
 
-Using `functions run`, you can declare a function and its `functionConfig` like any other configuration
+Using `fn run`, you can declare a function and its `functionConfig` like any other configuration
 file:
 
 ```sh
@@ -294,7 +294,7 @@ EOF
 You should see the same results as in the previous examples:
 
 ```sh
-kpt functions run .
+kpt fn run .
 git status
 ```
 
@@ -316,10 +316,10 @@ data:
 EOF
 ```
 
-`functions run` executes both functions:
+`fn run` executes both functions:
 
 ```sh
-kpt functions run .
+kpt fn run .
 ```
 
 In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.
@@ -327,7 +327,7 @@ In this case, `validate-rolebinding` will find policy violations and fail with a
 To see help message for details:
 
 ```sh
-kpt functions run --help
+kpt fn run --help
 ```
 
 ## Next Steps
