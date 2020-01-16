@@ -59,7 +59,7 @@ wait
 git reset HEAD --hard
 clear
 
-p "# Enforce compliance"
+p "# Enforce policy on configs"
 pe "kpt fn source . |
   kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=bob@foo-corp.com"
 wait
