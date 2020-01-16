@@ -105,8 +105,8 @@ kubectl apply -f /path/to/my/crd.yaml
 To initialize a new NPM package, first create a package directory:
 
 ```sh
-mkdir my-package
-cd my-package
+mkdir <my-package>
+cd <my-package>
 ```
 
 > **Note:** All subsequent commands are run from the `my-package/` directory.
@@ -133,13 +133,13 @@ This process will create the following:
    including the `create-kpt-functions` CLI discussed later in the `README`.
 1. `src/`: Directory containing the source files for all your functions, e.g.:
 
-   - `my_func.ts`: Implement your function's interface here.
-   - `my_func_test.ts`: Unit tests for your function.
-   - `my_func_run.ts`: The entry point from which your function is run.
+   - `<my_func.ts>`: Implement your function's interface here.
+   - `<my_func_test.ts>`: Unit tests for your function.
+   - `<my_func_run.ts>`: The entry point from which your function is run.
 
 1. `src/gen/`: Contains Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
 1. `build/`: Contains Dockerfile for each function, e.g.:
-   - `my_func.Dockerfile`
+   - `<my_func>.Dockerfile`
 
 Next, install all package dependencies:
 
@@ -152,7 +152,7 @@ In addition to installation, `install` compiles your function into the `dist/` d
 You can run your function directly:
 
 ```sh
-node dist/my_func_run.js --help
+node dist/<my_func_run>.js --help
 ```
 
 Currently, it simply passes through the input configuration data. Let's remedy this.
@@ -165,7 +165,7 @@ You can now start implementing the function using your favorite IDE, e.g. [VSCod
 code .
 ```
 
-In `src/my_func.ts`, implement this simple interface:
+In `src/<my_func>.ts`, implement this simple interface:
 
 ```ts
 /**
