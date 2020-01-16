@@ -1,4 +1,4 @@
-# Running KPT functions
+# Running KPT Functions
 
 After completing the [Development Guide](develop.md), you'll have a function that can be run locally using `node`:
 

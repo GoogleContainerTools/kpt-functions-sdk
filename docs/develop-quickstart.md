@@ -1,4 +1,4 @@
-# Quickstart: Developing KPT Functions
+# Quickstart to Developing KPT Functions
 
 This quickstart will get you started developing a KPT Function with the TypeScript SDK,
 using an existing Hello World package.
@@ -73,7 +73,7 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 ## Next Steps
 
 - [Complete guide to developing KPT Functions](develop.md)
-- [Run a KPT Function](run.md)
+- [Running KPT Functions](run.md)
 
 [download-node]: https://nodejs.org/en/download/
 [install-node]: https://github.com/nodejs/help/wiki/Installation

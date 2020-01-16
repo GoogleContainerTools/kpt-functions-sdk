@@ -26,7 +26,7 @@ applied to a cluster.
 - Develop a KPT Function using the Typescript SDK
   - [Quickstart](docs/develop-quickstart.md)
   - [Complete Guide](docs/develop.md)
-- [Run KPT Functions](docs/run.md)
+- [Running KPT Functions](docs/run.md)
 
 ## FAQ
 
