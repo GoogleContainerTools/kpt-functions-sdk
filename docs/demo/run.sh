@@ -16,7 +16,7 @@
 . demo-magic/demo-magic.sh
 
 EXAMPLE_CONFIGS="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"/../../example-configs
-PROMPT_TIMEOUT=3
+PROMPT_TIMEOUT=5
 TAG=demo
 NO_WAIT=true
 # Disable interative "less" behavior for e.g. git diff

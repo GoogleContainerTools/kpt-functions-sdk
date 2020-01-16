@@ -102,65 +102,9 @@ The `label_namespace` function is configured with a `functionConfig` of kind `Co
 `label_name` and `label_value`. The function adds the label `[label_name]: [label_value]` to the
 `Namespace` objects in the input.
 
-#### functionConfig as part of input
-
-[Configuration Functions Specification][spec] allow specifying functionConfig as part of the input
-resource as such:
-
-```sh
-cat > /tmp/input.yaml <<EOF
-apiVersion: v1
-kind: ResourceList
-functionConfig:
-  apiVersion: v1
-  kind: ConfigMap
-  data:
-    label_name: color
-    label_value: orange
-  metadata:
-    name: my-config
-items:
-- apiVersion: v1
-  kind: Namespace
-  metadata:
-    name: audit
-    annotations:
-      config.kubernetes.io/path: audit/namespace.yaml
-      config.kubernetes.io/index: '0'
-- apiVersion: v1
-  kind: Namespace
-  metadata:
-    name: shipping-dev
-    annotations:
-      config.kubernetes.io/path: shipping-dev/namespace.yaml
-      config.kubernetes.io/index: '0'
-- apiVersion: v1
-  kind: ResourceQuota
-  metadata:
-    name: rq
-    namespace: shipping-dev
-    annotations:
-      config.kubernetes.io/path: shipping-dev/resource-quota.yaml
-      config.kubernetes.io/index: '0'
-  spec:
-    hard:
-      cpu: 100m
-      memory: 100Mi
-      pods: '1'
-EOF
-```
-
-When you run the function:
-
-```sh
-docker run -i gcr.io/kpt-functions/label-namespace < /tmp/input.yaml
-```
-
-you should see the `audit` and `shipping-dev` Namespaces now include the label `color: orange`.
-
 #### functionConfig from a file
 
-Alternatively, the `functionConfig` can be specified as its own file:
+`functionConfig` can be specified as a file:
 
 ```sh
 cat > /tmp/fc.yaml <<EOF
@@ -309,11 +253,11 @@ Follow [installation instructions][download-kpt] to get the `kpt` CLI.
 ### Example
 
 ```sh
-git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
-cd kpt-functions-sdk/example-configs
+kpt pkg get git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-configs example-configs
+cd example-configs
 ```
 
-The `config source` and `config sink` sub-commands are implementations of [source and sink functions][concept-source]
+The `functions source` and `functions sink` sub-commands are implementations of [source and sink functions][concept-source]
 
 ```sh
 kpt functions source . |
@@ -327,7 +271,7 @@ You should see labels added to `Namespace` configuration files:
 git status
 ```
 
-Using `config run`, you can declare a function and its `functionConfig` like any other configuration
+Using `functions run`, you can declare a function and its `functionConfig` like any other configuration
 file:
 
 ```sh
@@ -372,7 +316,7 @@ data:
 EOF
 ```
 
-`config run` executes both functions:
+`functions run` executes both functions:
 
 ```sh
 kpt functions run .

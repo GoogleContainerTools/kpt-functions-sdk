@@ -9,11 +9,11 @@ Use cases:
 - **Configuration Compliance:** e.g. Require all `Namespace` configurations to have a `cost-center` label.
 - **Configuration Generation:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
 - **Configuration Migration:** e.g. Update all `PodSecurityPolicy` configurations to improve the
-security posture.
+  security posture.
 
 ![demo][demo-run]
 
-KPT functions can be run as one-off functions or as part of a CI/CD pipeline.
+KPT functions can be run locally or as part of a CI/CD pipeline.
 
 In GitOps workflows, KPT functions read and write configuration files from a Git repo. Changes
 to the system authored by humans and mutating KPT functions are reviewed before being committed to the repo. KPT functions
@@ -33,8 +33,8 @@ applied to a cluster.
 - **Configuration is data:** Many configuration tools conflate data with the operations on that
   data (e.g. YAML files embedding a templating language).
   As configuration becomes complex, it becomes hard to read and understand.
-  Our design philosophy is to separate *human-readable data* from the *state-less programs* that
-  manipulate that data. We call these programs *functions*.
+  Our design philosophy is to separate _human-readable data_ from the _state-less programs_ that
+  manipulate that data. We call these programs _functions_.
 - **Unix philosophy:** Functions should be small, reusable, and composable.
   By implementing the [Configuration Functions Specification][spec],
   we can develop an ever-growing catalog of useful, interoperable functions.
