@@ -141,7 +141,7 @@ This process will create the following:
 1. `build/`: Contains Dockerfile for each function, e.g.:
    - `my_func.Dockerfile`
 
-Next, install all project dependencies:
+Next, install all package dependencies:
 
 ```sh
 npm install
@@ -280,7 +280,7 @@ kpt:type-create         Generate classes for core and CRD types. Overwrite
 
 ## Next Steps
 
-- [Run a KPT Function](run.md)
+- [Running KPT Functions](run.md)
 
 [spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 [kustomize-run]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-impl.md

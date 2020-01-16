@@ -1,5 +1,5 @@
 {
-  "name": "example-package",
+  "name": "init-package",
   "version": "0.1.0",
   "scripts": {
     "prepare": "npm run build",
