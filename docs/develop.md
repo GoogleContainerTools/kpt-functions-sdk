@@ -173,11 +173,13 @@ In `src/<my_func>.ts`, implement this simple interface:
  */
 export interface KptFunc {
   /**
-   * A function consumes and optionally mutates configuration objects using the Configs object.
+   * A function consumes and optionally mutates Kubernetes configurations using the Configs object.
    *
-   * The function should return a ConfigError when encountering one or more configuration-related issues.
-   *
-   * The function can throw any other error types when encountering operational issues such as IO exceptions.
+   * The function should:
+   * - Return a ConfigError when encountering one or more configuration-related issues.
+   * - Throw an error when encountering operational issues such as IO exceptions.
+   * - Avoid writing to stdout (e.g. using process.stdout) as it is used for chaining functions.
+   *   Use stderr instead.
    */
   (configs: Configs): void | ConfigError;
 
