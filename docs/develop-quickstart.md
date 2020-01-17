@@ -3,7 +3,8 @@
 This quickstart will get you started developing a KPT Function with the TypeScript SDK,
 using an existing Hello World package.
 
-After you complete this quickstart, you can follow the [complete guide to developing functions](develop.md).
+After you complete this quickstart, you can follow the
+[complete guide to developing functions](develop.md).
 
 ## Prerequisites
 
@@ -40,6 +41,11 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 
    ```sh
    git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+   ```
+
+   All subsequent commands are run from the `hello-world` directory:
+
+   ```sh
    cd kpt-functions-sdk/ts/hello-world
    ```
 
@@ -52,21 +58,22 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 3. Run the `label_namespace` function:
 
    ```sh
-   export EXAMPLE_CONFIGS=../../example-configs
+   export CONFIGS=../../example-configs
 
-   kpt fn source $EXAMPLE_CONFIGS |
+   kpt fn source $CONFIGS |
    node dist/label_namespace_run.js -d label_name=color -d label_value=orange |
-   kpt fn sink $EXAMPLE_CONFIGS
+   kpt fn sink $CONFIGS
    ```
 
-   As the name suggest, this function added the given label to all `Namespaces` in `example-configs`
-   directory:
+   As the name suggest, this function added the given label to all `Namespace` objects
+   in `example-configs` directory:
 
    ```sh
-   git diff $EXAMPLE_CONFIGS
+   git diff $CONFIGS
    ```
 
-4. Try modifying the function in `src/label_namespace.ts` to perform other operations on `example-configs`, then repeat steps 2 and 3.
+4. Try modifying the function in `src/label_namespace.ts` to perform other operations
+   on `example-configs`, then repeat steps 2 and 3.
 
 You can take a look at [these example functions][demo-funcs] for inspiration.
 
