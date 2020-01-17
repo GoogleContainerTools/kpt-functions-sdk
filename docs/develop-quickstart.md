@@ -43,13 +43,13 @@ In order to install these packages, you need to configure your `.npmrc` file to 
    cd kpt-functions-sdk/ts/hello-world
    ```
 
-1. Install all dependencies and build the package:
+2. Install all dependencies and build the package:
 
    ```sh
    npm install
    ```
 
-1. Run the `label_namespace` function:
+3. Run the `label_namespace` function:
 
    ```sh
    export EXAMPLE_CONFIGS=../../example-configs
@@ -66,9 +66,9 @@ In order to install these packages, you need to configure your `.npmrc` file to 
    git diff $EXAMPLE_CONFIGS
    ```
 
-1. Try modifying the function in `src/label_namespace.ts` to perform other operations on `example-configs`.
+4. Try modifying the function in `src/label_namespace.ts` to perform other operations on `example-configs`, then repeat steps 2 and 3.
 
-   You can take a look at [these example functions][demo-funcs] for inspiration.
+You can take a look at [these example functions][demo-funcs] for inspiration.
 
 ## Next Steps
 
