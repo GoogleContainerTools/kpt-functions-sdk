@@ -78,7 +78,6 @@ container.
 
    ```sh
    kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.14.6
-   export KUBECONFIG="$(kind get kubeconfig-path --name="kpt-functions")"
    ```
 
 #### Using a GKE cluster
@@ -90,8 +89,6 @@ You can also use a deployed cluster in GKE. The beta k8s feature is avilable onl
 gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cluster-version=latest --region=us-central1-a --project <PROJECT>
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
-
-The second command will update your `~/.kube/config`, so no need to set the env variable.
 
 ### Working with CRDs
 
