@@ -181,7 +181,7 @@ With these tools prepared, construct your pipeline like so:
 
 ### Example 1
 
-Let's demo the `label_namespace.ts` function. Find the source [here][label-namespace].
+In this example, we'll use `label_namespace.ts` function (Find the source [here][label-namespace]).
 
 Begin by running the function with the `--help` option:
 
@@ -340,7 +340,7 @@ You should see the following changes:
 [concept-source]: concepts.md#source-function
 [concept-pipeline]: concepts.md#pipeline
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
-[label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src/label_namespace.ts
+[label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/hello-world/src/label_namespace.ts
 [download-kpt]: https://github.com/GoogleContainerTools/kpt
 [cloud-build]: https://cloud.google.com/cloud-build/
 [tekton]: https://cloud.google.com/tekton/
