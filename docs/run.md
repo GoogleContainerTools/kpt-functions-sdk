@@ -17,10 +17,98 @@ Source and a Sink function.
 
 This guide covers two approaches to running a pipeline of functions:
 
-- [Using `docker run`](#using-docker-run)
 - [Using `kpt fn`](#using-kpt-fn)
+- [Using `docker run`](#using-docker-run)
 
 You can also use a container-based workflow orchestrator like [Cloud Build][cloud-build], [Tekton][tekton], or [Argo Workflows][argo].
+
+## Using `kpt fn`
+
+`kpt fn` provides utilities for working with configuration, including running KPT functions.
+
+### Installing `kpt` CLI
+
+Follow [installation instructions][download-kpt] to get the `kpt` CLI.
+
+### Example
+
+```sh
+kpt pkg get git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-configs example-configs
+cd example-configs
+```
+
+The `fn source` and `fn sink` sub-commands are implementations of [source and sink functions][concept-source] respectively:
+
+```sh
+kpt fn source . |
+kpt fn run --image gcr.io/kpt-functions/label-namespace -- label_name=color label_value=orange |
+kpt fn sink .
+```
+
+You should see labels added to `Namespace` configuration files:
+
+```sh
+git status
+```
+
+Using `fn run`, you can declare a function and its `functionConfig` like any other configuration
+file:
+
+```sh
+cat << EOF > kpt-func.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/label-namespace
+    config.kubernetes.io/local-config: "true"
+data:
+  label_name: color
+  label_value: orange
+EOF
+```
+
+You should see the same results as in the previous examples:
+
+```sh
+kpt fn run .
+git status
+```
+
+You can have multiple function declarations in a directory. Let's add a second function:
+
+```sh
+cat << EOF > kpt-func2.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/validate-rolebinding
+    config.kubernetes.io/local-config: "true"
+data:
+  subject_name: bob@foo-corp.com
+EOF
+```
+
+`fn run` executes both functions:
+
+```sh
+kpt fn run .
+```
+
+In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.
+
+To see help message for details:
+
+```sh
+kpt fn run --help
+```
 
 ## Using `docker run`
 
@@ -245,97 +333,9 @@ You should see the following changes:
 1. An updated `podsecuritypolicy_psp.yaml`, mutated by the `mutate-psp` function.
 1. The `payments-dev` and `payments-prod` directories, created by `expand-team-cr` function.
 
-## Using `kpt fn`
-
-`kpt fn` provides utilities for working with configuration, including running KPT functions.
-
-### Installing `kpt` CLI
-
-Follow [installation instructions][download-kpt] to get the `kpt` CLI.
-
-### Example
-
-```sh
-kpt pkg get git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-configs example-configs
-cd example-configs
-```
-
-The `fn source` and `fn sink` sub-commands are implementations of [source and sink functions][concept-source] respectively:
-
-```sh
-kpt fn source . |
-kpt fn run --image gcr.io/kpt-functions/label-namespace -- label_name=color label_value=orange |
-kpt fn sink .
-```
-
-You should see labels added to `Namespace` configuration files:
-
-```sh
-git status
-```
-
-Using `fn run`, you can declare a function and its `functionConfig` like any other configuration
-file:
-
-```sh
-cat << EOF > kpt-func.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: my-config
-  annotations:
-    config.k8s.io/function: |
-      container:
-        image:  gcr.io/kpt-functions/label-namespace
-    config.kubernetes.io/local-config: "true"
-data:
-  label_name: color
-  label_value: orange
-EOF
-```
-
-You should see the same results as in the previous examples:
-
-```sh
-kpt fn run .
-git status
-```
-
-You can have multiple function declarations in a directory. Let's add a second function:
-
-```sh
-cat << EOF > kpt-func2.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: my-config
-  annotations:
-    config.k8s.io/function: |
-      container:
-        image:  gcr.io/kpt-functions/validate-rolebinding
-    config.kubernetes.io/local-config: "true"
-data:
-  subject_name: bob@foo-corp.com
-EOF
-```
-
-`fn run` executes both functions:
-
-```sh
-kpt fn run .
-```
-
-In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.
-
-To see help message for details:
-
-```sh
-kpt fn run --help
-```
-
 ## Next Steps
 
-- [Check out KPT Functions Catalog][catalog]
+- [Try running other functions in the Catalog][catalog]
 
 [concept-source]: concepts.md#source-function
 [concept-pipeline]: concepts.md#pipeline

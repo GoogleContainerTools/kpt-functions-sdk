@@ -41,7 +41,10 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 
 ### Your Kubernetes Cluster
 
-For the type generation functionality to work, you need a Kubernetes cluster with this [beta feature][beta-feature].
+For the type generation functionality to work, you need a Kubernetes cluster with [CRD OpenAPI Publishing][beta-feature] feature which is beta with Kubernetes 1.15.
+
+Alternatively, you can use an existing NPM package with pre-generated types such as the `hello-world`
+package discussed in the [Quickstart](develop-quickstart.md) and skip to [implementing the function](#implementing-the-function).
 
 #### Using a `kind` Cluster
 
@@ -75,7 +78,6 @@ container.
 
    ```sh
    kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.14.6
-   export KUBECONFIG="$(kind get kubeconfig-path --name="kpt-functions")"
    ```
 
 #### Using a GKE cluster
@@ -87,8 +89,6 @@ You can also use a deployed cluster in GKE. The beta k8s feature is avilable onl
 gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cluster-version=latest --region=us-central1-a --project <PROJECT>
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
-
-The second command will update your `~/.kube/config`, so no need to set the env variable.
 
 ### Working with CRDs
 
@@ -105,8 +105,8 @@ kubectl apply -f /path/to/my/crd.yaml
 To initialize a new NPM package, first create a package directory:
 
 ```sh
-mkdir my-package
-cd my-package
+mkdir <my-package>
+cd <my-package>
 ```
 
 > **Note:** All subsequent commands are run from the `my-package/` directory.
@@ -133,13 +133,13 @@ This process will create the following:
    including the `create-kpt-functions` CLI discussed later in the `README`.
 1. `src/`: Directory containing the source files for all your functions, e.g.:
 
-   - `my_func.ts`: Implement your function's interface here.
-   - `my_func_test.ts`: Unit tests for your function.
-   - `my_func_run.ts`: The entry point from which your function is run.
+   - `<my_func.ts>`: Implement your function's interface here.
+   - `<my_func_test.ts>`: Unit tests for your function.
+   - `<my_func_run.ts>`: The entry point from which your function is run.
 
 1. `src/gen/`: Contains Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
 1. `build/`: Contains Dockerfile for each function, e.g.:
-   - `my_func.Dockerfile`
+   - `<my_func>.Dockerfile`
 
 Next, install all package dependencies:
 
@@ -152,7 +152,7 @@ In addition to installation, `install` compiles your function into the `dist/` d
 You can run your function directly:
 
 ```sh
-node dist/my_func_run.js --help
+node dist/<my_func_run>.js --help
 ```
 
 Currently, it simply passes through the input configuration data. Let's remedy this.
@@ -165,7 +165,7 @@ You can now start implementing the function using your favorite IDE, e.g. [VSCod
 code .
 ```
 
-In `src/my_func.ts`, implement this simple interface:
+In `src/<my_func>.ts`, implement this simple interface:
 
 ```ts
 /**
@@ -257,7 +257,8 @@ npm run kpt:docker-push -- --tag=latest
 ## SDK CLI
 
 The `create-kpt-functions` package (installed as `devDependencies`), provides a CLI for managing
-the NPM package you created above. The CLI sub-commands can be invoked via `npm run`, e.g.:
+the NPM package you created above. The CLI sub-commands can be invoked via `npm run`. For example,
+to add a new function to the package:
 
 ```console
 npm run kpt:function-create -- --help
