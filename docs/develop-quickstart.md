@@ -11,7 +11,7 @@ After you complete this quickstart, you can follow the [complete guide to develo
 
 - Install [node][download-node]
 - Install [docker][install-docker]
-- Install [kpt][install-docker]
+- Install [kpt][download-kpt]
 
 #### `.npmrc` File
 
