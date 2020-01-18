@@ -35,7 +35,9 @@ jobs:
       if: matrix.package == 'kpt-functions' || 
           matrix.package == 'create-kpt-functions' || 
           matrix.package == 'demo-functions'
-      run: npm run lint-license
+      run: |
+        cd ts/${{ matrix.package }}
+        npm run lint-license
         
   go-ci:
     runs-on: ubuntu-latest
