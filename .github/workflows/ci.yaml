@@ -38,6 +38,13 @@ jobs:
       run: |
         cd ts/${{ matrix.package }}
         npm run lint-license
+    - name: Generate docs diff
+      if: matrix.package == 'kpt-functions'
+      run: |
+        cd ts/${{ matrix.package }}
+        npm run gen-docs
+        DIFF=$(git status -s)
+        [[ -z $DIFF ]] || { echo "Need to update docs: $DIFF"; exit 1; }
         
   go-ci:
     runs-on: ubuntu-latest
