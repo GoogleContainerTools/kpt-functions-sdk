@@ -32,10 +32,7 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Check linceses
-      if: |
-          ${{ matrix.package }} == 'kpt-functions' || 
-          ${{ matrix.package }} == 'create-kpt-functions' || 
-          ${{ matrix.package }} == 'demo-functions'
+      if: ${{ matrix.package }} == 'kpt-functions' || ${{ matrix.package }} == 'create-kpt-functions' || ${{ matrix.package }} == 'demo-functions'
       run: npm run lint-license
         
   go-ci:
