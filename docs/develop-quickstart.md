@@ -75,11 +75,14 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 4. Try modifying the function in `src/label_namespace.ts` to perform other operations
    on `example-configs`, then repeat steps 2 and 3.
 
-You can take a look at [these example functions][demo-funcs] for inspiration.
+   The function should implement the `KptFunc` interface [documented here][api-kptfunc].
+
+   Take a look at [these example functions][demo-funcs] to better understand how to use
+   `kpt-functions` library.
 
 ## Next Steps
 
-- [Complete guide to developing KPT Functions](develop.md)
+- [Complete guide to developing KPT Functions from scratch](develop.md)
 - [Running KPT Functions](run.md)
 
 [download-node]: https://nodejs.org/en/download/
@@ -87,3 +90,4 @@ You can take a look at [these example functions][demo-funcs] for inspiration.
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
 [download-kpt]: https://github.com/GoogleContainerTools/kpt
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
+[api-kptfunc]: ../ts/kpt-functions/docs/interfaces/_src_types_.kptfunc.md

@@ -165,33 +165,7 @@ You can now start implementing the function using your favorite IDE, e.g. [VSCod
 code .
 ```
 
-In `src/<my_func>.ts`, implement this simple interface:
-
-```ts
-/**
- * Interface describing KPT functions.
- */
-export interface KptFunc {
-  /**
-   * A function consumes and optionally mutates Kubernetes configurations using the Configs object.
-   *
-   * The function should:
-   * - Return a ConfigError when encountering one or more configuration-related issues.
-   * - Throw an error when encountering operational issues such as IO exceptions.
-   * - Avoid writing to stdout (e.g. using process.stdout) as it is used for chaining functions.
-   *   Use stderr instead.
-   */
-  (configs: Configs): void | ConfigError;
-
-  /**
-   * Usage message describing what the function does, how to use it, and how to configure it.
-   */
-  usage: string;
-}
-```
-
-The [configs][configs-api] parameter is an in-memory document store of Kubernetes objects populated
-from/to configuration files. It enables rich query and mutation operations.
+In `src/<my_func>.ts`, implement the `KptFunc` interface [documented here][api-kptfunc].
 
 Take a look at [these example functions][demo-funcs] to better understand how to use
 `kpt-functions` library. These functions are available as docker images documented in the [catalog][catalog].
@@ -290,7 +264,7 @@ kpt:type-create         Generate classes for core and CRD types. Overwrite
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src/label_namespace.ts
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
-[configs-api]: https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/kpt-functions/src/types.ts
+[api-kptfunc]: ../ts/kpt-functions/docs/interfaces/_src_types_.kptfunc.md
 [vscode]: https://code.visualstudio.com/
 [npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
 [download-node]: https://nodejs.org/en/download/

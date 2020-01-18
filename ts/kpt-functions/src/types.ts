@@ -22,10 +22,10 @@ import { ConfigError } from './errors';
  */
 export interface KptFunc {
   /**
-   * A function consumes and optionally mutates Kubernetes configurations using the Configs object.
+   * A function consumes and optionally mutates Kubernetes configurations using the given [[Configs]] object.
    *
    * The function should:
-   * - Return a ConfigError when encountering one or more configuration-related issues.
+   * - Return a [[ConfigError]] when encountering one or more configuration-related issues.
    * - Throw an error when encountering operational issues such as IO exceptions.
    * - Avoid writing to stdout (e.g. using process.stdout) as it is used for chaining functions.
    *   Use stderr instead.
@@ -39,7 +39,7 @@ export interface KptFunc {
 }
 
 /**
- * Configs is a document store for Kubernetes objects populated from/to configuration files.
+ * Configs is an in-memory document store for Kubernetes objects populated from/to configuration files.
  *
  * It enables performing rich query and mutation operations.
  */
@@ -47,12 +47,10 @@ export class Configs {
   /**
    * Creates a Config.
    *
-   * @param items Input objects that the function is going to operate on.
-   * @param functionConfig Object used to parameterize the function's behavior.
-   *
-   * If supplied multiple objects with the same Group, Kind, Namespace, and Name, discards all but the last one.
-   *
+   * @param items Input Kubernetes objects.
+   * If supplied multiple objects with the same (Group, Kind, Namespace, Name) discards all but the last one.
    * Does not preserve insertion order of the passed objects.
+   * @param functionConfig Kubernetes object used to parameterize the function's behavior.
    */
   constructor(
     items: KubernetesObject[] = [],
@@ -93,10 +91,10 @@ export class Configs {
   /**
    * Inserts objects into the Configs.
    *
-   * If another object already in Configs has the same Group, Kind, Namespace, and Name, replaces that one with the
+   * If another object already in Configs has the same (Group, Kind, Namespace, Name), replaces that one with the
    * passed object.
    *
-   * If multiple objects have the same Group, Kind, Namespace, and Name, discards all but the last one.
+   * If multiple objects have the same (Group, Kind, Namespace, Name), discards all but the last one.
    *
    * Does not preserve insertion order of the passed objects.
    *
@@ -111,7 +109,7 @@ export class Configs {
   }
 
   /**
-   * Deletes all objects with the same Group, Kind, Namespace, and Name as any of the passed objects.
+   * Deletes all objects with the same (Group, Kind, Namespace, Name) as any of the passed objects.
    *
    * Does not throw if passed duplicates or keys which are not present in the Configs.
    *
