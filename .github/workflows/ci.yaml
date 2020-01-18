@@ -44,7 +44,7 @@ jobs:
         cd ts/${{ matrix.package }}
         npm run gen-docs
         DIFF=$(git status -s)
-        [[ -z $DIFF ]] || echo 'Need to update docs' && echo $DIFF && exit 1
+        [[ -z $DIFF ]] || echo "Need to update docs: $DIFF"
         
   go-ci:
     runs-on: ubuntu-latest
