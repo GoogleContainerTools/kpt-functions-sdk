@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        package: [ts/kpt-functions, ts/create-kpt-functions, ts/init-package, ts/hello-world, ts/demo-functions]
+        package: [kpt-functions, create-kpt-functions, init-package, hello-world, demo-functions]
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -26,11 +26,18 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
     - name: Install and test NPM packages
       run: |
-        cd ${{ matrix.package }}
+        cd ts/${{ matrix.package }}
         npm ci
         npm test
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Check linceses
+      if: matrix.package == 'kpt-functions' || 
+          matrix.package == 'create-kpt-functions' || 
+          matrix.package == 'demo-functions'
+      run: |
+        cd ts/${{ matrix.package }}
+        npm run lint-license
         
   go-ci:
     runs-on: ubuntu-latest
