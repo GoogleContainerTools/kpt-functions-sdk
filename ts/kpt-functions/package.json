@@ -25,7 +25,8 @@
     "format": "prettier \"src/**\" \"*.json\" --write",
     "pretest": "npm run build",
     "test": "jasmine --config=jasmine.json",
-    "posttest": "npm run lint"
+    "posttest": "npm run lint",
+    "gen-docs": "typedoc"
   },
   "dependencies": {
     "argparse": "^1.0.10",
@@ -40,12 +41,14 @@
     "@types/node": "^12.7.5",
     "@types/rw": "file:@types/rw",
     "jasmine": "^3.4.0",
-    "lodash": "^4.17.15",
     "js-green-licenses": "^1.1.0",
+    "lodash": "^4.17.15",
     "prettier": "1.18.2",
     "tslint": "^5.19.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
+    "typedoc": "^0.16.7",
+    "typedoc-plugin-markdown": "^2.2.16",
     "typescript": "^3.7.0"
   }
 }

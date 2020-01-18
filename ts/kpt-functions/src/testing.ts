@@ -19,10 +19,7 @@ import { Configs, KptFunc } from './types';
 import { ConfigError } from './errors';
 
 /**
- * TestRunner generates callbacks for test frameworks to execute as tests.
- *
- * Use to test behavior such as mutating configs, validation functions that return ConfigErrors, and
- * functions expected to throw exceptions.
+ * TestRunner makes it easier to write table-driven tests for KPT functions.
  */
 export class TestRunner {
   constructor(private readonly fn: KptFunc) {}
