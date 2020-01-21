@@ -32,7 +32,7 @@ It enables performing rich query and mutation operations.
 
 ###  constructor
 
-\+ **new Configs**(`items`: [KubernetesObject](../interfaces/_types_.kubernetesobject.md)[], `functionConfig?`: [KubernetesObject](../interfaces/_types_.kubernetesobject.md)): *[Configs](_types_.configs.md)*
+\+ **new Configs**(`input`: [KubernetesObject](../interfaces/_types_.kubernetesobject.md)[], `functionConfig?`: [KubernetesObject](../interfaces/_types_.kubernetesobject.md)): *[Configs](_types_.configs.md)*
 
 Creates a Config.
 
@@ -40,7 +40,7 @@ Creates a Config.
 
 Name | Type | Default | Description |
 ------ | ------ | ------ | ------ |
-`items` | [KubernetesObject](../interfaces/_types_.kubernetesobject.md)[] | [] | Input Kubernetes objects. If supplied multiple objects with the same (Group, Kind, Namespace, Name) discards all but the last one. Does not preserve insertion order of the passed objects. |
+`input` | [KubernetesObject](../interfaces/_types_.kubernetesobject.md)[] | [] | Input Kubernetes objects. If supplied multiple objects with the same (Group, Kind, Namespace, Name) discards all but the last one. Does not preserve insertion order of the passed objects. |
 `functionConfig?` | [KubernetesObject](../interfaces/_types_.kubernetesobject.md) | - | Kubernetes object used to parameterize the function's behavior.  |
 
 **Returns:** *[Configs](_types_.configs.md)*

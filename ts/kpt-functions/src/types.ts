@@ -47,17 +47,17 @@ export class Configs {
   /**
    * Creates a Config.
    *
-   * @param items Input Kubernetes objects.
+   * @param input Input Kubernetes objects.
    * If supplied multiple objects with the same (Group, Kind, Namespace, Name) discards all but the last one.
    * Does not preserve insertion order of the passed objects.
    * @param functionConfig Kubernetes object used to parameterize the function's behavior.
    */
   constructor(
-    items: KubernetesObject[] = [],
+    input: KubernetesObject[] = [],
     functionConfig?: KubernetesObject
   ) {
     this.functionConfig = functionConfig;
-    this.insert(...items);
+    this.insert(...input);
   }
 
   /**
@@ -68,7 +68,7 @@ export class Configs {
    * Returned objects are pass-by-reference; mutating them results in changes being persisted.
    */
   getAll(): KubernetesObject[] {
-    return this.items.map(e => e[1]);
+    return this.objects.map(e => e[1]);
   }
 
   /**
@@ -103,8 +103,8 @@ export class Configs {
   insert(...objects: KubernetesObject[]): void {
     objects.forEach(o => {
       const key: string = kubernetesKeyFn(o);
-      const [index, found] = this.indexOf(key, this.items, 0);
-      this.items.splice(index, found ? 1 : 0, [key, o]);
+      const [index, found] = this.indexOf(key, this.objects, 0);
+      this.objects.splice(index, found ? 1 : 0, [key, o]);
     });
   }
 
@@ -118,9 +118,9 @@ export class Configs {
   delete(...objects: KubernetesObject[]): void {
     objects.forEach(o => {
       const key: string = kubernetesKeyFn(o);
-      const [index, found] = this.indexOf(key, this.items, 0);
+      const [index, found] = this.indexOf(key, this.objects, 0);
       if (found) {
-        this.items.splice(index, 1);
+        this.objects.splice(index, 1);
       }
     });
   }
@@ -129,7 +129,7 @@ export class Configs {
    * Deletes all objects.
    */
   deleteAll(): void {
-    this.items = [];
+    this.objects = [];
   }
 
   /**
@@ -234,7 +234,7 @@ export class Configs {
   /**
    * A sorted array of the contained objects and their keys.
    */
-  private items: Array<[string, KubernetesObject]> = [];
+  private objects: Array<[string, KubernetesObject]> = [];
 
   /**
    * Object used as parameters to the function.
