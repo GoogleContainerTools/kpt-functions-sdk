@@ -85,7 +85,7 @@ container.
 
    Note the use of the beta feature.
 
-1. Create the cluster and point the KUBECONFIG environment variable to it:
+1. Create the cluster:
 
    ```sh
    kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.14.6
@@ -104,8 +104,8 @@ gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a 
 ### Working with CRDs
 
 The SDK uses the k8s server to generate the typescript classes.
-If your function uses a Custom Resource Definition, make sure you apply it to the cluster before
-generating the SDK.
+If your function uses a Custom Resource Definition, make sure you apply it to the cluster used
+for type generation:
 
 ```sh
 kubectl apply -f /path/to/my/crd.yaml
