@@ -13,7 +13,7 @@ docker run gcr.io/kpt-functions-demo/my-func:dev --help
 ```
 
 In order do something useful with a function, we need to compose a [Pipeline][concept-pipeline] with a
-Source and a Sink function.
+source and a sink function.
 
 This guide covers two approaches to running a pipeline of functions:
 
@@ -24,7 +24,7 @@ You can also use a container-based workflow orchestrator like [Cloud Build][clou
 
 ## Using `kpt fn`
 
-`kpt fn` provides utilities for working with configuration, including running KPT functions.
+`kpt` CLI provides utilities for working with configuration, including running KPT functions.
 
 ### Installing `kpt` CLI
 
@@ -112,76 +112,9 @@ kpt fn run --help
 
 ## Using `docker run`
 
-We can use any Source and Sink function to compose a pipeline. Here, we'll use `read-yaml` and `write-yaml`
-functions from the [KPT functions catalog][catalog].
-
-Pull the images:
-
-```sh
-docker pull gcr.io/kpt-functions/read-yaml
-docker pull gcr.io/kpt-functions/write-yaml
-```
-
-You'll also need some source configuration. You can try this example configuration:
-
-```sh
-git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
-cd kpt-functions-sdk/example-configs
-```
-
-With these tools prepared, construct your pipeline like so:
-
-1. Run the `read-yaml` function and view its output by piping to the `less` command:
-
-   ```sh
-   docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
-   less
-   ```
-
-1. Include your function in the pipeline:
-
-   ```sh
-   docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
-   docker run -i gcr.io/kpt-functions-demo/my-func:dev |
-   less
-   ```
-
-   During development, you can run your function directly using `node` to avoid having to rebuild
-   the docker image on every change:
-
-   ```sh
-   docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
-   node dist/my_func_run.js |
-   less
-   ```
-
-1. To persist the changes on the file system, pipe the output to the `write-yaml` function:
-
-   ```sh
-   docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
-   docker run -i gcr.io/kpt-functions-demo/my-func:dev |
-   docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /dev/null -d sink_dir=/sink -d overwrite=true
-   ```
-
-1. See the changes made to the configs directory:
-
-   ```sh
-   git status
-   ```
-
-### Understanding Docker Flags
-
-- `-u`: By default, docker containers run as a non-privileged user. Privileged actions, like
-  filesystem access or calls to the network, require escalated access. Note the example usages of
-  `read-yaml`, which include `docker run -u $(id -u)`, running docker with your user ID.
-- `-v`: Filesystem access requires mounting your container's filesystem onto your local
-  filesystem. For example, the `read-yaml` command includes the following: `-v $(pwd):/source`. This connects
-  the container's `/source` directory to the current directory on your filesystem.
-- `-i`: This flag keeps STDIN open for use in pipelines.
+You can run a pipeline of KPT functions using only `docker run`.
 
 ### Example 1
-
-In this example, we'll use `label_namespace.ts` function (Find the source [here][label-namespace]).
 
 Begin by running the function with the `--help` option:
 
@@ -189,9 +122,10 @@ Begin by running the function with the `--help` option:
 docker run gcr.io/kpt-functions/label-namespace --help
 ```
 
-The `label_namespace` function is configured with a `functionConfig` of kind `ConfigMap`. It takes the keys
-`label_name` and `label_value`. The function adds the label `[label_name]: [label_value]` to the
-`Namespace` objects in the input.
+The `label_namespace` function is parameterized with a `functionConfig` of kind `ConfigMap`. It labels
+the `Namespace` objects in the input with the given given `label_name` and `label_value`.
+
+Let's explore different ways of invoking this functions.
 
 #### functionConfig from a file
 
@@ -209,10 +143,10 @@ metadata:
 EOF
 ```
 
-separate from the input configuration data:
+For now, let's use a hardcoded input containing two `Namespace` and one `ResourceQuota` objects:
 
 ```sh
-cat > /tmp/input2.yaml <<EOF
+cat > /tmp/input.yaml <<EOF
 apiVersion: v1
 kind: List
 items:
@@ -246,12 +180,10 @@ items:
 EOF
 ```
 
-This `List` object defines two Namespaces and a ResourceQuota. In a dockerized pipeline of
-kpt-functions, we'd read the file in via a source function such as `read-yaml`.
-For now, we'll use a bash redirection:
+Running the function, you should see the mutated `List` printed to stdout:
 
 ```sh
-docker run -i -u $(id -u) -v /tmp/fc.yaml:/tmp/fc.yaml gcr.io/kpt-functions/label-namespace -f /tmp/fc.yaml < /tmp/input2.yaml
+docker run -i -u $(id -u) -v /tmp:/tmp gcr.io/kpt-functions/label-namespace -i /tmp/input.yaml -f /tmp/fc.yaml
 ```
 
 #### functionConfig from literal values
@@ -259,29 +191,55 @@ docker run -i -u $(id -u) -v /tmp/fc.yaml:/tmp/fc.yaml gcr.io/kpt-functions/labe
 Key/value parameters can also be assigned inline, like so:
 
 ```sh
-docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange < /tmp/input2.yaml
+docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange < /tmp/input.yaml
 ```
 
 This is functionally equivalent to the `ConfigMap` used earlier.
 
 > **Note:** This causes an error if the function takes another kind of `functionConfig`.
 
-Finally, let's mutate the configuration files by using source and sink functions:
+#### Composing a pipeline
+
+We can use any source and sink function to compose a pipeline. Here, we'll use `read-yaml` and `write-yaml`
+functions from the [KPT functions catalog][catalog].
+
+Pull the images:
 
 ```sh
-git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
-cd kpt-functions-sdk/example-configs
+docker pull gcr.io/kpt-functions/read-yaml
+docker pull gcr.io/kpt-functions/write-yaml
+```
 
-docker run -i -u $(id -u) -v $(pwd):/source  gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
+You'll also need some example configuration:
+
+```sh
+git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+cd kpt-functions-sdk/example-configs
+```
+
+Finally, let's run the pipeline:
+
+```sh
+docker run -i -u $(id -u) -v $(pwd):/source gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
 docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /dev/null -d sink_dir=/sink -d overwrite=true
-```
+````
 
 You should see labels added to `Namespace` configuration files:
 
 ```sh
 git status
-```
+````
+
+#### Understanding Docker Flags
+
+- `-u`: By default, docker containers run as a non-privileged user. Privileged actions, like
+  filesystem access or calls to the network, require escalated access. Note the example usages of
+  `read-yaml`, which include `docker run -u $(id -u)`, running docker with your user ID.
+- `-v`: Filesystem access requires mounting your container's filesystem onto your local
+  filesystem. For example, the `read-yaml` command includes the following: `-v $(pwd):/source`. This connects
+  the container's `/source` directory to the current directory on your filesystem.
+- `-i`: This flag keeps STDIN open for use in pipelines.
 
 ### Example 2
 
