@@ -135,7 +135,6 @@ function toYaml(o: kpt.KubernetesObject): string {
  * @param o The KubernetesObject to get a source path for.
  * @returns either the annotated source path, or a generated path for the object to be written to.
  */
-// TODO(b/143073821): Solve general problem of making testing private methods unnecessary.
 export function buildSourcePath(o: kpt.KubernetesObject): string {
   const annotationPath = kpt.getAnnotation(o, kpt.SOURCE_PATH_ANNOTATION);
   if (annotationPath) {

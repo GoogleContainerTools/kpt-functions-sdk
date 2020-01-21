@@ -188,13 +188,12 @@ docker run -i -u $(id -u) -v /tmp:/tmp gcr.io/kpt-functions/label-namespace -i /
 
 #### functionConfig from literal values
 
-Key/value parameters can also be assigned inline, like so:
+`functionConfig` can be any Kubernetes Kind. It's common for functions to use a ConfigMap to
+provide a simple list of key/value pairs as parameters. We provide porcelain to make this easier:
 
 ```sh
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange < /tmp/input.yaml
 ```
-
-This is functionally equivalent to the `ConfigMap` used earlier.
 
 > **Note:** This causes an error if the function takes another kind of `functionConfig`.
 
@@ -248,7 +247,7 @@ Functions can be piped to form sophisticated pipelines.
 First, grab the `example-configs` directory and pull the docker images:
 
 ```sh
-git clone git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
 cd kpt-functions-sdk/example-configs
 
 docker pull gcr.io/kpt-functions/read-yaml
