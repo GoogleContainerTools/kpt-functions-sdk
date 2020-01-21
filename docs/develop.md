@@ -2,7 +2,18 @@
 
 This guide will walk you through developing a KPT function using the Typescript SDK.
 
-## Prerequisites
+<!-- toc -->
+
+- [Setup](#setup)
+- [Create the NPM package](#create-the-npm-package)
+- [Implement the function](#implement-the-function)
+- [Build and push Docker image](#build-and-push-docker-image)
+- [Use the SDK CLI](#use-the-sdk-cli)
+- [Next Steps](#next-steps)
+
+<!-- tocstop -->
+
+## Setup
 
 ### System Requirements
 
@@ -92,9 +103,9 @@ gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a 
 
 ### Working with CRDs
 
+The SDK uses the k8s server to generate the typescript classes.
 If your function uses a Custom Resource Definition, make sure you apply it to the cluster before
-generating the SDK. Typescript uses the k8s server to generate the types represented there,
-including your CRD.
+generating the SDK.
 
 ```sh
 kubectl apply -f /path/to/my/crd.yaml
@@ -105,8 +116,8 @@ kubectl apply -f /path/to/my/crd.yaml
 To initialize a new NPM package, first create a package directory:
 
 ```sh
-mkdir <my-package>
-cd <my-package>
+mkdir my-package
+cd my-package
 ```
 
 > **Note:** All subsequent commands are run from the `my-package/` directory.
@@ -133,13 +144,13 @@ This process will create the following:
    including the `create-kpt-functions` CLI discussed later in the `README`.
 1. `src/`: Directory containing the source files for all your functions, e.g.:
 
-   - `<my_func.ts>`: Implement your function's interface here.
-   - `<my_func_test.ts>`: Unit tests for your function.
-   - `<my_func_run.ts>`: The entry point from which your function is run.
+   - `my_func.ts`: Implement your function's interface here.
+   - `my_func_test.ts`: Unit tests for your function.
+   - `my_func_run.ts`: The entry point from which your function is run.
 
 1. `src/gen/`: Contains Kubernetes core and CRD types generated from the OpenAPI spec published by the cluster you selected.
 1. `build/`: Contains Dockerfile for each function, e.g.:
-   - `<my_func>.Dockerfile`
+   - `my_func.Dockerfile`
 
 Next, install all package dependencies:
 
@@ -152,12 +163,12 @@ In addition to installation, `install` compiles your function into the `dist/` d
 You can run your function directly:
 
 ```sh
-node dist/<my_func_run>.js --help
+node dist/my_func_run.js --help
 ```
 
 Currently, it simply passes through the input configuration data. Let's remedy this.
 
-## Implementing the function
+## Implement the function
 
 You can now start implementing the function using your favorite IDE, e.g. [VSCode][vscode]:
 
@@ -165,7 +176,7 @@ You can now start implementing the function using your favorite IDE, e.g. [VSCod
 code .
 ```
 
-In `src/<my_func>.ts`, implement the `KptFunc` interface [documented here][api-kptfunc].
+In `src/my_func.ts`, implement the `KptFunc` interface [documented here][api-kptfunc].
 
 Take a look at [these example functions][demo-funcs] to better understand how to use
 `kpt-functions` library. These functions are available as docker images documented in the [catalog][catalog].
@@ -189,7 +200,7 @@ To run the tests, use:
 npm test
 ```
 
-## Container images
+## Build and push Docker image
 
 With your working function in-hand, it's time to package your function into an executable docker
 image.
@@ -230,7 +241,7 @@ npm run kpt:docker-build -- --tag=latest
 npm run kpt:docker-push -- --tag=latest
 ```
 
-## SDK CLI
+## Use the SDK CLI
 
 The `create-kpt-functions` package (installed as `devDependencies`), provides a CLI for managing
 the NPM package you created above. The CLI sub-commands can be invoked via `npm run`. For example,
@@ -239,6 +250,8 @@ to add a new function to the package:
 ```console
 npm run kpt:function-create -- --help
 ```
+
+> **Note:** Flags are passed to the CLI after the `--` separator.
 
 These sub-commands are available:
 
@@ -252,8 +265,6 @@ kpt:function-create     Generate stubs for a new function. Overwrites files
 kpt:type-create         Generate classes for core and CRD types. Overwrite
                         files if they exist.
 ```
-
-> **Note:** Flags are passed to the CLI after the `--` separator.
 
 ## Next Steps
 
