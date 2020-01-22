@@ -28,8 +28,7 @@ fi
 
 
 if [[ "$PACKAGE_VERSION" == *"rc"* ]]; then
-      echo npm publish --tag rc
+      npm publish --tag rc
 else
-      echo npm publish
+      npm publish
 fi
-
