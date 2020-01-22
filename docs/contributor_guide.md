@@ -1,13 +1,4 @@
-# kpt functions Contributor Guide
-
-## Building and testing all kpt functions packages
-
-```console
-# Run the package.json scripts for validation after making changes
-npm run build
-npm run watch
-npm test
-```
+# KPT Functions Contributor Guide
 
 ## Adding a new dependency
 
@@ -31,16 +22,11 @@ we need to check licenses:
 npm run lint-license
 ```
 
-## Building typgen binary
+## Releases
 
-TO re-build typegen binary:
-
-```console
-./scripts/build-typegen.sh
-```
-
-## Generate example package
-
-```console
-./scripts/generate-example.sh
-```
+1. Update version in package.json to e.g. `0.10.0-rc.1`
+2. Create a RC in GitHub, e.g: `release-kpt-functions-v0.10.0-rc.1`
+   This will trigger a release job in GitHub actions
+3. Create a PR changing dependant packages to use the rc version.
+4. If the CI passes for this PR, edit release created in #2 and remove `-rc.1`.
+5. Edit PR in #4 to remove `-rc.1`.
