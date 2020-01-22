@@ -24,13 +24,17 @@ export const SOURCE_DIR = 'source_dir';
 export const FILTER_IVNALID = 'filter_invalid';
 
 export const readYaml: kpt.KptFunc = (configs) => {
+  // Get the parameters.
   const sourceDir = configs.getFunctionConfigValueOrThrow(SOURCE_DIR);
   const ignoreInvalid = configs.getFunctionConfigValue(FILTER_IVNALID) === 'true';
 
   // Discard any input objects since this is a source function.
   configs.deleteAll();
 
+  // Only read files with YAML extensions. Other file types are ignored.
   const files = glob.sync(sourceDir + '/**/*.+(yaml|yml)');
+
+  // Parse each file and convert it to a KubernetesObject.
   const errors: kpt.ConfigError[] = files
     .map((f) => parseFile(configs, sourceDir, f, ignoreInvalid))
     .filter((err) => err !== undefined)
@@ -72,6 +76,7 @@ function parseFile(
   const contents = readFileOrThrow(file);
   let objects = safeLoadAll(contents);
 
+  // Filter for objects that are not KubernetesObject. This is conditional on 'ignoreValid' parameter.
   const invalidObjects: object[] = objects.filter((o) => !kpt.isKubernetesObject(o));
   if (invalidObjects.length) {
     if (ignoreInvalid) {
@@ -84,10 +89,13 @@ function parseFile(
     }
   }
 
+  // Add the standard path and index annotations to preserve the filesystem hierarchy
+  // and ordering within a file.
   objects.forEach((o, i) => {
     kpt.addAnnotation(o, kpt.SOURCE_PATH_ANNOTATION, path.relative(sourceDir, file));
     kpt.addAnnotation(o, kpt.SOURCE_INDEX_ANNOTATION, i.toString());
   });
+
   configs.insert(...objects);
   return;
 }

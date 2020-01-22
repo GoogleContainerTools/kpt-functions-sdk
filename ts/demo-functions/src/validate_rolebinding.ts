@@ -24,8 +24,11 @@ import { isRoleBinding } from './gen/io.k8s.api.rbac.v1';
 export const SUBJECT_NAME = 'subject_name';
 
 export const validateRolebinding: KptFunc = (configs) => {
+  // Get the subject name parameter.
   const subjectName = configs.getFunctionConfigValueOrThrow(SUBJECT_NAME);
 
+  // Iterate over all RoleBinding objects in the input, and filter those that have a subject
+  // we're looking for.
   let errors: KubernetesObjectError[] = configs
     .get(isRoleBinding)
     .filter((rb) => rb && rb.subjects && rb.subjects.find((s) => s.name === subjectName))
