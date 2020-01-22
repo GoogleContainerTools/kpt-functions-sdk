@@ -16,6 +16,8 @@
 
 set -euo pipefail
 
+PKG=init-package
+
 # Fail if kind cluster generate-init-pkg already exists.
 if [[ $(kind get clusters | grep -w "generate-init-pkg") ]]
 then
@@ -28,14 +30,9 @@ else
     sleep 10 # Wait for cluster to become fully available. Potentially flaky.
 fi
 
-export KUBECONFIG="$(kind get kubeconfig-path --name="generate-init-pkg")"
+cd ts
+rm -rf $PKG
+mkdir $PKG
+cd $PKG
+npm init @googlecontainertools/kpt-functions
 
-cd ts/create-kpt-functions
-npm run build
-
-cd ..
-rm -rf init-package
-mkdir init-package
-cd init-package
-
-node ./../create-kpt-functions/dist/cli.js
