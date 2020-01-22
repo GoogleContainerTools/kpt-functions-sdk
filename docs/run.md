@@ -270,12 +270,12 @@ docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /de
 Let's walk through each step:
 
 1. `read-yaml` recursively reads all YAML files from the `foo-corp-configs` directory on the host.
-1. `mutate-psp` reads the output of `read-yaml`. This function **mutates** any `PodSecurityPolicy`
+1. `mutate-psp` reads the output of `read-yaml`. This function **transforms** any `PodSecurityPolicy`
    resources by setting the `allowPrivilegeEscalation` field to `false`.
 1. `expand-team-cr` similarly operates on the result of the previous function. It looks
    for Kubernetes custom resource of kind `Team`, and **generates** new resources based on that
    (e.g. `Namespaces` and `RoleBindings`).
-1. `validate-rolebinding` **enforces** a policy that disallows any `RoleBindings` with `subject`
+1. `validate-rolebinding` **validates** that there are no `RoleBindings` with `subject`
    set to `alice@foo-corp.com`. This steps fails with a non-zero exit code if the policy is violated.
 1. `write-yaml` writes the result of the pipeline back to the `foo-corp-configs` directory on the host.
 
