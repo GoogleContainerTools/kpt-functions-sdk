@@ -49,7 +49,7 @@ wait
 git clean -fd
 clear
 
-p "# Mutate configs"
+p "# Transform configs"
 pe "kpt fn source . |
   kpt fn run --image gcr.io/kpt-functions/mutate-psp |
   kpt fn sink ."
@@ -59,7 +59,7 @@ wait
 git reset HEAD --hard
 clear
 
-p "# Enforce policy on configs"
+p "# Validate configs"
 pe "kpt fn source . |
   kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=bob@foo-corp.com"
 wait

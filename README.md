@@ -6,9 +6,9 @@ KPT Functions are client-side programs that make it easy to operate on a reposit
 
 Use cases:
 
-- **Configuration Compliance:** e.g. Require all `Namespace` configurations to have a `cost-center` label.
+- **Configuration Validation:** e.g. Require all `Namespace` configurations to have a `cost-center` label.
 - **Configuration Generation:** e.g. Provide a blueprint for new services by generating a `Namespace` with organization-mandated defaults for `RBAC`, `ResourceQuota`, etc.
-- **Configuration Migration:** e.g. Update all `PodSecurityPolicy` configurations to improve the
+- **Configuration Transformation:** e.g. Update all `PodSecurityPolicy` configurations to improve the
   security posture.
 
 ![demo][demo-run]
@@ -17,8 +17,7 @@ KPT functions can be run locally or as part of a CI/CD pipeline.
 
 In GitOps workflows, KPT functions read and write configuration files from a Git repo. Changes
 to the system authored by humans and mutating KPT functions are reviewed before being committed to the repo. KPT functions
-can be run as pre-commit or post-commit steps to check for compliance before configurations are
-applied to a cluster.
+can be run as pre-commit or post-commit steps to validate configurations before they are applied to a cluster.
 
 ## Next Steps
 
