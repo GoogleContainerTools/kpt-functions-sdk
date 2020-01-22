@@ -22,16 +22,36 @@ import { RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
 const ENVIRONMENTS = ['dev', 'prod'];
 
 export const expandTeamCr: KptFunc = (configs) => {
+  // For each 'Team' custom resource in the input:
+  // 1. Generate a per-enviroment Namespace.
+  // 2. Generate RoleBindings in each Namespace.
   configs.get(isTeam).forEach((team) => {
     const name = team.metadata.name;
 
     ENVIRONMENTS.forEach((suffix) => {
       const ns = `${name}-${suffix}`;
       configs.insert(Namespace.named(ns));
-      configs.insert(...expandTeam(team, ns));
+      configs.insert(...createRoleBindings(team, ns));
     });
   });
 };
+
+function createRoleBindings(team: Team, namespace: string): RoleBinding[] {
+  return (team.spec.roles || []).map((item) => {
+    return new RoleBinding({
+      metadata: {
+        name: item.role,
+        namespace,
+      },
+      subjects: roleSubjects(item),
+      roleRef: {
+        kind: 'ClusterRole',
+        name: item.role,
+        apiGroup: 'rbac.authorization.k8s.io',
+      },
+    });
+  });
+}
 
 function roleSubjects(item: Team.Spec.Item): Subject[] {
   const userSubjects: Subject[] = (item.users || []).map(
@@ -49,23 +69,6 @@ function roleSubjects(item: Team.Spec.Item): Subject[] {
       }),
   );
   return userSubjects.concat(groupSubjects);
-}
-
-function expandTeam(team: Team, namespace: string): RoleBinding[] {
-  return (team.spec.roles || []).map((item) => {
-    return new RoleBinding({
-      metadata: {
-        name: item.role,
-        namespace,
-      },
-      subjects: roleSubjects(item),
-      roleRef: {
-        kind: 'ClusterRole',
-        name: item.role,
-        apiGroup: 'rbac.authorization.k8s.io',
-      },
-    });
-  });
 }
 
 expandTeamCr.usage = `

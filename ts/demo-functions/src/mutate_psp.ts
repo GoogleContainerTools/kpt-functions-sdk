@@ -18,6 +18,8 @@ import { KptFunc } from '@googlecontainertools/kpt-functions';
 import { isPodSecurityPolicy } from './gen/io.k8s.api.policy.v1beta1';
 
 export const mutatePsp: KptFunc = (configs) => {
+  // Iterate over all PodSecurityPolicy objects in the input and if
+  // the 'allowPrivilegeEscalation' field is not to 'false', set the field to false.
   configs
     .get(isPodSecurityPolicy)
     .filter((psp) => psp.spec && psp.spec.allowPrivilegeEscalation !== false)

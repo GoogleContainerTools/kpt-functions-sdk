@@ -33,9 +33,11 @@ const YAML_STYLE: DumpOptions = {
 };
 
 export const writeYaml: kpt.KptFunc = (configs) => {
+  // Get the paramters.
   const sinkDir = configs.getFunctionConfigValueOrThrow(SINK_DIR);
   const overwrite = configs.getFunctionConfigValue(OVERWRITE) === 'true';
 
+  // If sink diretory is not empty, require 'overwrite' parameter to be set.
   const yamls = listYamlFiles(sinkDir);
   if (!overwrite && yamls.length > 0) {
     throw new Error(`sink dir contains YAML files and overwrite is not set to string 'true'.`);
@@ -43,7 +45,10 @@ export const writeYaml: kpt.KptFunc = (configs) => {
 
   const filesToDelete = new Set(yamls);
 
+  // Group objects by the file path and create a multi-object file if required.
   configs.groupBy(buildSourcePath).forEach(([p, configsAtPath]) => {
+    // Preserve the original filesystem hierarchy and object ordering using the annotations
+    // set by the source function. Remove these annotations before writing files.
     const documents = configsAtPath
       .sort(compareSourceIndex)
       .map((config) => kpt.removeAnnotation(config, kpt.SOURCE_INDEX_ANNOTATION))
@@ -59,7 +64,6 @@ export const writeYaml: kpt.KptFunc = (configs) => {
 
     if (fs.existsSync(file)) {
       filesToDelete.delete(file);
-      // Doesn't handle large files well. Should compare buffered output.
       const currentContents = fs.readFileSync(file).toString();
       if (contents == currentContents) {
         // No changes to make.
@@ -70,6 +74,8 @@ export const writeYaml: kpt.KptFunc = (configs) => {
     fs.writeFileSync(file, contents, 'utf8');
   });
 
+  // Delete YAML files that are missing from the input.
+  // Other file types are ignored.
   filesToDelete.forEach((file) => {
     fs.unlinkSync(file);
   });
