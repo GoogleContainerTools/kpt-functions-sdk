@@ -8,6 +8,10 @@ After you complete this quickstart, you can follow the
 
 ## Prerequisites
 
+### System Requirements
+
+Currently supported platforms: amd64 Linux/Mac
+
 ### Setting Up Your Local Environment
 
 - Install [node][download-node]
