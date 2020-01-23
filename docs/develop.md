@@ -17,7 +17,7 @@ This guide will walk you through developing a KPT function using the Typescript 
 
 ### System Requirements
 
-Supported platforms: amd64 Linux/Mac/Windows
+Currently supported platforms: amd64 Linux/Mac
 
 ### Setting Up Your Local Environment
 
