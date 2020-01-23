@@ -1,12 +1,12 @@
 {
-  "name": "@googlecontainertools/create-kpt-functions",
+  "name": "create-kpt-functions",
   "version": "0.16.0",
   "description": "KPT functions CLI",
   "author": "KPT Authors",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git@github.com:GoogleContainerTools/kpt-functions-sdk.git",
+    "url": "https://github.com/GoogleContainerTools/kpt-functions-sdk.git",
     "directory": "ts/create-kpt-functions"
   },
   "bin": {

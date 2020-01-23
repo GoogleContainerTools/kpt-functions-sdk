@@ -1,4 +1,4 @@
-import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner } from 'kpt-functions';
 import { myFunc } from './my_func';
 
 const RUNNER = new TestRunner(myFunc);

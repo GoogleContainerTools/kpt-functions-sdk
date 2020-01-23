@@ -15,6 +15,6 @@
  */
 
 import { expandTeamCr } from './expand_team_cr';
-import { run } from '@googlecontainertools/kpt-functions';
+import { run } from 'kpt-functions';
 
 run(expandTeamCr);

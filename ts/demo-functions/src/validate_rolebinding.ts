@@ -18,7 +18,7 @@ import {
   Configs,
   KubernetesObjectError,
   MultiConfigError,
-} from '@googlecontainertools/kpt-functions';
+} from 'kpt-functions';
 import { isRoleBinding } from './gen/io.k8s.api.rbac.v1';
 
 const SUBJECT_NAME = 'subject_name';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner } from 'kpt-functions';
 import { PodSecurityPolicy } from './gen/io.k8s.api.policy.v1beta1';
 import { mutatePsp } from './mutate_psp';
 

@@ -15,6 +15,6 @@
  */
 
 import { noOp } from './no_op';
-import { run } from '@googlecontainertools/kpt-functions';
+import { run } from 'kpt-functions';
 
 run(noOp);

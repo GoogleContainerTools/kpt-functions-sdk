@@ -7,9 +7,6 @@ USER node
 
 WORKDIR /home/node/app
 
-# TODO(b/141115380): Remove once packages are published to public registry.
-COPY --chown=node:node .npmrc .
-
 # Install dependencies and cache them.
 COPY --chown=node:node package*.json ./
 RUN npm ci
@@ -19,7 +16,7 @@ COPY --chown=node:node tsconfig.json .
 COPY --chown=node:node src src
 RUN npm run build && \
     npm prune --production && \
-    rm -r src tsconfig.json .npmrc
+    rm -r src tsconfig.json
 
 #############################################
 
@@ -33,4 +30,4 @@ WORKDIR /home/node/app
 
 COPY --from=builder /home/node/app /home/node/app
 
-ENTRYPOINT ["node", "/home/node/app/dist/my_func_run.js"]
+ENTRYPOINT ["node", "/home/node/app/dist/label_namespace_run.js"]

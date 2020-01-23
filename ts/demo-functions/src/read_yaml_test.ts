@@ -17,13 +17,7 @@
 import * as path from 'path';
 import { readYaml, SOURCE_DIR } from './read_yaml';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
-import {
-  TestRunner,
-  Configs,
-  readConfigs,
-  FileFormat,
-  MultiConfigError,
-} from '@googlecontainertools/kpt-functions';
+import { TestRunner, Configs, readConfigs, FileFormat, MultiConfigError } from 'kpt-functions';
 
 const RUNNER = new TestRunner(readYaml);
 

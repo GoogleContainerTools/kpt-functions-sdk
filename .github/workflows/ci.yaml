@@ -22,14 +22,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-        registry-url: 'https://npm.pkg.github.com'
     - name: Install and test NPM packages
       run: |
         cd ts/${{ matrix.package }}
         npm ci
         npm test
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Check linceses
       if: matrix.package == 'kpt-functions' || 
           matrix.package == 'create-kpt-functions' || 
@@ -81,14 +78,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-        registry-url: 'https://npm.pkg.github.com'
     - name: Install NPM packages
       run: |
         cd ts/demo-functions
         npm ci
-        eval "echo \"$(sed 's/"/\\"/g' $NPM_CONFIG_USERCONFIG)\"" > .npmrc
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build docker images
       if: matrix.platform == 'ubuntu-latest'
       run: |

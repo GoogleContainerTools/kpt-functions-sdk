@@ -15,6 +15,6 @@
  */
 
 import { validateRolebinding } from './validate_rolebinding';
-import { run } from '@googlecontainertools/kpt-functions';
+import { run } from 'kpt-functions';
 
 run(validateRolebinding);

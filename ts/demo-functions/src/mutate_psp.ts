@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs } from '@googlecontainertools/kpt-functions';
+import { Configs } from 'kpt-functions';
 import { isPodSecurityPolicy } from './gen/io.k8s.api.policy.v1beta1';
 
 export async function mutatePsp(configs: Configs) {
