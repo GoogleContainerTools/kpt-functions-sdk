@@ -8,8 +8,23 @@ on:
 jobs:
   node-ci:
     runs-on: ubuntu-latest
+    env:
+      GOPATH: /home/runner/work/kpt-functions-sdk/go
+      GO111MODULE: off
     steps:
-    - uses: actions/checkout@v1
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+    - name: Check out code into GOPATH
+      uses: actions/checkout@v1
+      with:
+        path: go/src/github.com/${{ github.repository }}
+    - name: Build, Test, Lint
+      run: |
+        cd go
+        make publish-typegen
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
