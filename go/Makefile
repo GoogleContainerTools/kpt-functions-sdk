@@ -2,6 +2,7 @@
 
 GOPATH := $(shell go env GOPATH)
 OUT_DIR := .out
+CLI_BIN := ../ts/create-kpt-functions/bin/
 
 all: fix fmt test test-e2e lint
 
@@ -33,5 +34,7 @@ build-typegen: fix fmt test lint
 	env GOOS=windows GOARCH=amd64 go build -o $(OUT_DIR)/typegen_windows_amd64 ./cmd/typegen
 
 publish-typegen: build-typegen
-	cp $(OUT_DIR)/typegen* ../ts/create-kpt-functions/bin/
+	rm -rf $(CLI_BIN)
+	mkdir -p $(CLI_BIN)
+	cp $(OUT_DIR)/typegen* $(CLI_BIN)
 
