@@ -64,7 +64,7 @@ export async function typeCreate(packageDir: string) {
   writeFileSync(swaggerFile, out);
   const typegen = spawnSync('typegen', [swaggerFile, typegenOutDir], {
     env: {
-      PATH: `${process.env.PATH}${delimiter}${CLI_PACKAGE.binDir}`,
+      PATH: `${CLI_PACKAGE.binDir}${delimiter}${process.env.PATH}`,
     },
     stdio: 'inherit',
   });
