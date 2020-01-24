@@ -15,41 +15,12 @@
  */
 
 import { resolve } from 'path';
-import * as os from 'os';
 
 // Absolute paths in this package.
 export const CLI_PACKAGE = {
-  typegen: resolve(__dirname, '..', 'bin', typegenBin()),
+  binDir: resolve(__dirname, '..', 'node_modules', '.bin'),
   templates: resolve(__dirname, '..', 'templates'),
 };
-
-function typegenBin(): string {
-  let arch;
-  switch (os.arch()) {
-    case 'x64':
-      arch = 'amd64';
-      break;
-    default:
-      throw new Error(`${os.arch()} architecture is currently not supported`);
-  }
-
-  let platform;
-  switch (os.platform()) {
-    case 'linux':
-      platform = 'linux';
-      break;
-    case 'darwin':
-      platform = 'darwin';
-      break;
-    case 'win32':
-      platform = 'windows';
-      break;
-    default:
-      throw new Error(`${os.platform()} platform is currently not supported`);
-  }
-
-  return `typegen_${platform}_${arch}`;
-}
 
 // Paths relative to user package.
 export const USER_PACKAGE = {

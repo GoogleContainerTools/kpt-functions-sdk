@@ -1,6 +1,6 @@
 {
   "name": "@googlecontainertools/create-kpt-functions",
-  "version": "0.13.1",
+  "version": "0.14.3",
   "description": "KPT functions CLI",
   "author": "KPT Authors",
   "license": "Apache-2.0",
@@ -13,16 +13,16 @@
     "kpt": "dist/cli.js"
   },
   "files": [
-    "bin/",
     "dist/",
     "!**/*_test.*",
     "templates/"
   ],
   "scripts": {
     "prepare": "npm run build",
+    "postinstall": "go-npm install",
+    "preuninstall": "go-npm uninstall",
     "build": "tsc",
     "watch": "tsc --watch",
-    "prepublishOnly": "ls bin/typegen_darwin_amd64 bin/typegen_linux_amd64 bin/typegen_windows_amd64",
     "clean": "rm -Rf node_modules/ dist/",
     "lint": "tslint -p package.json; prettier \"src/**\" \"*.json\" --check",
     "lint-license": "license-checker --onlyAllow 'Apache-2.0;MIT;BSD;BSD-2-Clause;BSD-3-Clause;ISC;CC-BY-3.0;CC0-1.0;Unlicense'",
@@ -38,6 +38,7 @@
     "cli-interact": "^0.1.9",
     "fs-extra": "^8.1.0",
     "glob": "^7.1.4",
+    "go-npm": "^0.1.9",
     "is-valid-npm-name": "0.0.4",
     "mustache": "^3.0.1",
     "request": "^2.88.0",
@@ -62,6 +63,11 @@
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
     "typescript": "^3.5.3"
+  },
+  "goBinary": {
+    "name": "typegen",
+    "path": "./bin",
+    "url": "https://storage.googleapis.com/kpt-functions/v{{version}}/typegen_{{platform}}_{{arch}}.tar.gz"
   },
   "prettier": {
     "arrowParens": "always",

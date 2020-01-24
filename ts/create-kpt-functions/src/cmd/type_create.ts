@@ -16,17 +16,17 @@
 
 import { KubeConfig } from '@kubernetes/client-node';
 import { Context } from '@kubernetes/client-node/dist/config_types';
-import { execSync } from 'child_process';
 import { question } from 'cli-interact';
 import { mkdtempSync, unlinkSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
-import { resolve } from 'path';
+import { resolve, delimiter } from 'path';
 import * as request from 'request-promise';
-import { CLI_PACKAGE } from '../paths';
 import * as format from '../utils/format';
 import { log } from '../utils/log';
 import * as validator from '../utils/validator';
 import { failure } from '../utils/format';
+import { spawnSync } from 'child_process';
+import { CLI_PACKAGE } from '../paths';
 
 export async function typeCreate(packageDir: string) {
   const desc = 'Generating types from OpenAPI spec.';
@@ -60,15 +60,25 @@ export async function typeCreate(packageDir: string) {
   const tmp = mkdtempSync(resolve(tmpdir(), 'kpt-init'));
   const swaggerFile = resolve(tmp, 'swagger.json');
   const typegenOutDir = resolve(packageDir, 'src', 'gen');
-  try {
-    writeFileSync(swaggerFile, out);
-    // Generate types.
-    execSync(`${CLI_PACKAGE.typegen} ${swaggerFile} ${typegenOutDir}`);
-    log(`Generated ${typegenOutDir}`);
-  } finally {
-    // Delete swagger.json.
-    unlinkSync(swaggerFile);
+
+  writeFileSync(swaggerFile, out);
+  const typegen = spawnSync('typegen', [swaggerFile, typegenOutDir], {
+    env: {
+      PATH: `${process.env.PATH}${delimiter}${CLI_PACKAGE.binDir}`,
+    },
+    stdio: 'inherit',
+  });
+  unlinkSync(swaggerFile);
+
+  if (typegen.status !== 0) {
+    let msg = 'Failed to build docker image';
+    if (typegen.error) {
+      msg = `${msg}: ${typegen.error}`;
+    }
+    throw new Error(msg);
   }
+
+  log(`Generated ${typegenOutDir}`);
 
   log(format.finishMarker(desc));
 }
