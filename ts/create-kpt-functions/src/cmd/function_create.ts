@@ -32,11 +32,9 @@ export function functionCreate(appDir: string) {
     validator.isValidFuncName,
     defaultFuncName,
   );
-
   log(`Using function name "${funcName}".\n`);
 
   const tsFuncName = validator.toTSName(funcName);
-
   const srcDir = path.join(appDir, USER_PACKAGE.src);
 
   new Templates([
