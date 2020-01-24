@@ -25,7 +25,11 @@ export function dockerBuild(packageDir: string, dockerTag: string) {
       stdio: 'inherit',
     });
     if (build.status !== 0) {
-      process.exit(1);
+      let msg = 'Failed to build docker image';
+      if (build.error) {
+        msg = `${msg}: ${build.error}`;
+      }
+      throw new Error(msg);
     }
   });
 }

@@ -2,7 +2,6 @@
 
 GOPATH := $(shell go env GOPATH)
 OUT_DIR := .out
-CLI_BIN := ../ts/create-kpt-functions/bin/
 
 all: fix fmt test test-e2e lint
 
@@ -29,12 +28,11 @@ publish-functions: all
 	./scripts/publish-functions.sh
 
 build-typegen: fix fmt test lint
-	env GOOS=linux GOARCH=amd64 go build -o $(OUT_DIR)/typegen_linux_amd64 ./cmd/typegen
-	env GOOS=darwin GOARCH=amd64 go build -o $(OUT_DIR)/typegen_darwin_amd64 ./cmd/typegen
-	env GOOS=windows GOARCH=amd64 go build -o $(OUT_DIR)/typegen_windows_amd64 ./cmd/typegen
+	env GOOS=linux GOARCH=amd64 go build -o $(OUT_DIR)/linux/typegen ./cmd/typegen
+	env GOOS=darwin GOARCH=amd64 go build -o $(OUT_DIR)/darwin/typegen ./cmd/typegen
+	env GOOS=windows GOARCH=amd64 go build -o $(OUT_DIR)/windows/typegen ./cmd/typegen
 
-publish-typegen: build-typegen
-	rm -rf $(CLI_BIN)
-	mkdir -p $(CLI_BIN)
-	cp $(OUT_DIR)/typegen* $(CLI_BIN)
-
+package-typegen: build-typegen
+	tar -C $(OUT_DIR)/linux -czvf $(OUT_DIR)/typegen_linux_amd64.tar.gz typegen
+	tar -C $(OUT_DIR)/darwin -czvf $(OUT_DIR)/typegen_darwin_amd64.tar.gz typegen
+	tar -C $(OUT_DIR)/windows -czvf $(OUT_DIR)/typegen_windows_amd64.tar.gz typegen
