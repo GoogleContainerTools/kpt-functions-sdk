@@ -71,7 +71,7 @@ export async function typeCreate(packageDir: string) {
   unlinkSync(swaggerFile);
 
   if (typegen.status !== 0) {
-    let msg = 'Failed to build docker image';
+    let msg = 'Failed to run typegen';
     if (typegen.error) {
       msg = `${msg}: ${typegen.error}`;
     }

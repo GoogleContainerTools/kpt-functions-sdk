@@ -23,7 +23,7 @@ export function dockerPush(packageDir: string, dockerTag: string) {
   processDockerfile(packageDir, dockerTag, (dockerFile, functionName, image) => {
     const push = spawnSync('docker', ['push', image], { stdio: 'inherit' });
     if (push.status !== 0) {
-      let msg = 'Failed to build docker image';
+      let msg = 'Failed to push docker image';
       if (push.error) {
         msg = `${msg}: ${push.error}`;
       }
