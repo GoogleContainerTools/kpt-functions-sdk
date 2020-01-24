@@ -23,10 +23,8 @@ import { functionCreate } from './cmd/function_create';
 import { dockerCreate } from './cmd/docker_create';
 import { dockerBuild } from './cmd/docker_build';
 import { dockerPush } from './cmd/docker_push';
-import { workflowCreate } from './cmd/workflow_create';
 
 async function main() {
-  // TODO: Add usage examples.
   const parser = new ArgumentParser({
     version: '0.0.1',
     addHelp: true,
@@ -88,18 +86,6 @@ async function main() {
     help: typeCreateHelp,
   });
 
-  const workflowCreateHelp =
-    'Generate workflow configs for all functions. Overwrite configs if they exist.';
-  const wc = subparsers.addParser('workflow-create', {
-    addHelp: true,
-    description: workflowCreateHelp,
-    help: workflowCreateHelp,
-  });
-  wc.addArgument('--tag', {
-    defaultValue: 'dev',
-    help: 'Docker tag used for all function images.',
-  });
-
   // There doesn't seem to be any other way to mark subcommands
   // as optional, so manually add package-create to argv.
   if (process.argv.length === 2) {
@@ -107,29 +93,26 @@ async function main() {
   }
 
   const args = parser.parseArgs();
-
-  // TODO(b/141943296): Ensure subcommands handle choosing the package directory
+  const packageDir = resolve('.');
+ 
   switch (args.subcommand) {
     case 'package-create':
       await packageCreate();
       break;
     case 'type-create':
-      await typeCreate(resolve('.'));
+      await typeCreate(packageDir);
       break;
     case 'function-create':
-      functionCreate(resolve('.'));
+      functionCreate(packageDir);
       break;
     case 'docker-create':
-      dockerCreate(resolve('.'));
+      dockerCreate(packageDir);
       break;
     case 'docker-build':
-      dockerBuild(resolve('.'), args.get('tag'));
+      dockerBuild(packageDir, args.get('tag'));
       break;
     case 'docker-push':
-      dockerPush(resolve('.'), args.get('tag'));
-      break;
-    case 'workflow-create':
-      workflowCreate(resolve('.'), args.get('tag'));
+      dockerPush(packageDir, args.get('tag'));
       break;
     default:
       parser.exit(1, 'invalid args');
