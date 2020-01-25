@@ -1,6 +1,6 @@
 {
   "mode": "modules",
-  "out": "docs",
+  "out": "../../docs/api",
   "theme": "markdown",
   "readme": "none",
   "exclude": ["src/**/*_test.ts", "src/io.ts", "src/gen/**"],
