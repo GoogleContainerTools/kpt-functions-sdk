@@ -94,4 +94,4 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
 [download-kpt]: https://github.com/GoogleContainerTools/kpt
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
-[api-kptfunc]: ../ts/kpt-functions/docs/interfaces/_types_.kptfunc.md
+[api-kptfunc]: api/interfaces/_types_.kptfunc.md
