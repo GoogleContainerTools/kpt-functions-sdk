@@ -26,17 +26,13 @@ import * as validator from '../utils/validator';
 
 export async function packageCreate() {
   const pkgDir = initPackage();
-
-  // TODO(b/142241787): Don't just crash if type generation fails. Handle this gracefully.
-  // TODO(b/142242496): Add option to skip type generation.
   await typeCreate(pkgDir);
-
   functionCreate(pkgDir);
   dockerCreate(pkgDir);
 
   log(
     format.success('\nSuccess!') +
-      ' Run `npm install` next to install dependencies and build the package.\n',
+      ' Run `npm install` to install dependencies and build the package.\n',
   );
 }
 
@@ -56,7 +52,6 @@ function initPackage() {
       defaultPackageDir,
     ),
   );
-
   log(`Using package path ${packageDir}.\n`);
 
   // Prompt for package name.
@@ -66,7 +61,6 @@ function initPackage() {
     validator.isValidPackageName,
     defaultPackageName,
   );
-
   log(`Using package name ${packageName}.\n`);
 
   // Prompt for docker registry url.
@@ -79,7 +73,6 @@ function initPackage() {
     validator.isValidDockerRepo,
     defaultDockerRepoBase,
   );
-
   log(`Using docker repository prefix ${defaultDockerRepoBase}.\n`);
 
   new Templates([

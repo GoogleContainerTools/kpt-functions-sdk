@@ -35,13 +35,11 @@ export async function typeCreate(packageDir: string) {
   // Get the kubeconfig context the user wants to use.
   const kc = new KubeConfig();
   kc.loadFromDefault();
-
   const contexts = kc.contexts;
   if (contexts.length == 0) {
     log(failure('No contexts found in kubeconfig file. Please set a context entry in kubeconfig.'));
     process.exit(1);
   }
-
   const currentContext = kc.currentContext;
   const contextIdx = chooseContext(contexts, currentContext);
   const useContext = contexts[contextIdx];
@@ -50,18 +48,19 @@ export async function typeCreate(packageDir: string) {
     throw new Error('Cluster for specified context not found.');
   }
 
+  // Download the swagger file from the cluster.
   const opts: request.Options = {
     url: `${cluster.server}/openapi/v2`,
   };
   kc.setCurrentContext(useContext.name);
   kc.applyToRequest(opts);
-
   const out = await request.get(opts);
   const tmp = mkdtempSync(resolve(tmpdir(), 'kpt-init'));
   const swaggerFile = resolve(tmp, 'swagger.json');
-  const typegenOutDir = resolve(packageDir, 'src', 'gen');
-
   writeFileSync(swaggerFile, out);
+
+  // Run typegen binary.
+  const typegenOutDir = resolve(packageDir, 'src', 'gen');
   const typegen = spawnSync('typegen', [swaggerFile, typegenOutDir], {
     env: {
       PATH: `${CLI_PACKAGE.binDir}${delimiter}${process.env.PATH}`,
@@ -69,7 +68,6 @@ export async function typeCreate(packageDir: string) {
     stdio: 'inherit',
   });
   unlinkSync(swaggerFile);
-
   if (typegen.status !== 0) {
     let msg = 'Failed to run typegen';
     if (typegen.error) {
