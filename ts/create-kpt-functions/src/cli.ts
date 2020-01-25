@@ -94,7 +94,7 @@ async function main() {
 
   const args = parser.parseArgs();
   const packageDir = resolve('.');
- 
+
   switch (args.subcommand) {
     case 'package-create':
       await packageCreate();

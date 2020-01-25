@@ -58,7 +58,7 @@ export async function typeCreate(packageDir: string) {
   const tmp = mkdtempSync(resolve(tmpdir(), 'kpt-init'));
   const swaggerFile = resolve(tmp, 'swagger.json');
   writeFileSync(swaggerFile, out);
-  
+
   // Run typegen binary.
   const typegenOutDir = resolve(packageDir, 'src', 'gen');
   const typegen = spawnSync('typegen', [swaggerFile, typegenOutDir], {
