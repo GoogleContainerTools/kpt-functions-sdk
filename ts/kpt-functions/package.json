@@ -26,7 +26,7 @@
     "pretest": "npm run build",
     "test": "jasmine --config=jasmine.json",
     "posttest": "npm run lint",
-    "gen-docs": "typedoc src"
+    "gen-docs": "rm -rf ../../docs/api && typedoc src && echo '.' > ../../docs/api/.nojekyll"
   },
   "dependencies": {
     "argparse": "^1.0.10",
