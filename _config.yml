@@ -1,1 +1,4 @@
 theme: jekyll-theme-cayman
+include:
+  - "docs/api/_*_.md"
+  - "docs/api/_*_.*.md"
