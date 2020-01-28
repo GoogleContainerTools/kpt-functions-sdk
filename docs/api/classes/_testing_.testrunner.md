@@ -43,11 +43,13 @@ Runs the KptFunc and asserts the expected output or exception.
 
 Example usage:
 
+```
 const RUNNER = new TestRunner(myFunc);
 
 it('function is a NO OP', async () => {
   await RUNNER.assert());
 };
+```
 
 **Parameters:**
 
@@ -70,9 +72,11 @@ Similar to [assert](_testing_.testrunner.md#assert) method, but instead returns 
 
 Example usage:
 
+```
 const RUNNER = new TestRunner(myFunc);
 
 it('function is a NO OP', RUNNER.assertCallback());
+```
 
 **Parameters:**
 

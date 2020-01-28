@@ -182,7 +182,9 @@ The ordering of objects with the same key is deterministic.
 
 Example: Partition configs by Namespace:
 
+```
 const configsByNamespace = configs.groupBy((o) => o.metadata.namespace)
+```
 
 **Parameters:**
 
