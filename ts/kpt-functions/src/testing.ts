@@ -24,12 +24,12 @@ export class TestRunner {
 
   /**
    * Runs the KptFunc and asserts the expected output or exception.
-   * 
+   *
    * Example usage:
-   * 
+   *
    * ```
    * const RUNNER = new TestRunner(myFunc);
-   * 
+   *
    * it('function is a NO OP', async () => {
    *   await RUNNER.assert());
    * };
@@ -47,21 +47,27 @@ export class TestRunner {
     expectedOutput?: Configs,
     expectedException?: new (...args: any[]) => Error,
     expectedExceptionMessage?: string | RegExp
-  ){
-    await testFn(this.fn, input, expectedOutput, expectedException, expectedExceptionMessage);
+  ) {
+    await testFn(
+      this.fn,
+      input,
+      expectedOutput,
+      expectedException,
+      expectedExceptionMessage
+    );
   }
 
   /**
    * Similar to [[assert]] method, but instead returns an assertion function that can be passed directly to 'it'.
-   * 
+   *
    * Example usage:
-   * 
+   *
    * ```
    * const RUNNER = new TestRunner(myFunc);
-   * 
+   *
    * it('function is a NO OP', RUNNER.assertCallback());
    * ```
-   * 
+   *
    * @param input input Configs passed to the function. It is deep-copied before running the function.
    *   If undefined, assumes an empty Configs.
    * @param expectedOutput expected resultant Configs after KptFunc has successfully completed.
@@ -75,7 +81,13 @@ export class TestRunner {
     expectedException?: new (...args: any[]) => Error,
     expectedExceptionMessage?: string | RegExp
   ): () => Promise<void> {
-    return async () => await this.assert(input, expectedOutput, expectedException, expectedExceptionMessage);
+    return async () =>
+      await this.assert(
+        input,
+        expectedOutput,
+        expectedException,
+        expectedExceptionMessage
+      );
   }
 }
 
@@ -90,11 +102,16 @@ async function testFn(
   const configs = deepClone(input);
 
   if (expectedException) {
-      await expectAsync(fn(configs)).toBeRejectedWithError(expectedException, expectedExceptionMessage);
-      return;
+    await expectAsync(fn(configs)).toBeRejectedWithError(
+      expectedException,
+      expectedExceptionMessage
+    );
+    return;
   } else if (expectedExceptionMessage) {
-      await expectAsync(fn(configs)).toBeRejectedWithError(expectedExceptionMessage);
-      return;
+    await expectAsync(fn(configs)).toBeRejectedWithError(
+      expectedExceptionMessage
+    );
+    return;
   }
 
   await fn(configs);
