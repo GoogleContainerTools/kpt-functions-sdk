@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { KptFunc } from '@googlecontainertools/kpt-functions';
+import { Configs } from '@googlecontainertools/kpt-functions';
 import { isTeam, Team } from './gen/dev.cft.anthos.v1alpha1';
 import { Namespace } from './gen/io.k8s.api.core.v1';
 import { RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
 
 const ENVIRONMENTS = ['dev', 'prod'];
 
-export const expandTeamCr: KptFunc = (configs) => {
+export async function expandTeamCr(configs: Configs) {
   // For each 'Team' custom resource in the input:
   // 1. Generate a per-enviroment Namespace.
   // 2. Generate RoleBindings in each Namespace.
@@ -34,7 +34,7 @@ export const expandTeamCr: KptFunc = (configs) => {
       configs.insert(...createRoleBindings(team, ns));
     });
   });
-};
+}
 
 function createRoleBindings(team: Team, namespace: string): RoleBinding[] {
   return (team.spec.roles || []).map((item) => {

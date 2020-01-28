@@ -34,13 +34,16 @@ function team(name: string, ...roles: Team.Spec.Item[]): Team {
 const RUNNER = new TestRunner(expandTeamCr);
 
 describe(expandTeamCr.name, () => {
-  it('does nothing to empty repos', RUNNER.run());
+  it('does nothing to empty repos', RUNNER.assertCallback());
 
-  it('does nothing to non-Team objects', RUNNER.run(new Configs([Namespace.named('backend')])));
+  it(
+    'does nothing to non-Team objects',
+    RUNNER.assertCallback(new Configs([Namespace.named('backend')])),
+  );
 
   it(
     'expands an empty team to its environments',
-    RUNNER.run(
+    RUNNER.assertCallback(
       new Configs([team('backend')]),
       new Configs([
         team('backend'),
@@ -52,7 +55,7 @@ describe(expandTeamCr.name, () => {
 
   it(
     'expands a Team with group roles',
-    RUNNER.run(
+    RUNNER.assertCallback(
       new Configs([
         team('backend', {
           role: 'admin',
@@ -106,7 +109,7 @@ describe(expandTeamCr.name, () => {
 
   it(
     'expands a Team with user roles',
-    RUNNER.run(
+    RUNNER.assertCallback(
       new Configs([
         team('backend', {
           role: 'admin',
@@ -160,7 +163,7 @@ describe(expandTeamCr.name, () => {
 
   it(
     'expands a Team with both user and group roles',
-    RUNNER.run(
+    RUNNER.assertCallback(
       new Configs([
         team('backend', {
           role: 'admin',

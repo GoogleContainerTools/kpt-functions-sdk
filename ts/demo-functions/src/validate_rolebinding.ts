@@ -15,7 +15,7 @@
  */
 
 import {
-  KptFunc,
+  Configs,
   KubernetesObjectError,
   MultiConfigError,
 } from '@googlecontainertools/kpt-functions';
@@ -23,7 +23,7 @@ import { isRoleBinding } from './gen/io.k8s.api.rbac.v1';
 
 export const SUBJECT_NAME = 'subject_name';
 
-export const validateRolebinding: KptFunc = (configs) => {
+export async function validateRolebinding(configs: Configs) {
   // Get the subject name parameter.
   const subjectName = configs.getFunctionConfigValueOrThrow(SUBJECT_NAME);
 
@@ -35,10 +35,9 @@ export const validateRolebinding: KptFunc = (configs) => {
     .map((rb) => new KubernetesObjectError('Object has banned subject', rb));
 
   if (errors.length) {
-    return new MultiConfigError('Found RoleBindings with banned subjects', errors);
+    throw new MultiConfigError('Found RoleBindings with banned subjects', errors);
   }
-  return;
-};
+}
 
 validateRolebinding.usage = `
 Disallows RBAC RoleBinding objects with the given subject name.

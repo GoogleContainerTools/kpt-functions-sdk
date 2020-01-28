@@ -24,7 +24,6 @@ export async function labelNamespace(configs: Configs) {
   const labelName = configs.getFunctionConfigValueOrThrow(LABEL_NAME);
   const labelValue = configs.getFunctionConfigValueOrThrow(LABEL_VALUE);
   configs.get(isNamespace).forEach(n => addLabel(n, labelName, labelValue));
-  return;
 }
 
 labelNamespace.usage = `

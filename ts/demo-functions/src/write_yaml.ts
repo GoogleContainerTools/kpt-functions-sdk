@@ -32,7 +32,7 @@ const YAML_STYLE: DumpOptions = {
   noArrayIndent: true,
 };
 
-export const writeYaml: kpt.KptFunc = (configs) => {
+export async function writeYaml(configs: kpt.Configs) {
   // Get the paramters.
   const sinkDir = configs.getFunctionConfigValueOrThrow(SINK_DIR);
   const overwrite = configs.getFunctionConfigValue(OVERWRITE) === 'true';
@@ -79,7 +79,7 @@ export const writeYaml: kpt.KptFunc = (configs) => {
   filesToDelete.forEach((file) => {
     fs.unlinkSync(file);
   });
-};
+}
 
 writeYaml.usage = `
 Creates a directory of YAML files.

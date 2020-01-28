@@ -23,7 +23,7 @@ import * as path from 'path';
 export const SOURCE_DIR = 'source_dir';
 export const FILTER_IVNALID = 'filter_invalid';
 
-export const readYaml: kpt.KptFunc = (configs) => {
+export async function readYaml(configs: kpt.Configs) {
   // Get the parameters.
   const sourceDir = configs.getFunctionConfigValueOrThrow(SOURCE_DIR);
   const ignoreInvalid = configs.getFunctionConfigValue(FILTER_IVNALID) === 'true';
@@ -41,13 +41,12 @@ export const readYaml: kpt.KptFunc = (configs) => {
     .map((err) => err as kpt.ConfigError);
 
   if (errors.length) {
-    return new kpt.MultiConfigError(
+    throw new kpt.MultiConfigError(
       `Found files containing invalid objects. To filter invalid objects set ${FILTER_IVNALID} to 'true'.`,
       errors,
     );
   }
-  return;
-};
+}
 
 readYaml.usage = `
 Reads a directory of kubernetes YAML configs recursively.

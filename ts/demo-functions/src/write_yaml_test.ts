@@ -59,37 +59,37 @@ describe('writeYaml', () => {
     tmpDir = '';
   });
 
-  it('test dir', () => {
+  it('test dir', async () => {
     const input = readIntermediate();
     functionConfig.data![SINK_DIR] = tmpDir;
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
-    writeYaml(configs);
+    await writeYaml(configs);
 
     matchesExpected(tmpDir);
   });
 
-  it("throws if --overwrite isn't passed for non-empty directory", () => {
+  it("throws if --overwrite isn't passed for non-empty directory", async () => {
     fs.copySync(SINK_DIR_EXPECTED, tmpDir);
     const input = readIntermediate();
     functionConfig.data![SINK_DIR] = tmpDir;
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
-    expect(() => writeYaml(configs)).toThrow();
+    expectAsync(writeYaml(configs)).toBeRejectedWithError(Error);
   });
 
-  it("silently makes output directory if it doesn't exist", () => {
+  it("silently makes output directory if it doesn't exist", async () => {
     const sinkDir = path.resolve(tmpDir, 'foo');
     const input = readIntermediate();
     functionConfig.data![SINK_DIR] = sinkDir;
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
-    writeYaml(configs);
+    await writeYaml(configs);
 
     matchesExpected(sinkDir);
   });
 
-  it('overwrites if --overwrite is passed for non-empty directory', () => {
+  it('overwrites if --overwrite is passed for non-empty directory', async () => {
     fs.copySync(SINK_DIR_EXPECTED, tmpDir);
     // Modify contents of existing file.
     fs.copySync(
@@ -107,7 +107,7 @@ describe('writeYaml', () => {
     functionConfig.data![OVERWRITE] = 'true';
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
-    writeYaml(configs);
+    await writeYaml(configs);
 
     // Ensure the resulting directory is actually overwritten.
     matchesExpected(tmpDir);

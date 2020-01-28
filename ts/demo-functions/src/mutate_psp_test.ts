@@ -36,15 +36,15 @@ function psp(allowPrivilegeEscalation: boolean): PodSecurityPolicy {
 const RUNNER = new TestRunner(mutatePsp);
 
 describe('mutatePsp', () => {
-  it('passes empty repos', RUNNER.run());
+  it('passes empty repos', RUNNER.assertCallback());
 
   it(
     'modifies PSP with allowPrivilegeEscalation = true to false',
-    RUNNER.run(new Configs([psp(true)]), new Configs([psp(false)])),
+    RUNNER.assertCallback(new Configs([psp(true)]), new Configs([psp(false)])),
   );
 
   it(
     'leaves PSP with allowPrivilegeEscalation = false alone',
-    RUNNER.run(new Configs([psp(false)])),
+    RUNNER.assertCallback(new Configs([psp(false)])),
   );
 });

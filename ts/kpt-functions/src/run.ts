@@ -137,10 +137,8 @@ Use this ONLY if the function accepts a ConfigMap.`,
   const configs = readConfigs(inputFile, fileFormat, functionConfig);
 
   // Run the function.
-  const err = await fn(configs);
-  if (err) {
-    throw err;
-  }
+  await fn(configs);
+
   // Write the output.
   writeConfigs(outputFile, configs, fileFormat);
 }

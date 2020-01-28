@@ -30,9 +30,9 @@ describe('labelNamespace', () => {
 
   const RUNNER = new TestRunner(labelNamespace);
 
-  it('empty input ok', async () => await RUNNER.assert(new Configs(undefined, functionConfig)));
+  it('empty input ok', RUNNER.assertCallback(new Configs(undefined, functionConfig)));
 
-  it('requires functionConfig', async () => await RUNNER.assert(undefined, undefined, true));
+  it('requires functionConfig', RUNNER.assertCallback(undefined, undefined, TypeError));
 
   it('adds label namespace when metadata.labels is undefined', async () => {
     const actual = new Configs(undefined, functionConfig);

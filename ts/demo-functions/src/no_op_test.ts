@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-import { Configs } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
 import { noOp } from './no_op';
 import { Role } from './gen/io.k8s.api.rbac.v1';
 
+const RUNNER = new TestRunner(noOp);
+
 describe('noOp', () => {
-  it('empty', () => {
-    const configs = new Configs();
-    noOp(configs);
+  it('empty', RUNNER.assertCallback());
 
-    expect(configs).toEqual(new Configs());
-  });
-
-  it('pass through', () => {
-    const role = Role.named('alice');
-    const configs = new Configs([role]);
-
-    noOp(configs);
-
-    expect(configs.getAll()).toEqual([role]);
-  });
+  it(
+    'pass through',
+    RUNNER.assertCallback(new Configs([Role.named('alice')]), new Configs([Role.named('alice')])),
+  );
 });
