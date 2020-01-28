@@ -19,6 +19,7 @@ jobs:
           version: '275.0.0'
           service_account_email: ${{ secrets.GCP_SA_EMAIL }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - run: gcloud auth configure-docker
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
@@ -28,6 +29,7 @@ jobs:
       run: |
         cd ts/demo-functions
         npm ci
+        npm test
         envsubst < $NPM_CONFIG_USERCONFIG  > .npmrc
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
