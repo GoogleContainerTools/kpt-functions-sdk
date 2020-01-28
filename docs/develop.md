@@ -128,13 +128,6 @@ Run the interactive initializer:
 npm init @googlecontainertools/kpt-functions
 ```
 
-Or, alternatively install the package globally and then run it:
-
-```sh
-npm install -g @googlecontainertools/create-kpt-functions
-create-kpt-functions
-```
-
 Follow the instructions and respond to all prompts.
 
 This process will create the following:

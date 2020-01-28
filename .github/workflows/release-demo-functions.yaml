@@ -1,0 +1,45 @@
+name: release-create-kpt-functions
+
+on:
+  push:
+    tags:
+      - release-demo-functions-*
+
+jobs:
+  e2e-ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+          version: '275.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: 'https://npm.pkg.github.com'
+    - name: Install NPM packages
+      run: |
+        cd ts/demo-functions
+        npm ci
+        envsubst < $NPM_CONFIG_USERCONFIG  > .npmrc
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build docker images
+      run: |
+        cd ts/demo-functions
+        npm run kpt:docker-build -- --tag=latest
+    - name: Run e2e tests
+      run: |
+        npm install -g bats
+        TAG=latest bats tests/e2e.bats
+    - name: Push docker images
+      run: |
+        cd ts/demo-functions
+        npm run kpt:docker-push -- --tag=latest
