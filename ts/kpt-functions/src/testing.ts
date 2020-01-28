@@ -39,8 +39,8 @@ export class TestRunner {
    *   If undefined, assumes an empty Configs.
    * @param expectedOutput expected resultant Configs after KptFunc has successfully completed.
    *   If undefined, assumes the output should remain unchanged (NO OP).
-   * @param expectException expected exception to be thrown. If given, expectedOutput is ignored.
-   * @param expectExceptionMessage expected message of expection to be thrown. If given, expectedOutput is ignored.
+   * @param expectedException expected exception to be thrown. If given, expectedOutput is ignored.
+   * @param expectedExceptionMessage expected message of expection to be thrown. If given, expectedOutput is ignored.
    */
   async assert(
     input: Configs = new Configs(),
@@ -61,6 +61,13 @@ export class TestRunner {
    * 
    * it('function is a NO OP', RUNNER.assertCallback());
    * ```
+   * 
+   * @param input input Configs passed to the function. It is deep-copied before running the function.
+   *   If undefined, assumes an empty Configs.
+   * @param expectedOutput expected resultant Configs after KptFunc has successfully completed.
+   *   If undefined, assumes the output should remain unchanged (NO OP).
+   * @param expectedException expected exception to be thrown. If given, expectedOutput is ignored.
+   * @param expectedExceptionMessage expected message of expection to be thrown. If given, expectedOutput is ignored.
    */
   assertCallback(
     input: Configs = new Configs(),
