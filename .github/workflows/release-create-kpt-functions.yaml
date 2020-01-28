@@ -6,7 +6,7 @@ on:
       - release-create-kpt-functions-*
 
 jobs:
-  node-ci:
+  release:
     runs-on: ubuntu-latest
     env:
       GOPATH: /home/runner/work/kpt-functions-sdk/go

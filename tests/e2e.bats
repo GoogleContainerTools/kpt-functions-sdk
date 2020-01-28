@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
+export TAG=${TAG:-dev}
 export EXAMPLE_CONFIGS=${BATS_TEST_DIRNAME}/../example-configs
-export TAG=dev
 export EMPTY_OUTPUT=$(cat <<-EOF
 apiVersion: v1
 kind: List
