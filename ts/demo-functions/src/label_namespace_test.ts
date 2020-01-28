@@ -51,7 +51,7 @@ describe('labelNamespace', () => {
     await RUNNER.assert(actual, expected);
   });
 
-  it('adds label to namespace when metadata.labels is defined', async  () => {
+  it('adds label to namespace when metadata.labels is defined', async () => {
     const actual = new Configs(undefined, functionConfig);
     actual.insert(
       new Namespace({
