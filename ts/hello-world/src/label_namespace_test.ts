@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
 import { labelNamespace, LABEL_NAME, LABEL_VALUE } from './label_namespace';
 import { Namespace, ConfigMap } from './gen/io.k8s.api.core.v1';
 
@@ -28,15 +28,15 @@ describe('labelNamespace', () => {
   functionConfig.data[LABEL_NAME] = TEST_LABEL_NAME;
   functionConfig.data[LABEL_VALUE] = TEST_LABEL_VALUE;
 
-  it('empty input ok', () => {
-    expect(labelNamespace(new Configs(undefined, functionConfig))).toBeUndefined();
-  });
+  const RUNNER = new TestRunner(labelNamespace);
 
-  it('adds label namespace when metadata.labels is undefined', () => {
+  it('empty input ok', async () => await RUNNER.assert(new Configs(undefined, functionConfig)));
+
+  it('requires functionConfig', async () => await RUNNER.assert(undefined, undefined, true));
+
+  it('adds label namespace when metadata.labels is undefined', async () => {
     const actual = new Configs(undefined, functionConfig);
     actual.insert(Namespace.named(TEST_NAMESPACE));
-
-    labelNamespace(actual);
 
     const expected = new Configs();
     expected.insert(
@@ -48,10 +48,10 @@ describe('labelNamespace', () => {
       }),
     );
 
-    expect(actual.getAll()).toEqual(expected.getAll());
+    await RUNNER.assert(actual, expected);
   });
 
-  it('adds label to namespace when metadata.labels is defined', () => {
+  it('adds label to namespace when metadata.labels is defined', async  () => {
     const actual = new Configs(undefined, functionConfig);
     actual.insert(
       new Namespace({
@@ -75,8 +75,6 @@ describe('labelNamespace', () => {
       }),
     );
 
-    labelNamespace(actual);
-
-    expect(actual.getAll()).toEqual(expected.getAll());
+    await RUNNER.assert(actual, expected);
   });
 });

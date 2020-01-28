@@ -30,7 +30,7 @@ export interface KptFunc {
    * - Avoid writing to stdout (e.g. using process.stdout) as it is used for chaining functions.
    *   Use stderr instead.
    */
-  (configs: Configs): void | ConfigError;
+  (configs: Configs): Promise<void> | Promise<ConfigError>;
 
   /**
    * Usage message describing what the function does, how to use it, and how to configure it.
