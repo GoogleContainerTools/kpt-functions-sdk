@@ -22,12 +22,12 @@
     "kpt:type-create": "kpt type-create"
   },
   "dependencies": {
-    "@googlecontainertools/kpt-functions": "^0.11.0-rc.1",
+    "@googlecontainertools/kpt-functions": "^0.11.0",
     "glob": "^7.1.3",
     "js-yaml": "^3.13.1"
   },
   "devDependencies": {
-    "@googlecontainertools/create-kpt-functions": "^0.14.4",
+    "@googlecontainertools/create-kpt-functions": "^0.15.0",
     "@types/fs-extra": "^8.0.1",
     "@types/glob": "^7.1.1",
     "@types/jasmine": "^3.3.12",
