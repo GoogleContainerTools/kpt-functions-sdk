@@ -2,7 +2,7 @@
 
 # Class: TestRunner
 
-TestRunner makes it easier to write table-driven tests for KPT functions.
+TestRunner makes it easy to write unit tests for KPT functions.
 
 ## Hierarchy
 
@@ -16,7 +16,8 @@ TestRunner makes it easier to write table-driven tests for KPT functions.
 
 ### Methods
 
-* [run](_testing_.testrunner.md#run)
+* [assert](_testing_.testrunner.md#assert)
+* [assertCallback](_testing_.testrunner.md#assertcallback)
 
 ## Constructors
 
@@ -34,20 +35,54 @@ Name | Type |
 
 ## Methods
 
-###  run
+###  assert
 
-▸ **run**(`input`: [Configs](_types_.configs.md), `expectedOutput?`: [Configs](_types_.configs.md) | [ConfigError](_errors_.configerror.md), `expectException?`: undefined | false | true): *function*
+▸ **assert**(`input`: [Configs](_types_.configs.md), `expectedOutput?`: [Configs](_types_.configs.md), `expectedException?`: undefined | object, `expectedExceptionMessage?`: string | RegExp): *Promise‹void›*
 
-Generates a callback for a test framework to execute.
+Runs the KptFunc and asserts the expected output or exception.
+
+Example usage:
+
+const RUNNER = new TestRunner(myFunc);
+
+it('function is a NO OP', async () => {
+  await RUNNER.assert());
+};
 
 **Parameters:**
 
 Name | Type | Default | Description |
 ------ | ------ | ------ | ------ |
-`input` | [Configs](_types_.configs.md) | new Configs() | is the initial set of Configs to test.   By default assumes an empty set of Configs. |
-`expectedOutput?` | [Configs](_types_.configs.md) &#124; [ConfigError](_errors_.configerror.md) | - | is the expected resulting Configs or ConfigError produced by the KptFunc.   If undefined, assumes the output should remain unchanged. |
-`expectException?` | undefined &#124; false &#124; true | - | indicates that KptFunc is expected to throw an exception.  |
+`input` | [Configs](_types_.configs.md) | new Configs() | input Configs passed to the function. It is deep-copied before running the function.   If undefined, assumes an empty Configs. |
+`expectedOutput?` | [Configs](_types_.configs.md) | - | expected resultant Configs after KptFunc has successfully completed.   If undefined, assumes the output should remain unchanged (NO OP). |
+`expectedException?` | undefined &#124; object | - | - |
+`expectedExceptionMessage?` | string &#124; RegExp | - | - |
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  assertCallback
+
+▸ **assertCallback**(`input`: [Configs](_types_.configs.md), `expectedOutput?`: [Configs](_types_.configs.md), `expectedException?`: undefined | object, `expectedExceptionMessage?`: string | RegExp): *function*
+
+Similar to [assert](_testing_.testrunner.md#assert) method, but instead returns an assertion function that can be passed directly to 'it'.
+
+Example usage:
+
+const RUNNER = new TestRunner(myFunc);
+
+it('function is a NO OP', RUNNER.assertCallback());
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`input` | [Configs](_types_.configs.md) | new Configs() |
+`expectedOutput?` | [Configs](_types_.configs.md) | - |
+`expectedException?` | undefined &#124; object | - |
+`expectedExceptionMessage?` | string &#124; RegExp | - |
 
 **Returns:** *function*
 
-▸ (): *void*
+▸ (): *Promise‹void›*

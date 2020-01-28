@@ -17,13 +17,13 @@
 import { Configs, KptFunc } from './types';
 
 /**
- * TestRunner makes it easiser to write unit tests for KPT functions.
+ * TestRunner makes it easy to write unit tests for KPT functions.
  */
 export class TestRunner {
   constructor(private readonly fn: KptFunc) {}
 
   /**
-   * Runs the function and asserts he expected output or exception.
+   * Runs the KptFunc and asserts the expected output or exception.
    * 
    * Example usage:
    * 
@@ -33,11 +33,11 @@ export class TestRunner {
    *   await RUNNER.assert());
    * };
    *
-   * @param input input Configs passed to the function. Input is deep copied before running the function.
-   *   If undefined, assumes an empty set of Configs.
+   * @param input input Configs passed to the function. It is deep-copied before running the function.
+   *   If undefined, assumes an empty Configs.
    * @param expectedOutput expected resultant Configs after KptFunc has successfully completed.
    *   If undefined, assumes the output should remain unchanged (NO OP).
-   * @param expectException expected error to be thrown. If given, expectedOutput is ignored.
+   * @param expectException expected exception to be thrown. If given, expectedOutput is ignored.
    * @param expectExceptionMessage expected message of expection to be thrown. If given, expectedOutput is ignored.
    */
   async assert(
@@ -50,7 +50,7 @@ export class TestRunner {
   }
 
   /**
-   * Similar to [[assert]] method, but returns an assertion function that can be passed directly to 'it'.
+   * Similar to [[assert]] method, but instead returns an assertion function that can be passed directly to 'it'.
    * 
    * Example usage:
    * 

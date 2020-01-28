@@ -139,7 +139,7 @@ ___
 
 Returns the value for the given key if functionConfig is of kind ConfigMap.
 
-Throws an exception if functionConfig kind is not a ConfigMap.
+Throws a TypeError exception if functionConfig kind is not a ConfigMap.
 
 Returns undefined if functionConfig is undefined OR
 if the ConfigMap has no such key in the 'data' section.
@@ -160,7 +160,7 @@ ___
 
 ▸ **getFunctionConfigValueOrThrow**(`key`: string): *string*
 
-Similar to [getFunctionConfigValue](_types_.configs.md#getfunctionconfigvalue) except it throws an exception if the given key is undefined.
+Similar to [getFunctionConfigValue](_types_.configs.md#getfunctionconfigvalue) except it throws a TypeError exception if the given key is undefined.
 
 **Parameters:**
 
