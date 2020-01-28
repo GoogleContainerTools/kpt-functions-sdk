@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { KptFunc } from '@googlecontainertools/kpt-functions';
+import { Configs } from '@googlecontainertools/kpt-functions';
 
-export const noOp: KptFunc = (configs) => {};
+export async function noOp(configs: Configs) {}
 
 noOp.usage = `
 A NO OP kpt function used for testing and demo purposes.

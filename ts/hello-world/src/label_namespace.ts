@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import { KptFunc, addLabel } from '@googlecontainertools/kpt-functions';
+import { addLabel, Configs } from '@googlecontainertools/kpt-functions';
 import { isNamespace } from './gen/io.k8s.api.core.v1';
 
 export const LABEL_NAME = 'label_name';
 export const LABEL_VALUE = 'label_value';
 
-export const labelNamespace: KptFunc = (configs) => {
+export async function labelNamespace(configs: Configs) {
   const labelName = configs.getFunctionConfigValueOrThrow(LABEL_NAME);
   const labelValue = configs.getFunctionConfigValueOrThrow(LABEL_VALUE);
-  configs.get(isNamespace).forEach((n) => addLabel(n, labelName, labelValue));
-};
+  configs.get(isNamespace).forEach(n => addLabel(n, labelName, labelValue));
+}
 
 labelNamespace.usage = `
 Adds a label to all Namespaces.

@@ -1,6 +1,6 @@
-import { KptFunc } from '@googlecontainertools/kpt-functions';
+import { Configs } from '@googlecontainertools/kpt-functions';
 
-export const myFunc: KptFunc = (configs) => {
+export async function myFunc(configs: Configs) {
   // TODO: implement.
 };
 

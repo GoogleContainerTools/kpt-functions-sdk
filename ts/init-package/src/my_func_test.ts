@@ -1,18 +1,16 @@
-import { Configs } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
 import { myFunc } from './my_func';
 
+const RUNNER = new TestRunner(myFunc);
+
 describe('myFunc', () => {
-  it('does something', () => {
-    // 1. TODO: Create test fixture for Configs consumed by the function.
-    const actualConfigs = new Configs();
+  it('does something', async () => {
+    // TODO: Populate the input to the function.
+    const input = new Configs();
 
-    // 2. Invoke the function.
-    myFunc(actualConfigs);
+    // TODO: Populate the expected output of the function.
+    const expectedOutput = new Configs();
 
-    // 3. TODO: Create test fixture for Configs expected to be returned by the function.
-    const expectedConfigs = new Configs();
-
-    // 4. TODO: Assert function behavior including any side-effects.
-    expect(actualConfigs.getAll()).toEqual(expectedConfigs.getAll());
+    await RUNNER.assert(input, expectedOutput);
   });
 });

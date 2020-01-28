@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner, ConfigError } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
 import { ClusterRoleBinding, RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
 import { validateRolebinding, SUBJECT_NAME } from './validate_rolebinding';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
@@ -38,11 +38,11 @@ describe(validateRolebinding.name, () => {
   functionConfig.data = {};
   functionConfig.data![SUBJECT_NAME] = 'alice@example.com';
 
-  it('passes empty input', RUNNER.run(undefined, undefined, true));
+  it('passes empty input', RUNNER.assertCallback(undefined, undefined, TypeError));
 
   it(
     'passes valid RoleBindings',
-    RUNNER.run(
+    RUNNER.assertCallback(
       new Configs(
         [
           roleBinding('alice', {
@@ -57,7 +57,7 @@ describe(validateRolebinding.name, () => {
 
   it(
     'fails invalid RoleBindings',
-    RUNNER.run(
+    RUNNER.assertCallback(
       new Configs(
         [
           roleBinding('alice', {
@@ -67,13 +67,15 @@ describe(validateRolebinding.name, () => {
         ],
         functionConfig,
       ),
-      new ConfigError('Found RoleBindings with banned subjects'),
+      undefined,
+      undefined,
+      /Found RoleBindings with banned subjects/,
     ),
   );
 
   it(
     'ignores ClusterRoleBinding subjects',
-    RUNNER.run(
+    RUNNER.assertCallback(
       new Configs(
         [
           new ClusterRoleBinding({

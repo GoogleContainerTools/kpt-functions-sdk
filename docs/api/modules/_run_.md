@@ -12,9 +12,12 @@
 
 ###  run
 
-▸ **run**(`fn`: [KptFunc](../interfaces/_types_.kptfunc.md)): *void*
+▸ **run**(`fn`: [KptFunc](../interfaces/_types_.kptfunc.md)): *Promise‹void›*
 
-Executes the KptFunc. This is the main entrypoint for all kpt functions.
+This is the main entrypoint for running a KPT function.
+
+This method does not throw any errors and can be invoked at the top-level without getting
+an unhandled promise rejection error.
 
 **Parameters:**
 
@@ -22,4 +25,4 @@ Name | Type |
 ------ | ------ |
 `fn` | [KptFunc](../interfaces/_types_.kptfunc.md) |
 
-**Returns:** *void*
+**Returns:** *Promise‹void›*

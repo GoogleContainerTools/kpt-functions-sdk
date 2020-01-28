@@ -15,7 +15,6 @@
  */
 
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
-import { ConfigError } from './errors';
 
 /**
  * Interface describing KPT functions.
@@ -25,12 +24,12 @@ export interface KptFunc {
    * A function consumes and optionally mutates Kubernetes configurations using the given [[Configs]] object.
    *
    * The function should:
-   * - Return a [[ConfigError]] when encountering one or more configuration-related issues.
-   * - Throw an error when encountering operational issues such as IO exceptions.
+   * - Throw a [[ConfigError]] when encountering one or more configuration-related issues.
+   * - Throw other error types when encountering operational issues such as IO exceptions.
    * - Avoid writing to stdout (e.g. using process.stdout) as it is used for chaining functions.
    *   Use stderr instead.
    */
-  (configs: Configs): void | ConfigError;
+  (configs: Configs): Promise<void>;
 
   /**
    * Usage message describing what the function does, how to use it, and how to configure it.
@@ -139,7 +138,9 @@ export class Configs {
    *
    * Example: Partition configs by Namespace:
    *
+   * ```
    * const configsByNamespace = configs.groupBy((o) => o.metadata.namespace)
+   * ```
    *
    * @param keyFn Generates a key for each Value.
    */
@@ -165,7 +166,7 @@ export class Configs {
   /**
    * Returns the value for the given key if functionConfig is of kind ConfigMap.
    *
-   * Throws an exception if functionConfig kind is not a ConfigMap.
+   * Throws a TypeError exception if functionConfig kind is not a ConfigMap.
    *
    * Returns undefined if functionConfig is undefined OR
    * if the ConfigMap has no such key in the 'data' section.
@@ -178,7 +179,7 @@ export class Configs {
       return undefined;
     }
     if (!isConfigMap(cm)) {
-      throw new Error(
+      throw new TypeError(
         `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
       );
     }
@@ -186,13 +187,13 @@ export class Configs {
   }
 
   /**
-   * Similar to {@link getFunctionConfigValue} except it throws an exception if the given key is undefined.
+   * Similar to {@link getFunctionConfigValue} except it throws a TypeError exception if the given key is undefined.
    */
   getFunctionConfigValueOrThrow(key: string): string {
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
-      throw new Error(
-        `Missing key ${key} in ConfigMap data provided as functionConfig`
+      throw new TypeError(
+        `Missing key '${key}' in ConfigMap data provided as functionConfig`
       );
     }
     return val;

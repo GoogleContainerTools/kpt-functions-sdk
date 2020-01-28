@@ -61,9 +61,26 @@ enum ExitCode {
 }
 
 /**
- * Executes the KptFunc. This is the main entrypoint for all kpt functions.
+ * This is the main entrypoint for running a KPT function.
+ *
+ * This method does not throw any errors and can be invoked at the top-level without getting
+ * an unhandled promise rejection error.
  */
-export function run(fn: KptFunc) {
+export async function run(fn: KptFunc) {
+  try {
+    await runFn(fn);
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.error(err.toString());
+      process.exitCode = ExitCode.CONFIG_ERROR;
+    } else {
+      console.error(err.stack);
+      process.exitCode = ExitCode.EXCEPTION_ERROR;
+    }
+  }
+}
+
+async function runFn(fn: KptFunc) {
   // Build the parser.
   const parser = new ArgumentParser({
     // Used as placeholder name for all functions.
@@ -116,36 +133,13 @@ Use this ONLY if the function accepts a ConfigMap.`,
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
 
-  try {
-    runFn(fn, inputFile, outputFile, fileFormat, functionConfig);
-  } catch (err) {
-    if (err instanceof ConfigError) {
-      console.error(err.toString());
-      process.exitCode = ExitCode.CONFIG_ERROR;
-    } else {
-      console.error(err.stack);
-      process.exitCode = ExitCode.EXCEPTION_ERROR;
-    }
-  }
-}
-
-function runFn(
-  fn: KptFunc,
-  inputFile: string,
-  outputFile: string,
-  fileFormat: FileFormat,
-  functionConfig?: string | KubernetesObject
-) {
-  // Parse Config.
+  // Read the input and construct Configs.
   const configs = readConfigs(inputFile, fileFormat, functionConfig);
 
   // Run the function.
-  const err = fn(configs);
-  if (err) {
-    throw err;
-  }
+  await fn(configs);
 
-  // Write output.
+  // Write the output.
   writeConfigs(outputFile, configs, fileFormat);
 }
 
