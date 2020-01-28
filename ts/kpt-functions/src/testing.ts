@@ -27,11 +27,13 @@ export class TestRunner {
    * 
    * Example usage:
    * 
+   * ```
    * const RUNNER = new TestRunner(myFunc);
    * 
    * it('function is a NO OP', async () => {
    *   await RUNNER.assert());
    * };
+   * ```
    *
    * @param input input Configs passed to the function. It is deep-copied before running the function.
    *   If undefined, assumes an empty Configs.
@@ -54,9 +56,11 @@ export class TestRunner {
    * 
    * Example usage:
    * 
+   * ```
    * const RUNNER = new TestRunner(myFunc);
    * 
    * it('function is a NO OP', RUNNER.assertCallback());
+   * ```
    */
   assertCallback(
     input: Configs = new Configs(),

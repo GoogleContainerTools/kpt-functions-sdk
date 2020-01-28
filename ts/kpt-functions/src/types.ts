@@ -138,7 +138,9 @@ export class Configs {
    *
    * Example: Partition configs by Namespace:
    *
+   * ```
    * const configsByNamespace = configs.groupBy((o) => o.metadata.namespace)
+   * ```
    *
    * @param keyFn Generates a key for each Value.
    */
