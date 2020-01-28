@@ -35,6 +35,7 @@ Follow [installation instructions][download-kpt] to get the `kpt` CLI.
 ```sh
 kpt pkg get git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-configs example-configs
 cd example-configs
+git add . && git commit -m 'fetched example-configs'
 ```
 
 The `fn source` and `fn sink` sub-commands are implementations of [source and sink functions][concept-source] respectively:
