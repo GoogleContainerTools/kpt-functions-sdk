@@ -29,5 +29,5 @@ This project follows
 
 ## Additional Notes
 
-Follow the contributor guide <docs/contributor_guide.md> for additional tips and best practices when
+Follow the [contributor guide](docs/contributor_guide.md) for additional tips and best practices when
 submitting changes.

@@ -16,7 +16,7 @@ Currently supported platforms: amd64 Linux/Mac
 
 - Install [node][download-node]
 - Install [docker][install-docker]
-- Install [kpt][download-kpt] and add it to $PATH
+- Install [kpt][download-kpt] and add it to \$PATH
 
 #### `.npmrc` File
 
@@ -58,7 +58,7 @@ In order to install these packages, you need to configure your `.npmrc` file to 
    ```sh
    npm install
    ```
-   
+
 1. Run the following in a separate terminal to continuously build your function as you make changes:
 
    ```sh
