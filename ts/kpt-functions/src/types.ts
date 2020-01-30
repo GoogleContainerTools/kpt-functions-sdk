@@ -15,6 +15,7 @@
  */
 
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
+import { ConfigError } from './errors';
 
 /**
  * Interface describing KPT functions.
@@ -166,7 +167,7 @@ export class Configs {
   /**
    * Returns the value for the given key if functionConfig is of kind ConfigMap.
    *
-   * Throws a TypeError exception if functionConfig kind is not a ConfigMap.
+   * Throws a ConfigError if functionConfig kind is not a ConfigMap.
    *
    * Returns undefined if functionConfig is undefined OR
    * if the ConfigMap has no such key in the 'data' section.
@@ -179,7 +180,7 @@ export class Configs {
       return undefined;
     }
     if (!isConfigMap(cm)) {
-      throw new TypeError(
+      throw new ConfigError(
         `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
       );
     }
@@ -187,13 +188,13 @@ export class Configs {
   }
 
   /**
-   * Similar to {@link getFunctionConfigValue} except it throws a TypeError exception if the given key is undefined.
+   * Similar to {@link getFunctionConfigValue} except it throws a ConfigError if the given key is undefined.
    */
   getFunctionConfigValueOrThrow(key: string): string {
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
-      throw new TypeError(
-        `Missing key '${key}' in ConfigMap data provided as functionConfig`
+      throw new ConfigError(
+        `Missing 'data.${key}' in ConfigMap provided as functionConfig`
       );
     }
     return val;
