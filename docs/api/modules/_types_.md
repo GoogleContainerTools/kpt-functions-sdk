@@ -16,7 +16,7 @@
 ### Functions
 
 * [isKubernetesObject](_types_.md#iskubernetesobject)
-* [kubernetesKeyFn](_types_.md#kuberneteskeyfn)
+* [kubernetesKey](_types_.md#kuberneteskey)
 
 ## Functions
 
@@ -36,11 +36,11 @@ Name | Type |
 
 ___
 
-###  kubernetesKeyFn
+###  kubernetesKey
 
-▸ **kubernetesKeyFn**(`o`: [KubernetesObject](../interfaces/_types_.kubernetesobject.md)): *string*
+▸ **kubernetesKey**(`o`: [KubernetesObject](../interfaces/_types_.kubernetesobject.md)): *string*
 
-Generates the primary key for a Kubernetes objects in Configs.
+A unique key for a Kubernetes object defined as tuple of (apiVersion, kind, namespace, name).
 
 **Parameters:**
 

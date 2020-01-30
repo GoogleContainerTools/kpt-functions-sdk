@@ -75,7 +75,7 @@ EOF
 You should see the same results as in the previous examples:
 
 ```sh
-kpt fn run .
+kpt fn run --global-scope .
 git status
 ```
 
@@ -100,7 +100,7 @@ EOF
 `fn run` executes both functions:
 
 ```sh
-kpt fn run .
+kpt fn run --global-scope .
 ```
 
 In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.

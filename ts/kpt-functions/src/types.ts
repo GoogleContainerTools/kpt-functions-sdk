@@ -15,6 +15,7 @@
  */
 
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
+import { ConfigError } from './errors';
 
 /**
  * Interface describing KPT functions.
@@ -47,8 +48,8 @@ export class Configs {
    * Creates a Config.
    *
    * @param input Input Kubernetes objects.
-   * If supplied multiple objects with the same (Group, Kind, Namespace, Name) discards all but the last one.
-   * Does not preserve insertion order of the passed objects.
+   * If supplied multiple objects with the same [[kubernetesKey]] discards all but the last one.
+   * Does not preserve insertion order of the given objects.
    * @param functionConfig Kubernetes object used to parameterize the function's behavior.
    */
   constructor(
@@ -71,7 +72,7 @@ export class Configs {
   }
 
   /**
-   * Returns an array of objects matching the passed Kind type predicate.
+   * Returns an array of objects matching the given Kind type predicate.
    *
    * Casts to an array of Kind. May throw if isKind is incorrect.
    *
@@ -90,33 +91,33 @@ export class Configs {
   /**
    * Inserts objects into the Configs.
    *
-   * If another object already in Configs has the same (Group, Kind, Namespace, Name), replaces that one with the
-   * passed object.
+   * If another object already in Configs has the same [[kubernetesKey]], replaces that one with the
+   * given object.
    *
-   * If multiple objects have the same (Group, Kind, Namespace, Name), discards all but the last one.
+   * If inserting multiple objects with the same [[kubernetesKey]], discards all but the last one.
    *
-   * Does not preserve insertion order of the passed objects.
+   * Does not preserve insertion order of the given objects.
    *
    * @param objects The objects to insert.
    */
   insert(...objects: KubernetesObject[]): void {
     objects.forEach(o => {
-      const key: string = kubernetesKeyFn(o);
+      const key: string = kubernetesKey(o);
       const [index, found] = this.indexOf(key, this.objects, 0);
       this.objects.splice(index, found ? 1 : 0, [key, o]);
     });
   }
 
   /**
-   * Deletes all objects with the same (Group, Kind, Namespace, Name) as any of the passed objects.
+   * Deletes all objects with the same [[kubernetesKey]] as any of the given objects.
    *
-   * Does not throw if passed duplicates or keys which are not present in the Configs.
+   * Does not throw if given duplicates or keys which are not present in the Configs.
    *
    * @param objects The objects to delete.
    */
   delete(...objects: KubernetesObject[]): void {
     objects.forEach(o => {
-      const key: string = kubernetesKeyFn(o);
+      const key: string = kubernetesKey(o);
       const [index, found] = this.indexOf(key, this.objects, 0);
       if (found) {
         this.objects.splice(index, 1);
@@ -166,12 +167,12 @@ export class Configs {
   /**
    * Returns the value for the given key if functionConfig is of kind ConfigMap.
    *
-   * Throws a TypeError exception if functionConfig kind is not a ConfigMap.
+   * Throws a ConfigError if functionConfig kind is not a ConfigMap.
    *
    * Returns undefined if functionConfig is undefined OR
    * if the ConfigMap has no such key in the 'data' section.
    *
-   * @key key The key in the 'data' field in the ConfigMap object passed as the functionConfig.
+   * @key key The key in the 'data' field in the ConfigMap object given as the functionConfig.
    */
   getFunctionConfigValue(key: string): string | undefined {
     const cm = this.functionConfig;
@@ -179,7 +180,7 @@ export class Configs {
       return undefined;
     }
     if (!isConfigMap(cm)) {
-      throw new TypeError(
+      throw new ConfigError(
         `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
       );
     }
@@ -187,13 +188,13 @@ export class Configs {
   }
 
   /**
-   * Similar to {@link getFunctionConfigValue} except it throws a TypeError exception if the given key is undefined.
+   * Similar to {@link getFunctionConfigValue} except it throws a ConfigError if the given key is undefined.
    */
   getFunctionConfigValueOrThrow(key: string): string {
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
-      throw new TypeError(
-        `Missing key '${key}' in ConfigMap data provided as functionConfig`
+      throw new ConfigError(
+        `Missing 'data.${key}' in ConfigMap provided as functionConfig`
       );
     }
     return val;
@@ -204,7 +205,7 @@ export class Configs {
    *
    * @param key The key to find.
    * @param array The array to search.
-   * @param offset The offset from the originally passed array.
+   * @param offset The offset from the originally given array.
    */
   private indexOf(
     key: string,
@@ -266,9 +267,9 @@ export function isKubernetesObject(o: any): o is KubernetesObject {
 }
 
 /**
- * Generates the primary key for a Kubernetes objects in Configs.
+ * A unique key for a Kubernetes object defined as tuple of (apiVersion, kind, namespace, name).
  */
-export function kubernetesKeyFn(o: KubernetesObject): string {
+export function kubernetesKey(o: KubernetesObject): string {
   const namespace = o.metadata.namespace || '';
   return `${o.apiVersion}/${o.kind}/${namespace}/${o.metadata.name}`;
 }

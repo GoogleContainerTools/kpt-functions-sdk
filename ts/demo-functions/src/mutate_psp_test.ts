@@ -18,6 +18,22 @@ import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
 import { PodSecurityPolicy } from './gen/io.k8s.api.policy.v1beta1';
 import { mutatePsp } from './mutate_psp';
 
+const RUNNER = new TestRunner(mutatePsp);
+
+describe('mutatePsp', () => {
+  it('empty configs is noop', RUNNER.assertCallback());
+
+  it(
+    'modifies PSP with allowPrivilegeEscalation = true to false',
+    RUNNER.assertCallback(new Configs([psp(true)]), new Configs([psp(false)])),
+  );
+
+  it(
+    'leaves PSP with allowPrivilegeEscalation = false alone',
+    RUNNER.assertCallback(new Configs([psp(false)])),
+  );
+});
+
 function psp(allowPrivilegeEscalation: boolean): PodSecurityPolicy {
   return new PodSecurityPolicy({
     metadata: {
@@ -32,19 +48,3 @@ function psp(allowPrivilegeEscalation: boolean): PodSecurityPolicy {
     },
   });
 }
-
-const RUNNER = new TestRunner(mutatePsp);
-
-describe('mutatePsp', () => {
-  it('passes empty repos', RUNNER.assertCallback());
-
-  it(
-    'modifies PSP with allowPrivilegeEscalation = true to false',
-    RUNNER.assertCallback(new Configs([psp(true)]), new Configs([psp(false)])),
-  );
-
-  it(
-    'leaves PSP with allowPrivilegeEscalation = false alone',
-    RUNNER.assertCallback(new Configs([psp(false)])),
-  );
-});

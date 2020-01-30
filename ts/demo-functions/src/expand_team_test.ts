@@ -20,17 +20,6 @@ import { Namespace } from './gen/io.k8s.api.core.v1';
 import { ClusterRole, RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
 import { expandTeamCr } from './expand_team_cr';
 
-function team(name: string, ...roles: Team.Spec.Item[]): Team {
-  const team = new Team({
-    metadata: { name },
-    spec: {},
-  });
-  if (roles.length) {
-    team.spec.roles = roles;
-  }
-  return team;
-}
-
 const RUNNER = new TestRunner(expandTeamCr);
 
 describe(expandTeamCr.name, () => {
@@ -225,3 +214,14 @@ describe(expandTeamCr.name, () => {
     ),
   );
 });
+
+function team(name: string, ...roles: Team.Spec.Item[]): Team {
+  const team = new Team({
+    metadata: { name },
+    spec: {},
+  });
+  if (roles.length) {
+    team.spec.roles = roles;
+  }
+  return team;
+}

@@ -26,20 +26,6 @@ import { buildSourcePath, OVERWRITE, SINK_DIR, writeYaml } from './write_yaml';
 const INTERMEDIATE_FILE = path.resolve(__dirname, '..', 'test-data', 'intermediate', 'foo.yaml');
 const SINK_DIR_EXPECTED = path.resolve(__dirname, '..', 'test-data', 'sink', 'foo-yaml');
 
-function readIntermediate(): kpt.Configs {
-  return kpt.readConfigs(INTERMEDIATE_FILE, kpt.FileFormat.YAML);
-}
-
-function matchesExpected(dir: string) {
-  const res = compareSync(dir, SINK_DIR_EXPECTED, {
-    compareContent: true,
-  });
-  if (res.differences) {
-    console.log(res.diffSet);
-    fail('Found differences between actual and generated directories');
-  }
-}
-
 describe('writeYaml', () => {
   let tmpDir: string = '';
   let functionConfig = ConfigMap.named('config');
@@ -173,3 +159,17 @@ describe('buildSourcePath', () => {
     expect(result).toEqual('backend/namespace.yaml');
   });
 });
+
+function readIntermediate(): kpt.Configs {
+  return kpt.readConfigs(INTERMEDIATE_FILE, kpt.FileFormat.YAML);
+}
+
+function matchesExpected(dir: string) {
+  const res = compareSync(dir, SINK_DIR_EXPECTED, {
+    compareContent: true,
+  });
+  if (res.differences) {
+    console.log(res.diffSet);
+    fail('Found differences between actual and generated directories');
+  }
+}
