@@ -14,7 +14,7 @@ At a high level, a function can be conceptualized like so:
 
 See [Configuration Functions Specification][spec] for further details.
 
-There are two special-case functions:
+There are two special-case functions: source functions and sink functions.
 
 ## Source Function
 

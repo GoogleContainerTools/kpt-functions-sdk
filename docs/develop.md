@@ -29,13 +29,13 @@ Currently supported platforms: amd64 Linux/Mac
 
 #### `.npmrc` File
 
-Currently, NPM packages in the SDK are published to [private GitHub package in this repo][npm-packages].
+Currently, NPM packages in the SDK are published to [private GitHub packages in this repo][npm-packages].
 
 In order to install these packages, you need to configure your `.npmrc` file to authenticate to GitHub.
 
 1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens`
-   in GitHub. Specify `read:packages` scope.
-1. Back up any existing `.npmrc` if it exist:
+   in GitHub. Specify the `read:packages` scope.
+1. Back up any existing `.npmrc` if it exists:
 
    ```sh
    mv ~/.npmrc{,.backup}
@@ -52,7 +52,7 @@ In order to install these packages, you need to configure your `.npmrc` file to 
 
 ### Your Kubernetes Cluster
 
-For the type generation functionality to work, you need a Kubernetes cluster with [CRD OpenAPI Publishing][beta-feature] feature which is beta with Kubernetes 1.15.
+For the type generation functionality to work, you need a Kubernetes cluster with the [CRD OpenAPI Publishing][beta-feature] feature which is beta with Kubernetes 1.15.
 
 Alternatively, you can use an existing NPM package with pre-generated types such as the `hello-world`
 package discussed in the [Quickstart](develop-quickstart.md) and skip to [implementing the function](#implementing-the-function).
@@ -97,7 +97,7 @@ You can also use a deployed cluster in GKE. The beta k8s feature is avilable onl
 `--enable-kubernetes-alpha` flag, as seen here:
 
 ```sh
-gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cluster-version=latest --region=us-central1-a --project <PROJECT>
+gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cluster-version=latest --no-enable-autoupgrade --region=us-central1-a --project <PROJECT>
 gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
 ```
 
@@ -241,10 +241,8 @@ the NPM package you created above. The CLI sub-commands can be invoked via `npm 
 to add a new function to the package:
 
 ```console
-npm run kpt:function-create -- --help
+npm run kpt:function-create
 ```
-
-> **Note:** Flags are passed to the CLI after the `--` separator.
 
 These sub-commands are available:
 
@@ -257,6 +255,13 @@ kpt:function-create     Generate stubs for a new function. Overwrites files
                         if they exist.
 kpt:type-create         Generate classes for core and CRD types. Overwrite
                         files if they exist.
+```
+
+Flags are passed to the CLI after the `--` separator. For example, to pass a tag
+when building a docker image:
+
+```console
+npm run kpt:docker-build -- --tag=latest
 ```
 
 ## Next Steps

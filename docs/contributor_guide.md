@@ -11,7 +11,7 @@ need to perform due diligence.
 1. What's size of the package? Will it cause binary bloat?
 1. Is the package and its transitive dependencies high quality, trust-worthy, and well-maintained projects?
 1. What version of the package should we depend on?
-1. Are the licenses for the package and its transitive dependencies 'green'? See next section for checking license.
+1. Are the licenses for the package and its transitive dependencies green? See next section for checking licenses.
 
 ## Checking licenses
 
@@ -25,8 +25,8 @@ npm run lint-license
 ## Releases
 
 1. Update version in package.json to e.g. `0.10.0-rc.1`
-2. Create a RC in GitHub, e.g: `release-kpt-functions-v0.10.0-rc.1`
+1. Create a release candidate (RC) in GitHub, e.g: `release-kpt-functions-v0.10.0-rc.1`
    This will trigger a release job in GitHub actions
-3. Create a PR changing dependant packages to use the rc version.
-4. If the CI passes for this PR, edit release created in #2 and remove `-rc.1`.
-5. Edit PR in #4 to remove `-rc.1`.
+1. Create a pull request (PR) changing dependent packages to use the RC version.
+1. If the release job passes for this PR, edit release created in #2 and remove `-rc.1`.
+1. Edit PR in #4 to remove `-rc.1`.

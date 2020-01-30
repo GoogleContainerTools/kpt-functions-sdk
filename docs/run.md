@@ -196,7 +196,7 @@ provide a simple list of key/value pairs as parameters. We provide porcelain to 
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange < /tmp/input.yaml
 ```
 
-> **Note:** This causes an error if the function takes another kind of `functionConfig`.
+> **Note:** This causes an error if the function takes another Kind of `functionConfig`.
 
 #### Composing a pipeline
 
@@ -223,13 +223,13 @@ Finally, let's run the pipeline:
 docker run -i -u $(id -u) -v $(pwd):/source gcr.io/kpt-functions/read-yaml -i /dev/null -d source_dir=/source |
 docker run -i gcr.io/kpt-functions/label-namespace -d label_name=color -d label_value=orange |
 docker run -i -u $(id -u) -v $(pwd):/sink gcr.io/kpt-functions/write-yaml -o /dev/null -d sink_dir=/sink -d overwrite=true
-````
+```
 
 You should see labels added to `Namespace` configuration files:
 
 ```sh
 git status
-````
+```
 
 #### Understanding Docker Flags
 

@@ -26,3 +26,8 @@ information on using pull requests.
 
 This project follows
 [Google's Open Source Community Guidelines](https://opensource.google.com/conduct/).
+
+## Additional Notes
+
+Follow the [contributor guide](docs/contributor_guide.md) for additional tips and best practices when
+submitting changes.

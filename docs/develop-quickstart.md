@@ -16,15 +16,15 @@ Currently supported platforms: amd64 Linux/Mac
 
 - Install [node][download-node]
 - Install [docker][install-docker]
-- Install [kpt][download-kpt]
+- Install [kpt][download-kpt] and add it to \$PATH
 
 #### `.npmrc` File
 
 In order to install these packages, you need to configure your `.npmrc` file to authenticate to GitHub.
 
 1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens`
-   in GitHub. Specify `read:packages` scope.
-1. Back up any existing `.npmrc` if it exist:
+   in GitHub. Specify the `read:packages` scope.
+1. Back up any existing `.npmrc` if it exists:
 
    ```sh
    mv ~/.npmrc{,.backup}
@@ -53,19 +53,19 @@ In order to install these packages, you need to configure your `.npmrc` file to 
    cd kpt-functions-sdk/ts/hello-world
    ```
 
-2. Install all dependencies:
+1. Install all dependencies:
 
    ```sh
    npm install
    ```
-   
-3. Run the following in a separate terminal to continuously build your function as you make changes:
+
+1. Run the following in a separate terminal to continuously build your function as you make changes:
 
    ```sh
    npm run watch
    ```
 
-4. Run the `label_namespace` function:
+1. Run the `label_namespace` function:
 
    ```sh
    export CONFIGS=../../example-configs
@@ -75,20 +75,20 @@ In order to install these packages, you need to configure your `.npmrc` file to 
    kpt fn sink $CONFIGS
    ```
 
-   As the name suggest, this function added the given label to all `Namespace` objects
-   in `example-configs` directory:
+   As the name suggests, this function added the given label to all `Namespace` objects
+   in the `example-configs` directory:
 
    ```sh
    git diff $CONFIGS
    ```
 
-5. Try modifying the function in `src/label_namespace.ts` to perform other operations
+1. Try modifying the function in `src/label_namespace.ts` to perform other operations
    on `example-configs`, then repeat step 4.
 
    The function should implement the `KptFunc` interface [documented here][api-kptfunc].
 
    Take a look at [these example functions][demo-funcs] to better understand how to use
-   `kpt-functions` library.
+   the `kpt-functions` SDK.
 
 ## Next Steps
 
