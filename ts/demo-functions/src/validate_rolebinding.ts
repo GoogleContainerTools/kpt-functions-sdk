@@ -21,7 +21,7 @@ import {
 } from '@googlecontainertools/kpt-functions';
 import { isRoleBinding } from './gen/io.k8s.api.rbac.v1';
 
-export const SUBJECT_NAME = 'subject_name';
+const SUBJECT_NAME = 'subject_name';
 
 export async function validateRolebinding(configs: Configs) {
   // Get the subject name parameter.

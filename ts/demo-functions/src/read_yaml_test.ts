@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-import * as kpt from '@googlecontainertools/kpt-functions';
 import * as path from 'path';
 import { readYaml, SOURCE_DIR } from './read_yaml';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
+import {
+  TestRunner,
+  Configs,
+  readConfigs,
+  FileFormat,
+  MultiConfigError,
+} from '@googlecontainertools/kpt-functions';
 
-const RUNNER = new kpt.TestRunner(readYaml);
+const RUNNER = new TestRunner(readYaml);
 
 describe('readYaml', () => {
   let functionConfig = ConfigMap.named('config');
@@ -28,7 +34,7 @@ describe('readYaml', () => {
   it('works on empty dir', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/empty');
     functionConfig.data![SOURCE_DIR] = sourceDir;
-    const configs = new kpt.Configs(undefined, functionConfig);
+    const configs = new Configs(undefined, functionConfig);
 
     await readYaml(configs);
 
@@ -38,9 +44,9 @@ describe('readYaml', () => {
   it('replicates test dir', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/foo-yaml');
     const expectedIntermediateFile = path.resolve(__dirname, '../test-data/intermediate/foo.yaml');
-    const expectedConfigs = kpt.readConfigs(expectedIntermediateFile, kpt.FileFormat.YAML);
+    const expectedConfigs = readConfigs(expectedIntermediateFile, FileFormat.YAML);
     functionConfig.data![SOURCE_DIR] = sourceDir;
-    const actualConfigs = new kpt.Configs(undefined, functionConfig);
+    const actualConfigs = new Configs(undefined, functionConfig);
 
     await RUNNER.assert(actualConfigs, expectedConfigs);
   });
@@ -48,8 +54,8 @@ describe('readYaml', () => {
   it('fails for invalid KubernetesObjects', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/invalid');
     functionConfig.data![SOURCE_DIR] = sourceDir;
-    const actualConfigs = new kpt.Configs(undefined, functionConfig);
+    const actualConfigs = new Configs(undefined, functionConfig);
 
-    await RUNNER.assert(actualConfigs, undefined, kpt.MultiConfigError);
+    await RUNNER.assert(actualConfigs, undefined, MultiConfigError);
   });
 });

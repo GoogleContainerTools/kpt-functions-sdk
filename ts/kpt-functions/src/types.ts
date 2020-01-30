@@ -48,7 +48,7 @@ export class Configs {
    * Creates a Config.
    *
    * @param input Input Kubernetes objects.
-   * If supplied multiple objects with the same (Group, Kind, Namespace, Name) discards all but the last one.
+   * If supplied multiple objects with the same [[kubernetesKey]] discards all but the last one.
    * Does not preserve insertion order of the passed objects.
    * @param functionConfig Kubernetes object used to parameterize the function's behavior.
    */
@@ -91,10 +91,10 @@ export class Configs {
   /**
    * Inserts objects into the Configs.
    *
-   * If another object already in Configs has the same (Group, Kind, Namespace, Name), replaces that one with the
+   * If another object already in Configs has the same [[kubernetesKey]], replaces that one with the
    * passed object.
    *
-   * If multiple objects have the same (Group, Kind, Namespace, Name), discards all but the last one.
+   * If inserting multiple objects with the same [[kubernetesKey]], discards all but the last one.
    *
    * Does not preserve insertion order of the passed objects.
    *
@@ -102,14 +102,14 @@ export class Configs {
    */
   insert(...objects: KubernetesObject[]): void {
     objects.forEach(o => {
-      const key: string = kubernetesKeyFn(o);
+      const key: string = kubernetesKey(o);
       const [index, found] = this.indexOf(key, this.objects, 0);
       this.objects.splice(index, found ? 1 : 0, [key, o]);
     });
   }
 
   /**
-   * Deletes all objects with the same (Group, Kind, Namespace, Name) as any of the passed objects.
+   * Deletes all objects with the same [[kubernetesKey]] as any of the passed objects.
    *
    * Does not throw if passed duplicates or keys which are not present in the Configs.
    *
@@ -117,7 +117,7 @@ export class Configs {
    */
   delete(...objects: KubernetesObject[]): void {
     objects.forEach(o => {
-      const key: string = kubernetesKeyFn(o);
+      const key: string = kubernetesKey(o);
       const [index, found] = this.indexOf(key, this.objects, 0);
       if (found) {
         this.objects.splice(index, 1);
@@ -267,9 +267,9 @@ export function isKubernetesObject(o: any): o is KubernetesObject {
 }
 
 /**
- * Generates the primary key for a Kubernetes objects in Configs.
+ * A unique key for a Kubernetes object defined as tuple of (apiVersion, kind, namespace, name).
  */
-export function kubernetesKeyFn(o: KubernetesObject): string {
+export function kubernetesKey(o: KubernetesObject): string {
   const namespace = o.metadata.namespace || '';
   return `${o.apiVersion}/${o.kind}/${namespace}/${o.metadata.name}`;
 }

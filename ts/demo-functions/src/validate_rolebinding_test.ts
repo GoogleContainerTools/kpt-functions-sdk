@@ -16,16 +16,16 @@
 
 import { Configs, TestRunner, ConfigError } from '@googlecontainertools/kpt-functions';
 import { ClusterRoleBinding, RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
-import { validateRolebinding, SUBJECT_NAME } from './validate_rolebinding';
+import { validateRolebinding } from './validate_rolebinding';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
 
 const RUNNER = new TestRunner(validateRolebinding);
+const FUNC_CONFIG: ConfigMap = new ConfigMap({
+  metadata: { name: 'config' },
+  data: { subject_name: 'alice@example.com' },
+});
 
 describe(validateRolebinding.name, () => {
-  let functionConfig = ConfigMap.named('config');
-  functionConfig.data = {};
-  functionConfig.data![SUBJECT_NAME] = 'alice@example.com';
-
   it('passes empty input', RUNNER.assertCallback(undefined, undefined, ConfigError));
 
   it(
@@ -38,7 +38,7 @@ describe(validateRolebinding.name, () => {
             kind: 'User',
           }),
         ],
-        functionConfig,
+        FUNC_CONFIG,
       ),
     ),
   );
@@ -53,7 +53,7 @@ describe(validateRolebinding.name, () => {
             kind: 'User',
           }),
         ],
-        functionConfig,
+        FUNC_CONFIG,
       ),
       undefined,
       undefined,
@@ -81,7 +81,7 @@ describe(validateRolebinding.name, () => {
             ],
           }),
         ],
-        functionConfig,
+        FUNC_CONFIG,
       ),
     ),
   );

@@ -17,13 +17,22 @@
 import * as fs from 'fs';
 import * as glob from 'glob';
 import { safeLoadAll } from 'js-yaml';
-import * as kpt from '@googlecontainertools/kpt-functions';
 import * as path from 'path';
+import {
+  Configs,
+  ConfigError,
+  MultiConfigError,
+  isKubernetesObject,
+  ConfigFileError,
+  addAnnotation,
+  SOURCE_PATH_ANNOTATION,
+  SOURCE_INDEX_ANNOTATION,
+} from '@googlecontainertools/kpt-functions';
 
 export const SOURCE_DIR = 'source_dir';
 export const FILTER_IVNALID = 'filter_invalid';
 
-export async function readYaml(configs: kpt.Configs) {
+export async function readYaml(configs: Configs) {
   // Get the parameters.
   const sourceDir = configs.getFunctionConfigValueOrThrow(SOURCE_DIR);
   const ignoreInvalid = configs.getFunctionConfigValue(FILTER_IVNALID) === 'true';
@@ -35,13 +44,13 @@ export async function readYaml(configs: kpt.Configs) {
   const files = glob.sync(sourceDir + '/**/*.+(yaml|yml)');
 
   // Parse each file and convert it to a KubernetesObject.
-  const errors: kpt.ConfigError[] = files
+  const errors: ConfigError[] = files
     .map((f) => parseFile(configs, sourceDir, f, ignoreInvalid))
     .filter((err) => err !== undefined)
-    .map((err) => err as kpt.ConfigError);
+    .map((err) => err as ConfigError);
 
   if (errors.length) {
-    throw new kpt.MultiConfigError(
+    throw new MultiConfigError(
       `Found files containing invalid objects. To filter invalid objects set ${FILTER_IVNALID} to 'true'.`,
       errors,
     );
@@ -67,21 +76,21 @@ metadata:
 `;
 
 function parseFile(
-  configs: kpt.Configs,
+  configs: Configs,
   sourceDir: string,
   file: string,
   ignoreInvalid: boolean,
-): kpt.ConfigError | undefined {
+): ConfigError | undefined {
   const contents = readFileOrThrow(file);
   let objects = safeLoadAll(contents);
 
   // Filter for objects that are not KubernetesObject. This is conditional on 'ignoreValid' parameter.
-  const invalidObjects: object[] = objects.filter((o) => !kpt.isKubernetesObject(o));
+  const invalidObjects: object[] = objects.filter((o) => !isKubernetesObject(o));
   if (invalidObjects.length) {
     if (ignoreInvalid) {
-      objects = objects.filter((o) => kpt.isKubernetesObject(o));
+      objects = objects.filter((o) => isKubernetesObject(o));
     } else {
-      return new kpt.ConfigFileError(
+      return new ConfigFileError(
         `File contains invalid Kubernetes objects '${JSON.stringify(invalidObjects)}'`,
         file,
       );
@@ -91,8 +100,8 @@ function parseFile(
   // Add the standard path and index annotations to preserve the filesystem hierarchy
   // and ordering within a file.
   objects.forEach((o, i) => {
-    kpt.addAnnotation(o, kpt.SOURCE_PATH_ANNOTATION, path.relative(sourceDir, file));
-    kpt.addAnnotation(o, kpt.SOURCE_INDEX_ANNOTATION, i.toString());
+    addAnnotation(o, SOURCE_PATH_ANNOTATION, path.relative(sourceDir, file));
+    addAnnotation(o, SOURCE_INDEX_ANNOTATION, i.toString());
   });
 
   configs.insert(...objects);

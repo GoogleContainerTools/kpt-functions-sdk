@@ -17,8 +17,8 @@
 import { addLabel, Configs } from '@googlecontainertools/kpt-functions';
 import { isNamespace } from './gen/io.k8s.api.core.v1';
 
-export const LABEL_NAME = 'label_name';
-export const LABEL_VALUE = 'label_value';
+const LABEL_NAME = 'label_name';
+const LABEL_VALUE = 'label_value';
 
 export async function labelNamespace(configs: Configs) {
   const labelName = configs.getFunctionConfigValueOrThrow(LABEL_NAME);
