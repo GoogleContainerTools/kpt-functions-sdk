@@ -49,7 +49,7 @@ export class Configs {
    *
    * @param input Input Kubernetes objects.
    * If supplied multiple objects with the same [[kubernetesKey]] discards all but the last one.
-   * Does not preserve insertion order of the passed objects.
+   * Does not preserve insertion order of the given objects.
    * @param functionConfig Kubernetes object used to parameterize the function's behavior.
    */
   constructor(
@@ -72,7 +72,7 @@ export class Configs {
   }
 
   /**
-   * Returns an array of objects matching the passed Kind type predicate.
+   * Returns an array of objects matching the given Kind type predicate.
    *
    * Casts to an array of Kind. May throw if isKind is incorrect.
    *
@@ -92,11 +92,11 @@ export class Configs {
    * Inserts objects into the Configs.
    *
    * If another object already in Configs has the same [[kubernetesKey]], replaces that one with the
-   * passed object.
+   * given object.
    *
    * If inserting multiple objects with the same [[kubernetesKey]], discards all but the last one.
    *
-   * Does not preserve insertion order of the passed objects.
+   * Does not preserve insertion order of the given objects.
    *
    * @param objects The objects to insert.
    */
@@ -109,9 +109,9 @@ export class Configs {
   }
 
   /**
-   * Deletes all objects with the same [[kubernetesKey]] as any of the passed objects.
+   * Deletes all objects with the same [[kubernetesKey]] as any of the given objects.
    *
-   * Does not throw if passed duplicates or keys which are not present in the Configs.
+   * Does not throw if given duplicates or keys which are not present in the Configs.
    *
    * @param objects The objects to delete.
    */
@@ -172,7 +172,7 @@ export class Configs {
    * Returns undefined if functionConfig is undefined OR
    * if the ConfigMap has no such key in the 'data' section.
    *
-   * @key key The key in the 'data' field in the ConfigMap object passed as the functionConfig.
+   * @key key The key in the 'data' field in the ConfigMap object given as the functionConfig.
    */
   getFunctionConfigValue(key: string): string | undefined {
     const cm = this.functionConfig;
@@ -205,7 +205,7 @@ export class Configs {
    *
    * @param key The key to find.
    * @param array The array to search.
-   * @param offset The offset from the originally passed array.
+   * @param offset The offset from the originally given array.
    */
   private indexOf(
     key: string,

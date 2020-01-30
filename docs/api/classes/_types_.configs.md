@@ -40,7 +40,7 @@ Creates a Config.
 
 Name | Type | Default | Description |
 ------ | ------ | ------ | ------ |
-`input` | [KubernetesObject](../interfaces/_types_.kubernetesobject.md)[] | [] | Input Kubernetes objects. If supplied multiple objects with the same [kubernetesKey](../modules/_types_.md#kuberneteskey) discards all but the last one. Does not preserve insertion order of the passed objects. |
+`input` | [KubernetesObject](../interfaces/_types_.kubernetesobject.md)[] | [] | Input Kubernetes objects. If supplied multiple objects with the same [kubernetesKey](../modules/_types_.md#kuberneteskey) discards all but the last one. Does not preserve insertion order of the given objects. |
 `functionConfig?` | [KubernetesObject](../interfaces/_types_.kubernetesobject.md) | - | Kubernetes object used to parameterize the function's behavior.  |
 
 **Returns:** *[Configs](_types_.configs.md)*
@@ -51,9 +51,9 @@ Name | Type | Default | Description |
 
 ▸ **delete**(...`objects`: [KubernetesObject](../interfaces/_types_.kubernetesobject.md)[]): *void*
 
-Deletes all objects with the same [kubernetesKey](../modules/_types_.md#kuberneteskey) as any of the passed objects.
+Deletes all objects with the same [kubernetesKey](../modules/_types_.md#kuberneteskey) as any of the given objects.
 
-Does not throw if passed duplicates or keys which are not present in the Configs.
+Does not throw if given duplicates or keys which are not present in the Configs.
 
 **Parameters:**
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **get**<**Kind**>(`isKind`: function): *Kind[]*
 
-Returns an array of objects matching the passed Kind type predicate.
+Returns an array of objects matching the given Kind type predicate.
 
 Casts to an array of Kind. May throw if isKind is incorrect.
 
@@ -144,7 +144,7 @@ Throws a ConfigError if functionConfig kind is not a ConfigMap.
 Returns undefined if functionConfig is undefined OR
 if the ConfigMap has no such key in the 'data' section.
 
-**`key`** key The key in the 'data' field in the ConfigMap object passed as the functionConfig.
+**`key`** key The key in the 'data' field in the ConfigMap object given as the functionConfig.
 
 **Parameters:**
 
@@ -211,11 +211,11 @@ ___
 Inserts objects into the Configs.
 
 If another object already in Configs has the same [kubernetesKey](../modules/_types_.md#kuberneteskey), replaces that one with the
-passed object.
+given object.
 
 If inserting multiple objects with the same [kubernetesKey](../modules/_types_.md#kuberneteskey), discards all but the last one.
 
-Does not preserve insertion order of the passed objects.
+Does not preserve insertion order of the given objects.
 
 **Parameters:**
 
