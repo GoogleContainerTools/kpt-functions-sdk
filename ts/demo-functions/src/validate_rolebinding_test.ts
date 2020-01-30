@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner, ConfigError } from '@googlecontainertools/kpt-functions';
 import { ClusterRoleBinding, RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
 import { validateRolebinding, SUBJECT_NAME } from './validate_rolebinding';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
-
-function roleBinding(name: string, ...subjects: Subject[]): RoleBinding {
-  return new RoleBinding({
-    metadata: { name },
-    roleRef: {
-      apiGroup: 'rbac',
-      kind: 'Role',
-      name: 'alice',
-    },
-    subjects: subjects,
-  });
-}
 
 const RUNNER = new TestRunner(validateRolebinding);
 
@@ -38,7 +26,7 @@ describe(validateRolebinding.name, () => {
   functionConfig.data = {};
   functionConfig.data![SUBJECT_NAME] = 'alice@example.com';
 
-  it('passes empty input', RUNNER.assertCallback(undefined, undefined, TypeError));
+  it('passes empty input', RUNNER.assertCallback(undefined, undefined, ConfigError));
 
   it(
     'passes valid RoleBindings',
@@ -98,3 +86,15 @@ describe(validateRolebinding.name, () => {
     ),
   );
 });
+
+function roleBinding(name: string, ...subjects: Subject[]): RoleBinding {
+  return new RoleBinding({
+    metadata: { name },
+    roleRef: {
+      apiGroup: 'rbac',
+      kind: 'Role',
+      name: 'alice',
+    },
+    subjects: subjects,
+  });
+}
