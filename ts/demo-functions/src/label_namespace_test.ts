@@ -28,9 +28,15 @@ const FUNC_CONFIG: ConfigMap = new ConfigMap({
 });
 
 describe('labelNamespace', () => {
-  it('empty input ok', RUNNER.assertCallback(new Configs(undefined, FUNC_CONFIG)));
+  it(
+    'empty input ok',
+    RUNNER.assertCallback(new Configs(undefined, FUNC_CONFIG))
+  );
 
-  it('requires functionConfig', RUNNER.assertCallback(undefined, undefined, TypeError));
+  it(
+    'requires functionConfig',
+    RUNNER.assertCallback(undefined, undefined, TypeError)
+  );
 
   it('adds label namespace when metadata.labels is undefined', async () => {
     const input = new Configs(undefined, FUNC_CONFIG);
@@ -43,7 +49,7 @@ describe('labelNamespace', () => {
           name: TEST_NAMESPACE,
           labels: { [TEST_LABEL_NAME]: TEST_LABEL_VALUE },
         },
-      }),
+      })
     );
 
     await RUNNER.assert(input, output);
@@ -57,7 +63,7 @@ describe('labelNamespace', () => {
           name: TEST_NAMESPACE,
           labels: { a: 'b' },
         },
-      }),
+      })
     );
 
     const output = new Configs();
@@ -70,7 +76,7 @@ describe('labelNamespace', () => {
             [TEST_LABEL_NAME]: TEST_LABEL_VALUE,
           },
         },
-      }),
+      })
     );
 
     await RUNNER.assert(input, output);

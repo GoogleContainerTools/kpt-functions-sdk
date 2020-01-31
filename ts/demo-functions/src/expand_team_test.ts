@@ -27,7 +27,7 @@ describe(expandTeamCr.name, () => {
 
   it(
     'does nothing to non-Team objects',
-    RUNNER.assertCallback(new Configs([Namespace.named('backend')])),
+    RUNNER.assertCallback(new Configs([Namespace.named('backend')]))
   );
 
   it(
@@ -38,8 +38,8 @@ describe(expandTeamCr.name, () => {
         team('backend'),
         Namespace.named('backend-dev'),
         Namespace.named('backend-prod'),
-      ]),
-    ),
+      ])
+    )
   );
 
   it(
@@ -92,8 +92,8 @@ describe(expandTeamCr.name, () => {
             }),
           ],
         }),
-      ]),
-    ),
+      ])
+    )
   );
 
   it(
@@ -146,8 +146,8 @@ describe(expandTeamCr.name, () => {
             }),
           ],
         }),
-      ]),
-    ),
+      ])
+    )
   );
 
   it(
@@ -210,8 +210,8 @@ describe(expandTeamCr.name, () => {
             }),
           ],
         }),
-      ]),
-    ),
+      ])
+    )
   );
 });
 

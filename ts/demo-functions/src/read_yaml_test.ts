@@ -28,7 +28,7 @@ import {
 const RUNNER = new TestRunner(readYaml);
 
 describe('readYaml', () => {
-  let functionConfig = ConfigMap.named('config');
+  const functionConfig = ConfigMap.named('config');
   functionConfig.data = {};
 
   it('works on empty dir', async () => {
@@ -43,8 +43,14 @@ describe('readYaml', () => {
 
   it('replicates test dir', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/foo-yaml');
-    const expectedIntermediateFile = path.resolve(__dirname, '../test-data/intermediate/foo.yaml');
-    const expectedConfigs = readConfigs(expectedIntermediateFile, FileFormat.YAML);
+    const expectedIntermediateFile = path.resolve(
+      __dirname,
+      '../test-data/intermediate/foo.yaml'
+    );
+    const expectedConfigs = readConfigs(
+      expectedIntermediateFile,
+      FileFormat.YAML
+    );
     functionConfig.data![SOURCE_DIR] = sourceDir;
     const actualConfigs = new Configs(undefined, functionConfig);
 

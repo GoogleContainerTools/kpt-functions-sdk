@@ -29,13 +29,18 @@ export async function validateRolebinding(configs: Configs) {
 
   // Iterate over all RoleBinding objects in the input, and filter those that have a subject
   // we're looking for.
-  let errors: KubernetesObjectError[] = configs
+  const errors: KubernetesObjectError[] = configs
     .get(isRoleBinding)
-    .filter((rb) => rb && rb.subjects && rb.subjects.find((s) => s.name === subjectName))
-    .map((rb) => new KubernetesObjectError('Object has banned subject', rb));
+    .filter(
+      rb => rb && rb.subjects && rb.subjects.find(s => s.name === subjectName)
+    )
+    .map(rb => new KubernetesObjectError('Object has banned subject', rb));
 
   if (errors.length) {
-    throw new MultiConfigError('Found RoleBindings with banned subjects', errors);
+    throw new MultiConfigError(
+      'Found RoleBindings with banned subjects',
+      errors
+    );
   }
 }
 

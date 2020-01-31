@@ -25,6 +25,9 @@ describe('noOp', () => {
 
   it(
     'pass through',
-    RUNNER.assertCallback(new Configs([Role.named('alice')]), new Configs([Role.named('alice')])),
+    RUNNER.assertCallback(
+      new Configs([Role.named('alice')]),
+      new Configs([Role.named('alice')])
+    )
   );
 });
