@@ -30,7 +30,7 @@ export function functionCreate(appDir: string) {
   const funcName = validator.getValidString(
     () => question(`> What is the function name (${defaultFuncName})? `),
     validator.isValidFuncName,
-    defaultFuncName,
+    defaultFuncName
   );
   log(`Using function name "${funcName}".\n`);
 

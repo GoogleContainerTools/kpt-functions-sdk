@@ -24,7 +24,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "clean": "rm -Rf node_modules/ dist/",
-    "lint": "tslint -p package.json; prettier \"src/**\" \"*.json\" --check",
+    "lint": "tslint -p package.json && prettier \"src/**\" \"*.json\" --check",
     "lint-license": "license-checker --onlyAllow 'Apache-2.0;MIT;BSD;BSD-2-Clause;BSD-3-Clause;ISC;CC-BY-3.0;CC0-1.0;Unlicense'",
     "format": "prettier \"src/**\" \"*.json\" --write",
     "pretest": "npm run build",
@@ -40,7 +40,7 @@
     "glob": "^7.1.4",
     "go-npm": "^0.1.9",
     "is-valid-npm-name": "0.0.4",
-    "mustache": "^3.0.1",
+    "mustache": "^4.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "validator": "^11.1.0"
@@ -49,30 +49,25 @@
     "@types/argparse": "^1.0.36",
     "@types/cli-interact": "^0.1.0",
     "@types/fs-extra": "^8.0.0",
-    "@types/jasmine": "^3.3.12",
+    "@types/jasmine": "^3.5.2",
     "@types/glob": "^7.1.1",
-    "@types/mustache": "^0.8.32",
+    "@types/mustache": "^4.0.0",
     "@types/request-promise": "^4.1.44",
-    "@types/validator": "^10.11.3",
+    "@types/validator": "^12.0.1",
     "@types/js-yaml": "^3.12.1",
-    "@types/node": "^12.7.2",
-    "jasmine": "^3.4.0",
+    "@types/node": "^10.0.3",
+    "jasmine": "^3.5.0",
     "license-checker": "^25.0.1",
     "prettier": "1.18.2",
     "tslint": "^5.19.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
-    "typescript": "^3.5.3"
+    "typescript": "~3.7.0",
+    "gts": "^1.1.2"
   },
   "goBinary": {
     "name": "typegen",
     "path": "./bin",
     "url": "https://storage.googleapis.com/kpt-functions/v{{version}}/typegen_{{platform}}_{{arch}}.tar.gz"
-  },
-  "prettier": {
-    "arrowParens": "always",
-    "printWidth": 100,
-    "singleQuote": true,
-    "trailingComma": "all"
   }
 }

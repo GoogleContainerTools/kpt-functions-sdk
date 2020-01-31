@@ -20,16 +20,24 @@ import { log } from '../utils/log';
 
 export function dockerBuild(packageDir: string, dockerTag: string) {
   log('Building image...\n');
-  processDockerfile(packageDir, dockerTag, (dockerFile, functionName, image) => {
-    const build = spawnSync('docker', ['build', '-q', '-t', image, '-f', dockerFile, '.'], {
-      stdio: 'inherit',
-    });
-    if (build.status !== 0) {
-      let msg = 'Failed to build docker image';
-      if (build.error) {
-        msg = `${msg}: ${build.error}`;
+  processDockerfile(
+    packageDir,
+    dockerTag,
+    (dockerFile, functionName, image) => {
+      const build = spawnSync(
+        'docker',
+        ['build', '-q', '-t', image, '-f', dockerFile, '.'],
+        {
+          stdio: 'inherit',
+        }
+      );
+      if (build.status !== 0) {
+        let msg = 'Failed to build docker image';
+        if (build.error) {
+          msg = `${msg}: ${build.error}`;
+        }
+        throw new Error(msg);
       }
-      throw new Error(msg);
     }
-  });
+  );
 }

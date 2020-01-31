@@ -38,7 +38,7 @@ export function isValidFuncName(name: string): boolean {
     log('Function name MUST be 253 or fewer characters in length.');
     log(
       success(name.substring(0, MAX_FUNC_NAME_LENGTH)) +
-        failure(name.substring(MAX_FUNC_NAME_LENGTH)),
+        failure(name.substring(MAX_FUNC_NAME_LENGTH))
     );
     isValid = false;
   }
@@ -54,7 +54,9 @@ export function isValidFuncName(name: string): boolean {
 
   const onlyValidChars = /^[a-z0-9_]+$/;
   if (!validator.matches(name, onlyValidChars)) {
-    log("Function name MUST only include lowercase alphanumeric characters and '_'.");
+    log(
+      "Function name MUST only include lowercase alphanumeric characters and '_'."
+    );
     if (name !== '') {
       log(makeInvalidCharactersRed(name));
     }
@@ -136,7 +138,7 @@ export function isValidDockerRepo(name: string): boolean {
 export function getValidString(
   readString: () => string,
   isValid: (s: string) => boolean,
-  defaultString?: string,
+  defaultString?: string
 ): string {
   let str;
   do {
@@ -154,7 +156,9 @@ function makeInvalidCharactersRed(s: string) {
   const invalidCharSplit = /((?<=[a-z0-9_])(?=[^a-z0-9_])|(?<=[^a-z0-9_])(?=[a-z0-9_]))/;
   const splits: string[] = s.split(invalidCharSplit);
 
-  return splits.map((str) => (invalidChars.test(str) ? failure(str) : success(str))).join('');
+  return splits
+    .map(str => (invalidChars.test(str) ? failure(str) : success(str)))
+    .join('');
 }
 
 /**

@@ -37,13 +37,17 @@ export async function typeCreate(packageDir: string) {
   kc.loadFromDefault();
   const contexts = kc.contexts;
   if (contexts.length == 0) {
-    log(failure('No contexts found in kubeconfig file. Please set a context entry in kubeconfig.'));
+    log(
+      failure(
+        'No contexts found in kubeconfig file. Please set a context entry in kubeconfig.'
+      )
+    );
     process.exit(1);
   }
   const currentContext = kc.currentContext;
   const contextIdx = chooseContext(contexts, currentContext);
   const useContext = contexts[contextIdx];
-  const cluster = kc.clusters.find((c) => c.name === useContext.cluster);
+  const cluster = kc.clusters.find(c => c.name === useContext.cluster);
   if (!cluster) {
     throw new Error('Cluster for specified context not found.');
   }
@@ -82,7 +86,8 @@ export async function typeCreate(packageDir: string) {
 }
 
 function chooseContext(contexts: Context[], currentContext: string): number {
-  const defaultContext = contexts.findIndex((c) => c.name === currentContext) || 0;
+  const defaultContext =
+    contexts.findIndex(c => c.name === currentContext) || 0;
   log('Contexts:\n');
   contexts.forEach((c, idx) => {
     if (c.name === currentContext) {
@@ -96,9 +101,11 @@ function chooseContext(contexts: Context[], currentContext: string): number {
 
   const context = validator.getValidString(
     () =>
-      question(`> What is the kubeconfig context in which to create types (${defaultContext})? `),
+      question(
+        `> What is the kubeconfig context in which to create types (${defaultContext})? `
+      ),
     validator.isEmptyOrMaxInt(contexts.length - 1),
-    defaultContext.toString(),
+    defaultContext.toString()
   );
 
   log(`Using kubeconfig context "${context}".\n`);
