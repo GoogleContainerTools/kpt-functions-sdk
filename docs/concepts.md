@@ -6,7 +6,7 @@ At a high level, a function can be conceptualized like so:
 
 ![function][img-func]
 
-- `FUNC`: A program, packaged as a docker container, that performs CRUD (Create, Read, Update,
+- `FUNC`: A program, packaged as a container, that performs CRUD (Create, Read, Update,
   Delete) operations on the input.
 - `input`: A Kubernetes List type containing objects to operate on.
 - `output`: A Kubernetes List type containing the resultant Kubernetes objects.
