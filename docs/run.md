@@ -6,7 +6,7 @@ After completing the [Development Guide](develop.md), you'll have a function tha
 node dist/my_func_run.js --help
 ```
 
-or as a docker container:
+or as a container:
 
 ```sh
 docker run gcr.io/kpt-functions-demo/my-func:dev --help
@@ -231,11 +231,11 @@ You should see labels added to `Namespace` configuration files:
 git status
 ```
 
-#### Understanding Docker Flags
+#### Understanding `docker run` Flags
 
-- `-u`: By default, docker containers run as a non-privileged user. Privileged actions, like
+- `-u`: By default, containers run as a non-privileged user. Privileged actions, like
   filesystem access or calls to the network, require escalated access. Note the example usages of
-  `read-yaml`, which include `docker run -u $(id -u)`, running docker with your user ID.
+  `read-yaml`, which include `docker run -u $(id -u)`, running the container with your user ID.
 - `-v`: Filesystem access requires mounting your container's filesystem onto your local
   filesystem. For example, the `read-yaml` command includes the following: `-v $(pwd):/source`. This connects
   the container's `/source` directory to the current directory on your filesystem.
@@ -245,7 +245,7 @@ git status
 
 Functions can be piped to form sophisticated pipelines.
 
-First, grab the `example-configs` directory and pull the docker images:
+First, grab the `example-configs` directory and pull the container images:
 
 ```sh
 git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git

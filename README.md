@@ -31,11 +31,10 @@ can be run as pre-commit or post-commit steps to validate configurations before 
 
 ### Why KPT Functions
 
-- **Configuration is data:** Many configuration tools conflate data with the operations on that
+- **Configuration as data:** Many configuration tools conflate data with the operations on that
   data (e.g. YAML files embedding a templating language).
   As configuration becomes complex, it becomes hard to read and understand.
-  Our design philosophy is to separate _human-readable data_ from the _state-less programs_ that
-  manipulate that data. We call these programs _functions_.
+  Our design philosophy is to keep configuration as data, which enables us to programmatically manipulate it using stateless programs called _functions_.
 - **Unix philosophy:** Functions should be small, reusable, and composable.
   By implementing the [Configuration Functions Specification][spec],
   we can develop an ever-growing catalog of useful, interoperable functions.

@@ -4,7 +4,7 @@
 make
 ```
 
-## Publish docker images
+## Publish container images
 
 ```console
 make publish-functions

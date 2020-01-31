@@ -50,7 +50,7 @@ async function main() {
     help: dockerCreateHelp,
   });
 
-  const dockerBuildHelp = 'Build docker images for all functions.';
+  const dockerBuildHelp = 'Build container images for all functions.';
   const db = subparsers.addParser('docker-build', {
     addHelp: true,
     description: dockerBuildHelp,
@@ -61,7 +61,7 @@ async function main() {
     help: 'Docker tag used for all function images.',
   });
 
-  const dockerPushHelp = 'Push docker images to the registry for all functions.';
+  const dockerPushHelp = 'Push container images to the registry for all functions.';
   const dp = subparsers.addParser('docker-push', {
     addHelp: true,
     description: dockerPushHelp,

@@ -7,7 +7,7 @@ This guide will walk you through developing a KPT function using the Typescript 
 - [Setup](#setup)
 - [Create the NPM package](#create-the-npm-package)
 - [Implement the function](#implement-the-function)
-- [Build and push Docker image](#build-and-push-docker-image)
+- [Build and push container images](#build-and-push-container-images)
 - [Use the SDK CLI](#use-the-sdk-cli)
 - [Next Steps](#next-steps)
 
@@ -59,8 +59,7 @@ package discussed in the [Quickstart](develop-quickstart.md) and skip to [implem
 
 #### Using a `kind` Cluster
 
-The easiest way to get developing is to use `kind` to bring up a local cluster, running in a docker
-container.
+The easiest way to get developing is to use `kind` to bring up a cluster running in a local container.
 
 1. Download the [kind binary][download-kind] version 0.5.1 or higher
 1. Use this config file:
@@ -172,7 +171,7 @@ code .
 In `src/my_func.ts`, implement the `KptFunc` interface [documented here][api-kptfunc].
 
 Take a look at [these example functions][demo-funcs] to better understand how to use
-`kpt-functions` library. These functions are available as docker images documented in the [catalog][catalog].
+`kpt-functions` library. These functions are available as container images documented in the [catalog][catalog].
 
 Once you've written some code, build the package with:
 
@@ -193,9 +192,9 @@ To run the tests, use:
 npm test
 ```
 
-## Build and push Docker image
+## Build and push container images
 
-With your working function in-hand, it's time to package your function into an executable docker
+With your working function in-hand, it's time to package your function into an executable container
 image.
 
 `docker build` also requires authentication to GitHub, via the aforementioned credentials:
@@ -204,13 +203,13 @@ image.
 cp ~/.npmrc .
 ```
 
-To build the docker image:
+To build the container image:
 
 ```sh
 npm run kpt:docker-build
 ```
 
-You can now run the image as a docker container, e.g.:
+You can now run the function container, e.g.:
 
 ```sh
 docker run gcr.io/kpt-functions-demo/my-func:dev --help
@@ -227,7 +226,7 @@ You'll need proper authentication/authorization to push to your registry.
 `kpt:docker-push` pushes to the registry specified in the `kpt.docker_repo_base` field in `package.json`.
 You can manually edit this field at any time.
 
-The default value for the docker image tag is `dev`. This can be overridden using`--tag` flag:
+The default value for the container image tag is `dev`. This can be overridden using`--tag` flag:
 
 ```sh
 npm run kpt:docker-build -- --tag=latest
@@ -249,8 +248,8 @@ These sub-commands are available:
 ```console
 kpt:docker-create       Generate Dockerfiles for all functions. Overwrite
                         files if they exist.
-kpt:docker-build        Build docker images for all functions.
-kpt:docker-push         Push docker images to the registry for all functions.
+kpt:docker-build        Build container images for all functions.
+kpt:docker-push         Push container images to the registry for all functions.
 kpt:function-create     Generate stubs for a new function. Overwrites files
                         if they exist.
 kpt:type-create         Generate classes for core and CRD types. Overwrite
@@ -258,7 +257,7 @@ kpt:type-create         Generate classes for core and CRD types. Overwrite
 ```
 
 Flags are passed to the CLI after the `--` separator. For example, to pass a tag
-when building a docker image:
+when building a container image:
 
 ```console
 npm run kpt:docker-build -- --tag=latest
