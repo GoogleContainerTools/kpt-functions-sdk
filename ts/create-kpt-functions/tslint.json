@@ -1,7 +1,9 @@
 {
+  "extends": "tslint-config-prettier",
   "defaultSeverity": "error",
-  "extends": ["tslint-config-prettier"],
-  "jsRules": {},
+  "linterOptions": {
+    "exclude": ["**/gen/**", "**/*.json", "node_modules/**"]
+  },
   "rules": {
     "array-type": [true, "array-simple"],
     "arrow-return-shorthand": true,
@@ -113,8 +115,5 @@
       "allow-trailing-underscore"
     ]
   },
-  "rulesDirectory": ["tslint-consistent-codestyle"],
-  "linterOptions": {
-    "exclude": ["**/*.json", "**/gen/**", "node_modules/**"]
-  }
+  "rulesDirectory": "tslint-consistent-codestyle"
 }

@@ -91,7 +91,6 @@
     ],
     "prefer-const": true,
     "radix": true,
-    "rulesDirectory": ["tslint-consistent-codestyle"],
     "semicolon": [true, "always", "ignore-bound-class-methods"],
     "switch-default": true,
     "trailing-comma": [
@@ -115,5 +114,6 @@
       "allow-leading-underscore",
       "allow-trailing-underscore"
     ]
-  }
+  },
+  "rulesDirectory": "tslint-consistent-codestyle"
 }
