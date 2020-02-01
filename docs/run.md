@@ -297,7 +297,7 @@ You should see the following changes:
 
 [concept-source]: concepts.md#source-function
 [concept-pipeline]: concepts.md#pipeline
-[catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
+[catalog]: https://googlecontainertools.github.io/kpt-functions-catalog/
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/hello-world/src/label_namespace.ts
 [download-kpt]: https://github.com/GoogleContainerTools/kpt
 [cloud-build]: https://cloud.google.com/cloud-build/

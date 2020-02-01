@@ -271,7 +271,7 @@ npm run kpt:docker-build -- --tag=latest
 [kustomize-run]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-impl.md
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src/label_namespace.ts
-[catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
+[catalog]: https://googlecontainertools.github.io/kpt-functions-catalog/
 [api-kptfunc]: https://googlecontainertools.github.io/kpt-functions-sdk/docs/api/interfaces/_types_.kptfunc.html
 [vscode]: https://code.visualstudio.com/
 [npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
