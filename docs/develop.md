@@ -272,7 +272,7 @@ npm run kpt:docker-build -- --tag=latest
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src/label_namespace.ts
 [catalog]: https://github.com/GoogleContainerTools/kpt-functions-catalog
-[api-kptfunc]: api/interfaces/_types_.kptfunc.md
+[api-kptfunc]: https://googlecontainertools.github.io/kpt-functions-sdk/docs/api/interfaces/_types_.kptfunc.html
 [vscode]: https://code.visualstudio.com/
 [npm-packages]: https://github.com/GoogleContainerTools/kpt-functions-sdk/packages
 [download-node]: https://nodejs.org/en/download/
