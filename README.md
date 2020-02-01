@@ -1,7 +1,5 @@
 # KPT Functions
 
-![badge][ci-badge]
-
 KPT Functions are client-side programs that make it easy to operate on a repository of Kubernetes configuration files.
 
 Use cases:
