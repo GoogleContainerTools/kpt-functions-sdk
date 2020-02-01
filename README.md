@@ -35,7 +35,7 @@ can be run as pre-commit or post-commit steps to validate configurations before 
   Our design philosophy is to keep configuration as data, which enables us to programmatically manipulate it using stateless programs called _functions_.
 - **Unix philosophy:** Functions should be small, reusable, and composable.
   By implementing the [Configuration Functions Specification][spec],
-  we can develop an ever-growing catalog of useful, interoperable functions.
+  we can develop a [catalog][catalog] of useful, interoperable functions.
 
 ### Why a Typescript SDK
 
@@ -68,3 +68,4 @@ advantages:
 [spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 [kpt-users]: https://groups.google.com/forum/#!forum/kpt-users
 [demo-run]: https://storage.googleapis.com/kpt-functions/docs/run.gif
+[catalog]: https://googlecontainertools.github.io/kpt-functions-catalog/
