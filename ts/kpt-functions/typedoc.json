@@ -1,11 +1,9 @@
 {
   "mode": "modules",
   "out": "../../docs/api",
-  "theme": "markdown",
   "readme": "none",
   "exclude": ["src/**/*_test.ts", "src/io.ts", "src/gen/**"],
   "excludePrivate": true,
   "excludeExternals": true,
-  "hideSources": true,
   "excludeNotExported": true
 }
