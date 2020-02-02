@@ -10,11 +10,12 @@ on:
 
 jobs:
   node-ci:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
+        platform: [ubuntu-latest, macos-latest]
         node-version: [12.x]
         package: [kpt-functions, create-kpt-functions, init-package, hello-world, demo-functions]
+    runs-on: ${{ matrix.platform }}
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -45,7 +46,10 @@ jobs:
         [[ -z $DIFF ]] || { echo "Need to update docs: $DIFF"; }
         
   go-ci:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
     env:
       GOPATH: /home/runner/work/kpt-functions-sdk/go
       GO111MODULE: off  
@@ -66,11 +70,11 @@ jobs:
 
   e2e-ci:
     needs: [node-ci, go-ci]
-    runs-on: ubuntu-latest
     strategy:
       matrix:
+        platform: [ubuntu-latest, macos-latest]
         node-version: [12.x]
-        package: [ts/demo-functions]
+    runs-on: ${{ matrix.platform }}
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -80,14 +84,14 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
     - name: Install NPM packages
       run: |
-        cd ${{ matrix.package }}
+        cd ts/demo-functions
         npm ci
         envsubst < $NPM_CONFIG_USERCONFIG  > .npmrc
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build docker images
       run: |
-        cd ${{ matrix.package }}
+        cd ts/demo-functions
         npm run kpt:docker-build
     - name: Run e2e tests
       run: |
