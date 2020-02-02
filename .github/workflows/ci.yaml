@@ -48,10 +48,10 @@ jobs:
   go-ci:
     strategy:
       matrix:
-        platform: [ubuntu-latest, macos-latest]
+        platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     env:
-      GOPATH: ${{github.workspace}}/../go
+      GOPATH: /home/runner/work/kpt-functions-sdk/go
       GO111MODULE: off  
     steps:
     - name: Set up Go 1.13
