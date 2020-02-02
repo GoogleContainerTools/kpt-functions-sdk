@@ -97,7 +97,7 @@ jobs:
     - name: Run all e2e tests
       if: matrix.platform == 'ubuntu-latest'
       run: |
-        tests/e2e-docker.sh
+        tests/e2e.sh
     - name: Run non-docker e2e tests
       if: matrix.platform != 'ubuntu-latest'
       run: |
