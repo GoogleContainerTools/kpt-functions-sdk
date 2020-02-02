@@ -46,7 +46,7 @@ describe('writeYaml', () => {
   });
 
   it('test dir', async () => {
-    const input = readIntermediate();
+    const input = await readIntermediate();
     functionConfig.data![SINK_DIR] = tmpDir;
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
@@ -57,7 +57,7 @@ describe('writeYaml', () => {
 
   it("throws if --overwrite isn't passed for non-empty directory", async () => {
     fs.copySync(SINK_DIR_EXPECTED, tmpDir);
-    const input = readIntermediate();
+    const input = await readIntermediate();
     functionConfig.data![SINK_DIR] = tmpDir;
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
@@ -66,7 +66,7 @@ describe('writeYaml', () => {
 
   it("silently makes output directory if it doesn't exist", async () => {
     const sinkDir = path.resolve(tmpDir, 'foo');
-    const input = readIntermediate();
+    const input = await readIntermediate();
     functionConfig.data![SINK_DIR] = sinkDir;
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
@@ -88,7 +88,7 @@ describe('writeYaml', () => {
       path.resolve(tmpDir, 'foo-corp-1.0.0', 'podsecuritypolicy_psp.yaml'),
       path.resolve(tmpDir, 'foo-corp-1.0.0', 'other.yaml'),
     );
-    const input = readIntermediate();
+    const input = await readIntermediate();
     functionConfig.data![SINK_DIR] = tmpDir;
     functionConfig.data![OVERWRITE] = 'true';
     const configs = new kpt.Configs(input.getAll(), functionConfig);
@@ -160,7 +160,7 @@ describe('buildSourcePath', () => {
   });
 });
 
-function readIntermediate(): kpt.Configs {
+function readIntermediate(): Promise<kpt.Configs> {
   return kpt.readConfigs(INTERMEDIATE_FILE, kpt.FileFormat.YAML);
 }
 
