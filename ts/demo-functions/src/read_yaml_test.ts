@@ -44,7 +44,7 @@ describe('readYaml', () => {
   it('replicates test dir', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/foo-yaml');
     const expectedIntermediateFile = path.resolve(__dirname, '../test-data/intermediate/foo.yaml');
-    const expectedConfigs = await readConfigs(expectedIntermediateFile, FileFormat.YAML);
+    const expectedConfigs = readConfigs(expectedIntermediateFile, FileFormat.YAML);
     functionConfig.data![SOURCE_DIR] = sourceDir;
     const actualConfigs = new Configs(undefined, functionConfig);
 
