@@ -94,7 +94,11 @@ jobs:
       run: |
         cd ts/demo-functions
         npm run kpt:docker-build
-    - name: Run e2e docker tests
+    - name: Run all e2e tests
       if: matrix.platform == 'ubuntu-latest'
+      run: |
+        tests/e2e-docker.sh
+    - name: Run non-docker e2e tests
+      if: matrix.platform != 'ubuntu-latest'
       run: |
         NODOCKER=true tests/e2e-docker.sh
