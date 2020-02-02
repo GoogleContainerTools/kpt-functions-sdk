@@ -72,7 +72,7 @@ jobs:
     needs: [node-ci, go-ci]
     strategy:
       matrix:
-        platform: [ubuntu-latest, macos-latest]
+        platform: [ubuntu-latest]
         node-version: [12.x]
     runs-on: ${{ matrix.platform }}
     steps:
