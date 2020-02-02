@@ -89,11 +89,14 @@ jobs:
         eval "echo \"$(sed 's/"/\\"/g' $NPM_CONFIG_USERCONFIG)\"" > .npmrc
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run e2e node tests
+      run: |
+        bash <(curl -s https://raw.githubusercontent.com/pgrange/bash_unit/master/install.sh)
+        ./bash_unit tests/e2e-node.sh
     - name: Build docker images
       run: |
         cd ts/demo-functions
         npm run kpt:docker-build
-    - name: Run e2e tests
+    - name: Run e2e docker tests
       run: |
-        npm install -g bats
-        bats tests/e2e.bats
+        ./bash_unit tests/e2e-docker.sh
