@@ -101,4 +101,4 @@ jobs:
     - name: Run non-docker e2e tests
       if: matrix.platform != 'ubuntu-latest'
       run: |
-        NODOCKER=true tests/e2e-docker.sh
+        NODOCKER=true tests/e2e.sh
