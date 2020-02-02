@@ -51,7 +51,7 @@ jobs:
         platform: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
     env:
-      GOPATH: /home/runner/work/kpt-functions-sdk/go
+      GOPATH: ${{github.workspace}}/kpt-functions-sdk/go
       GO111MODULE: off  
     steps:
     - name: Set up Go 1.13
