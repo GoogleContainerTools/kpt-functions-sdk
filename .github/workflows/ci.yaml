@@ -86,7 +86,7 @@ jobs:
       run: |
         cd ts/demo-functions
         npm ci
-        envsubst < $NPM_CONFIG_USERCONFIG  > .npmrc
+        eval "echo \"$(sed 's/"/\\"/g' $NPM_CONFIG_USERCONFIG)\"" > .npmrc
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build docker images
