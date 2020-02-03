@@ -37,10 +37,9 @@ jobs:
       run: |
         cd ts/demo-functions
         npm run kpt:docker-build -- --tag=latest
-    - name: Run e2e tests
+    - name: Run all e2e tests
       run: |
-        npm install -g bats
-        TAG=latest bats tests/e2e.bats
+        TAG=latest tests/e2e.sh
     - name: Push docker images
       run: |
         cd ts/demo-functions
