@@ -97,7 +97,8 @@ jobs:
     - name: Run all e2e tests
       if: matrix.platform == 'ubuntu-latest'
       run: |
-        curl https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt -o /usr/loca/bin/kpt
+        curl https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt -o /usr/local/bin/kpt
+        chmod +x /usr/local/bin/kpt
         tests/e2e.sh
     - name: Run non-docker e2e tests
       if: matrix.platform != 'ubuntu-latest'
