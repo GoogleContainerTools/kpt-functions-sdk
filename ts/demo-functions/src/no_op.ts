@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs } from '@googlecontainertools/kpt-functions';
+import { Configs } from 'kpt-functions';
 
 export async function noOp(configs: Configs) {}
 

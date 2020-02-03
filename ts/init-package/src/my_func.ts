@@ -1,8 +1,8 @@
-import { Configs } from '@googlecontainertools/kpt-functions';
+import { Configs } from 'kpt-functions';
 
 export async function myFunc(configs: Configs) {
   // TODO: implement.
-};
+}
 
 myFunc.usage = `
 TODO: Describe what the function does.

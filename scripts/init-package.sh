@@ -34,5 +34,5 @@ cd ts
 rm -rf $PKG
 mkdir $PKG
 cd $PKG
-npm init @googlecontainertools/kpt-functions
+npm init kpt-functions
 

@@ -27,29 +27,6 @@ Currently supported platforms: amd64 Linux/Mac
     [installation instructions][install-node].
 - Install [docker][install-docker]
 
-#### `.npmrc` File
-
-Currently, NPM packages in the SDK are published to [private GitHub packages in this repo][npm-packages].
-
-In order to install these packages, you need to configure your `.npmrc` file to authenticate to GitHub.
-
-1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens`
-   in GitHub. Specify the `read:packages` scope.
-1. Back up any existing `.npmrc` if it exists:
-
-   ```sh
-   mv ~/.npmrc{,.backup}
-   ```
-
-1. Create the `.npmrc` file, replacing `<TOKEN>`:
-
-   ```sh
-   cat > ~/.npmrc <<EOF
-   registry=https://npm.pkg.github.com/googlecontainertools
-   //npm.pkg.github.com/:_authToken=<TOKEN>
-   EOF
-   ```
-
 ### Your Kubernetes Cluster
 
 For the type generation functionality to work, you need a Kubernetes cluster with the [CRD OpenAPI Publishing][beta-feature] feature which is beta with Kubernetes 1.15.
@@ -124,7 +101,7 @@ cd my-package
 Run the interactive initializer:
 
 ```sh
-npm init @googlecontainertools/kpt-functions
+npm init kpt-functions
 ```
 
 Follow the instructions and respond to all prompts.
@@ -197,13 +174,7 @@ npm test
 With your working function in-hand, it's time to package your function into an executable container
 image.
 
-`docker build` also requires authentication to GitHub, via the aforementioned credentials:
-
-```sh
-cp ~/.npmrc .
-```
-
-To build the container image:
+To build the docker image:
 
 ```sh
 npm run kpt:docker-build

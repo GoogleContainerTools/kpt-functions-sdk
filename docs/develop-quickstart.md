@@ -18,27 +18,6 @@ Currently supported platforms: amd64 Linux/Mac
 - Install [docker][install-docker]
 - Install [kpt][download-kpt] and add it to \$PATH
 
-#### `.npmrc` File
-
-In order to install these packages, you need to configure your `.npmrc` file to authenticate to GitHub.
-
-1. Create a Personal Token by navigating to `Settings > Developer settings > Personal access tokens`
-   in GitHub. Specify the `read:packages` scope.
-1. Back up any existing `.npmrc` if it exists:
-
-   ```sh
-   mv ~/.npmrc{,.backup}
-   ```
-
-1. Create the `.npmrc` file, replacing `<TOKEN>`:
-
-   ```sh
-   cat > ~/.npmrc <<EOF
-   registry=https://npm.pkg.github.com/googlecontainertools
-   //npm.pkg.github.com/:_authToken=<TOKEN>
-   EOF
-   ```
-
 ## Hello World Package
 
 1. Get the `hello-world` package:

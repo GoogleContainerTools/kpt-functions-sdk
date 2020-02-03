@@ -12,7 +12,6 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": "..",
     "lib": ["es2015"],
     "rootDir": "src/"
   },

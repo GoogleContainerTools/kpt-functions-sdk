@@ -24,15 +24,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-        registry-url: 'https://npm.pkg.github.com'
     - name: Install NPM packages
       run: |
         cd ts/demo-functions
         npm ci
         npm test
-        envsubst < $NPM_CONFIG_USERCONFIG  > .npmrc
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build docker images
       run: |
         cd ts/demo-functions

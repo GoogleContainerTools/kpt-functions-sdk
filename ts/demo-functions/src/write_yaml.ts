@@ -18,7 +18,7 @@ import * as fs from 'fs';
 import { existsSync, mkdirSync } from 'fs';
 import * as glob from 'glob';
 import { DumpOptions, safeDump } from 'js-yaml';
-import * as kpt from '@googlecontainertools/kpt-functions';
+import * as kpt from 'kpt-functions';
 import * as path from 'path';
 import { isNamespace, Namespace } from './gen/io.k8s.api.core.v1';
 

@@ -66,7 +66,7 @@ func (ts TypeScript) PrintHeader(definitions []swagger.Definition) string {
 		}
 	}
 	if hasKubernetesObject {
-		result = append(result, "import { KubernetesObject } from '@googlecontainertools/kpt-functions';")
+		result = append(result, "import { KubernetesObject } from 'kpt-functions';")
 	}
 
 	for _, pkg := range packages {

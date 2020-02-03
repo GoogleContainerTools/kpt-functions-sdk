@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  Configs,
-  KubernetesObjectError,
-  MultiConfigError,
-} from '@googlecontainertools/kpt-functions';
+import { Configs, KubernetesObjectError, MultiConfigError } from 'kpt-functions';
 import { isRoleBinding } from './gen/io.k8s.api.rbac.v1';
 
 const SUBJECT_NAME = 'subject_name';

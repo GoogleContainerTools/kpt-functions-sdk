@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { addLabel, Configs } from '@googlecontainertools/kpt-functions';
+import { addLabel, Configs } from 'kpt-functions';
 import { isNamespace } from './gen/io.k8s.api.core.v1';
 
 const LABEL_NAME = 'label_name';

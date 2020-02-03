@@ -27,7 +27,7 @@ import {
   addAnnotation,
   SOURCE_PATH_ANNOTATION,
   SOURCE_INDEX_ANNOTATION,
-} from '@googlecontainertools/kpt-functions';
+} from 'kpt-functions';
 
 export const SOURCE_DIR = 'source_dir';
 export const FILTER_IVNALID = 'filter_invalid';

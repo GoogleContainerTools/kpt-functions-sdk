@@ -15,6 +15,6 @@
  */
 
 import { mutatePsp } from './mutate_psp';
-import { run } from '@googlecontainertools/kpt-functions';
+import { run } from 'kpt-functions';
 
 run(mutatePsp);

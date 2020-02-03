@@ -15,6 +15,6 @@
  */
 
 import { writeYaml } from './write_yaml';
-import { run } from '@googlecontainertools/kpt-functions';
+import { run } from 'kpt-functions';
 
 run(writeYaml);
