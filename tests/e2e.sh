@@ -160,7 +160,7 @@ grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
 
 testcase "kpt_run_label_namespace_imperative"
 kpt fn source . |
-    kpt fn run --image gcr.io/kpt-functions/label-namespace -- label_name=color label_value=orange |
+    kpt fn run --image gcr.io/kpt-functions/label-namespace:${TAG} -- label_name=color label_value=orange |
     kpt fn sink .
 grep -qR 'color: orange' .
 
@@ -173,7 +173,7 @@ metadata:
   annotations:
     config.k8s.io/function: |
       container:
-        image:  gcr.io/kpt-functions/label-namespace
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
     config.kubernetes.io/local-config: "true"
 data:
   label_name: color
@@ -191,7 +191,7 @@ metadata:
   annotations:
     config.k8s.io/function: |
       container:
-        image:  gcr.io/kpt-functions/label-namespace
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
     config.kubernetes.io/local-config: "true"
 data:
   label_name: color
@@ -205,7 +205,7 @@ metadata:
   annotations:
     config.k8s.io/function: |
       container:
-        image:  gcr.io/kpt-functions/label-namespace
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
     config.kubernetes.io/local-config: "true"
 data:
   label_name: city
