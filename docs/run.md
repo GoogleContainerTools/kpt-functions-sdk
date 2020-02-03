@@ -41,7 +41,7 @@ git init
 Fetch an example configuraton package:
 
 ```sh
-kpt pkg get git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-configs example-configs
+kpt pkg get https://github.com/GoogleContainerTools/kpt-functions-sdk.git/example-configs example-configs
 cd example-configs
 git add . && git commit -m 'fetched example-configs'
 ```
@@ -222,7 +222,7 @@ docker pull gcr.io/kpt-functions/write-yaml
 You'll also need some example configuration:
 
 ```sh
-git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+git clone --depth 1 https://github.com/GoogleContainerTools/kpt-functions-sdk.git
 cd kpt-functions-sdk/example-configs
 ```
 
@@ -257,7 +257,7 @@ Functions can be piped to form sophisticated pipelines.
 First, grab the `example-configs` directory and pull the container images:
 
 ```sh
-git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+git clone --depth 1 https://github.com/GoogleContainerTools/kpt-functions-sdk.git
 cd kpt-functions-sdk/example-configs
 
 docker pull gcr.io/kpt-functions/read-yaml
