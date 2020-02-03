@@ -86,7 +86,21 @@ node ${DIST}/read_yaml_run.js -i /dev/null -d source_dir=$(pwd) |
     node ${DIST}/label_namespace_run.js -d label_name=color -d label_value=orange |
     grep -q 'color: orange'
 
-testcase "node_demo_func"
+testcase "node_label_namespace_func_config_file"
+cat >fc.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+data:
+  label_name: color
+  label_value: orange
+metadata:
+  name: my-config
+EOF
+node ${DIST}/read_yaml_run.js -i /dev/null -d source_dir=$(pwd) |
+    node ${DIST}/label_namespace_run.js -f fc.yaml |
+    grep -q 'color: orange'
+
+testcase "node_demo_funcs"
 node ${DIST}/read_yaml_run.js -i /dev/null -d source_dir=$(pwd) |
     node ${DIST}/mutate_psp_run.js |
     node ${DIST}/expand_team_cr_run.js |
@@ -100,7 +114,10 @@ grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
 # Docker Tests
 ############################
 
-[[ -z ${NODOCKER} ]] || { echo "Skipping docker tests"; exit 0; }
+[[ -z ${NODOCKER} ]] || {
+    echo "Skipping docker tests"
+    exit 0
+}
 
 testcase "docker_no_op_stdout"
 docker run -i gcr.io/kpt-functions/no-op:${TAG} -i /dev/null >out.yaml
@@ -127,7 +144,7 @@ docker run -i -u $(id -u) -v $(pwd):/source gcr.io/kpt-functions/read-yaml:${TAG
     docker run -i gcr.io/kpt-functions/label-namespace:${TAG} -d label_name=color -d label_value=orange |
     grep -q 'color: orange'
 
-testcase "docker_demo_func"
+testcase "docker_demo_funcs"
 docker run -i -u $(id -u) -v $(pwd):/source gcr.io/kpt-functions/read-yaml:${TAG} -i /dev/null -d source_dir=/source |
     docker run -i gcr.io/kpt-functions/mutate-psp:${TAG} |
     docker run -i gcr.io/kpt-functions/expand-team-cr:${TAG} |
@@ -136,3 +153,64 @@ docker run -i -u $(id -u) -v $(pwd):/source gcr.io/kpt-functions/read-yaml:${TAG
 assert_dir_exists payments-dev
 assert_dir_exists payments-prod
 grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
+
+############################
+# kpt fn Tests
+############################
+
+testcase "kpt_label_namespace_imperative"
+kpt fn source . |
+    kpt fn run --image gcr.io/kpt-functions/label-namespace:${TAG} -- label_name=color label_value=orange |
+    kpt fn sink .
+grep -qR 'color: orange' .
+
+testcase "kpt_label_namespace_declarative"
+cat <<EOF >kpt-func.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
+    config.kubernetes.io/local-config: "true"
+data:
+  label_name: color
+  label_value: orange
+EOF
+kpt fn run --global-scope .
+grep -qR 'color: orange' .
+
+testcase "kpt_label_namespace_declarative_multi"
+cat <<EOF >kpt-func.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
+    config.kubernetes.io/local-config: "true"
+data:
+  label_name: color
+  label_value: orange
+EOF
+cat <<EOF >kpt-func2.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config2
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
+    config.kubernetes.io/local-config: "true"
+data:
+  label_name: city
+  label_value: toronto
+EOF
+kpt fn run --global-scope .
+grep -qR 'color: orange' .
+grep -qR 'city: toronto' .
