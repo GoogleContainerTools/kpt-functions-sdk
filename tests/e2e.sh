@@ -158,7 +158,7 @@ grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
 # kpt fn Tests
 ############################
 
-testcase "kpt_run_label_namespace_imperative"
+testcase "kpt_label_namespace_imperative"
 kpt fn source . |
     kpt fn run --image gcr.io/kpt-functions/label-namespace:${TAG} -- label_name=color label_value=orange |
     kpt fn sink .
