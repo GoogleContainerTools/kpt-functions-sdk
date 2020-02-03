@@ -22,7 +22,7 @@
     "kpt:type-create": "kpt type-create"
   },
   "dependencies": {
-    "@googlecontainertools/kpt-functions": "^0.11.0",
+    "@googlecontainertools/kpt-functions": "^0.12.0",
     "glob": "^7.1.3",
     "js-yaml": "^3.13.1"
   },
