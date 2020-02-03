@@ -32,13 +32,21 @@ Follow [installation instructions][download-kpt] to get the `kpt` CLI.
 
 ### Example
 
+First, initialize a git repo if necessary:
+
+```sh
+git init
+```
+
+Fetch an example configuraton package:
+
 ```sh
 kpt pkg get git@github.com:GoogleContainerTools/kpt-functions-sdk.git/example-configs example-configs
 cd example-configs
 git add . && git commit -m 'fetched example-configs'
 ```
 
-The `fn source` and `fn sink` sub-commands are implementations of [source and sink functions][concept-source] respectively:
+You can run a function imperatively:
 
 ```sh
 kpt fn source . |
@@ -52,8 +60,9 @@ You should see labels added to `Namespace` configuration files:
 git status
 ```
 
-Using `fn run`, you can declare a function and its `functionConfig` like any other configuration
-file:
+Note that `fn source` and `fn sink` sub-commands are implementations of [source and sink functions][concept-source] respectively.
+
+Alternatively, you can run a function declaratively:
 
 ```sh
 cat << EOF > kpt-func.yaml
@@ -105,7 +114,7 @@ kpt fn run --global-scope .
 
 In this case, `validate-rolebinding` will find policy violations and fail with a non-zero exit code.
 
-To see help message for details:
+Refer to help pages for more details on how to use `kpt fn`
 
 ```sh
 kpt fn run --help
