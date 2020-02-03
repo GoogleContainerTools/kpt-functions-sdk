@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-// Package rw does not have type definitions, so we must define the ones we need here.
-
-export function readFileSync(filename: string, options: string): string;
-
-export function writeFileSync(filename: string, data: string, options: string): void;
+// Package rw does not have type definitions.
+declare module 'rw' {
+    var rw: any;
+    export default rw;
+}

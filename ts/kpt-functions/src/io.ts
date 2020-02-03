@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-import * as fs from 'fs';
 import { DumpOptions, safeDump, safeLoad } from 'js-yaml';
-import * as rw from 'rw';
+import rw from 'rw';
 import { Configs, KubernetesObject } from './types';
 
 export enum FileFormat {
   YAML,
   JSON,
 }
-
 type FilePath = string;
-
 const YAML_STYLE: DumpOptions = {
   // indentation width to use (in spaces).
   indent: 2,
@@ -45,39 +42,24 @@ const YAML_STYLE: DumpOptions = {
  * @param format File format
  * @param functionConfig Either a path to the functionConfig file containing the object or the object itself.
  */
-export function readConfigs(
+export async function readConfigs(
   input: FilePath,
   format: FileFormat,
   functionConfig?: FilePath | KubernetesObject
-): Configs {
+): Promise<Configs> {
   let inputRaw: string;
-
-  switch (input) {
-    case '/dev/null':
-      inputRaw = '{"items":[]}';
-      break;
-    case '/dev/stdin':
-      if (process.stdin.isTTY) {
-        throw new Error('Cannot read input. Need either stdin or --input file');
-      }
-      if (!fs.existsSync(input)) {
-        throw new Error(`Input file does not exist: ${input}`);
-      }
-      inputRaw = rw.readFileSync(input, 'utf8');
-      break;
-    default:
-      if (!fs.existsSync(input)) {
-        throw new Error(`Input file does not exist: ${input}`);
-      }
-      inputRaw = rw.readFileSync(input, 'utf8');
+  if (input === '/dev/null') {
+    inputRaw = '{"items":[]}';
+  } else {
+    if (input === '/dev/stdin' && process.stdin.isTTY) {
+      throw new Error('Cannot read input. Need either stdin or --input file');
+    }
+    inputRaw = await readFile(input);
   }
 
   let functionConfigRaw: string | KubernetesObject | undefined;
   if (typeof functionConfig === 'string') {
-    if (!fs.existsSync(functionConfig)) {
-      throw new Error(`functionConfig file does not exist: ${functionConfig}`);
-    }
-    functionConfigRaw = rw.readFileSync(functionConfig, 'utf8');
+    functionConfigRaw = await readFile(functionConfig);
   } else {
     functionConfigRaw = functionConfig;
   }
@@ -128,16 +110,16 @@ function load(raw: string, format: FileFormat): any {
  * @param configs Contains objects to write to the output file.
  * @param format defines whether to write the Configs as YAML or JSON.
  */
-export function writeConfigs(
+export async function writeConfigs(
   output: FilePath,
   configs: Configs,
   format: FileFormat
-): void {
+): Promise<void> {
   if (output === '/dev/null') {
     return;
   }
 
-  rw.writeFileSync(output, stringify(configs, format), 'utf8');
+  await writeFile(output, stringify(configs, format));
 }
 
 /**
@@ -161,4 +143,22 @@ export function stringify(configs: Configs, format: FileFormat): string {
     default:
       throw new Error(`Unsupported file format ${format}`);
   }
+}
+
+async function readFile(path: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    rw.readFile(path, 'utf8', (err: any, data: string) => {
+      if (err) return reject(err);
+      resolve(data);
+    });
+  });
+}
+
+async function writeFile(path: string, data: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    rw.writeFile(path, data, 'utf8', (err: any) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
 }

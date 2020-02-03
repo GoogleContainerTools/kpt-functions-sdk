@@ -134,13 +134,13 @@ Use this ONLY if the function accepts a ConfigMap.`,
   }
 
   // Read the input and construct Configs.
-  const configs = readConfigs(inputFile, fileFormat, functionConfig);
+  const configs = await readConfigs(inputFile, fileFormat, functionConfig);
 
   // Run the function.
   await fn(configs);
 
   // Write the output.
-  writeConfigs(outputFile, configs, fileFormat);
+  await writeConfigs(outputFile, configs, fileFormat);
 }
 
 function parseToConfigMap(
