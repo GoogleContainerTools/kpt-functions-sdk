@@ -23,7 +23,7 @@ Currently supported platforms: amd64 Linux/Mac
 1. Get the `hello-world` package:
 
    ```sh
-   git clone --depth 1 git@github.com:GoogleContainerTools/kpt-functions-sdk.git
+   git clone --depth 1 https://github.com/GoogleContainerTools/kpt-functions-sdk.git
    ```
 
    All subsequent commands are run from the `hello-world` directory:
