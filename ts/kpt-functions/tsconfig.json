@@ -2,7 +2,6 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

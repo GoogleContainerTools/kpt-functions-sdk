@@ -1,6 +1,6 @@
 {
   "name": "kpt-functions",
-  "version": "0.12.0",
+  "version": "0.12.2",
   "description": "KPT functions framework library",
   "author": "KPT Authors",
   "license": "Apache-2.0",
