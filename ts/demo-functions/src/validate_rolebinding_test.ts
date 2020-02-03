@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner, ConfigError } from '@googlecontainertools/kpt-functions';
 import { ClusterRoleBinding, RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
 import { validateRolebinding } from './validate_rolebinding';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
@@ -26,7 +26,7 @@ const FUNC_CONFIG: ConfigMap = new ConfigMap({
 });
 
 describe(validateRolebinding.name, () => {
-  it('passes empty input', RUNNER.assertCallback(undefined, undefined, TypeError));
+  it('passes empty input', RUNNER.assertCallback(undefined, undefined, ConfigError));
 
   it(
     'passes valid RoleBindings',

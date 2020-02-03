@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner } from '@googlecontainertools/kpt-functions';
+import { Configs, TestRunner, ConfigError } from '@googlecontainertools/kpt-functions';
 import { labelNamespace, LABEL_NAME, LABEL_VALUE } from './label_namespace';
 import { Namespace, ConfigMap } from './gen/io.k8s.api.core.v1';
 
@@ -32,7 +32,7 @@ describe('labelNamespace', () => {
 
   it('empty input ok', RUNNER.assertCallback(new Configs(undefined, functionConfig)));
 
-  it('requires functionConfig', RUNNER.assertCallback(undefined, undefined, TypeError));
+  it('requires functionConfig', RUNNER.assertCallback(undefined, undefined, ConfigError));
 
   it('adds label namespace when metadata.labels is undefined', async () => {
     const actual = new Configs(undefined, functionConfig);
