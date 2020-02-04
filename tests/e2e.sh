@@ -179,7 +179,7 @@ data:
   label_name: color
   label_value: orange
 EOF
-kpt fn run --global-scope .
+kpt fn run .
 grep -qR 'color: orange' .
 
 testcase "kpt_label_namespace_declarative_multi"
@@ -211,6 +211,6 @@ data:
   label_name: city
   label_value: toronto
 EOF
-kpt fn run --global-scope .
+kpt fn run .
 grep -qR 'color: orange' .
 grep -qR 'city: toronto' .
