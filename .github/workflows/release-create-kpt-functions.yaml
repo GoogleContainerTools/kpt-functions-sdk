@@ -4,9 +4,6 @@ on:
   push:
     tags:
       - release-create-kpt-functions-*
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '0 17 * * *'
 
 jobs:
   release:
