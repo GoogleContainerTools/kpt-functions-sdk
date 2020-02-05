@@ -17,12 +17,18 @@
 import * as path from 'path';
 import { readYaml, SOURCE_DIR } from './read_yaml';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
-import { TestRunner, Configs, readConfigs, FileFormat, MultiConfigError } from 'kpt-functions';
+import {
+  TestRunner,
+  Configs,
+  readConfigs,
+  FileFormat,
+  MultiConfigError,
+} from 'kpt-functions';
 
 const RUNNER = new TestRunner(readYaml);
 
 describe('readYaml', () => {
-  let functionConfig = ConfigMap.named('config');
+  const functionConfig = ConfigMap.named('config');
   functionConfig.data = {};
 
   it('works on empty dir', async () => {
@@ -37,8 +43,14 @@ describe('readYaml', () => {
 
   it('replicates test dir', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/foo-yaml');
-    const expectedIntermediateFile = path.resolve(__dirname, '../test-data/intermediate/foo.yaml');
-    const expectedConfigs = await readConfigs(expectedIntermediateFile, FileFormat.YAML);
+    const expectedIntermediateFile = path.resolve(
+      __dirname,
+      '../test-data/intermediate/foo.yaml'
+    );
+    const expectedConfigs = await readConfigs(
+      expectedIntermediateFile,
+      FileFormat.YAML
+    );
     functionConfig.data![SOURCE_DIR] = sourceDir;
     const actualConfigs = new Configs(undefined, functionConfig);
 
