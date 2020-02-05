@@ -171,8 +171,8 @@ kpt fn source . |
 grep -qR 'color: orange' .
 
 testcase "kpt_label_namespace_imperative_short"
-kpt fn run --image gcr.io/kpt-functions/label-namespace:${TAG} . -- label_name=color label_value=orange |
-  grep -qR 'color: orange' .
+kpt fn run --image gcr.io/kpt-functions/label-namespace:${TAG} . -- label_name=color label_value=orange
+grep -qR 'color: orange' .
 
 testcase "kpt_label_namespace_declarative"
 cat <<EOF >kpt-func.yaml
