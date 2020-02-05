@@ -49,7 +49,7 @@ git add . && git commit -m 'fetched example-configs'
 You can run a function imperatively:
 
 ```sh
-kpt fn run --image gcr.io/kpt-functions/label-namespace . -- label_name=color label_value=orange |
+kpt fn run --image gcr.io/kpt-functions/label-namespace . -- label_name=color label_value=orange
 ```
 
 You should see labels added to `Namespace` configuration files:
