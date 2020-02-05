@@ -124,5 +124,6 @@ async function main() {
     await main();
   } catch (e) {
     console.error(e);
+    process.exitCode = 1;
   }
 })();
