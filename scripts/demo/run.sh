@@ -15,7 +15,7 @@
 
 . demo-magic/demo-magic.sh
 
-EXAMPLE_CONFIGS="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"/../../example-configs
+EXAMPLE_CONFIGS="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"/../../example-configs
 PROMPT_TIMEOUT=8
 TAG=demo
 NO_WAIT=true
@@ -40,9 +40,7 @@ pe "git add . && git commit -m 'fetched example-configs'"
 clear
 
 p "# Generate configs"
-pe "kpt fn source . |
-  kpt fn run --image gcr.io/kpt-functions/expand-team-cr |
-  kpt fn sink ."
+pe "kpt fn run --image gcr.io/kpt-functions/expand-team-cr ."
 pe "git status -u"
 wait
 
@@ -50,9 +48,7 @@ git clean -fd
 clear
 
 p "# Transform configs"
-pe "kpt fn source . |
-  kpt fn run --image gcr.io/kpt-functions/mutate-psp |
-  kpt fn sink ."
+pe "kpt fn run --image gcr.io/kpt-functions/mutate-psp ."
 pe "git diff"
 wait
 
@@ -60,8 +56,18 @@ git reset HEAD --hard
 clear
 
 p "# Validate configs"
+pe "kpt fn run --image gcr.io/kpt-functions/validate-rolebinding . -- subject_name=bob@foo-corp.com"
+wait
+
+clear
+
+p "# Compose a pipeline of functions"
 pe "kpt fn source . |
-  kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=bob@foo-corp.com"
+  kpt fn run --image gcr.io/kpt-functions/expand-team-cr |
+  kpt fn run --image gcr.io/kpt-functions/mutate-psp |
+  kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=alice@foo-corp.com |
+  kpt fn sink ."
+pe "git status -u"
 wait
 
 clear
@@ -87,14 +93,5 @@ metadata.namespace: "kube-system"
 metadata.name: "system:controller:bootstrap-signer"
 EOF
 wait
-
-clear
-
-p "# Compose a pipeline of functions"
-pe "kpt fn source . |
-  kpt fn run --image gcr.io/kpt-functions/expand-team-cr |
-  kpt fn run --image gcr.io/kpt-functions/mutate-psp |
-  kpt fn run --image gcr.io/kpt-functions/validate-rolebinding -- subject_name=alice@foo-corp.com |
-  kpt fn sink ."
 
 wait
