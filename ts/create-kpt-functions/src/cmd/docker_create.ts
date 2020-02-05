@@ -42,9 +42,17 @@ export function dockerCreate(packageDir: string) {
   }
 }
 
-export type ConsumeDockerfiles = (dockerFile: string, functionName: string, image: string) => void;
+export type ConsumeDockerfiles = (
+  dockerFile: string,
+  functionName: string,
+  image: string
+) => void;
 
-export function processDockerfile(packageDir: string, dockerTag: string, func: ConsumeDockerfiles) {
+export function processDockerfile(
+  packageDir: string,
+  dockerTag: string,
+  func: ConsumeDockerfiles
+) {
   const dockerRepoBase = process.env.npm_package_kpt_docker_repo_base;
   if (!dockerRepoBase) {
     throw new Error('Env variable not set: npm_package_kpt_docker_repo_base\n');
