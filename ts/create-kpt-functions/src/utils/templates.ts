@@ -35,7 +35,10 @@ export class Templates {
 
   public render() {
     for (const t of this.templates) {
-      const before = readFileSync(join(CLI_PACKAGE.templates, t.templateFile), 'utf8').toString();
+      const before = readFileSync(
+        join(CLI_PACKAGE.templates, t.templateFile),
+        'utf8'
+      ).toString();
       const after = t.view ? render(before, t.view) : before;
       if (!isAbsolute(t.outputPath)) {
         throw new Error(`outputPath must be absolute: ${t.outputPath}`);

@@ -32,7 +32,7 @@ export async function packageCreate() {
 
   log(
     format.success('\nSuccess!') +
-      ' Run `npm install` to install dependencies and build the package.\n',
+      ' Run `npm install` to install dependencies and build the package.\n'
   );
 }
 
@@ -46,11 +46,11 @@ function initPackage() {
     validator.getValidString(
       () =>
         question(
-          `> What is the absolute path where the package is located (${defaultPackageDir})? `,
+          `> What is the absolute path where the package is located (${defaultPackageDir})? `
         ),
       validator.isValidPackageDir,
-      defaultPackageDir,
-    ),
+      defaultPackageDir
+    )
   );
   log(`Using package path ${packageDir}.\n`);
 
@@ -59,7 +59,7 @@ function initPackage() {
   const packageName = validator.getValidString(
     () => question(`> What is the package name (${defaultPackageName})? `),
     validator.isValidPackageName,
-    defaultPackageName,
+    defaultPackageName
   );
   log(`Using package name ${packageName}.\n`);
 
@@ -68,10 +68,10 @@ function initPackage() {
   const dockerRepoBase = validator.getValidString(
     () =>
       question(
-        `> What is the docker repository prefix where this package's functions will be published (${defaultDockerRepoBase})? `,
+        `> What is the docker repository prefix where this package's functions will be published (${defaultDockerRepoBase})? `
       ),
     validator.isValidDockerRepo,
-    defaultDockerRepoBase,
+    defaultDockerRepoBase
   );
   log(`Using docker repository prefix ${defaultDockerRepoBase}.\n`);
 

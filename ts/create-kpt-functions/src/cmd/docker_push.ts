@@ -20,14 +20,18 @@ import { processDockerfile } from './docker_create';
 
 export function dockerPush(packageDir: string, dockerTag: string) {
   log('Pushing image...\n');
-  processDockerfile(packageDir, dockerTag, (dockerFile, functionName, image) => {
-    const push = spawnSync('docker', ['push', image], { stdio: 'inherit' });
-    if (push.status !== 0) {
-      let msg = 'Failed to push docker image';
-      if (push.error) {
-        msg = `${msg}: ${push.error}`;
+  processDockerfile(
+    packageDir,
+    dockerTag,
+    (dockerFile, functionName, image) => {
+      const push = spawnSync('docker', ['push', image], { stdio: 'inherit' });
+      if (push.status !== 0) {
+        let msg = 'Failed to push docker image';
+        if (push.error) {
+          msg = `${msg}: ${push.error}`;
+        }
+        throw new Error(msg);
       }
-      throw new Error(msg);
     }
-  });
+  );
 }

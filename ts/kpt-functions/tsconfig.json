@@ -2,10 +2,11 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "baseUrl": "node_modules",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2016"],
+    "lib": ["es2018"],
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -19,8 +20,8 @@
     "rootDir": ".",
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2018"
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["index.ts", "src/**/*.ts"]
+  "include": ["index.ts", "src/**/*"]
 }
