@@ -18,6 +18,7 @@ jobs:
           version: '275.0.0'
           service_account_email: ${{ secrets.GCP_SA_EMAIL }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - run: gcloud auth configure-docker
     - name: Set up Go 1.13
       uses: actions/setup-go@v1
       with:
