@@ -22,12 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	inputFlag  = "input"
-	outputFlag = "output"
-	jsonFlag   = "json"
-)
-
 var (
 	input   string
 	output  string
@@ -35,28 +29,18 @@ var (
 )
 
 func addInputFlag(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&input, inputFlag, io.Stdin,
-		`Path to the input JSON file`)
+	cmd.Flags().StringVarP(&input, "input", "i", io.Stdin,
+		`path to the input JSON file`)
 }
 
 func addOutputFlag(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&output, outputFlag, io.Stdout,
-		`Path to the output JSON file`)
+	cmd.Flags().StringVarP(&output, "output", "o", io.Stdout,
+		`path to the output JSON file`)
 }
 
 func addFormatFlag(cmd *cobra.Command) {
-	cmd.Flags().BoolVar(&useJSON, jsonFlag, false,
+	cmd.Flags().BoolVar(&useJSON, "json", false,
 		`input and output is JSON instead of YAML`)
-}
-
-func addProps(cmd *cobra.Command, propNames []string) types.Props {
-	props := types.Props{}
-	for _, propName := range propNames {
-		empty := ""
-		props[propName] = &empty
-		cmd.Flags().StringVar(props[propName], propName, "", "")
-	}
-	return props
 }
 
 func getFormat() io.Format {
@@ -66,15 +50,14 @@ func getFormat() io.Format {
 	return io.YAML
 }
 
-// RunFunc runs a ConfigFunc with the specified property names.
-func RunFunc(f types.ConfigFunc, propNames ...string) {
-	cmd := &cobra.Command{}
+// RunFunc runs a ConfigFunc.
+func RunFunc(f types.ConfigFunc, usage string) {
+	cmd := &cobra.Command{Long: usage}
 	//TODO(b/138231979): Make text output match more closely with go vs typescript.
 
 	addInputFlag(cmd)
 	addOutputFlag(cmd)
 	addFormatFlag(cmd)
-	props := addProps(cmd, propNames)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		// Since printing the usage message since we know all required fields are present.
@@ -85,7 +68,7 @@ func RunFunc(f types.ConfigFunc, propNames ...string) {
 			return err
 		}
 
-		err = f(&configs, props)
+		err = f(&configs)
 		if err != nil {
 			return err
 		}
