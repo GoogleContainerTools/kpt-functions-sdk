@@ -15,7 +15,11 @@
  */
 
 import { disableLogForTesting } from './log';
-import { isValidFuncName, MAX_FUNC_NAME_LENGTH, isValidDockerRepo } from './validator';
+import {
+  isValidFuncName,
+  MAX_FUNC_NAME_LENGTH,
+  isValidDockerRepo,
+} from './validator';
 
 describe('isValidFuncName', () => {
   disableLogForTesting();

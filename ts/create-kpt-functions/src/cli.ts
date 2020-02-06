@@ -43,7 +43,8 @@ async function main() {
     help: packageCreateHelp,
   });
 
-  const dockerCreateHelp = 'Generate Dockerfiles for all functions. Overwrite files if they exist.';
+  const dockerCreateHelp =
+    'Generate Dockerfiles for all functions. Overwrite files if they exist.';
   subparsers.addParser('docker-create', {
     addHelp: true,
     description: dockerCreateHelp,
@@ -61,7 +62,8 @@ async function main() {
     help: 'Docker tag used for all function images.',
   });
 
-  const dockerPushHelp = 'Push container images to the registry for all functions.';
+  const dockerPushHelp =
+    'Push container images to the registry for all functions.';
   const dp = subparsers.addParser('docker-push', {
     addHelp: true,
     description: dockerPushHelp,
@@ -72,14 +74,16 @@ async function main() {
     help: 'Docker tag used for all function images.',
   });
 
-  const functionCreateHelp = 'Generate stubs for a new function. Overwrites files if they exist.';
+  const functionCreateHelp =
+    'Generate stubs for a new function. Overwrites files if they exist.';
   subparsers.addParser('function-create', {
     addHelp: true,
     description: functionCreateHelp,
     help: functionCreateHelp,
   });
 
-  const typeCreateHelp = 'Generate classes for core and CRD types. Overwrite files if they exist.';
+  const typeCreateHelp =
+    'Generate classes for core and CRD types. Overwrite files if they exist.';
   subparsers.addParser('type-create', {
     addHelp: true,
     description: typeCreateHelp,
