@@ -19,6 +19,12 @@ import (
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/pkg/functions/gatekeeper"
 )
 
+const usage = `
+Evaluates OPA constraints against input configuration objects.
+
+Constraints themselves are also declared as part of the input.
+`
+
 func main() {
-	runners.RunFunc(gatekeeper.Validate)
+	runners.RunFunc(gatekeeper.Validate, usage)
 }
