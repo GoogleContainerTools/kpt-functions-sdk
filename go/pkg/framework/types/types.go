@@ -29,13 +29,8 @@ type KubernetesObject interface {
 // functions.
 type Configs []KubernetesObject
 
-//TODO(b/138233382): Write Source/Sink funcs and runners.
-
 // ConfigFunc is a type of kpt function that consumes Configs and potentially mutates it.
-type ConfigFunc func(configs *Configs, props Props) error
-
-// Props is a collection of properties to configure kpt functions.
-type Props map[string]*string
+type ConfigFunc func(configs *Configs) error
 
 // ConfigError represents a non-exceptional issue with configuration.
 //

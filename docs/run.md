@@ -49,9 +49,7 @@ git add . && git commit -m 'fetched example-configs'
 You can run a function imperatively:
 
 ```sh
-kpt fn source . |
-kpt fn run --image gcr.io/kpt-functions/label-namespace -- label_name=color label_value=orange |
-kpt fn sink .
+kpt fn run --image gcr.io/kpt-functions/label-namespace . -- label_name=color label_value=orange
 ```
 
 You should see labels added to `Namespace` configuration files:
@@ -59,8 +57,6 @@ You should see labels added to `Namespace` configuration files:
 ```sh
 git status
 ```
-
-Note that `fn source` and `fn sink` sub-commands are implementations of [source and sink functions][concept-source] respectively.
 
 Alternatively, you can run a function declaratively:
 

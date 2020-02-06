@@ -25,10 +25,10 @@ export async function expandTeamCr(configs: Configs) {
   // For each 'Team' custom resource in the input:
   // 1. Generate a per-enviroment Namespace.
   // 2. Generate RoleBindings in each Namespace.
-  configs.get(isTeam).forEach((team) => {
+  configs.get(isTeam).forEach(team => {
     const name = team.metadata.name;
 
-    ENVIRONMENTS.forEach((suffix) => {
+    ENVIRONMENTS.forEach(suffix => {
       const ns = `${name}-${suffix}`;
       configs.insert(Namespace.named(ns));
       configs.insert(...createRoleBindings(team, ns));
@@ -37,7 +37,7 @@ export async function expandTeamCr(configs: Configs) {
 }
 
 function createRoleBindings(team: Team, namespace: string): RoleBinding[] {
-  return (team.spec.roles || []).map((item) => {
+  return (team.spec.roles || []).map(item => {
     return new RoleBinding({
       metadata: {
         name: item.role,
@@ -55,18 +55,18 @@ function createRoleBindings(team: Team, namespace: string): RoleBinding[] {
 
 function roleSubjects(item: Team.Spec.Item): Subject[] {
   const userSubjects: Subject[] = (item.users || []).map(
-    (user) =>
+    user =>
       new Subject({
         kind: 'User',
         name: user,
-      }),
+      })
   );
   const groupSubjects: Subject[] = (item.groups || []).map(
-    (group) =>
+    group =>
       new Subject({
         kind: 'Group',
         name: group,
-      }),
+      })
   );
   return userSubjects.concat(groupSubjects);
 }

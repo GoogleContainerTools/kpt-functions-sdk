@@ -24,9 +24,6 @@ test-e2e:
 vet:
 	go vet ./...
 
-publish-functions: all
-	./scripts/publish-functions.sh
-
 build-typegen: fix fmt test lint
 	env GOOS=linux GOARCH=amd64 go build -o $(OUT_DIR)/linux/typegen ./cmd/typegen
 	env GOOS=darwin GOARCH=amd64 go build -o $(OUT_DIR)/darwin/typegen ./cmd/typegen

@@ -40,7 +40,9 @@ export async function writeYaml(configs: kpt.Configs) {
   // If sink diretory is not empty, require 'overwrite' parameter to be set.
   const yamls = listYamlFiles(sinkDir);
   if (!overwrite && yamls.length > 0) {
-    throw new Error(`sink dir contains YAML files and overwrite is not set to string 'true'.`);
+    throw new Error(
+      `sink dir contains YAML files and overwrite is not set to string 'true'.`
+    );
   }
 
   const filesToDelete = new Set(yamls);
@@ -51,8 +53,8 @@ export async function writeYaml(configs: kpt.Configs) {
     // set by the source function. Remove these annotations before writing files.
     const documents = configsAtPath
       .sort(compareSourceIndex)
-      .map((config) => kpt.removeAnnotation(config, kpt.SOURCE_INDEX_ANNOTATION))
-      .map((config) => kpt.removeAnnotation(config, kpt.SOURCE_PATH_ANNOTATION))
+      .map(config => kpt.removeAnnotation(config, kpt.SOURCE_INDEX_ANNOTATION))
+      .map(config => kpt.removeAnnotation(config, kpt.SOURCE_PATH_ANNOTATION))
       .map(toYaml);
 
     const file = path.join(sinkDir, p);
@@ -65,7 +67,7 @@ export async function writeYaml(configs: kpt.Configs) {
     if (fs.existsSync(file)) {
       filesToDelete.delete(file);
       const currentContents = fs.readFileSync(file).toString();
-      if (contents == currentContents) {
+      if (contents === currentContents) {
         // No changes to make.
         return;
       }
@@ -76,7 +78,7 @@ export async function writeYaml(configs: kpt.Configs) {
 
   // Delete YAML files that are missing from the input.
   // Other file types are ignored.
-  filesToDelete.forEach((file) => {
+  filesToDelete.forEach(file => {
     fs.unlinkSync(file);
   });
 }
@@ -127,7 +129,9 @@ function toYaml(o: kpt.KubernetesObject): string {
   try {
     return safeDump(o, YAML_STYLE);
   } catch (err) {
-    throw new Error(`Failed to write YAML for object: ${JSON.stringify(o)}: ${err}`);
+    throw new Error(
+      `Failed to write YAML for object: ${JSON.stringify(o)}: ${err}`
+    );
   }
 }
 
@@ -152,7 +156,7 @@ export function buildSourcePath(o: kpt.KubernetesObject): string {
     return path.join(o.metadata.name, `${Namespace.kind.toLowerCase()}.yaml`);
   }
 
-  let basePath = `${o.kind.toLowerCase()}_${o.metadata.name}.yaml`;
+  const basePath = `${o.kind.toLowerCase()}_${o.metadata.name}.yaml`;
   if (o.metadata.namespace !== undefined) {
     // Namespace isn't undefined, so assume this is a Namespaced object. We don't yet support
     // distinguishing Namespaced and non-Namespaced resources any other way, and swagger.json does
@@ -172,7 +176,10 @@ export function buildSourcePath(o: kpt.KubernetesObject): string {
  *
  * If an object is missing index annotation, default to using zero.
  */
-function compareSourceIndex(o1: kpt.KubernetesObject, o2: kpt.KubernetesObject): number {
+function compareSourceIndex(
+  o1: kpt.KubernetesObject,
+  o2: kpt.KubernetesObject
+): number {
   const i1 = Number(kpt.getAnnotation(o1, kpt.SOURCE_INDEX_ANNOTATION)) || 0;
   const i2 = Number(kpt.getAnnotation(o2, kpt.SOURCE_INDEX_ANNOTATION)) || 0;
   return i1 - i2;
