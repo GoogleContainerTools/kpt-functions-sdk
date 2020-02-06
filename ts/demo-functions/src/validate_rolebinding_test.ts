@@ -15,7 +15,11 @@
  */
 
 import { Configs, TestRunner, ConfigError } from 'kpt-functions';
-import { ClusterRoleBinding, RoleBinding, Subject } from './gen/io.k8s.api.rbac.v1';
+import {
+  ClusterRoleBinding,
+  RoleBinding,
+  Subject,
+} from './gen/io.k8s.api.rbac.v1';
 import { validateRolebinding } from './validate_rolebinding';
 import { ConfigMap } from './gen/io.k8s.api.core.v1';
 
@@ -26,7 +30,10 @@ const FUNC_CONFIG: ConfigMap = new ConfigMap({
 });
 
 describe(validateRolebinding.name, () => {
-  it('passes empty input', RUNNER.assertCallback(undefined, undefined, ConfigError));
+  it(
+    'passes empty input',
+    RUNNER.assertCallback(undefined, undefined, ConfigError)
+  );
 
   it(
     'passes valid RoleBindings',
@@ -38,9 +45,9 @@ describe(validateRolebinding.name, () => {
             kind: 'User',
           }),
         ],
-        FUNC_CONFIG,
-      ),
-    ),
+        FUNC_CONFIG
+      )
+    )
   );
 
   it(
@@ -53,12 +60,12 @@ describe(validateRolebinding.name, () => {
             kind: 'User',
           }),
         ],
-        FUNC_CONFIG,
+        FUNC_CONFIG
       ),
       undefined,
       undefined,
-      /Found RoleBindings with banned subjects/,
-    ),
+      /Found RoleBindings with banned subjects/
+    )
   );
 
   it(
@@ -81,9 +88,9 @@ describe(validateRolebinding.name, () => {
             ],
           }),
         ],
-        FUNC_CONFIG,
-      ),
-    ),
+        FUNC_CONFIG
+      )
+    )
   );
 });
 
@@ -95,6 +102,6 @@ function roleBinding(name: string, ...subjects: Subject[]): RoleBinding {
       kind: 'Role',
       name: 'alice',
     },
-    subjects: subjects,
+    subjects,
   });
 }

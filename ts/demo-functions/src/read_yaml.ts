@@ -35,7 +35,8 @@ export const FILTER_IVNALID = 'filter_invalid';
 export async function readYaml(configs: Configs) {
   // Get the parameters.
   const sourceDir = configs.getFunctionConfigValueOrThrow(SOURCE_DIR);
-  const ignoreInvalid = configs.getFunctionConfigValue(FILTER_IVNALID) === 'true';
+  const ignoreInvalid =
+    configs.getFunctionConfigValue(FILTER_IVNALID) === 'true';
 
   // Discard any input objects since this is a source function.
   configs.deleteAll();
@@ -45,14 +46,14 @@ export async function readYaml(configs: Configs) {
 
   // Parse each file and convert it to a KubernetesObject.
   const errors: ConfigError[] = files
-    .map((f) => parseFile(configs, sourceDir, f, ignoreInvalid))
-    .filter((err) => err !== undefined)
-    .map((err) => err as ConfigError);
+    .map(f => parseFile(configs, sourceDir, f, ignoreInvalid))
+    .filter(err => err !== undefined)
+    .map(err => err as ConfigError);
 
   if (errors.length) {
     throw new MultiConfigError(
       `Found files containing invalid objects. To filter invalid objects set ${FILTER_IVNALID} to 'true'.`,
-      errors,
+      errors
     );
   }
 }
@@ -79,20 +80,22 @@ function parseFile(
   configs: Configs,
   sourceDir: string,
   file: string,
-  ignoreInvalid: boolean,
+  ignoreInvalid: boolean
 ): ConfigError | undefined {
   const contents = readFileOrThrow(file);
   let objects = safeLoadAll(contents);
 
   // Filter for objects that are not KubernetesObject. This is conditional on 'ignoreValid' parameter.
-  const invalidObjects: object[] = objects.filter((o) => !isKubernetesObject(o));
+  const invalidObjects: object[] = objects.filter(o => !isKubernetesObject(o));
   if (invalidObjects.length) {
     if (ignoreInvalid) {
-      objects = objects.filter((o) => isKubernetesObject(o));
+      objects = objects.filter(o => isKubernetesObject(o));
     } else {
       return new ConfigFileError(
-        `File contains invalid Kubernetes objects '${JSON.stringify(invalidObjects)}'`,
-        file,
+        `File contains invalid Kubernetes objects '${JSON.stringify(
+          invalidObjects
+        )}'`,
+        file
       );
     }
   }

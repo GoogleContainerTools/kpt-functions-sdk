@@ -22,8 +22,8 @@ export async function mutatePsp(configs: Configs) {
   // the 'allowPrivilegeEscalation' field is not to 'false', set the field to false.
   configs
     .get(isPodSecurityPolicy)
-    .filter((psp) => psp.spec && psp.spec.allowPrivilegeEscalation !== false)
-    .forEach((psp) => (psp!.spec!.allowPrivilegeEscalation = false));
+    .filter(psp => psp.spec && psp.spec.allowPrivilegeEscalation !== false)
+    .forEach(psp => (psp!.spec!.allowPrivilegeEscalation = false));
 }
 
 mutatePsp.usage = `
