@@ -19,27 +19,8 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
       - run: gcloud auth configure-docker
       - name: Mirror kpt-functions images
-        env:
-          PROJECT_ID: kpt-functions
         run: |
-          declare -A kptFunctionsImages=(["read-yaml"]="read-yaml" ["write-yaml"]="write-yaml" ["gatekeeper-validate"]="policy-controller-validate")
-          for image in ${!kptFunctionsImages[@]}; do
-            docker pull gcr.io/${PROJECT_ID}/${image}:latest
-            docker tag gcr.io/${PROJECT_ID}/${image}:latest gcr.io/config-management-release/${kptFunctionsImages[$image]}:latest
-            docker tag gcr.io/${PROJECT_ID}/${image}:latest gcr.io/config-management-release/${kptFunctionsImages[$image]}:stable
-            docker push gcr.io/config-management-release/${kptFunctionsImages[$image]}:latest
-            docker push gcr.io/config-management-release/${kptFunctionsImages[$image]}:stable
-          done
+          ./scripts/mirrorImages.sh kpt-functions (["read-yaml"]="read-yaml" ["write-yaml"]="write-yaml" ["gatekeeper-validate"]="policy-controller-validate")
       - name: Mirror kpt-dev images
-        env:
-          PROJECT_ID: kpt-dev
         run: |
-          declare -A kptDevImages=(["kpt"]="kpt")
-          for image in ${!kptDevImages[@]}; do
-            docker pull gcr.io/${PROJECT_ID}/${image}:latest
-            docker tag gcr.io/${PROJECT_ID}/${image}:latest gcr.io/config-management-release/${kptDevImages[$image]}:latest
-            docker tag gcr.io/${PROJECT_ID}/${image}:latest gcr.io/config-management-release/${kptDevImages[$image]}:stable
-            docker push gcr.io/config-management-release/${kptDevImages[$image]}:latest
-            docker push gcr.io/config-management-release/${kptDevImages[$image]}:stable
-          done
-
+          ./scripts/mirrorImages.sh kpt-dev (["kpt"]="kpt")
