@@ -20,6 +20,7 @@ jobs:
       - run: gcloud auth configure-docker
       - name: Mirror kpt-functions images
         run: |
+          chmod +x ./scripts/mirrorImages.sh
           ./scripts/mirrorImages.sh kpt-functions ["read-yaml"]="read-yaml" ["write-yaml"]="write-yaml" ["gatekeeper-validate"]="policy-controller-validate"
       - name: Mirror kpt-dev images
         run: |
