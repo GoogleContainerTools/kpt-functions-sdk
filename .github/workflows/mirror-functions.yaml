@@ -11,6 +11,8 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Set up gcloud
         uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
@@ -20,7 +22,6 @@ jobs:
       - run: gcloud auth configure-docker
       - name: Mirror kpt-functions images
         run: |
-          chmod +x ./scripts/mirrorImages.sh
           ./scripts/mirrorImages.sh kpt-functions ["read-yaml"]="read-yaml" ["write-yaml"]="write-yaml" ["gatekeeper-validate"]="policy-controller-validate"
       - name: Mirror kpt-dev images
         run: |
