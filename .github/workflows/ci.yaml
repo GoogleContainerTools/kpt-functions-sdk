@@ -61,7 +61,7 @@ jobs:
     - name: Check out code into GOPATH
       uses: actions/checkout@v1
       with:
-        path: go/src/github.com/${{ github.repository }}
+        path: go/src/github.com/GoogleContainerTools/kpt-functions-sdk
     - name: Build, Test, Lint
       run: |
         cd go
