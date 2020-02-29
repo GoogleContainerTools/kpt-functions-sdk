@@ -19,7 +19,7 @@ set -euo pipefail
 PKG=init-package
 
 # Fail if kind cluster generate-init-pkg already exists.
-if [[ $(kind get clusters | grep -w "generate-init-pkg") ]]
+if kind get clusters | grep -w "generate-init-pkg"
 then
   echo "Kind cluster generate-init-pkg already exists."
   echo "Delete the cluster with:"

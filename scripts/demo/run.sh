@@ -13,16 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# shellcheck disable=SC1091
 . demo-magic/demo-magic.sh
 
 EXAMPLE_CONFIGS="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"/../../example-configs
+# Unused variables left for configuring demo-magic
+# shellcheck disable=SC2034
 PROMPT_TIMEOUT=8
+# shellcheck disable=SC2034
 TAG=demo
+# shellcheck disable=SC2034
 NO_WAIT=true
 # Disable interative "less" behavior for e.g. git diff
 export GIT_PAGER=
 
-cd $(mktemp -d)
+cd "$(mktemp -d)" || exit
 git init
 
 stty rows 80 cols 15
@@ -34,7 +39,7 @@ clear
 
 p "# Fetch configs"
 p "kpt pkg get ${PKG} example-configs"
-cp -r ${EXAMPLE_CONFIGS} .
+cp -r "${EXAMPLE_CONFIGS}" .
 pe "git add . && git commit -m 'fetched example-configs'"
 
 clear

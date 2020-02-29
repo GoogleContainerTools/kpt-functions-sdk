@@ -18,4 +18,4 @@ set -xeuo pipefail
 VERSION=${1#*-v};
 
 cd go/.out
-gsutil cp *.tar.gz gs://kpt-functions/v${VERSION}
+gsutil cp -- *.tar.gz gs://kpt-functions/v"${VERSION}"
