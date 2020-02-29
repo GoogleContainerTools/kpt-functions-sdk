@@ -19,13 +19,13 @@ set -euo pipefail
 TAG=${TAG:-dev}
 FUNCS=(gatekeeper_validate)
 
-for f in ${FUNCS[@]}; do
-    image_name=$(echo $f | sed -e 's/_/-/g')
+for f in "${FUNCS[@]}"; do
+    image_name=${f//_/-}
     image=gcr.io/kpt-functions/${image_name}:${TAG}
     docker_file=/tmp/$image_name.Dockerfile
-    sed "s/\$FUNC/$f/g" build/func.Dockerfile > $docker_file
+    sed "s/\$FUNC/$f/g" build/func.Dockerfile > "$docker_file"
     set -x
-	docker build -t $image -f $docker_file .
-	docker push $image
+	docker build -t "$image" -f "$docker_file" .
+	docker push "$image"
     set +x
 done
