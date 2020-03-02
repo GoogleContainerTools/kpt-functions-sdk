@@ -64,7 +64,7 @@ The easiest way to get developing is to use `kind` to bring up a cluster running
 1. Create the cluster:
 
    ```sh
-   kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.15.9
+   kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.15.7
    ```
 
 #### Using a GKE cluster
