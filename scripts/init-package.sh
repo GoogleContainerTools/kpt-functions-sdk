@@ -26,7 +26,7 @@ then
   echo "kind delete cluster --name=generate-init-pkg"
 else
     # Use images from https://hub.docker.com/r/kindest/node/tags
-    kind create cluster --name=generate-init-pkg --config=scripts/kind-config.yaml --image=kindest/node:v1.15.9
+    kind create cluster --name=generate-init-pkg --config=scripts/kind-config.yaml --image=kindest/node:v1.15.7
     sleep 10 # Wait for cluster to become fully available. Potentially flaky.
 fi
 
