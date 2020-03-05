@@ -176,7 +176,7 @@ grep -qR 'color: orange' .
 
 testcase "kpt_helm_template_imperative_short"
 tmp_helm_charts=$(mktemp -d "/tmp/helm_charts.XXXXXXXX")
-git clone -q git@github.com:helm/charts.git "${tmp_helm_charts}"
+git clone -q https://github.com/helm/charts.git "${tmp_helm_charts}"
 kpt fn source . |
   docker run -i -v "${tmp_helm_charts}"/stable/redis:/source gcr.io/kpt-functions/helm-template chart_path=/source |
   kpt fn sink .

@@ -9,7 +9,7 @@ test_chart_dir=${curr_dir}/charts/stable/redis
 
 setup() {
   # Clone helm charts repository for example charts, fails if charts are already cloned
-  git clone -q git@github.com:helm/charts.git
+  git clone -q https://github.com/helm/charts.git
   docker build -t ${docker_image} -f ${profile_script} sh
 }
 
