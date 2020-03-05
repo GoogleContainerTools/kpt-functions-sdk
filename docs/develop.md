@@ -47,7 +47,7 @@ The easiest way to get developing is to use `kind` to bring up a cluster running
    apiVersion: kind.sigs.k8s.io/v1alpha3
    kubeadmConfigPatches:
    - |
-     apiVersion: kubeadm.k8s.io/v1beta1 # Use v1beta1 for 1.14, v1beta2 for 1.15+
+     apiVersion: kubeadm.k8s.io/v1beta2
      kind: ClusterConfiguration
      metadata:
        name: config
@@ -64,7 +64,7 @@ The easiest way to get developing is to use `kind` to bring up a cluster running
 1. Create the cluster:
 
    ```sh
-   kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.14.6
+   kind create cluster --name=kpt-functions --config=kind.yaml --image=kindest/node:v1.15.7
    ```
 
 #### Using a GKE cluster
@@ -73,8 +73,8 @@ You can also use a deployed cluster in GKE. The beta k8s feature is avilable onl
 `--enable-kubernetes-alpha` flag, as seen here:
 
 ```sh
-gcloud container clusters create $USER-1-14-alpha --enable-kubernetes-alpha --cluster-version=latest --no-enable-autoupgrade --region=us-central1-a --project <PROJECT>
-gcloud container clusters get-credentials $USER-1-14-alpha --zone us-central1-a --project <PROJECT>
+gcloud container clusters create $USER-1-15 --cluster-version=latest --region=us-central1-a --project <PROJECT>
+gcloud container clusters get-credentials $USER-1-15 --zone us-central1-a --project <PROJECT>
 ```
 
 ### Working with CRDs
