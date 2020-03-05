@@ -174,6 +174,15 @@ testcase "kpt_label_namespace_imperative_short"
 kpt fn run --image gcr.io/kpt-functions/label-namespace:${TAG} . -- label_name=color label_value=orange
 grep -qR 'color: orange' .
 
+testcase "kpt_helm_template_imperative_short"
+tmp_helm_charts=$(mktemp -d "/tmp/helm_charts.XXXXXXXX")
+git clone -q git@github.com:helm/charts.git "${tmp_helm_charts}"
+kpt fn source . |
+  docker run -i -v "${tmp_helm_charts}"/stable/redis:/source gcr.io/kpt-functions/helm-template chart_path=/source |
+  kpt fn sink .
+rm -rf "${tmp_helm_charts}"
+grep -qR 'name: RELEASE-NAME-redis' .
+
 testcase "kpt_label_namespace_declarative"
 cat <<EOF >kpt-func.yaml
 apiVersion: v1

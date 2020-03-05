@@ -10,7 +10,7 @@ setup() {
   command -v helm >/dev/null 2>&1 || { echo >&2 "I require helm but it's not installed.  Aborting."; exit 1; }
 
   # Clone helm charts repository for example charts, fails if charts are already cloned
-  git clone git@github.com:helm/charts.git
+  git clone -q git@github.com:helm/charts.git
 }
 
 teardown() {
