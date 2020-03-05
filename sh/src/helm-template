@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+#
+# Render chart templates locally using helm template. Display the output objects as a Kubernetes List.
+
+set -eo pipefail
+
+CHART_PATH="chart_path"
+USAGE=$(cat << END
+Render chart templates locally using helm template. Display the output objects
+as a Kubernetes List. If piped a Kubernetes List in addition to a ${CHART_PATH}
+argument then render the chart objects into the piped list, overwriting any
+chart objects that already exist in the list.
+
+Configured using a ConfigMap with the following keys:
+
+${CHART_PATH}: Relative path to helm chart.
+
+Example:
+
+To expand a chart at '../path/to/helm/chart':
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/helm-template
+    config.kubernetes.io/local-config: "true"
+data:
+  ${CHART_PATH}: ../path/to/helm/chart
+END
+)
+
+err() {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+}
+
+read_arguments() {
+  if [[ $# -eq 0 ]] ; then
+    err "Missing 'data.${CHART_PATH}' in ConfigMap provided as functionConfig"
+    exit 1
+  fi
+
+  for arg in "$@"; do
+    case $arg in
+      "${CHART_PATH}="*) chartPath="${arg#*=}" ;;
+      *)
+        err "${USAGE}"
+        exit 1
+        ;;
+    esac
+  done
+}
+
+create_tmp() {
+  tmp=$(mktemp -d "/tmp/helm-template.XXXXXXXX")
+  # If there is input through stdin then write it to tmp
+  if [[ ! -t 0 ]]; then
+    cat "-" | kpt fn sink "$tmp"
+  fi
+}
+
+delete_tmp() {
+  rm -rf "$tmp"
+}
+
+expand_helm() {
+  # Overwrite files if they exist
+  # `helm template` has no --quiet option so store output in a variable
+  # TODO: Verify helmOutput only contains lines like "wrote /tmp/helm-template.GSvWefU0/redis/templates/configmap.yaml"
+  # shellcheck disable=SC2034
+  helmOutput="$(helm template "$chartPath" --output-dir "$tmp")"
+  kpt fn source "$tmp"
+}
+
+run_main() {
+  read_arguments "$@"
+  create_tmp
+  expand_helm
+  delete_tmp
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
+then
+  run_main "$@"
+fi
