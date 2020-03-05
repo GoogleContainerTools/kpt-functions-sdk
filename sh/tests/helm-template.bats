@@ -17,44 +17,44 @@ teardown() {
   rm -rf charts
 }
 
-@test "read_arguments outputs error message if no arguments are provided" {
+@test "read_arguments outputs usage if too few arguments are provided" {
   run setup
   source ${profile_script}
   run read_arguments
-  assert_output --partial "Missing 'data.chart_path' in ConfigMap provided as functionConfig"
-  run teardown
-}
-
-@test "read_arguments outputs usage if more than one argument is provided" {
-  run setup
-  source ${profile_script}
-  run read_arguments chart_path=./charts/stable/redis lots of extra arguments
   assert_output --partial "Render chart templates locally using helm template."
   run teardown
 }
 
-@test "read arguments successful if chart_path argument is provided" {
+@test "read_arguments outputs usage if too many arguments are provided" {
   run setup
   source ${profile_script}
-  run read_arguments chart_path=./charts/stable/redis
+  run read_arguments chart_path=./charts/stable/redis name=my-redis extra args
+  assert_output --partial "Render chart templates locally using helm template."
+  run teardown
+}
+
+@test "read arguments successful if correct arguments are provided" {
+  run setup
+  source ${profile_script}
+  run read_arguments chart_path=./charts/stable/redis name=my-redis
   assert_success
   run teardown
 }
 
-@test "helm-template successful if chart_path argument is provided" {
+@test "helm-template successful if correct arguments are provided" {
   run setup
   source ${profile_script}
-  run ${profile_script} chart_path=charts/stable/redis
-  assert_output --partial "redis"
+  run ${profile_script} chart_path=charts/stable/redis name=my-redis
+  assert_output --partial "my-redis"
   assert_success
   run teardown
 }
 
-@test "helm-template successful if stdin and chart_path argument are provided" {
+@test "helm-template successful if stdin and correct arguments are provided" {
   run setup
-  run bash -c "${profile_script} chart_path=charts/stable/mongodb | ${profile_script} chart_path=charts/stable/redis"
-  assert_output --partial "mongodb"
-  assert_output --partial "redis"
+  run bash -c "${profile_script} chart_path=charts/stable/mongodb name=my-mongodb | ${profile_script} chart_path=charts/stable/redis name=my-redis"
+  assert_output --partial "my-mongodb"
+  assert_output --partial "my-redis"
   assert_success
   run teardown
 }

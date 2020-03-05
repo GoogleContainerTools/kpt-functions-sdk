@@ -178,10 +178,10 @@ testcase "kpt_helm_template_imperative_short"
 tmp_helm_charts=$(mktemp -d "/tmp/helm_charts.XXXXXXXX")
 git clone -q https://github.com/helm/charts.git "${tmp_helm_charts}"
 kpt fn source . |
-  docker run -i -v "${tmp_helm_charts}"/stable/redis:/source gcr.io/kpt-functions/helm-template chart_path=/source |
+  docker run -i -v "${tmp_helm_charts}"/stable/redis:/source gcr.io/kpt-functions/helm-template chart_path=/source name=my-redis |
   kpt fn sink .
 rm -rf "${tmp_helm_charts}"
-grep -qR 'name: RELEASE-NAME-redis' .
+grep -qR 'name: my-redis' .
 
 testcase "kpt_label_namespace_declarative"
 cat <<EOF >kpt-func.yaml

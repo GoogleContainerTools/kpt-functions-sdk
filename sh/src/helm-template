@@ -4,20 +4,22 @@
 
 set -eo pipefail
 
+NAME="name"
 CHART_PATH="chart_path"
 USAGE=$(cat << END
 Render chart templates locally using helm template. Display the output objects
-as a Kubernetes List. If piped a Kubernetes List in addition to a ${CHART_PATH}
-argument then render the chart objects into the piped list, overwriting any
-chart objects that already exist in the list.
+as a Kubernetes List. If piped a Kubernetes List in addition to ${NAME} and
+${CHART_PATH} arguments then render the chart objects into the piped list,
+overwriting any chart objects that already exist in the list.
 
 Configured using a ConfigMap with the following keys:
 
+${NAME}: Name of helm chart.
 ${CHART_PATH}: Relative path to helm chart.
 
 Example:
 
-To expand a chart at '../path/to/helm/chart':
+To expand a chart named 'my-chart' at '../path/to/helm/chart':
 
 apiVersion: v1
 kind: ConfigMap
@@ -29,6 +31,7 @@ metadata:
         image:  gcr.io/kpt-functions/helm-template
     config.kubernetes.io/local-config: "true"
 data:
+  ${NAME}: my-chart
   ${CHART_PATH}: ../path/to/helm/chart
 END
 )
@@ -38,13 +41,14 @@ err() {
 }
 
 read_arguments() {
-  if [[ $# -eq 0 ]] ; then
-    err "Missing 'data.${CHART_PATH}' in ConfigMap provided as functionConfig"
+  if [[ $# -le 1 ]] ; then
+    err "${USAGE}"
     exit 1
   fi
 
   for arg in "$@"; do
     case $arg in
+      "${NAME}="*) name="${arg#*=}" ;;
       "${CHART_PATH}="*) chartPath="${arg#*=}" ;;
       *)
         err "${USAGE}"
@@ -71,7 +75,7 @@ expand_helm() {
   # `helm template` has no --quiet option so store output in a variable
   # TODO: Verify helmOutput only contains lines like "wrote /tmp/helm-template.GSvWefU0/redis/templates/configmap.yaml"
   # shellcheck disable=SC2034
-  helmOutput="$(helm template "$chartPath" --output-dir "$tmp")"
+  helmOutput="$(helm template "$name" "$chartPath" --output-dir "$tmp")"
   kpt fn source "$tmp"
 }
 
