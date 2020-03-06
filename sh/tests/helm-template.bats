@@ -3,6 +3,7 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 
 profile_script="./sh/src/helm-template"
+test_chart_dir="./charts/stable/redis"
 
 setup() {
   # Require binaries in $PATH to run helm transform script
@@ -28,7 +29,7 @@ teardown() {
 @test "read_arguments outputs usage if too many arguments are provided" {
   run setup
   source ${profile_script}
-  run read_arguments chart_path=./charts/stable/redis name=my-redis extra args
+  run read_arguments chart_path=${test_chart_dir} name=my-redis extra args
   assert_output --partial "Render chart templates locally using helm template."
   run teardown
 }
@@ -36,7 +37,15 @@ teardown() {
 @test "read arguments successful if correct arguments are provided" {
   run setup
   source ${profile_script}
-  run read_arguments chart_path=./charts/stable/redis name=my-redis
+  run read_arguments chart_path=${test_chart_dir} name=my-redis
+  assert_success
+  run teardown
+}
+
+@test "read arguments successful if values path is provided" {
+  run setup
+  source ${profile_script}
+  run read_arguments chart_path=${test_chart_dir} name=my-redis values_path=${test_chart_dir}/values-production.yaml
   assert_success
   run teardown
 }
@@ -52,7 +61,7 @@ teardown() {
 
 @test "helm-template successful if stdin and correct arguments are provided" {
   run setup
-  run bash -c "${profile_script} chart_path=charts/stable/mongodb name=my-mongodb | ${profile_script} chart_path=charts/stable/redis name=my-redis"
+  run bash -c "${profile_script} chart_path=./charts/stable/mongodb name=my-mongodb | ${profile_script} chart_path=${test_chart_dir} name=my-redis"
   assert_output --partial "my-mongodb"
   assert_output --partial "my-redis"
   assert_success

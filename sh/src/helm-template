@@ -6,20 +6,22 @@ set -eo pipefail
 
 NAME="name"
 CHART_PATH="chart_path"
+VALUES_PATH="values_path"
 USAGE=$(cat << END
 Render chart templates locally using helm template. Display the output objects
-as a Kubernetes List. If piped a Kubernetes List in addition to ${NAME} and
-${CHART_PATH} arguments then render the chart objects into the piped list,
-overwriting any chart objects that already exist in the list.
+as a Kubernetes List. If piped a Kubernetes List in addition to arguments then
+render the chart objects into the piped list, overwriting any chart objects
+that already exist in the list.
 
 Configured using a ConfigMap with the following keys:
 
 ${NAME}: Name of helm chart.
-${CHART_PATH}: Relative path to helm chart.
+${CHART_PATH}: Chart templates directory.
+${VALUES_PATH}: [Optional] Path to values.yaml. Defaults to ${CHART_PATH}/values.yaml.
 
 Example:
 
-To expand a chart named 'my-chart' at '../path/to/helm/chart':
+To expand a chart named 'my-chart' at '../path/to/helm/chart' using './values.yaml':
 
 apiVersion: v1
 kind: ConfigMap
@@ -33,6 +35,7 @@ metadata:
 data:
   ${NAME}: my-chart
   ${CHART_PATH}: ../path/to/helm/chart
+  ${VALUES_PATH}: ./values.yaml
 END
 )
 
@@ -50,12 +53,17 @@ read_arguments() {
     case $arg in
       "${NAME}="*) name="${arg#*=}" ;;
       "${CHART_PATH}="*) chartPath="${arg#*=}" ;;
+      "${VALUES_PATH}="*) valuesPath="${arg#*=}" ;;
       *)
         err "${USAGE}"
         exit 1
         ;;
     esac
   done
+
+  if [[ -z $valuesPath ]]; then
+    valuesPath="${chartPath}/values.yaml"
+  fi
 }
 
 create_tmp() {
@@ -72,10 +80,10 @@ delete_tmp() {
 
 expand_helm() {
   # Overwrite files if they exist
-  # `helm template` has no --quiet option so store output in a variable
-  # TODO: Verify helmOutput only contains lines like "wrote /tmp/helm-template.GSvWefU0/redis/templates/configmap.yaml"
-  # shellcheck disable=SC2034
-  helmOutput="$(helm template "$name" "$chartPath" --output-dir "$tmp")"
+  if ! output="$(helm template "${name}" "${chartPath}" -f "${valuesPath}" --output-dir "${tmp}" )"; then
+    err "Helm template error: ${output}"
+    exit 1
+  fi
   kpt fn source "$tmp"
 }
 

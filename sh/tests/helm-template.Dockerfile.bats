@@ -40,7 +40,8 @@ teardown() {
 
 @test "helm-template docker image successful if stdin and correct arguments are provided" {
   run setup
-  run bash -c "docker run -v ${curr_dir}/charts/stable/mongodb:/source ${docker_image} chart_path=/source name=my-mongodb | docker run -i -v ${test_chart_dir}:/source ${docker_image} chart_path=/source name=my-redis"
+  run bash -c "docker run -v ${curr_dir}/charts/stable/mongodb:/source ${docker_image} chart_path=/source name=my-mongodb |
+    docker run -i -v ${test_chart_dir}:/source ${docker_image} chart_path=/source name=my-redis"
   assert_output --partial "my-mongodb"
   assert_output --partial "my-redis"
   assert_success
