@@ -183,7 +183,7 @@ metadata:
   annotations:
     config.k8s.io/function: |
       container:
-        image:  gcr.io/kpt-functions/label-namespace:"${TAG}"
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
     config.kubernetes.io/local-config: "true"
 data:
   label_name: color
@@ -201,7 +201,7 @@ metadata:
   annotations:
     config.k8s.io/function: |
       container:
-        image:  gcr.io/kpt-functions/label-namespace:"${TAG}"
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
     config.kubernetes.io/local-config: "true"
 data:
   label_name: color
@@ -215,7 +215,7 @@ metadata:
   annotations:
     config.k8s.io/function: |
       container:
-        image:  gcr.io/kpt-functions/label-namespace:"${TAG}"
+        image:  gcr.io/kpt-functions/label-namespace:${TAG}
     config.kubernetes.io/local-config: "true"
 data:
   label_name: city

@@ -17,7 +17,6 @@
 ########################
 # include the magic
 ########################
-# shellcheck disable=SC1091
 . ../demo-magic.sh
 
 
@@ -35,8 +34,6 @@
 #
 # see http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-escape-sequences.html for escape sequences
 #
-# Unused variables left for configuring demo-magic
-# shellcheck disable=SC2034
 DEMO_PROMPT="${GREEN}➜ ${CYAN}\W "
 
 # hide the evidence

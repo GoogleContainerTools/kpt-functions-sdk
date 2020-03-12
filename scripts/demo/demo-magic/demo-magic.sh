@@ -25,18 +25,13 @@ SHOW_CMD_NUMS=false
 
 
 # handy color vars for pretty prompts
-# shellcheck disable=SC2034
 BLACK="\033[0;30m"
 BLUE="\033[0;34m"
-# shellcheck disable=SC2034
 GREEN="\033[0;32m"
-# shellcheck disable=SC2034
 GREY="\033[0;90m"
 CYAN="\033[0;36m"
 RED="\033[0;31m"
-# shellcheck disable=SC2034
 PURPLE="\033[0;35m"
-# shellcheck disable=SC2034
 BROWN="\033[0;33m"
 WHITE="\033[1;37m"
 COLOR_RESET="\033[0m"
@@ -91,30 +86,28 @@ function p() {
   fi
 
   # render the prompt
-  # Keep sed regex
-  # shellcheck disable=SC2016
   x=$(PS1="$DEMO_PROMPT" "$BASH" --norc -i </dev/null 2>&1 | sed -n '${s/^\(.*\)exit$/\1/p;}')
 
   # show command number is selected
   if $SHOW_CMD_NUMS; then
-   printf "[%d] %s" "$((++C_NUM))" "$x"
+   printf "[$((++C_NUM))] $x"
   else
-   printf "%s" "$x"
+   printf "$x"
   fi
 
   # wait for the user to press a key before typing the command
-  if ! ($NO_WAIT); then
+  if !($NO_WAIT); then
     wait
   fi
 
   if [[ -z $TYPE_SPEED ]]; then
     echo -en "$cmd"
   else
-    echo -en "$cmd" | pv -qL $((TYPE_SPEED+(-2 + RANDOM%5)));
+    echo -en "$cmd" | pv -qL $[$TYPE_SPEED+(-2 + RANDOM%5)];
   fi
 
   # wait for the user to press a key before moving on
-  if ! ($NO_WAIT); then
+  if !($NO_WAIT); then
     wait
   fi
   echo ""
@@ -146,11 +139,9 @@ function pe() {
 ##
 function cmd() {
   # render the prompt
-  # Keep sed regex as-is
-  # shellcheck disable=SC2016
   x=$(PS1="$DEMO_PROMPT" "$BASH" --norc -i </dev/null 2>&1 | sed -n '${s/^\(.*\)exit$/\1/p;}')
-  printf "%s\033[0m" "$x"
-  read -r command
+  printf "$x\033[0m"
+  read command
   eval "${command}"
 }
 
@@ -196,10 +187,6 @@ while getopts ":dhncw:" opt; do
       ;;
     w)
       PROMPT_TIMEOUT=$OPTARG
-      ;;
-    *)
-      usage
-      exit 1
       ;;
   esac
 done
