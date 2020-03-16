@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Lint shell scripts, ignoring third-party files
       run: |
-        find . | grep -e "\.sh$" | grep -v vendor | grep -v node_modules | grep -v demo/demo-magic > shell_files.out
+        find . -name "*.sh" | grep -v vendor | grep -v node_modules | grep -v demo/demo-magic > shell_files.out
         shellcheck $(cat shell_files.out)  
 
   node-ci:
