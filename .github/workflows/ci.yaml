@@ -11,6 +11,18 @@ on:
     - cron:  '0 17 * * *'
 
 jobs:
+  shell-ci:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - uses: actions/checkout@v1
+    - name: Lint shell scripts, ignoring third-party files
+      run: |
+        find . -name "*.sh" | grep -v vendor | grep -v node_modules | grep -v demo/demo-magic > shell_files.out
+        shellcheck $(cat shell_files.out)  
+
   node-ci:
     strategy:
       matrix:
@@ -29,7 +41,7 @@ jobs:
         cd ts/${{ matrix.package }}
         npm ci
         npm test
-    - name: Check linceses
+    - name: Check licenses
       if: matrix.package == 'kpt-functions' || 
           matrix.package == 'create-kpt-functions' || 
           matrix.package == 'demo-functions'
