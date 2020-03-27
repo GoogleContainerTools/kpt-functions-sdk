@@ -1,7 +1,9 @@
 baseURL = "https://googlecontainertools.github.io/kpt-functions-sdk/"
-title = "Kpt Functions"
+title = "Kpt Functions SDK"
+
 
 publishDir = "../docs"
+relativeurls = false
 
 enableRobotsTXT = true
 
