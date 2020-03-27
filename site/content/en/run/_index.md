@@ -311,7 +311,7 @@ You should see the following changes:
 [concept-pipeline]: ../concepts#pipeline
 [catalog]: https://googlecontainertools.github.io/kpt-functions-catalog/
 [label-namespace]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/hello-world/src/label_namespace.ts
-[download-kpt]: https://github.com/GoogleContainerTools/kpt
+[download-kpt]: https://pwittrock.github.io/kpt/installation/
 [cloud-build]: https://cloud.google.com/cloud-build/
 [tekton]: https://cloud.google.com/tekton/
 [argo]: https://github.com/argoproj/argo
