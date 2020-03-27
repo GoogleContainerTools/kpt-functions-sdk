@@ -6,17 +6,6 @@ weight: 2
 
 This guide will walk you through developing a KPT function using the Typescript SDK.
 
-<!-- toc -->
-
-- [Setup](#setup)
-- [Create the NPM package](#create-the-npm-package)
-- [Implement the function](#implement-the-function)
-- [Build and push container images](#build-and-push-container-images)
-- [Use the SDK CLI](#use-the-sdk-cli)
-- [Next Steps](#next-steps)
-
-<!-- tocstop -->
-
 ## Setup
 
 ### System Requirements

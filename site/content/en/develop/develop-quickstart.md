@@ -78,6 +78,6 @@ Currently supported platforms: amd64 Linux/Mac
 [download-node]: https://nodejs.org/en/download/
 [install-node]: https://github.com/nodejs/help/wiki/Installation
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
-[download-kpt]: https://github.com/GoogleContainerTools/kpt
+[download-kpt]: https://googlecontainertools.github.io/kpt/installation/
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
 [api-kptfunc]: https://googlecontainertools.github.io/kpt-functions-sdk/docs/api/interfaces/_types_.kptfunc.html
