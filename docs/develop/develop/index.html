@@ -26,12 +26,12 @@ Setup System Requirements Currently supported platforms: amd64 Linux/Mac
 Setting Up Your Local Environment  Install node  The SDK requires npm version 6 or higher. If installing node from binaries (i.e. without a package manager), follow these installation instructions.   Install docker  Your Kubernetes Cluster For the type generation functionality to work, you need a Kubernetes cluster with the CRD OpenAPI Publishing feature which is beta with Kubernetes 1." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://googlecontainertools.github.io/kpt-functions-sdk/develop/develop/" />
-<meta property="article:modified_time" content="2020-03-26T19:10:44-07:00" /><meta property="og:site_name" content="Kpt Functions SDK" />
+<meta property="article:modified_time" content="2020-03-26T19:18:35-07:00" /><meta property="og:site_name" content="Kpt Functions SDK" />
 <meta itemprop="name" content="Complete User Guide">
 <meta itemprop="description" content="This guide will walk you through developing a KPT function using the Typescript SDK.
 Setup System Requirements Currently supported platforms: amd64 Linux/Mac
 Setting Up Your Local Environment  Install node  The SDK requires npm version 6 or higher. If installing node from binaries (i.e. without a package manager), follow these installation instructions.   Install docker  Your Kubernetes Cluster For the type generation functionality to work, you need a Kubernetes cluster with the CRD OpenAPI Publishing feature which is beta with Kubernetes 1.">
-<meta itemprop="dateModified" content="2020-03-26T19:10:44-07:00" />
+<meta itemprop="dateModified" content="2020-03-26T19:18:35-07:00" />
 <meta itemprop="wordCount" content="785">
 
 
@@ -360,7 +360,7 @@ including the <code>create-kpt-functions</code> CLI discussed later in the <code
 <h2 id="implement-the-function">Implement the function</h2>
 <p>You can now start implementing the function using your favorite IDE, e.g. <a href="https://code.visualstudio.com/">VSCode</a>:</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">code .
-</code></pre></div><p>In <code>src/my_func.ts</code>, implement the <code>KptFunc</code> interface <a href="https://googlecontainertools.github.io/kpt-functions-sdk/docs/api/interfaces/_types_.kptfunc.html">documented here</a>.</p>
+</code></pre></div><p>In <code>src/my_func.ts</code>, implement the <code>KptFunc</code> interface <a href="https://googlecontainertools.github.io/kpt-functions-sdk/api/interfaces/_types_.kptfunc.html">documented here</a>.</p>
 <p>Take a look at <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src">these example functions</a> to better understand how to use
 <code>kpt-functions</code> library. These functions are available as container images documented in the <a href="https://googlecontainertools.github.io/kpt-functions-catalog/">catalog</a>.</p>
 <p>Once you&rsquo;ve written some code, build the package with:</p>
@@ -409,7 +409,7 @@ when building a container image:</p>
 
 	
 	
-	<div class="text-muted mt-5 pt-3 border-top">Last modified March 26, 2020: <a  href="https://github.com/GoogleContainerTools/kpt-functions-sdk/commit/433f3f4a9c6d2c31074fe48ecb574b3be3554d98">Minor doc sites changes. (433f3f4)</a>
+	<div class="text-muted mt-5 pt-3 border-top">Last modified March 26, 2020: <a  href="https://github.com/GoogleContainerTools/kpt-functions-sdk/commit/da23d25ce2cc8a2f9886e26ab76168f6124e7993">Minor doc sites changes. (#129) (da23d25)</a>
 </div>
 </div>
 

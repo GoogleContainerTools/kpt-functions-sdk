@@ -80,4 +80,4 @@ Currently supported platforms: amd64 Linux/Mac
 [install-docker]: https://docs.docker.com/v17.09/engine/installation
 [download-kpt]: https://googlecontainertools.github.io/kpt/installation/
 [demo-funcs]: https://github.com/GoogleContainerTools/kpt-functions-sdk/tree/master/ts/demo-functions/src
-[api-kptfunc]: https://googlecontainertools.github.io/kpt-functions-sdk/docs/api/interfaces/_types_.kptfunc.html
+[api-kptfunc]: https://googlecontainertools.github.io/kpt-functions-sdk/api/interfaces/_types_.kptfunc.html
