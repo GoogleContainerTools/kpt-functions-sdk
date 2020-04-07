@@ -57,7 +57,7 @@
   name = "github.com/open-policy-agent/frameworks"
 
 [[override]]
-  revision = "v0.17.2"
+  version = "v0.17.2"
   name = "github.com/open-policy-agent/opa"
 
 [prune]
