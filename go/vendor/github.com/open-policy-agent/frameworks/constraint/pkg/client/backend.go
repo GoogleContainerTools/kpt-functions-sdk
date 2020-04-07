@@ -2,9 +2,11 @@ package client
 
 import (
 	"context"
-	"errors"
 
 	"github.com/open-policy-agent/frameworks/constraint/pkg/client/drivers"
+	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type Backend struct {
@@ -24,7 +26,11 @@ func Driver(d drivers.Driver) BackendOpt {
 // NewBackend creates a new backend. A backend could be a connection to a remote server or
 // a new local OPA instance.
 func NewBackend(opts ...BackendOpt) (*Backend, error) {
-	b := &Backend{crd: newCRDHelper()}
+	helper, err := newCRDHelper()
+	if err != nil {
+		return nil, err
+	}
+	b := &Backend{crd: helper}
 	for _, opt := range opts {
 		opt(b)
 	}
@@ -37,7 +43,7 @@ func NewBackend(opts ...BackendOpt) (*Backend, error) {
 }
 
 // NewClient creates a new client for the supplied backend
-func (b *Backend) NewClient(opts ...ClientOpt) (Client, error) {
+func (b *Backend) NewClient(opts ...Opt) (*Client, error) {
 	if b.hasClient {
 		return nil, errors.New("Currently only one client per backend is supported")
 	}
@@ -45,9 +51,10 @@ func (b *Backend) NewClient(opts ...ClientOpt) (Client, error) {
 	for k := range validDataFields {
 		fields = append(fields, k)
 	}
-	c := &client{
+	c := &Client{
 		backend:           b,
-		constraints:       make(map[string]*constraintEntry),
+		constraints:       make(map[schema.GroupKind]map[string]*unstructured.Unstructured),
+		templates:         make(map[templateKey]*templateEntry),
 		allowedDataFields: fields,
 	}
 	var errs Errors
@@ -56,10 +63,14 @@ func (b *Backend) NewClient(opts ...ClientOpt) (Client, error) {
 			errs = append(errs, err)
 		}
 	}
+	for _, field := range c.allowedDataFields {
+		if !validDataFields[field] {
+			return nil, errors.Errorf("Invalid data field %s", field)
+		}
+	}
 	if len(errs) > 0 {
 		return nil, errs
 	}
-	c.rConformer = newRegoConformer(c.allowedDataFields)
 	if len(c.targets) == 0 {
 		return nil, errors.New("No targets registered. Please register a target via client.Targets()")
 	}

@@ -15,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	apivalidation "k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 )
 
 var supportedVersions = map[string]bool{
@@ -64,10 +65,12 @@ type crdHelper struct {
 	scheme *runtime.Scheme
 }
 
-func newCRDHelper() *crdHelper {
+func newCRDHelper() (*crdHelper, error) {
 	scheme := runtime.NewScheme()
-	apiextensionsv1beta1.AddToScheme(scheme)
-	return &crdHelper{scheme: scheme}
+	if err := apiextensionsv1beta1.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+	return &crdHelper{scheme: scheme}, nil
 }
 
 // createCRD takes a template and a schema and converts it to a CRD
@@ -78,16 +81,24 @@ func (h *crdHelper) createCRD(
 		Spec: apiextensions.CustomResourceDefinitionSpec{
 			Group: constraintGroup,
 			Names: apiextensions.CustomResourceDefinitionNames{
-				Kind:     templ.Spec.CRD.Spec.Names.Kind,
-				ListKind: templ.Spec.CRD.Spec.Names.Kind + "List",
-				Plural:   strings.ToLower(templ.Spec.CRD.Spec.Names.Kind),
-				Singular: strings.ToLower(templ.Spec.CRD.Spec.Names.Kind),
+				Kind:       templ.Spec.CRD.Spec.Names.Kind,
+				ListKind:   templ.Spec.CRD.Spec.Names.Kind + "List",
+				Plural:     strings.ToLower(templ.Spec.CRD.Spec.Names.Kind),
+				Singular:   strings.ToLower(templ.Spec.CRD.Spec.Names.Kind),
+				ShortNames: templ.Spec.CRD.Spec.Names.ShortNames,
+				Categories: []string{
+					"constraint",
+				},
 			},
 			Validation: &apiextensions.CustomResourceValidation{
 				OpenAPIV3Schema: schema,
 			},
 			Scope:   "Cluster",
 			Version: v1beta1.SchemeGroupVersion.Version,
+			Subresources: &apiextensions.CustomResourceSubresources{
+				Status: &apiextensions.CustomResourceSubresourceStatus{},
+				Scale:  nil,
+			},
 			Versions: []apiextensions.CustomResourceDefinitionVersion{
 				{
 					Name:    v1beta1.SchemeGroupVersion.Version,
@@ -118,7 +129,7 @@ func (h *crdHelper) createCRD(
 
 // validateCRD calls the CRD package's validation on an internal representation of the CRD
 func (h *crdHelper) validateCRD(crd *apiextensions.CustomResourceDefinition) error {
-	errors := apiextensionsvalidation.ValidateCustomResourceDefinition(crd)
+	errors := apiextensionsvalidation.ValidateCustomResourceDefinition(crd, apiextensionsv1beta1.SchemeGroupVersion)
 	if len(errors) > 0 {
 		return errors.ToAggregate()
 	}
@@ -131,8 +142,8 @@ func (h *crdHelper) validateCR(cr *unstructured.Unstructured, crd *apiextensions
 	if err != nil {
 		return err
 	}
-	if err := validation.ValidateCustomResource(cr, validator); err != nil {
-		return err
+	if err := validation.ValidateCustomResource(field.NewPath(""), cr, validator); err != nil {
+		return err.ToAggregate()
 	}
 	if errs := apivalidation.IsDNS1123Subdomain(cr.GetName()); len(errs) != 0 {
 		return fmt.Errorf("Invalid Name: %s", strings.Join(errs, "\n"))

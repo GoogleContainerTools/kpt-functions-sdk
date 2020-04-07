@@ -19,7 +19,12 @@ import (
 
 var ctx = context.Background()
 
-func newConstraintTemplate(name, rego string) *templates.ConstraintTemplate {
+const (
+	denied    = "DENIED"
+	rejection = "REJECTION"
+)
+
+func newConstraintTemplate(name, rego string, libs ...string) *templates.ConstraintTemplate {
 	return &templates.ConstraintTemplate{
 		ObjectMeta: metav1.ObjectMeta{Name: strings.ToLower(name)},
 		Spec: templates.ConstraintTemplateSpec{
@@ -31,14 +36,14 @@ func newConstraintTemplate(name, rego string) *templates.ConstraintTemplate {
 					Validation: &templates.Validation{
 						OpenAPIV3Schema: &apiextensions.JSONSchemaProps{
 							Properties: map[string]apiextensions.JSONSchemaProps{
-								"expected": apiextensions.JSONSchemaProps{Type: "string"},
+								"expected": {Type: "string"},
 							},
 						},
 					},
 				},
 			},
 			Targets: []templates.Target{
-				templates.Target{Target: "test.target", Rego: rego},
+				{Target: "test.target", Rego: rego, Libs: libs},
 			},
 		},
 	}
@@ -57,27 +62,53 @@ func newConstraint(kind, name string, params map[string]string, enforcementActio
 	})
 	c.SetName(name)
 	if enforcementAction != nil {
-		unstructured.SetNestedField(c.Object, *enforcementAction, "spec", "enforcementAction")
+		if err := unstructured.SetNestedField(c.Object, *enforcementAction, "spec", "enforcementAction"); err != nil {
+			panic(err)
+		}
 	}
-	unstructured.SetNestedStringMap(c.Object, params, "spec", "parameters")
+	if err := unstructured.SetNestedStringMap(c.Object, params, "spec", "parameters"); err != nil {
+		panic(err)
+	}
 	return c
 }
 
-var tests = map[string]func(Client) error{
-
-	"Add Template": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
+var (
+	// basic deny template
+	denyTemplateRego = `package foo
 violation[{"msg": "DENIED", "details": {}}] {
 	"always" == "always"
-}`))
+}`
+
+	// basic deny template that uses a lib rule
+	denyTemplateWithLibRego = `package foo
+
+import data.lib.bar
+
+violation[{"msg": "DENIED", "details": {}}] {
+  bar.always[x]
+	x == "always"
+}`
+
+	denyTemplateLibRego = `package lib.bar
+always[y] {
+  y = "always"
+}
+`
+)
+
+func init() {
+	addDenyAllE2ETests("", denyTemplateRego)
+	addDenyAllE2ETests(" With Lib", denyTemplateWithLibRego, denyTemplateLibRego)
+}
+
+func addDenyAllE2ETests(nameSuffix string, rego string, libs ...string) {
+	tcs := map[string]func(*Client) error{}
+	tcs["Add Template"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		return errors.Wrap(err, "AddTemplate")
-	},
-
-	"Deny All": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-violation[{"msg": "DENIED", "details": {}}] {
-	"always" == "always"
-}`))
+	}
+	tcs["Deny All"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -98,94 +129,17 @@ violation[{"msg": "DENIED", "details": {}}] {
 		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
 			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
 		}
-		if rsps.Results()[0].Msg != "DENIED" {
+		if rsps.Results()[0].Msg != denied {
 			return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
 		}
 		if rsps.Results()[0].EnforcementAction != "deny" {
 			return e(fmt.Sprintf("res.EnforcementAction = %s; wanted default value deny", rsps.Results()[0].EnforcementAction), rsps)
 		}
 		return nil
-	},
+	}
 
-	"Dryrun All": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-violation[{"msg": "DRYRUN", "details": {}}] {
-	"always" == "always"
-}`))
-		if err != nil {
-			return errors.Wrap(err, "AddTemplate")
-		}
-		testEnforcementAction := "dryrun"
-		cstr := newConstraint("Foo", "ph", nil, &testEnforcementAction)
-		if _, err := c.AddConstraint(ctx, cstr); err != nil {
-			return errors.Wrap(err, "AddConstraint")
-		}
-		rsps, err := c.Review(ctx, targetData{Name: "Sara", ForConstraint: "Foo"})
-		if err != nil {
-			return errors.Wrap(err, "Review")
-		}
-		if len(rsps.ByTarget) == 0 {
-			return errors.New("No responses returned")
-		}
-		if len(rsps.Results()) != 1 {
-			return e("Bad number of results", rsps)
-		}
-		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
-			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
-		}
-		if rsps.Results()[0].EnforcementAction != testEnforcementAction {
-			return e(fmt.Sprintf("res.EnforcementAction = %s; wanted default value dryrun", rsps.Results()[0].EnforcementAction), rsps)
-		}
-		return nil
-	},
-
-	"Deny By Parameter": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-violation[{"msg": "DENIED", "details": {}}] {
-	input.parameters.name == input.review.Name
-}`))
-		if err != nil {
-			return errors.Wrap(err, "AddTemplate")
-		}
-		cstr := newConstraint("Foo", "ph", map[string]string{"name": "deny_me"}, nil)
-		if _, err := c.AddConstraint(ctx, cstr); err != nil {
-			return errors.Wrap(err, "AddConstraint")
-		}
-		rsps, err := c.Review(ctx, targetData{Name: "deny_me", ForConstraint: "Foo"})
-		if err != nil {
-			return errors.Wrap(err, "Review")
-		}
-		if len(rsps.ByTarget) == 0 {
-			return errors.New("No responses returned")
-		}
-		if len(rsps.Results()) != 1 {
-			return e("Bad number of results", rsps)
-		}
-		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
-			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
-		}
-		if rsps.Results()[0].Msg != "DENIED" {
-			return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
-		}
-
-		rsps, err = c.Review(ctx, targetData{Name: "Sara", ForConstraint: "Foo"})
-		if err != nil {
-			return errors.Wrap(err, "Review")
-		}
-		if len(rsps.ByTarget) == 0 {
-			return errors.New("No responses returned for second test")
-		}
-		if len(rsps.Results()) != 0 {
-			return e("Expected no results", rsps)
-		}
-		return nil
-	},
-
-	"Deny All Audit x2": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-	violation[{"msg": "DENIED", "details": {}}] {
-		"always" == "always"
-	}`))
+	tcs["Deny All Audit x2"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -215,18 +169,15 @@ violation[{"msg": "DENIED", "details": {}}] {
 			if !reflect.DeepEqual(r.Constraint, cstr) {
 				return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
 			}
-			if r.Msg != "DENIED" {
+			if r.Msg != denied {
 				return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
 			}
 		}
 		return nil
-	},
+	}
 
-	"Deny All Audit": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-	violation[{"msg": "DENIED", "details": {}}] {
-		"always" == "always"
-	}`))
+	tcs["Deny All Audit"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -251,20 +202,17 @@ violation[{"msg": "DENIED", "details": {}}] {
 		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
 			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
 		}
-		if rsps.Results()[0].Msg != "DENIED" {
+		if rsps.Results()[0].Msg != denied {
 			return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
 		}
 		if !reflect.DeepEqual(rsps.Results()[0].Resource, obj) {
 			return e(fmt.Sprintf("Resource %s != %s", spew.Sdump(rsps.Results()[0].Resource), spew.Sdump(obj)), rsps)
 		}
 		return nil
-	},
+	}
 
-	"Autoreject All": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-violation[{"msg": "DENIED", "details": {}}] {
-	"always" == "always"
-}`))
+	tcs["Autoreject All"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", denyTemplateRego))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -314,22 +262,19 @@ violation[{"msg": "DENIED", "details": {}}] {
 		if len(rsps.Results()) != 2 {
 			return e("Bad number of results", rsps)
 		}
-		if rsps.Results()[0].Msg != "REJECTION" && rsps.Results()[1].Msg != "REJECTION" {
+		if rsps.Results()[0].Msg != rejection && rsps.Results()[1].Msg != rejection {
 			return e(fmt.Sprintf("res.Msg = %s; wanted at least one REJECTION", rsps.Results()[0].Msg), rsps)
 		}
 		for _, r := range rsps.Results() {
-			if r.Msg == "REJECTION" && !reflect.DeepEqual(r.Constraint, u) {
+			if r.Msg == rejection && !reflect.DeepEqual(r.Constraint, u) {
 				return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(r.Constraint), spew.Sdump(u)), rsps)
 			}
 		}
 		return nil
-	},
+	}
 
-	"Remove Data": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-	violation[{"msg": "DENIED", "details": {}}] {
-		"always" == "always"
-	}`))
+	tcs["Remove Data"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -359,7 +304,7 @@ violation[{"msg": "DENIED", "details": {}}] {
 			if !reflect.DeepEqual(r.Constraint, cstr) {
 				return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
 			}
-			if r.Msg != "DENIED" {
+			if r.Msg != denied {
 				return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
 			}
 		}
@@ -380,20 +325,17 @@ violation[{"msg": "DENIED", "details": {}}] {
 		if !reflect.DeepEqual(rsps2.Results()[0].Constraint, cstr) {
 			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps2.Results()[0].Constraint), spew.Sdump(cstr)), rsps2)
 		}
-		if rsps2.Results()[0].Msg != "DENIED" {
+		if rsps2.Results()[0].Msg != denied {
 			return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps2.Results()[0].Msg), rsps2)
 		}
 		if !reflect.DeepEqual(rsps2.Results()[0].Resource, obj) {
 			return e(fmt.Sprintf("Resource %s != %s", spew.Sdump(rsps2.Results()[0].Resource), spew.Sdump(obj)), rsps2)
 		}
 		return nil
-	},
+	}
 
-	"Remove Constraint": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-	violation[{"msg": "DENIED", "details": {}}] {
-		"always" == "always"
-	}`))
+	tcs["Remove Constraint"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", denyTemplateRego))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -418,7 +360,7 @@ violation[{"msg": "DENIED", "details": {}}] {
 		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
 			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
 		}
-		if rsps.Results()[0].Msg != "DENIED" {
+		if rsps.Results()[0].Msg != denied {
 			return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
 		}
 		if !reflect.DeepEqual(rsps.Results()[0].Resource, obj) {
@@ -436,13 +378,10 @@ violation[{"msg": "DENIED", "details": {}}] {
 			return e("Responses returned", rsps2)
 		}
 		return nil
-	},
+	}
 
-	"Remove Template": func(c Client) error {
-		tmpl := newConstraintTemplate("Foo", `package foo
-	violation[{"msg": "DENIED", "details": {}}] {
-		"always" == "always"
-	}`)
+	tcs["Remove Template"] = func(c *Client) error {
+		tmpl := newConstraintTemplate("Foo", denyTemplateRego)
 		_, err := c.AddTemplate(ctx, tmpl)
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
@@ -468,7 +407,7 @@ violation[{"msg": "DENIED", "details": {}}] {
 		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
 			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
 		}
-		if rsps.Results()[0].Msg != "DENIED" {
+		if rsps.Results()[0].Msg != denied {
 			return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
 		}
 		if !reflect.DeepEqual(rsps.Results()[0].Resource, obj) {
@@ -486,13 +425,10 @@ violation[{"msg": "DENIED", "details": {}}] {
 			return e("Responses returned", rsps2)
 		}
 		return nil
-	},
+	}
 
-	"Tracing Off": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-violation[{"msg": "DENIED", "details": {}}] {
-	"always" == "always"
-}`))
+	tcs["Tracing Off"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", denyTemplateRego))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -516,13 +452,10 @@ violation[{"msg": "DENIED", "details": {}}] {
 			}
 		}
 		return nil
-	},
+	}
 
-	"Tracing On": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-violation[{"msg": "DENIED", "details": {}}] {
-	"always" == "always"
-}`))
+	tcs["Tracing On"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -546,13 +479,10 @@ violation[{"msg": "DENIED", "details": {}}] {
 			}
 		}
 		return nil
-	},
+	}
 
-	"Audit Tracing Enabled": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-	violation[{"msg": "DENIED", "details": {}}] {
-		"always" == "always"
-	}`))
+	tcs["Audit Tracing Enabled"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -584,13 +514,10 @@ violation[{"msg": "DENIED", "details": {}}] {
 			}
 		}
 		return nil
-	},
+	}
 
-	"Audit Tracing Disabled": func(c Client) error {
-		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
-	violation[{"msg": "DENIED", "details": {}}] {
-		"always" == "always"
-	}`))
+	tcs["Audit Tracing Disabled"] = func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", rego, libs...))
 		if err != nil {
 			return errors.Wrap(err, "AddTemplate")
 		}
@@ -620,6 +547,87 @@ violation[{"msg": "DENIED", "details": {}}] {
 			if r.Trace != nil {
 				return e("Trace dump not nil", rsps)
 			}
+		}
+		return nil
+	}
+
+	for k, v := range tcs {
+		e2eTests[fmt.Sprintf("%s%s", k, nameSuffix)] = v
+	}
+}
+
+var e2eTests = map[string]func(*Client) error{
+
+	"Dryrun All": func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
+violation[{"msg": "DRYRUN", "details": {}}] {
+	"always" == "always"
+}`))
+		if err != nil {
+			return errors.Wrap(err, "AddTemplate")
+		}
+		testEnforcementAction := "dryrun"
+		cstr := newConstraint("Foo", "ph", nil, &testEnforcementAction)
+		if _, err := c.AddConstraint(ctx, cstr); err != nil {
+			return errors.Wrap(err, "AddConstraint")
+		}
+		rsps, err := c.Review(ctx, targetData{Name: "Sara", ForConstraint: "Foo"})
+		if err != nil {
+			return errors.Wrap(err, "Review")
+		}
+		if len(rsps.ByTarget) == 0 {
+			return errors.New("No responses returned")
+		}
+		if len(rsps.Results()) != 1 {
+			return e("Bad number of results", rsps)
+		}
+		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
+			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
+		}
+		if rsps.Results()[0].EnforcementAction != testEnforcementAction {
+			return e(fmt.Sprintf("res.EnforcementAction = %s; wanted default value dryrun", rsps.Results()[0].EnforcementAction), rsps)
+		}
+		return nil
+	},
+
+	"Deny By Parameter": func(c *Client) error {
+		_, err := c.AddTemplate(ctx, newConstraintTemplate("Foo", `package foo
+violation[{"msg": "DENIED", "details": {}}] {
+	input.parameters.name == input.review.Name
+}`))
+		if err != nil {
+			return errors.Wrap(err, "AddTemplate")
+		}
+		cstr := newConstraint("Foo", "ph", map[string]string{"name": "deny_me"}, nil)
+		if _, err := c.AddConstraint(ctx, cstr); err != nil {
+			return errors.Wrap(err, "AddConstraint")
+		}
+		rsps, err := c.Review(ctx, targetData{Name: "deny_me", ForConstraint: "Foo"})
+		if err != nil {
+			return errors.Wrap(err, "Review")
+		}
+		if len(rsps.ByTarget) == 0 {
+			return errors.New("No responses returned")
+		}
+		if len(rsps.Results()) != 1 {
+			return e("Bad number of results", rsps)
+		}
+		if !reflect.DeepEqual(rsps.Results()[0].Constraint, cstr) {
+			return e(fmt.Sprintf("Constraint %s != %s", spew.Sdump(rsps.Results()[0].Constraint), spew.Sdump(cstr)), rsps)
+		}
+		if rsps.Results()[0].Msg != denied {
+			return e(fmt.Sprintf("res.Msg = %s; wanted DENIED", rsps.Results()[0].Msg), rsps)
+		}
+
+		rsps, err = c.Review(ctx, targetData{Name: "Sara", ForConstraint: "Foo"})
+		if err != nil {
+			return errors.Wrap(err, "Review")
+		}
+		if len(rsps.ByTarget) == 0 {
+			return errors.New("No responses returned for second test")
+		}
+		if len(rsps.Results()) != 0 {
+			return e("Expected no results", rsps)
 		}
 		return nil
 	},
