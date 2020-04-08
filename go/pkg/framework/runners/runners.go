@@ -30,12 +30,12 @@ var (
 
 func addInputFlag(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&input, "input", "i", io.Stdin,
-		`path to the input JSON file`)
+		`path to the input file`)
 }
 
 func addOutputFlag(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&output, "output", "o", io.Stdout,
-		`path to the output JSON file`)
+		`path to the output file`)
 }
 
 func addFormatFlag(cmd *cobra.Command) {
