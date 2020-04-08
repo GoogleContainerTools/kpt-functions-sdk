@@ -14,11 +14,13 @@ limitations under the License.
 */
 
 // Generate deepcopy for apis
-//go:generate go run ../../../vendor/k8s.io/code-generator/cmd/deepcopy-gen/main.go -O zz_generated.deepcopy -i ./... -h ../../../hack/boilerplate.go.txt
+//go:generate deepcopy-gen -O zz_generated.deepcopy -i ./... -h ../../../hack/boilerplate.go.txt
 
 package templates
 
 import (
+	"reflect"
+
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -42,7 +44,8 @@ type CRDSpec struct {
 }
 
 type Names struct {
-	Kind string `json:"kind,omitempty"`
+	Kind       string   `json:"kind,omitempty"`
+	ShortNames []string `json:"shortNames,omitempty"`
 }
 
 type Validation struct {
@@ -50,8 +53,9 @@ type Validation struct {
 }
 
 type Target struct {
-	Target string `json:"target,omitempty"`
-	Rego   string `json:"rego,omitempty"`
+	Target string   `json:"target,omitempty"`
+	Rego   string   `json:"rego,omitempty"`
+	Libs   []string `json:"libs,omitempty"`
 }
 
 // CreateCRDError represents a single error caught during parsing, compiling, etc.
@@ -65,8 +69,9 @@ type CreateCRDError struct {
 // an individual controller
 type ByPodStatus struct {
 	// a unique identifier for the pod that wrote the status
-	ID     string            `json:"id,omitempty"`
-	Errors []*CreateCRDError `json:"errors,omitempty"`
+	ID                 string            `json:"id,omitempty"`
+	ObservedGeneration int64             `json:"observedGeneration,omitempty"`
+	Errors             []*CreateCRDError `json:"errors,omitempty"`
 }
 
 // ConstraintTemplateStatus defines the observed state of ConstraintTemplate
@@ -98,4 +103,11 @@ type ConstraintTemplateList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ConstraintTemplate `json:"items"`
+}
+
+// SemanticEqual returns whether there have been changes to a constraint that
+// the framework should know about. It can ignore metadata as it assumes the
+// two comparables share the same identity
+func (ct *ConstraintTemplate) SemanticEqual(other *ConstraintTemplate) bool {
+	return reflect.DeepEqual(ct.Spec, other.Spec)
 }

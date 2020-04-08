@@ -24,22 +24,41 @@
 #   go-tests = true
 #   unused-packages = true
 
-
 [[constraint]]
-  version = "kubernetes-1.12.3"
+  version = "v0.17.2"
   name = "k8s.io/apimachinery"
 
 [[override]]
-  version = "kubernetes-1.12.3"
+  version = "v0.17.2"
   name = "k8s.io/apiserver"
 
+[[override]]
+  version = "v0.17.2"
+  name = "k8s.io/client-go"
+
+[[override]]
+  version = "v0.17.2"
+  name = "k8s.io/component-base"
+
+[[override]]
+  version = "v0.17.2"
+  name = "k8s.io/api"
+
+[[override]]
+  version = "v0.17.2"
+  name = "k8s.io/apiextensions-apiserver"
+
 [[constraint]]
-  version = "v3.0.4-beta.1"
+  version = "v3.1.0-beta.8"
   name = "github.com/open-policy-agent/gatekeeper"
 
 [[override]]
-  revision = "546a2d6a3811245b9c878f677ca9cd0e1adc5570"
+  revision = "1a8f361c3e490db40653dbe0984040c4068ac09e"
   name = "github.com/open-policy-agent/frameworks"
+
+[[override]]
+  version = "v0.17.2"
+  name = "github.com/open-policy-agent/opa"
 
 [prune]
   go-tests = true
