@@ -6,4 +6,6 @@ node_modules
 go/.out
 ts/create-kpt-functions/bin
 .DS_Store
+*.swo
+*.swp
 
