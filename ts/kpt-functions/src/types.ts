@@ -275,7 +275,7 @@ export function kubernetesKey(o: KubernetesObject): string {
 }
 
 /**
- * ResourceList is the wire format for input/output of a function as defined by the spec:
+ * ResourceList is the wire format for the output of the KPT function as defined by the spec:
  * https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
  */
 export class ResourceList implements KubernetesObject {
@@ -285,46 +285,65 @@ export class ResourceList implements KubernetesObject {
     name: 'output',
   };
   readonly items: KubernetesObject[];
-  readonly results?: Result[];
+  readonly issues?: Issue[];
 
-  constructor(items: KubernetesObject[]) {
+  /**
+   * @param items List of Kubernetes objects returned by the function.
+   * @param issues List of issues returned by the function.
+   */
+  constructor(items: KubernetesObject[], issues?: Issue[]) {
     this.items = items;
+    this.issues = issues;
   }
 }
 
 /**
  * Severity of a configuration issue.
  */
-type Severity = 'error' | 'warning' | 'note';
+export type Severity = 'error' | 'warning' | 'note';
 
 /**
- * Result is the structured feedback returned by a function.
+ * Issue represents a configuration-related issue returned by a function.
  * 
  * It can be at the following granularities:
  * - A file containing multiple objects
  * - A specific kubernetes object
  * - A specific field of a kubernetes object
  */
-export interface Result {
+export interface Issue {
+  // Severify of the issue.
   severity: Severity;
+  // Message describing the issue.
+  message: string;
+  // Additional metadata for tracking the issue.
   tags?: { [key: string]: string };
+  // A reference to the object with the issue.
   resourceRef?: {
     apiVersion: string;
     kind: string;
     namespace: string;
     name: string;
   }
+  // File-level for the issue.
   file?: {
+    // OS agnostic, relative, slash-delimited path.
+    // e.g. "some-dir/some-file.yaml"
     path: string;
-    index: number;
+    // Index of the object in a multi-object YAML file.
+    index?: number;
   }
+  // A specific field in the object.
   field?: {
+    // JSON Path
+    // e.g. "spec.template.spec.containers[3].resources.limits.cpu"
     path: string;
-    currentValue: string;
-    suggestedValue: string;
+    // Current value of the field.
+    currentValue: string | number | boolean;
+    // Proposed value to fix the issue.
+    suggestedValue: string | number | boolean;
+
   }
 }
-
 
 interface ConfigMap extends KubernetesObject {
   data?: { [key: string]: string };
