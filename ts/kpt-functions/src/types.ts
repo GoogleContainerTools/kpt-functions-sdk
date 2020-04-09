@@ -188,7 +188,7 @@ export class Configs {
   }
 
   /**
-   * Similar to {@link getFunctionConfigValue} except it throws a ConfigError if the given key is undefined.
+   * Similar to [[getFunctionConfigValue]] except it throws a ConfigError if the given key is undefined.
    */
   getFunctionConfigValueOrThrow(key: string): string {
     const val = this.getFunctionConfigValue(key);
@@ -273,6 +273,58 @@ export function kubernetesKey(o: KubernetesObject): string {
   const namespace = o.metadata.namespace || '';
   return `${o.apiVersion}/${o.kind}/${namespace}/${o.metadata.name}`;
 }
+
+/**
+ * ResourceList is the wire format for input/output of a function as defined by the spec:
+ * https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
+ */
+export class ResourceList implements KubernetesObject {
+  readonly apiVersion = 'v1';
+  readonly kind = 'ResourceList';
+  readonly metadata = {
+    name: 'output',
+  };
+  readonly items: KubernetesObject[];
+  readonly results?: Result[];
+
+  constructor(items: KubernetesObject[]) {
+    this.items = items;
+  }
+}
+
+/**
+ * Severity of a configuration issue.
+ */
+type Severity = 'error' | 'warning' | 'note';
+
+/**
+ * Result is the structured feedback returned by a function.
+ * 
+ * It can be at the following granularities:
+ * - A file containing multiple objects
+ * - A specific kubernetes object
+ * - A specific field of a kubernetes object
+ */
+export interface Result {
+  severity: Severity;
+  tags?: { [key: string]: string };
+  resourceRef?: {
+    apiVersion: string;
+    kind: string;
+    namespace: string;
+    name: string;
+  }
+  file?: {
+    path: string;
+    index: number;
+  }
+  field?: {
+    path: string;
+    currentValue: string;
+    suggestedValue: string;
+  }
+}
+
 
 interface ConfigMap extends KubernetesObject {
   data?: { [key: string]: string };
