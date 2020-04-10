@@ -25,11 +25,35 @@ describe('read', () => {
       expect(result.getAll()).toEqual([]);
     });
 
-    it('parses single object', () => {
+    it('parses List object', () => {
       const result = parse(
         `
 apiVersion: v1
 kind: List
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: foo
+`,
+        FileFormat.YAML
+      );
+      expect(result.getAll()).toEqual([
+        {
+          apiVersion: 'v1',
+          kind: 'Namespace',
+          metadata: {
+            name: 'foo',
+          },
+        },
+      ]);
+    });
+
+    it('parses ResourceList object', () => {
+      const result = parse(
+        `
+apiVersion: v1
+kind: ResourceList
 items:
 - apiVersion: v1
   kind: Namespace
@@ -354,7 +378,9 @@ describe('write', () => {
       const result = stringify(new Configs(), FileFormat.YAML);
 
       expect(result).toEqual(`apiVersion: v1
-kind: List
+kind: ResourceList
+metadata:
+  name: output
 items: []
 `);
     });
@@ -375,7 +401,9 @@ items: []
 
       expect(result).toEqual(
         `apiVersion: v1
-kind: List
+kind: ResourceList
+metadata:
+  name: output
 items:
 - apiVersion: v1
   kind: Namespace
@@ -407,7 +435,9 @@ items:
       );
 
       expect(result).toEqual(`apiVersion: v1
-kind: List
+kind: ResourceList
+metadata:
+  name: output
 items:
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: Role
@@ -427,7 +457,10 @@ items:
 
       expect(result).toEqual(`{
   "apiVersion": "v1",
-  "kind": "List",
+  "kind": "ResourceList",
+  "metadata": {
+    "name": "output"
+  },
   "items": []
 }
 `);
@@ -449,7 +482,10 @@ items:
 
       expect(result).toEqual(`{
   "apiVersion": "v1",
-  "kind": "List",
+  "kind": "ResourceList",
+  "metadata": {
+    "name": "output"
+  },
   "items": [
     {
       "apiVersion": "v1",
@@ -486,7 +522,10 @@ items:
 
       expect(result).toEqual(`{
   "apiVersion": "v1",
-  "kind": "List",
+  "kind": "ResourceList",
+  "metadata": {
+    "name": "output"
+  },
   "items": [
     {
       "apiVersion": "rbac.authorization.k8s.io/v1",

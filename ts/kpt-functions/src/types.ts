@@ -328,7 +328,7 @@ export interface Issue {
   file?: {
     // OS agnostic, relative, slash-delimited path.
     // e.g. "some-dir/some-file.yaml"
-    path: string;
+    path?: string;
     // Index of the object in a multi-object YAML file.
     index?: number;
   }

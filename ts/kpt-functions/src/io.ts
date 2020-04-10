@@ -16,7 +16,7 @@
 
 import { DumpOptions, safeDump, safeLoad } from 'js-yaml';
 import rw from 'rw';
-import { Configs, KubernetesObject } from './types';
+import { Configs, KubernetesObject, ResourceList } from './types';
 
 export enum FileFormat {
   YAML,
@@ -129,11 +129,7 @@ export async function writeConfigs(
  * @param format defines whether to write the configs as YAML or JSON.
  */
 export function stringify(configs: Configs, format: FileFormat): string {
-  const output = {
-    apiVersion: 'v1',
-    kind: 'List',
-    items: configs.getAll(),
-  };
+  const output = new ResourceList(configs.getAll());
 
   switch (format) {
     case FileFormat.JSON:
