@@ -545,5 +545,21 @@ items:
 }
 `);
     });
+
+    it('has issues', () => {
+      const result = stringify(new Configs(), FileFormat.YAML, [
+        { message: 'hello', severity: 'error' },
+      ]);
+
+      expect(result).toEqual(`apiVersion: v1
+kind: ResourceList
+metadata:
+  name: output
+items: []
+issues:
+- message: hello
+  severity: error
+`);
+    });
   });
 });

@@ -16,9 +16,9 @@
 
 import { KubernetesObject, Issue, Severity } from './types';
 import {
+  SOURCE_INDEX_ANNOTATION,
   SOURCE_PATH_ANNOTATION,
   getAnnotation,
-  SOURCE_INDEX_ANNOTATION,
 } from './metadata';
 
 /**
@@ -42,7 +42,7 @@ export class ConfigError extends Error {
   }
 
   /**
-   * Structured representation of the issue that will be included as part of function stdout.
+   * Structured representation of the issue.
    */
   toIssues(): Issue[] {
     return [
@@ -55,10 +55,17 @@ export class ConfigError extends Error {
   }
 
   /**
-   * String representation that will be logged to stderr.
+   * String representation of the issue.
    */
   toString(): string {
     return `${this.name}: ${this.message} (${this.severity})`;
+  }
+
+  /**
+   * Logs issue to stderr.
+   */
+  log() {
+    console.error(this.toString());
   }
 }
 
@@ -96,7 +103,7 @@ export class ConfigFileError extends ConfigError {
   }
 
   toString(): string {
-    return `${this.name}: ${this.message} in file ${this.path} (${this.severity})`;
+    return `${this.name}: ${this.message} in file '${this.path}' (${this.severity})`;
   }
 }
 
@@ -165,10 +172,10 @@ export class KubernetesObjectError extends ConfigError {
   toString(): string {
     const issue = this.toIssues()[0];
     const r = issue.resourceRef!;
-    let s = `${this.name}: ${this.message} in object ${r.apiVersion}/${r.kind}/${r.namespace}/${r.name}`;
+    let s = `${this.name}: ${this.message} in object '${r.apiVersion}/${r.kind}/${r.namespace}/${r.name}'`;
     const path = issue.file && issue.file.path;
     if (path) {
-      s += ` in file ${path}`;
+      s += ` in file '${path}'`;
     }
     s += ` (${this.severity})`;
     return s;
@@ -210,5 +217,14 @@ export class MultiConfigError extends ConfigError {
       .sort()
       .join('\n');
     return `${this.name}: ${this.message}\n\n${e}`;
+  }
+}
+
+/**
+ * Represents an error with the functionConfig used to parametrize the function.
+ */
+export class FunctionConfigError extends Error {
+  constructor(message: string) {
+    super(message);
   }
 }

@@ -23,8 +23,8 @@ import {
 import { KubernetesObject } from './types';
 import {
   addAnnotation,
-  SOURCE_PATH_ANNOTATION,
   SOURCE_INDEX_ANNOTATION,
+  SOURCE_PATH_ANNOTATION,
 } from './metadata';
 
 describe('Errors', () => {
@@ -208,8 +208,8 @@ describe('Errors', () => {
       expect(e.toString()).toEqual(`MultiConfigError: foo
 
 [1] ConfigError: hello (warning)
-[2] ConfigFileError: world in file a/b/c.yaml (error)
-[3] KubernetesObjectError: bye in object v1/Namespace/bar/foo (error)`);
+[2] ConfigFileError: world in file 'a/b/c.yaml' (error)
+[3] KubernetesObjectError: bye in object 'v1/Namespace/bar/foo' (error)`);
     });
   });
 });
