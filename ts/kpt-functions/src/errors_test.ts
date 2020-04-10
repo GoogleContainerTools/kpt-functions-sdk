@@ -86,9 +86,15 @@ describe('Errors', () => {
     });
 
     it('path/index/field undefined', () => {
-      const e = new KubernetesObjectError('hello', someObject, undefined, 'note', {
-        color: 'blue',
-      });
+      const e = new KubernetesObjectError(
+        'hello',
+        someObject,
+        undefined,
+        'note',
+        {
+          color: 'blue',
+        }
+      );
 
       expect(e.toIssues()).toEqual([
         {
@@ -130,11 +136,11 @@ describe('Errors', () => {
     });
 
     it('field defined', () => {
-      const e = new KubernetesObjectError(
-        'hello',
-        someObject,
-        { path: 'x.y.z[0]', currentValue: 1, suggestedValue: 2 }
-      );
+      const e = new KubernetesObjectError('hello', someObject, {
+        path: 'x.y.z[0]',
+        currentValue: 1,
+        suggestedValue: 2,
+      });
 
       expect(e.toIssues()).toEqual([
         {
@@ -159,17 +165,14 @@ describe('Errors', () => {
     e.push(new ConfigError('hello', 'warning'));
     e.push(new ConfigFileError('world', 'a/b/c.yaml', 'error'));
     e.push(
-      new KubernetesObjectError(
-        'bye',
-        {
-          apiVersion: 'v1',
-          kind: 'Namespace',
-          metadata: {
-            name: 'foo',
-            namespace: 'bar',
-          },
-        }
-      )
+      new KubernetesObjectError('bye', {
+        apiVersion: 'v1',
+        kind: 'Namespace',
+        metadata: {
+          name: 'foo',
+          namespace: 'bar',
+        },
+      })
     );
 
     it('toIssues', () => {
@@ -206,7 +209,7 @@ describe('Errors', () => {
 
 [1] ConfigError: hello (warning)
 [2] ConfigFileError: world in file a/b/c.yaml (error)
-[3] KubernetesObjectError: bye for resource v1/Namespace/bar/foo (error)`);
+[3] KubernetesObjectError: bye in object v1/Namespace/bar/foo (error)`);
     });
   });
 });

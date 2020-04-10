@@ -55,7 +55,7 @@ export class ConfigError extends Error {
   }
 
   /**
-   * String representation that will be logged to stderr. 
+   * String representation that will be logged to stderr.
    */
   toString(): string {
     return `${this.name}: ${this.message} (${this.severity})`;
@@ -129,15 +129,17 @@ export class KubernetesObjectError extends ConfigError {
     readonly object: KubernetesObject,
     readonly field?: FieldInfo,
     readonly severity: Severity = 'error',
-    readonly tags?: { [key: string]: string },
+    readonly tags?: { [key: string]: string }
   ) {
     super(message, severity, tags);
     this.name = 'KubernetesObjectError';
   }
 
   toIssues(): Issue[] {
-    const path: string | undefined =
-     getAnnotation(this.object, SOURCE_PATH_ANNOTATION);
+    const path: string | undefined = getAnnotation(
+      this.object,
+      SOURCE_PATH_ANNOTATION
+    );
     const index: number | undefined =
       Number(getAnnotation(this.object, SOURCE_INDEX_ANNOTATION)) || undefined;
     return [
@@ -155,7 +157,7 @@ export class KubernetesObjectError extends ConfigError {
           path: path,
           index: index,
         },
-        field: this.field
+        field: this.field,
       },
     ];
   }
@@ -163,10 +165,10 @@ export class KubernetesObjectError extends ConfigError {
   toString(): string {
     const issue = this.toIssues()[0];
     const r = issue.resourceRef!;
-    let s = `${this.name}: ${this.message} for resource ${r.apiVersion}/${r.kind}/${r.namespace}/${r.name}`
+    let s = `${this.name}: ${this.message} in object ${r.apiVersion}/${r.kind}/${r.namespace}/${r.name}`;
     const path = issue.file && issue.file.path;
     if (path) {
-      s += ` in file p`;
+      s += ` in file ${path}`;
     }
     s += ` (${this.severity})`;
     return s;
@@ -186,6 +188,9 @@ export class MultiConfigError extends ConfigError {
     this.name = 'MultiConfigError';
   }
 
+  /**
+   * Add the given ConfigError to the collection.
+   */
   push(error: ConfigError) {
     this.errors.push(error);
   }

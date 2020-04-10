@@ -304,7 +304,7 @@ export type Severity = 'error' | 'warning' | 'note';
 
 /**
  * Issue represents a configuration-related issue returned by a function.
- * 
+ *
  * It can be at the following granularities:
  * - A file containing multiple objects
  * - A specific kubernetes object
@@ -323,7 +323,7 @@ export interface Issue {
     kind: string;
     namespace: string;
     name: string;
-  }
+  };
   // File-level for the issue.
   file?: {
     // OS agnostic, relative, slash-delimited path.
@@ -331,7 +331,7 @@ export interface Issue {
     path?: string;
     // Index of the object in a multi-object YAML file.
     index?: number;
-  }
+  };
   // A specific field in the object.
   field?: {
     // JSON Path
@@ -341,8 +341,7 @@ export interface Issue {
     currentValue: string | number | boolean;
     // Proposed value to fix the issue.
     suggestedValue: string | number | boolean;
-
-  }
+  };
 }
 
 interface ConfigMap extends KubernetesObject {
