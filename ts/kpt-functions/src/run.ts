@@ -17,7 +17,7 @@
 import { ArgumentParser, RawTextHelpFormatter } from 'argparse';
 import { FileFormat, readConfigs, writeConfigs } from './io';
 import { KptFunc, KubernetesObject } from './types';
-import { ConfigError } from './errors';
+import { ConfigError, FunctionConfigError } from './errors';
 
 const INVOCATIONS = `
 Example invocations:
@@ -58,6 +58,7 @@ Example invocations:
 enum ExitCode {
   CONFIG_ERROR = 1,
   EXCEPTION_ERROR,
+  FUNCTION_CONFIG_ERROR,
 }
 
 /**
@@ -71,8 +72,10 @@ export async function run(fn: KptFunc) {
     await runFn(fn);
   } catch (err) {
     if (err instanceof ConfigError) {
-      console.error(err.toString());
       process.exitCode = ExitCode.CONFIG_ERROR;
+    } else if (err instanceof FunctionConfigError) {
+      console.error(err.toString());
+      process.exitCode = ExitCode.FUNCTION_CONFIG_ERROR;
     } else {
       console.error(err.stack);
       process.exitCode = ExitCode.EXCEPTION_ERROR;
@@ -112,6 +115,11 @@ Use this ONLY if the function accepts a ConfigMap.`,
     action: 'storeTrue',
     help: 'Input and output files are in JSON instead of YAML',
   });
+  parser.addArgument('--log-to-stderr', {
+    action: 'storeTrue',
+    help:
+      'Confguration issues should be logged to stderr in addition to the ".results" field in the output',
+  });
 
   // Parse args.
   const args = new Map(Object.entries(parser.parseArgs()));
@@ -132,12 +140,25 @@ Use this ONLY if the function accepts a ConfigMap.`,
     }
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
+  const logToStderr =
+    process.env.LOG_TO_STDERR || Boolean(args.get('log_to_stderr'));
 
   // Read the input and construct Configs.
   const configs = await readConfigs(inputFile, fileFormat, functionConfig);
 
   // Run the function.
-  await fn(configs);
+  try {
+    await fn(configs);
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      if (logToStderr) {
+        err.log();
+      }
+      // Include Issues as part of function's output.
+      await writeConfigs(outputFile, configs, fileFormat, err.toResults());
+    }
+    throw err;
+  }
 
   // Write the output.
   await writeConfigs(outputFile, configs, fileFormat);

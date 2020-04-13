@@ -15,7 +15,7 @@
  */
 
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
-import { ConfigError } from './errors';
+import { FunctionConfigError } from './errors';
 
 /**
  * Interface describing KPT functions.
@@ -167,7 +167,7 @@ export class Configs {
   /**
    * Returns the value for the given key if functionConfig is of kind ConfigMap.
    *
-   * Throws a ConfigError if functionConfig kind is not a ConfigMap.
+   * Throws a FunctionConfigError if functionConfig kind is not a ConfigMap.
    *
    * Returns undefined if functionConfig is undefined OR
    * if the ConfigMap has no such key in the 'data' section.
@@ -180,7 +180,7 @@ export class Configs {
       return undefined;
     }
     if (!isConfigMap(cm)) {
-      throw new ConfigError(
+      throw new FunctionConfigError(
         `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
       );
     }
@@ -188,12 +188,12 @@ export class Configs {
   }
 
   /**
-   * Similar to {@link getFunctionConfigValue} except it throws a ConfigError if the given key is undefined.
+   * Similar to [[getFunctionConfigValue]] except it throws a ConfigError if the given key is undefined.
    */
   getFunctionConfigValueOrThrow(key: string): string {
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
-      throw new ConfigError(
+      throw new FunctionConfigError(
         `Missing 'data.${key}' in ConfigMap provided as functionConfig`
       );
     }
@@ -272,6 +272,76 @@ export function isKubernetesObject(o: any): o is KubernetesObject {
 export function kubernetesKey(o: KubernetesObject): string {
   const namespace = o.metadata.namespace || '';
   return `${o.apiVersion}/${o.kind}/${namespace}/${o.metadata.name}`;
+}
+
+/**
+ * ResourceList is the wire format for the output of the KPT function as defined by the spec:
+ * https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
+ */
+export class ResourceList implements KubernetesObject {
+  readonly apiVersion = 'v1';
+  readonly kind = 'ResourceList';
+  readonly metadata = {
+    name: 'output',
+  };
+  readonly items: KubernetesObject[];
+  readonly results?: Result[];
+
+  /**
+   * @param items List of Kubernetes objects returned by the function.
+   * @param results List of results returned by the function.
+   */
+  constructor(items: KubernetesObject[], results?: Result[]) {
+    this.items = items;
+    this.results = results;
+  }
+}
+
+/**
+ * Severity of a configuration result.
+ */
+export type Severity = 'error' | 'warn' | 'info';
+
+/**
+ * Result represents a configuration-related issue returned by a function.
+ *
+ * It can be at the following granularities:
+ * - A file containing multiple objects
+ * - A specific kubernetes object
+ * - A specific field of a kubernetes object
+ */
+export interface Result {
+  // Severify of the issue.
+  severity: Severity;
+  // Message describing the issue.
+  message: string;
+  // Additional metadata for tracking the issue.
+  tags?: { [key: string]: string };
+  // A reference to the object with the issue.
+  resourceRef?: {
+    apiVersion: string;
+    kind: string;
+    namespace: string;
+    name: string;
+  };
+  // File-level for the issue.
+  file?: {
+    // OS agnostic, relative, slash-delimited path.
+    // e.g. "some-dir/some-file.yaml"
+    path?: string;
+    // Index of the object in a multi-object YAML file.
+    index?: number;
+  };
+  // A specific field in the object.
+  field?: {
+    // JSON Path
+    // e.g. "spec.template.spec.containers[3].resources.limits.cpu"
+    path: string;
+    // Current value of the field.
+    currentValue: string | number | boolean;
+    // Proposed value to fix the issue.
+    suggestedValue: string | number | boolean;
+  };
 }
 
 interface ConfigMap extends KubernetesObject {

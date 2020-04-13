@@ -34,7 +34,10 @@ export async function validateRolebinding(configs: Configs) {
     .filter(
       rb => rb && rb.subjects && rb.subjects.find(s => s.name === subjectName)
     )
-    .map(rb => new KubernetesObjectError('Object has banned subject', rb));
+    .map(
+      rb =>
+        new KubernetesObjectError(`Found banned subject '${subjectName}'`, rb)
+    );
 
   if (errors.length) {
     throw new MultiConfigError(

@@ -14,18 +14,172 @@
  * limitations under the License.
  */
 
-import { KubernetesObject } from './types';
-import { SOURCE_PATH_ANNOTATION, getAnnotation } from './metadata';
+import { KubernetesObject, Result, Severity } from './types';
+import {
+  SOURCE_INDEX_ANNOTATION,
+  SOURCE_PATH_ANNOTATION,
+  getAnnotation,
+} from './metadata';
 
 /**
- * Base class that represent a configuration-related error.
+ * Base class that represent a configuration issue.
  *
  * Typically you should use one of the more specific child classes.
  */
 export class ConfigError extends Error {
-  constructor(message: string) {
+  /**
+   * @param message: Issue message.
+   * @param severity: Severity of this issue.
+   * @param tags: Additional metadata about this issue.
+   */
+  constructor(
+    message: string,
+    readonly severity: Severity = 'error',
+    readonly tags?: { [key: string]: string }
+  ) {
     super(message);
     this.name = 'ConfigError';
+  }
+
+  /**
+   * Structured representation of the issue.
+   */
+  toResults(): Result[] {
+    return [
+      {
+        message: this.message,
+        severity: this.severity,
+        tags: this.tags,
+      },
+    ];
+  }
+
+  /**
+   * String representation of the issue.
+   */
+  toString(): string {
+    return `[${this.severity.toUpperCase()}] ${this.message}`;
+  }
+
+  /**
+   * Logs issue to stderr.
+   */
+  log() {
+    console.error(this.toString());
+  }
+}
+
+/**
+ * Represents an issue with a configuration file.
+ */
+export class ConfigFileError extends ConfigError {
+  /**
+   * @param message: Issue message.
+   * @param path: OS agnostic, relative, slash-delimited path e.g. "some-dir/some-file.yaml"
+   * @param severity: Severity of this issue.
+   * @param tags: Additional metadata about this issue.
+   */
+  constructor(
+    message: string,
+    readonly path: string,
+    readonly severity: Severity = 'error',
+    readonly tags?: { [key: string]: string }
+  ) {
+    super(message, severity, tags);
+    this.name = 'ConfigFileError';
+  }
+
+  toResults(): Result[] {
+    return [
+      {
+        message: this.message,
+        severity: this.severity,
+        tags: this.tags,
+        file: {
+          path: this.path,
+        },
+      },
+    ];
+  }
+
+  toString(): string {
+    return `${super.toString()} in file '${this.path}'`;
+  }
+}
+
+/**
+ * Metadata about a specific field in a Kubernetes object.
+ */
+export interface FieldInfo {
+  // JSON path of the field.
+  path: string;
+  // Current value of the field.
+  currentValue: string | number | boolean;
+  // Suggeste value of the field to fix the issue.
+  suggestedValue: string | number | boolean;
+}
+
+/**
+ * Represents an issue with a Kubernetes object.
+ */
+export class KubernetesObjectError extends ConfigError {
+  /**
+   *
+   * @param message: Error message.
+   * @param object: Kubernertes object with the issue.
+   * @param field:  Metadata about a specific field in a Kubernetes object.
+   * @param severity: Severity of this issue.
+   * @param tags: Additional metadata about this issue.
+   */
+  constructor(
+    message: string,
+    readonly object: KubernetesObject,
+    readonly field?: FieldInfo,
+    readonly severity: Severity = 'error',
+    readonly tags?: { [key: string]: string }
+  ) {
+    super(message, severity, tags);
+    this.name = 'KubernetesObjectError';
+  }
+
+  toResults(): Result[] {
+    const path: string | undefined = getAnnotation(
+      this.object,
+      SOURCE_PATH_ANNOTATION
+    );
+    const index: number | undefined =
+      Number(getAnnotation(this.object, SOURCE_INDEX_ANNOTATION)) || undefined;
+    return [
+      {
+        message: this.message,
+        severity: this.severity,
+        tags: this.tags,
+        resourceRef: {
+          apiVersion: this.object.apiVersion,
+          kind: this.object.kind,
+          namespace: this.object.metadata.namespace || '',
+          name: this.object.metadata.name,
+        },
+        file: {
+          path: path,
+          index: index,
+        },
+        field: this.field,
+      },
+    ];
+  }
+
+  toString(): string {
+    const result = this.toResults()[0];
+    const resource = result.resourceRef!;
+    let s = `${super.toString()} in object '${resource.apiVersion}/${
+      resource.kind
+    }/${resource.namespace}/${resource.name}'`;
+    const path = result.file && result.file.path;
+    if (path) {
+      s += ` in file '${path}'`;
+    }
+    return s;
   }
 }
 
@@ -33,16 +187,29 @@ export class ConfigError extends Error {
  * Wraps multiple ConfigError objects.
  */
 export class MultiConfigError extends ConfigError {
-  readonly errors: ConfigError[];
-
-  constructor(message: string, errors: ConfigError[]) {
+  /**
+   * @param message: Issue message.
+   * @param errors: Constituent issues.
+   */
+  constructor(message: string = '', readonly errors: ConfigError[] = []) {
     super(message);
-    this.name = 'MultiConfigErrors';
-    this.errors = errors;
+    this.name = 'MultiConfigError';
   }
 
+  /**
+   * Add the given ConfigError to the collection.
+   */
   push(error: ConfigError) {
     this.errors.push(error);
+  }
+
+  toResults(): Result[] {
+    return this.errors
+      .map(e => e.toResults())
+      .reduce(
+        (accumulator, currentValue) => accumulator.concat(currentValue),
+        []
+      );
   }
 
   toString(): string {
@@ -50,44 +217,18 @@ export class MultiConfigError extends ConfigError {
       .map((e, i) => `[${i + 1}] ${e}`)
       .sort()
       .join('\n');
-    return `${this.name}: ${this.message}\n\n${e}`;
+    if (!this.message) {
+      this.message = `Found ${this.errors.length} issues`;
+    }
+    return `${this.message}:\n\n${e}`;
   }
 }
 
 /**
- * Represents an error with a configuration file.
+ * Represents an error with the functionConfig used to parametrize the function.
  */
-export class ConfigFileError extends ConfigError {
-  constructor(message: string, readonly path: string) {
+export class FunctionConfigError extends Error {
+  constructor(message: string) {
     super(message);
-    this.name = 'ConfigFileError';
-  }
-
-  toString(): string {
-    return `${this.name}: ${this.message} in file ${this.path}`;
-  }
-}
-
-/**
- * Represents an error with a KubernetesObject.
- */
-export class KubernetesObjectError extends ConfigError {
-  constructor(message: string, readonly object: KubernetesObject) {
-    super(message);
-    this.name = 'KubernetesObjectError';
-  }
-
-  toString(): string {
-    const path =
-      getAnnotation(this.object, SOURCE_PATH_ANNOTATION) ||
-      'No path annotation';
-    const namespace = this.object.metadata.namespace || '';
-    return `${this.name}: ${this.message}
-path: ${path}
-apiVersion: "${this.object.apiVersion}"
-kind: "${this.object.kind}"
-metadata.namespace: "${namespace}"
-metadata.name: "${this.object.metadata.name}"
-`;
   }
 }
