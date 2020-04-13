@@ -546,7 +546,7 @@ items:
 `);
     });
 
-    it('has issues', () => {
+    it('has results', () => {
       const result = stringify(new Configs(), FileFormat.YAML, [
         { message: 'hello', severity: 'error' },
       ]);
@@ -556,7 +556,7 @@ kind: ResourceList
 metadata:
   name: output
 items: []
-issues:
+results:
 - message: hello
   severity: error
 `);

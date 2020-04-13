@@ -285,32 +285,32 @@ export class ResourceList implements KubernetesObject {
     name: 'output',
   };
   readonly items: KubernetesObject[];
-  readonly issues?: Issue[];
+  readonly results?: Result[];
 
   /**
    * @param items List of Kubernetes objects returned by the function.
-   * @param issues List of issues returned by the function.
+   * @param results List of results returned by the function.
    */
-  constructor(items: KubernetesObject[], issues?: Issue[]) {
+  constructor(items: KubernetesObject[], results?: Result[]) {
     this.items = items;
-    this.issues = issues;
+    this.results = results;
   }
 }
 
 /**
- * Severity of a configuration issue.
+ * Severity of a configuration result.
  */
-export type Severity = 'error' | 'warning' | 'note';
+export type Severity = 'error' | 'warn' | 'info';
 
 /**
- * Issue represents a configuration-related issue returned by a function.
+ * Result represents a configuration-related issue returned by a function.
  *
  * It can be at the following granularities:
  * - A file containing multiple objects
  * - A specific kubernetes object
  * - A specific field of a kubernetes object
  */
-export interface Issue {
+export interface Result {
   // Severify of the issue.
   severity: Severity;
   // Message describing the issue.

@@ -118,7 +118,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
   parser.addArgument('--log-to-stderr', {
     action: 'storeTrue',
     help:
-      'Confguration issues should be logged to stderr in addition to the ".issues" field in the output',
+      'Confguration issues should be logged to stderr in addition to the ".results" field in the output',
   });
 
   // Parse args.
@@ -140,7 +140,8 @@ Use this ONLY if the function accepts a ConfigMap.`,
     }
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
-  const logToStderr = Boolean(args.get('log_to_stderr'));
+  const logToStderr =
+    process.env.LOG_TO_STDERR || Boolean(args.get('log_to_stderr'));
 
   // Read the input and construct Configs.
   const configs = await readConfigs(inputFile, fileFormat, functionConfig);
@@ -154,7 +155,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
         err.log();
       }
       // Include Issues as part of function's output.
-      await writeConfigs(outputFile, configs, fileFormat, err.toIssues());
+      await writeConfigs(outputFile, configs, fileFormat, err.toResults());
     }
     throw err;
   }

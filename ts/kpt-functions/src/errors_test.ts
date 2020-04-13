@@ -32,7 +32,7 @@ describe('Errors', () => {
     it('only message param', () => {
       const e = new ConfigError('hello');
 
-      expect(e.toIssues()).toEqual([
+      expect(e.toResults()).toEqual([
         {
           message: 'hello',
           severity: 'error',
@@ -42,12 +42,12 @@ describe('Errors', () => {
     });
 
     it('all params', () => {
-      const e = new ConfigError('hello', 'warning', { color: 'blue' });
+      const e = new ConfigError('hello', 'warn', { color: 'blue' });
 
-      expect(e.toIssues()).toEqual([
+      expect(e.toResults()).toEqual([
         {
           message: 'hello',
-          severity: 'warning',
+          severity: 'warn',
           tags: { color: 'blue' },
         },
       ]);
@@ -56,14 +56,14 @@ describe('Errors', () => {
 
   describe('ConfigFileError', () => {
     it('all params', () => {
-      const e = new ConfigFileError('hello', 'a/b/c.yaml', 'note', {
+      const e = new ConfigFileError('hello', 'a/b/c.yaml', 'info', {
         color: 'blue',
       });
 
-      expect(e.toIssues()).toEqual([
+      expect(e.toResults()).toEqual([
         {
           message: 'hello',
-          severity: 'note',
+          severity: 'info',
           tags: { color: 'blue' },
           file: { path: 'a/b/c.yaml' },
         },
@@ -90,16 +90,16 @@ describe('Errors', () => {
         'hello',
         someObject,
         undefined,
-        'note',
+        'info',
         {
           color: 'blue',
         }
       );
 
-      expect(e.toIssues()).toEqual([
+      expect(e.toResults()).toEqual([
         {
           message: 'hello',
-          severity: 'note',
+          severity: 'info',
           tags: { color: 'blue' },
           resourceRef: {
             apiVersion: 'v1',
@@ -118,7 +118,7 @@ describe('Errors', () => {
       addAnnotation(someObject, SOURCE_INDEX_ANNOTATION, '2');
       const e = new KubernetesObjectError('hello', someObject);
 
-      expect(e.toIssues()).toEqual([
+      expect(e.toResults()).toEqual([
         {
           message: 'hello',
           severity: 'error',
@@ -142,7 +142,7 @@ describe('Errors', () => {
         suggestedValue: 2,
       });
 
-      expect(e.toIssues()).toEqual([
+      expect(e.toResults()).toEqual([
         {
           message: 'hello',
           severity: 'error',
@@ -161,9 +161,9 @@ describe('Errors', () => {
   });
 
   describe('MultiConfigerror', () => {
-    const e = new MultiConfigError('foo');
-    e.push(new ConfigError('hello', 'warning'));
-    e.push(new ConfigFileError('world', 'a/b/c.yaml', 'error'));
+    const e = new MultiConfigError();
+    e.push(new ConfigError('hello', 'warn'));
+    e.push(new ConfigFileError('world', 'a/b/c.yaml', 'info'));
     e.push(
       new KubernetesObjectError('bye', {
         apiVersion: 'v1',
@@ -175,16 +175,16 @@ describe('Errors', () => {
       })
     );
 
-    it('toIssues', () => {
-      expect(e.toIssues()).toEqual([
+    it('toResults', () => {
+      expect(e.toResults()).toEqual([
         {
           message: 'hello',
-          severity: 'warning',
+          severity: 'warn',
           tags: undefined,
         },
         {
           message: 'world',
-          severity: 'error',
+          severity: 'info',
           tags: undefined,
           file: { path: 'a/b/c.yaml' },
         },
@@ -205,11 +205,11 @@ describe('Errors', () => {
     });
 
     it('toString', () => {
-      expect(e.toString()).toEqual(`MultiConfigError: foo
+      expect(e.toString()).toEqual(`Found 3 issues:
 
-[1] ConfigError: hello (warning)
-[2] ConfigFileError: world in file 'a/b/c.yaml' (error)
-[3] KubernetesObjectError: bye in object 'v1/Namespace/bar/foo' (error)`);
+[1] [WARN] hello
+[2] [INFO] world in file 'a/b/c.yaml'
+[3] [ERROR] bye in object 'v1/Namespace/bar/foo'`);
     });
   });
 });

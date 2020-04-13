@@ -16,7 +16,7 @@
 
 import { DumpOptions, safeDump, safeLoad } from 'js-yaml';
 import rw from 'rw';
-import { Configs, KubernetesObject, ResourceList, Issue } from './types';
+import { Configs, KubernetesObject, ResourceList, Result } from './types';
 
 export enum FileFormat {
   YAML,
@@ -109,19 +109,19 @@ function load(raw: string, format: FileFormat): any {
  * @param output Path to to the file to be created, it must not exist.
  * @param configs Contains objects to write to the output file.
  * @param format Defines whether to write the Configs as YAML or JSON.
- * @param issues List of config issues returned by the function.
+ * @param results List of config results returned by the function.
  */
 export async function writeConfigs(
   output: FilePath,
   configs: Configs,
   format: FileFormat,
-  issues?: Issue[]
+  results?: Result[]
 ): Promise<void> {
   if (output === '/dev/null') {
     return;
   }
 
-  await writeFile(output, stringify(configs, format, issues));
+  await writeFile(output, stringify(configs, format, results));
 }
 
 /**
@@ -129,14 +129,14 @@ export async function writeConfigs(
  *
  * @param configs The configs to convert to a string.
  * @param format defines whether to write the configs as YAML or JSON.
- * @param issues List of config issues returned by the function.
+ * @param results List of config results returned by the function.
  */
 export function stringify(
   configs: Configs,
   format: FileFormat,
-  issues?: Issue[]
+  results?: Result[]
 ): string {
-  const output = new ResourceList(configs.getAll(), issues);
+  const output = new ResourceList(configs.getAll(), results);
 
   switch (format) {
     case FileFormat.JSON:

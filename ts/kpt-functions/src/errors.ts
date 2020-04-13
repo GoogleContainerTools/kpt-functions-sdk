@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { KubernetesObject, Issue, Severity } from './types';
+import { KubernetesObject, Result, Severity } from './types';
 import {
   SOURCE_INDEX_ANNOTATION,
   SOURCE_PATH_ANNOTATION,
@@ -44,7 +44,7 @@ export class ConfigError extends Error {
   /**
    * Structured representation of the issue.
    */
-  toIssues(): Issue[] {
+  toResults(): Result[] {
     return [
       {
         message: this.message,
@@ -58,7 +58,7 @@ export class ConfigError extends Error {
    * String representation of the issue.
    */
   toString(): string {
-    return `${this.name}: ${this.message} (${this.severity})`;
+    return `[${this.severity.toUpperCase()}] ${this.message}`;
   }
 
   /**
@@ -89,7 +89,7 @@ export class ConfigFileError extends ConfigError {
     this.name = 'ConfigFileError';
   }
 
-  toIssues(): Issue[] {
+  toResults(): Result[] {
     return [
       {
         message: this.message,
@@ -103,7 +103,7 @@ export class ConfigFileError extends ConfigError {
   }
 
   toString(): string {
-    return `${this.name}: ${this.message} in file '${this.path}' (${this.severity})`;
+    return `${super.toString()} in file '${this.path}'`;
   }
 }
 
@@ -142,7 +142,7 @@ export class KubernetesObjectError extends ConfigError {
     this.name = 'KubernetesObjectError';
   }
 
-  toIssues(): Issue[] {
+  toResults(): Result[] {
     const path: string | undefined = getAnnotation(
       this.object,
       SOURCE_PATH_ANNOTATION
@@ -170,14 +170,15 @@ export class KubernetesObjectError extends ConfigError {
   }
 
   toString(): string {
-    const issue = this.toIssues()[0];
-    const r = issue.resourceRef!;
-    let s = `${this.name}: ${this.message} in object '${r.apiVersion}/${r.kind}/${r.namespace}/${r.name}'`;
-    const path = issue.file && issue.file.path;
+    const result = this.toResults()[0];
+    const resource = result.resourceRef!;
+    let s = `${super.toString()} in object '${resource.apiVersion}/${
+      resource.kind
+    }/${resource.namespace}/${resource.name}'`;
+    const path = result.file && result.file.path;
     if (path) {
       s += ` in file '${path}'`;
     }
-    s += ` (${this.severity})`;
     return s;
   }
 }
@@ -190,7 +191,7 @@ export class MultiConfigError extends ConfigError {
    * @param message: Issue message.
    * @param errors: Constituent issues.
    */
-  constructor(message: string, readonly errors: ConfigError[] = []) {
+  constructor(message: string = '', readonly errors: ConfigError[] = []) {
     super(message);
     this.name = 'MultiConfigError';
   }
@@ -202,9 +203,9 @@ export class MultiConfigError extends ConfigError {
     this.errors.push(error);
   }
 
-  toIssues(): Issue[] {
+  toResults(): Result[] {
     return this.errors
-      .map(e => e.toIssues())
+      .map(e => e.toResults())
       .reduce(
         (accumulator, currentValue) => accumulator.concat(currentValue),
         []
@@ -216,7 +217,10 @@ export class MultiConfigError extends ConfigError {
       .map((e, i) => `[${i + 1}] ${e}`)
       .sort()
       .join('\n');
-    return `${this.name}: ${this.message}\n\n${e}`;
+    if (!this.message) {
+      this.message = `Found ${this.errors.length} issues`;
+    }
+    return `${this.message}:\n\n${e}`;
   }
 }
 
