@@ -115,10 +115,10 @@ Use this ONLY if the function accepts a ConfigMap.`,
     action: 'storeTrue',
     help: 'Input and output files are in JSON instead of YAML',
   });
-  parser.addArgument('--log-to-stderr', {
+  parser.addArgument('--structured_results', {
     action: 'storeTrue',
     help:
-      'Confguration issues should be logged to stderr in addition to the ".results" field in the output',
+      'Emit structured results using ".results" field in stdout. Otherwise, emit unstructured logs to stderr',
   });
 
   // Parse args.
@@ -140,8 +140,8 @@ Use this ONLY if the function accepts a ConfigMap.`,
     }
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
-  const logToStderr =
-    process.env.LOG_TO_STDERR || Boolean(args.get('log_to_stderr'));
+  const structuredResults =
+    process.env.STRUCTURED_RESULTS || Boolean(args.get('structured_results'));
 
   // Read the input and construct Configs.
   const configs = await readConfigs(inputFile, fileFormat, functionConfig);
@@ -151,11 +151,12 @@ Use this ONLY if the function accepts a ConfigMap.`,
     await fn(configs);
   } catch (err) {
     if (err instanceof ConfigError) {
-      if (logToStderr) {
+      if (structuredResults) {
+        // Include Issues as part of function's output.
+        await writeConfigs(outputFile, configs, fileFormat, err.toResults());
+      } else {
         err.log();
       }
-      // Include Issues as part of function's output.
-      await writeConfigs(outputFile, configs, fileFormat, err.toResults());
     }
     throw err;
   }
