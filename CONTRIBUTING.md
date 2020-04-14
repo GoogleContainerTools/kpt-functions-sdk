@@ -29,5 +29,5 @@ This project follows
 
 ## Additional Notes
 
-Follow the [contributor guide](docs/contributor-guide.md) for additional tips and best practices when
+Follow the [contributor guide](https://googlecontainertools.github.io/kpt-functions-sdk/contributor-guide/) for additional tips and best practices when
 submitting changes.
