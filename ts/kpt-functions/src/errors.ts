@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { KubernetesObject, Result, Severity } from './types';
+import { KubernetesObject, Result, Severity, FieldInfo } from './types';
 import {
   SOURCE_INDEX_ANNOTATION,
   SOURCE_PATH_ANNOTATION,
@@ -105,18 +105,6 @@ export class ConfigFileError extends ConfigError {
   toString(): string {
     return `${super.toString()} in file '${this.path}'`;
   }
-}
-
-/**
- * Metadata about a specific field in a Kubernetes object.
- */
-export interface FieldInfo {
-  // JSON path of the field.
-  path: string;
-  // Current value of the field.
-  currentValue: string | number | boolean;
-  // Suggeste value of the field to fix the issue.
-  suggestedValue: string | number | boolean;
 }
 
 /**

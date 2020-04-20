@@ -303,6 +303,19 @@ export class ResourceList implements KubernetesObject {
 export type Severity = 'error' | 'warn' | 'info';
 
 /**
+ * Metadata about a specific field in a Kubernetes object.
+ */
+export interface FieldInfo {
+  // JSON Path
+  // e.g. "spec.template.spec.containers[3].resources.limits.cpu"
+  path: string;
+  // Current value of the field.
+  currentValue?: string | number | boolean;
+  // Proposed value to fix the issue.
+  suggestedValue?: string | number | boolean;
+}
+
+/**
  * Result represents a configuration-related issue returned by a function.
  *
  * It can be at the following granularities:
@@ -333,15 +346,7 @@ export interface Result {
     index?: number;
   };
   // A specific field in the object.
-  field?: {
-    // JSON Path
-    // e.g. "spec.template.spec.containers[3].resources.limits.cpu"
-    path: string;
-    // Current value of the field.
-    currentValue: string | number | boolean;
-    // Proposed value to fix the issue.
-    suggestedValue: string | number | boolean;
-  };
+  field?: FieldInfo;
 }
 
 interface ConfigMap extends KubernetesObject {
