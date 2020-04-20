@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner, ConfigError } from 'kpt-functions';
+import { Configs, TestRunner, FunctionConfigError } from 'kpt-functions';
 import {
   ClusterRoleBinding,
   RoleBinding,
@@ -32,7 +32,7 @@ const FUNC_CONFIG: ConfigMap = new ConfigMap({
 describe(validateRolebinding.name, () => {
   it(
     'passes empty input',
-    RUNNER.assertCallback(undefined, undefined, ConfigError)
+    RUNNER.assertCallback(undefined, undefined, FunctionConfigError)
   );
 
   it(

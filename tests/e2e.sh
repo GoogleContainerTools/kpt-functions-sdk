@@ -22,7 +22,9 @@ NODOCKER=${NODOCKER:-}
 EMPTY_OUTPUT=$(
   cat <<-EOF
 apiVersion: v1
-kind: List
+kind: ResourceList
+metadata:
+  name: output
 items: []
 EOF
 )
