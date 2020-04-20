@@ -13,26 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Usage ex:
-# $ publish-npm.sh release-kpt-functions-v0.13.0-rc.1
+# Usage:
+# $ version-kpt-functinos-sdk.sh 0.13.0-rc.1
 
 set -euo pipefail
 
+TAG_VERSION=${1};
+TAG=release-kpt-functions-v${1};
 
-TAG_VERSION=${1#*-v};
-echo "tag version: $TAG_VERSION"
-
-PACKAGE_VERSION=$(node -p "require('./package.json').version")
-echo "package version: $PACKAGE_VERSION"
-
-if [[ "$PACKAGE_VERSION" != "$TAG_VERSION" ]]; then
-      echo "package version does not match the tag"
-      exit 1
-fi
-
-
-if [[ "$PACKAGE_VERSION" == *"rc"* ]]; then
-      npm publish --tag rc
-else
-      npm publish
-fi
+cd ts/kpt-functions
+npm --no-git-tag-version version "${TAG_VERSION}"
+git add package.json package-lock.json
+git commit -m "${TAG}"

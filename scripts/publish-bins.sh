@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Usage ex:
+# $ publish-bins.sh release-typegen-v0.13.0
+
 set -xeuo pipefail
 
 VERSION=${1#*-v};
