@@ -346,7 +346,7 @@ export interface Result {
     index?: number;
   };
   // A specific field in the object.
-  field?: FieldInfo
+  field?: FieldInfo;
 }
 
 interface ConfigMap extends KubernetesObject {
