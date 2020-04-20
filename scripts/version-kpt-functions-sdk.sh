@@ -19,9 +19,8 @@
 set -euo pipefail
 
 TAG_VERSION=${1};
-TAG=release-kpt-functions-v${1};
 
 cd ts/kpt-functions
 npm --no-git-tag-version version "${TAG_VERSION}"
 git add package.json package-lock.json
-git commit -m "${TAG}"
+git commit -m "kpt-functions@${TAG_VERSION}"
