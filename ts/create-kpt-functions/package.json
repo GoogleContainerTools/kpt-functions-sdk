@@ -67,6 +67,6 @@
   "goBinary": {
     "name": "typegen",
     "path": "./bin",
-    "url": "https://storage.googleapis.com/kpt-functions/v{{version}}/typegen_{{platform}}_{{arch}}.tar.gz"
+    "url": "https://storage.googleapis.com/kpt-functions/v0.16.4/typegen_{{platform}}_{{arch}}.tar.gz"
   }
 }

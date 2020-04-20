@@ -15,7 +15,7 @@
     "kpt:type-create": "kpt type-create"
   },
   "dependencies": {
-    "kpt-functions": "^0.12.0"
+    "kpt-functions": "^0.13.0"
   },
   "devDependencies": {
     "create-kpt-functions": "^0.16.0",
