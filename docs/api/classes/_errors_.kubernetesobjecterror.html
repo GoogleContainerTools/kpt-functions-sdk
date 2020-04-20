@@ -68,7 +68,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Represents an error with a KubernetesObject.</p>
+						<p>Represents an issue with a Kubernetes object.</p>
 					</div>
 				</div>
 			</section>
@@ -98,16 +98,21 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_errors_.kubernetesobjecterror.html#field" class="tsd-kind-icon">field</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="_errors_.kubernetesobjecterror.html#message" class="tsd-kind-icon">message</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="_errors_.kubernetesobjecterror.html#name" class="tsd-kind-icon">name</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_errors_.kubernetesobjecterror.html#object" class="tsd-kind-icon">object</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite"><a href="_errors_.kubernetesobjecterror.html#severity" class="tsd-kind-icon">severity</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="_errors_.kubernetesobjecterror.html#stack" class="tsd-kind-icon">stack</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite"><a href="_errors_.kubernetesobjecterror.html#tags" class="tsd-kind-icon">tags</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_errors_.kubernetesobjecterror.html#tostring" class="tsd-kind-icon">to<wbr>String</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_errors_.kubernetesobjecterror.html#log" class="tsd-kind-icon">log</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_errors_.kubernetesobjecterror.html#toresults" class="tsd-kind-icon">to<wbr>Results</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_errors_.kubernetesobjecterror.html#tostring" class="tsd-kind-icon">to<wbr>String</a></li>
 							</ul>
 						</section>
 					</div>
@@ -119,16 +124,18 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Kubernetes<wbr>Object<wbr>Error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, object<span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_errors_.kubernetesobjecterror.html" class="tsd-signature-type">KubernetesObjectError</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Kubernetes<wbr>Object<wbr>Error<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, object<span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a>, field<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_types_.fieldinfo.html" class="tsd-signature-type">FieldInfo</a>, severity<span class="tsd-signature-symbol">?: </span><a href="../modules/_types_.html#severity" class="tsd-signature-type">Severity</a>, tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_errors_.kubernetesobjecterror.html" class="tsd-signature-type">KubernetesObjectError</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_errors_.configerror.html">ConfigError</a>.<a href="_errors_.configerror.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/3a40b95/ts/kpt-functions/src/errors.ts#L74">src/errors.ts:74</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L113">src/errors.ts:113</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -136,6 +143,15 @@
 								</li>
 								<li>
 									<h5>object: <a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> field: <a href="../interfaces/_types_.fieldinfo.html" class="tsd-signature-type">FieldInfo</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> severity: <a href="../modules/_types_.html#severity" class="tsd-signature-type">Severity</a><span class="tsd-signature-symbol"> = &quot;error&quot;</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> tags: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_errors_.kubernetesobjecterror.html" class="tsd-signature-type">KubernetesObjectError</a></h4>
@@ -145,6 +161,16 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="field" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> field</h3>
+					<div class="tsd-signature tsd-kind-icon">field<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_types_.fieldinfo.html" class="tsd-signature-type">FieldInfo</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L125">src/errors.ts:125</a></li>
+						</ul>
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="message" class="tsd-anchor"></a>
 					<h3>message</h3>
@@ -173,7 +199,18 @@
 					<div class="tsd-signature tsd-kind-icon">object<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/3a40b95/ts/kpt-functions/src/errors.ts#L75">src/errors.ts:75</a></li>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L124">src/errors.ts:124</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+					<a name="severity" class="tsd-anchor"></a>
+					<h3>severity</h3>
+					<div class="tsd-signature tsd-kind-icon">severity<span class="tsd-signature-symbol">:</span> <a href="../modules/_types_.html#severity" class="tsd-signature-type">Severity</a></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_errors_.configerror.html">ConfigError</a>.<a href="_errors_.configerror.html#severity">severity</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L126">src/errors.ts:126</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -188,20 +225,73 @@
 						</ul>
 					</aside>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+					<a name="tags" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> tags</h3>
+					<div class="tsd-signature tsd-kind-icon">tags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></div>
+					<aside class="tsd-sources">
+						<p>Overrides <a href="_errors_.configerror.html">ConfigError</a>.<a href="_errors_.configerror.html#tags">tags</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L127">src/errors.ts:127</a></li>
+						</ul>
+					</aside>
+				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="log" class="tsd-anchor"></a>
+					<h3>log</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">log<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_errors_.configerror.html">ConfigError</a>.<a href="_errors_.configerror.html#log">log</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L67">src/errors.ts:67</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Logs issue to stderr.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<a name="toresults" class="tsd-anchor"></a>
+					<h3>to<wbr>Results</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Results<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Overrides <a href="_errors_.configerror.html">ConfigError</a>.<a href="_errors_.configerror.html#toresults">toResults</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L133">src/errors.ts:133</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="tostring" class="tsd-anchor"></a>
 					<h3>to<wbr>String</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">to<wbr>String<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="_errors_.configerror.html">ConfigError</a>.<a href="_errors_.configerror.html#tostring">toString</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/3a40b95/ts/kpt-functions/src/errors.ts#L80">src/errors.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/errors.ts#L160">src/errors.ts:160</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -241,6 +331,9 @@
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="_errors_.configfileerror.html" class="tsd-kind-icon">Config<wbr>File<wbr>Error</a>
 					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="_errors_.functionconfigerror.html" class="tsd-kind-icon">Function<wbr>Config<wbr>Error</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-external-module">
@@ -248,6 +341,9 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 								<a href="_errors_.kubernetesobjecterror.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_errors_.kubernetesobjecterror.html#field" class="tsd-kind-icon">field</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="_errors_.kubernetesobjecterror.html#message" class="tsd-kind-icon">message</a>
@@ -258,10 +354,22 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="_errors_.kubernetesobjecterror.html#object" class="tsd-kind-icon">object</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_errors_.kubernetesobjecterror.html#severity" class="tsd-kind-icon">severity</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="_errors_.kubernetesobjecterror.html#stack" class="tsd-kind-icon">stack</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_errors_.kubernetesobjecterror.html#tags" class="tsd-kind-icon">tags</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_errors_.kubernetesobjecterror.html#log" class="tsd-kind-icon">log</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_errors_.kubernetesobjecterror.html#toresults" class="tsd-kind-icon">to<wbr>Results</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="_errors_.kubernetesobjecterror.html#tostring" class="tsd-kind-icon">to<wbr>String</a>
 							</li>
 						</ul>

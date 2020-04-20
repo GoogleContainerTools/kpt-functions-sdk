@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;run&quot; | kpt-functions</title>
+	<title>FieldInfo | kpt-functions</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,60 +52,80 @@
 					<a href="../index.html">Globals</a>
 				</li>
 				<li>
-					<a href="_run_.html">&quot;run&quot;</a>
+					<a href="../modules/_types_.html">&quot;types&quot;</a>
+				</li>
+				<li>
+					<a href="_types_.fieldinfo.html">FieldInfo</a>
 				</li>
 			</ul>
-			<h1>External module &quot;run&quot;</h1>
+			<h1>Interface FieldInfo</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Metadata about a specific field in a Kubernetes object.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">FieldInfo</span>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Functions</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_run_.html#run" class="tsd-kind-icon">run</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_types_.fieldinfo.html#currentvalue" class="tsd-kind-icon">current<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_types_.fieldinfo.html#path" class="tsd-kind-icon">path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_types_.fieldinfo.html#suggestedvalue" class="tsd-kind-icon">suggested<wbr>Value</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
-					<a name="run" class="tsd-anchor"></a>
-					<h3>run</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">run<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.kptfunc.html" class="tsd-signature-type">KptFunc</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/run.ts#L70">src/run.ts:70</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>This is the main entrypoint for running a KPT function.</p>
-								</div>
-								<p>This method does not throw any errors and can be invoked at the top-level without getting
-								an unhandled promise rejection error.</p>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fn: <a href="../interfaces/_types_.kptfunc.html" class="tsd-signature-type">KptFunc</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="currentvalue" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> current<wbr>Value</h3>
+					<div class="tsd-signature tsd-kind-icon">current<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L313">src/types.ts:313</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="path" class="tsd-anchor"></a>
+					<h3>path</h3>
+					<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L311">src/types.ts:311</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="suggestedvalue" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> suggested<wbr>Value</h3>
+					<div class="tsd-signature tsd-kind-icon">suggested<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L315">src/types.ts:315</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -116,26 +136,65 @@
 						<a href="../index.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_errors_.html">&quot;errors&quot;</a>
+						<a href="../modules/_errors_.html">&quot;errors&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_metadata_.html">&quot;metadata&quot;</a>
+						<a href="../modules/_metadata_.html">&quot;metadata&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_run_.html">&quot;run&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_testing_.html">&quot;testing&quot;</a>
 					</li>
 					<li class="current tsd-kind-external-module">
-						<a href="_run_.html">&quot;run&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_testing_.html">&quot;testing&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_types_.html">&quot;types&quot;</a>
+						<a href="../modules/_types_.html">&quot;types&quot;</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/_types_.configs.html" class="tsd-kind-icon">Configs</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-external-module">
+						<a href="../classes/_types_.resourcelist.html" class="tsd-kind-icon">Resource<wbr>List</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_types_.fieldinfo.html" class="tsd-kind-icon">Field<wbr>Info</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_types_.fieldinfo.html#currentvalue" class="tsd-kind-icon">current<wbr>Value</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_types_.fieldinfo.html#path" class="tsd-kind-icon">path</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_types_.fieldinfo.html#suggestedvalue" class="tsd-kind-icon">suggested<wbr>Value</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_types_.kptfunc.html" class="tsd-kind-icon">Kpt<wbr>Func</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_types_.kubernetesobject.html" class="tsd-kind-icon">Kubernetes<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_types_.result.html" class="tsd-kind-icon">Result</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-external-module">
+						<a href="../modules/_types_.html#severity" class="tsd-kind-icon">Severity</a>
+					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="_run_.html#run" class="tsd-kind-icon">run</a>
+						<a href="../modules/_types_.html#iskubernetesobject" class="tsd-kind-icon">is<wbr>Kubernetes<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="../modules/_types_.html#kuberneteskey" class="tsd-kind-icon">kubernetes<wbr>Key</a>
 					</li>
 				</ul>
 			</nav>
