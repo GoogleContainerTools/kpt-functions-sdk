@@ -18,6 +18,8 @@ import { DumpOptions, safeDump, safeLoad } from 'js-yaml';
 import rw from 'rw';
 import { Configs, KubernetesObject, ResourceList, Result } from './types';
 
+console = new console.Console(process.stderr, process.stderr);
+
 export enum FileFormat {
   YAML,
   JSON,
