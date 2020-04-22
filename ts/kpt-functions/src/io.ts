@@ -18,6 +18,7 @@ import { DumpOptions, safeDump, safeLoad } from 'js-yaml';
 import rw from 'rw';
 import { Configs, KubernetesObject, ResourceList, Result } from './types';
 
+// Stdout is used for chaining functions so override global console object to send output to stderr.
 console = new console.Console(process.stderr, process.stderr);
 
 export enum FileFormat {
