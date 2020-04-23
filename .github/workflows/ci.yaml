@@ -63,7 +63,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     env:
       GOPATH: /home/runner/work/kpt-functions-sdk/go
-      GO111MODULE: off  
+      GO111MODULE: on go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.24.0
     steps:
     - name: Set up Go 1.13
       uses: actions/setup-go@v1
