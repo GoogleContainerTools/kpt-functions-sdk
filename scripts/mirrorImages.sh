@@ -7,6 +7,7 @@ imagearray["gcr.io/kpt-functions/read-yaml"]="gcr.io/config-management-release/r
 imagearray["gcr.io/kpt-functions/write-yaml"]="gcr.io/config-management-release/write-yaml"
 imagearray["gcr.io/kpt-functions/gatekeeper-validate"]="gcr.io/config-management-release/policy-controller-validate"
 imagearray["gcr.io/kpt-dev/kpt"]="gcr.io/config-management-release/kpt"
+imagearray["gcr.io/kpt-functions/helm-template"]="gcr.io/kpt-functions/helm-template"
 
 for image in "${!imagearray[@]}"; do
   docker pull ${image}
