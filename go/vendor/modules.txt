@@ -50,8 +50,6 @@ github.com/golang/glog
 # github.com/golang/protobuf v1.3.5
 ## explicit
 github.com/golang/protobuf/proto
-# github.com/golangci/golangci-lint v1.25.0
-## explicit
 # github.com/google/go-cmp v0.3.0
 ## explicit
 github.com/google/go-cmp/cmp
@@ -74,6 +72,8 @@ github.com/inconshreveable/mousetrap
 # github.com/json-iterator/go v1.1.9
 ## explicit
 github.com/json-iterator/go
+# github.com/kr/text v0.2.0
+## explicit
 # github.com/mailru/easyjson v0.7.0
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
@@ -84,6 +84,8 @@ github.com/mitchellh/mapstructure
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
+# github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e
+## explicit
 # github.com/open-policy-agent/frameworks/constraint v0.0.0-20200420221412-5bae2037a343
 ## explicit
 github.com/open-policy-agent/frameworks/constraint/pkg/apis/templates/v1alpha1
@@ -150,6 +152,8 @@ github.com/rcrowley/go-metrics
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
+# github.com/stretchr/testify v1.5.1
+## explicit
 # github.com/yashtewari/glob-intersection v0.0.0-20180916065949-5c77d914dd0b
 github.com/yashtewari/glob-intersection
 # go.mongodb.org/mongo-driver v1.1.2
@@ -159,10 +163,13 @@ go.mongodb.org/mongo-driver/bson/bsonrw
 go.mongodb.org/mongo-driver/bson/bsontype
 go.mongodb.org/mongo-driver/bson/primitive
 go.mongodb.org/mongo-driver/x/bsonx/bsoncore
+# go.uber.org/atomic v1.4.0
+## explicit
 # golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 ## explicit
 golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+## explicit
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
 golang.org/x/net/http/httpguts
@@ -186,6 +193,8 @@ golang.org/x/text/width
 # golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 ## explicit
 golang.org/x/time/rate
+# golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+## explicit
 # google.golang.org/appengine v1.6.5
 ## explicit
 google.golang.org/appengine/internal
@@ -195,6 +204,8 @@ google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
+# gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f
+## explicit
 # gopkg.in/inf.v0 v0.9.1
 gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.2.8
