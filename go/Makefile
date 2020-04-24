@@ -12,7 +12,6 @@ fmt:
 	go fmt ./...
 
 lint:
-	(which $(GOPATH)/bin/golangci-lint || go get github.com/golangci/golangci-lint/cmd/golangci-lint)
 	$(GOPATH)/bin/golangci-lint run ./...
 
 test:
