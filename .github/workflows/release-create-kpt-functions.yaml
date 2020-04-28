@@ -8,9 +8,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      GOPATH: /home/runner/work/kpt-functions-sdk/go
-      GO111MODULE: off
     steps:
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1

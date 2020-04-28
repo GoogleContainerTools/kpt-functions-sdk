@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOPATH: /home/runner/work/kpt-functions-sdk/go
-      GO111MODULE: off
+      GO111MODULE: on
     steps:
     - name: Set up gcloud
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
