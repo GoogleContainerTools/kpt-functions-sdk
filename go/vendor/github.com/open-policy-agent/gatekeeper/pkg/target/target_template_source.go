@@ -15,8 +15,6 @@ autoreject_review[rejection] {
   match := get_default(spec, "match", {})
   has_field(match, "namespaceSelector")
   not {{.DataRoot}}.cluster["v1"]["Namespace"][input.review.namespace]
-  not input.review._unstable.namespace
-  not input.review.namespace == ""
   rejection := {
     "msg": "Namespace is not cached in OPA.",
     "details": {},
@@ -33,12 +31,13 @@ matching_constraints[constraint] {
 
   matches_namespaces(match)
 
-  does_not_match_excludednamespaces(match)
-
   matches_nsselector(match)
 
   label_selector := get_default(match, "labelSelector", {})
-  any_labelselector_match(label_selector)
+  obj := get_default(input.review, "object", {})
+  metadata := get_default(obj, "metadata", {})
+  labels := get_default(metadata, "labels", {})
+  matches_label_selector(label_selector, labels)
 }
 
 # Namespace-scoped objects
@@ -104,17 +103,10 @@ has_field(object, field) = false {
 
 # get_default returns the value of an object's field or the provided default value.
 # It avoids creating an undefined state when trying to access an object attribute that does
-# not exist. It considers a null value to be missing.
+# not exist
 get_default(object, field, _default) = output {
   has_field(object, field)
   output = object[field]
-  output != null
-}
-
-get_default(object, field, _default) = output {
-  has_field(object, field)
-  object[field] == null
-  output = _default
 }
 
 get_default(object, field, _default) = output {
@@ -205,84 +197,9 @@ matches_label_selector(selector, labels) {
   any(mismatches) == false
 }
 
-# object exists, old object is undefined
-any_labelselector_match(label_selector) {
-  get_default(input.review, "oldObject", {}) == {}
-  get_default(input.review, "object", {}) != {}
-
-  obj := get_default(input.review, "object", {})
-  metadata := get_default(obj, "metadata", {})
-  labels := get_default(metadata, "labels", {})
-  matches_label_selector(label_selector, labels)
-}
-
-# old object exists, object is undefined
-any_labelselector_match(label_selector) {
-  get_default(input.review, "oldObject", {}) != {}
-  get_default(input.review, "object", {}) == {}
-
-  obj := get_default(input.review, "oldObject", {})
-  metadata := get_default(obj, "metadata", {})
-  labels := get_default(metadata, "labels", {})
-  matches_label_selector(label_selector, labels)
-}
-
-# both object and old object are defined
-any_labelselector_match(label_selector) {
-  get_default(input.review, "oldObject", {}) != {}
-  get_default(input.review, "object", {}) != {}
-
-  obj := get_default(input.review, "object", {})
-  metadata := get_default(obj, "metadata", {})
-  labels := get_default(metadata, "labels", {})
-
-  old_obj := get_default(input.review, "oldObject", {})
-  old_metadata := get_default(old_obj, "metadata", {})
-  old_labels := get_default(old_metadata, "labels", {})
-
-  all_labels := [labels, old_labels]
-  matches := {matches | l := all_labels[_]; matches := matches_label_selector(label_selector, l)}
-
-  any(matches)
-}
-
-# neither object nor old object are defined
-# this should never happen, included for completeness
-any_labelselector_match(label_selector) {
-  get_default(input.review, "oldObject", {}) == {}
-  get_default(input.review, "object", {}) == {}
-
-  labels = {}
-  matches_label_selector(label_selector, labels)
-}
-
 ############################
 # Namespace Selector Logic #
 ############################
-
-is_ns(kind) {
-  kind.group == ""
-  kind.kind == "Namespace"
-}
-
-get_ns[out] {
-  out := input.review._unstable.namespace
-}
-
-get_ns[out] {
-  not input.review._unstable.namespace
-  out := {{.DataRoot}}.cluster["v1"]["Namespace"][input.review.namespace]
-}
-
-get_ns_name[out] {
-  is_ns(input.review.kind)
-  out := input.review.object.metadata.name
-}
-
-get_ns_name[out] {
-  not is_ns(input.review.kind)
-  out := input.review.namespace
-}
 
 matches_namespaces(match) {
   not has_field(match, "namespaces")
@@ -290,20 +207,8 @@ matches_namespaces(match) {
 
 matches_namespaces(match) {
   has_field(match, "namespaces")
-  get_ns_name[ns]
-  nss := {n | n = match.namespaces[_]}
-  count({ns} - nss) == 0
-}
-
-does_not_match_excludednamespaces(match) {
-  not has_field(match, "excludedNamespaces")
-}
-
-does_not_match_excludednamespaces(match) {
-  has_field(match, "excludedNamespaces")
-  get_ns_name[ns]
-  nss := {n | n = match.excludedNamespaces[_]}
-  count({ns} - nss) != 0
+  ns := {n | n = match.namespaces[_]}
+  count({input.review.namespace} - ns) == 0
 }
 
 matches_nsselector(match) {
@@ -311,19 +216,10 @@ matches_nsselector(match) {
 }
 
 matches_nsselector(match) {
-  not is_ns(input.review.kind)
   has_field(match, "namespaceSelector")
-  get_ns[ns]
+  ns := {{.DataRoot}}.cluster["v1"]["Namespace"][input.review.namespace]
   matches_namespace_selector(match, ns)
 }
-
-# if we are matching against a namespace, match against either the old or new object
-matches_nsselector(match) {
-  is_ns(input.review.kind)
-  has_field(match, "namespaceSelector")
-  any_labelselector_match(get_default(match, "namespaceSelector", {}))
-}
-
 
 # Checks to see if a kubernetes NamespaceSelector matches a namespace with a given set of labels
 # A non-existent selector or labels should be represented by an empty object ("{}")
