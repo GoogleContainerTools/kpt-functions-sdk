@@ -63,12 +63,14 @@ advantages:
   files. It provides the scaffolding required to develop, build, test, and publish functions,
   allowing you to focus on implementing your business-logic.
 
-## Community
+## Community and Feedback
 
 **We'd love to hear from you!**
 
 - [kpt-users mailing list][kpt-users]
+- [filing issues][kpt-issues]
 
 [spec]: https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 [kpt-users]: https://groups.google.com/forum/#!forum/kpt-users
+[kpt-issues]: https://github.com/GoogleContainerTools/kpt/issues
 [catalog]: https://googlecontainertools.github.io/kpt-functions-catalog/
