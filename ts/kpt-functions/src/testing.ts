@@ -23,7 +23,7 @@ export class TestRunner {
   constructor(private readonly fn: KptFunc) {}
 
   /**
-   * Runs the KptFunc and asserts the expected output or exception.
+   * Runs the KptFunc and asserts the expected output or error.
    *
    * Example usage:
    *
@@ -37,23 +37,23 @@ export class TestRunner {
    *
    * @param input input Configs passed to the function. It is deep-copied before running the function.
    *   If undefined, assumes an empty Configs.
-   * @param expectedOutput expected resultant Configs after KptFunc has successfully completed.
-   *   If undefined, assumes the output should remain unchanged (NO OP).
-   * @param expectedException expected exception to be thrown. If given, expectedOutput is ignored.
-   * @param expectedExceptionMessage expected message of expection to be thrown. If given, expectedOutput is ignored.
+   * @param expectedOutput expected resultant Configs after running the function regardless of success or failure.
+   *  Use 'unchanged' if the function is not expected to change input Configs.
+   * @param expectedErrorType expected error type to be thrown.
+   * @param expectedErrorMessage expected message of expection to be thrown.
    */
   async assert(
     input: Configs = new Configs(),
-    expectedOutput?: Configs,
-    expectedException?: new (...args: any[]) => Error,
-    expectedExceptionMessage?: string | RegExp
+    expectedOutput?: Configs | 'unchanged',
+    expectedErrorType?: new (...args: any[]) => Error,
+    expectedErrorMessage?: string | RegExp,
   ) {
     await testFn(
       this.fn,
       input,
       expectedOutput,
-      expectedException,
-      expectedExceptionMessage
+      expectedErrorType,
+      expectedErrorMessage,
     );
   }
 
@@ -70,23 +70,23 @@ export class TestRunner {
    *
    * @param input input Configs passed to the function. It is deep-copied before running the function.
    *   If undefined, assumes an empty Configs.
-   * @param expectedOutput expected resultant Configs after KptFunc has successfully completed.
-   *   If undefined, assumes the output should remain unchanged (NO OP).
-   * @param expectedException expected exception to be thrown. If given, expectedOutput is ignored.
-   * @param expectedExceptionMessage expected message of expection to be thrown. If given, expectedOutput is ignored.
+   * @param expectedOutput expected resultant Configs after running the function regardless of success or failure.
+   *  Use 'unchanged' if the function is not expected to change input Configs.
+   * @param expectedErrorType expected error type to be thrown.
+   * @param expectedErrorMessage expected message of expection to be thrown.
    */
   assertCallback(
     input: Configs = new Configs(),
-    expectedOutput?: Configs,
-    expectedException?: new (...args: any[]) => Error,
-    expectedExceptionMessage?: string | RegExp
+    expectedOutput?: Configs | 'unchanged',
+    expectedErrorType?: new (...args: any[]) => Error,
+    expectedErrorMessage?: string | RegExp,
   ): () => Promise<void> {
     return async () =>
       await this.assert(
         input,
         expectedOutput,
-        expectedException,
-        expectedExceptionMessage
+        expectedErrorType,
+        expectedErrorMessage,
       );
   }
 }
@@ -94,29 +94,39 @@ export class TestRunner {
 async function testFn(
   fn: KptFunc,
   input: Configs = new Configs(),
-  expectedOutput?: Configs,
-  expectedException?: new (...args: any[]) => Error,
-  expectedExceptionMessage?: string | RegExp
+  expectedOutput?: Configs | 'unchanged',
+  expectedErrorType?: new (...args: any[]) => Error,
+  expectedErrorMessage?: string | RegExp,
 ) {
   // We must clone the input as the function may mutate its input Configs.
   const configs = deepClone(input);
 
-  if (expectedException) {
-    await expectAsync(fn(configs)).toBeRejectedWithError(
-      expectedException,
-      expectedExceptionMessage
+  const matcher = expectAsync(fn(configs));
+
+  if (expectedErrorType) {
+    await matcher.toBeRejectedWithError(
+      expectedErrorType,
+      expectedErrorMessage
     );
-    return;
-  } else if (expectedExceptionMessage) {
-    await expectAsync(fn(configs)).toBeRejectedWithError(
-      expectedExceptionMessage
+  } else if (expectedErrorMessage) {
+    await matcher.toBeRejectedWithError(expectedErrorMessage);
+  } else if (expectedOutput) {
+    await matcher.toBeResolved();
+  } else {
+    throw new Error(
+      'Either specify expectedOutput or one of expectedError* parameters'
     );
-    return;
   }
 
-  await fn(configs);
-
-  expect(valueOf(configs)).toEqual(valueOf(expectedOutput) || valueOf(input));
+  if (expectedOutput) {
+    let o: Configs;
+    if (expectedOutput === 'unchanged') {
+      o = input;
+    } else {
+      o = expectedOutput;
+    }
+    expect(valueOf(configs)).toEqual(valueOf(o));
+  }
 }
 
 function deepClone(configs: Configs): Configs {
