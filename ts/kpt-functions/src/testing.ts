@@ -15,6 +15,7 @@
  */
 
 import { Configs, KptFunc } from './types';
+import { safeDump } from 'js-yaml';
 
 /**
  * TestRunner makes it easy to write unit tests for KPT functions.
@@ -46,14 +47,14 @@ export class TestRunner {
     input: Configs = new Configs(),
     expectedOutput?: Configs | 'unchanged',
     expectedErrorType?: new (...args: any[]) => Error,
-    expectedErrorMessage?: string | RegExp,
+    expectedErrorMessage?: string | RegExp
   ) {
     await testFn(
       this.fn,
       input,
       expectedOutput,
       expectedErrorType,
-      expectedErrorMessage,
+      expectedErrorMessage
     );
   }
 
@@ -79,14 +80,14 @@ export class TestRunner {
     input: Configs = new Configs(),
     expectedOutput?: Configs | 'unchanged',
     expectedErrorType?: new (...args: any[]) => Error,
-    expectedErrorMessage?: string | RegExp,
+    expectedErrorMessage?: string | RegExp
   ): () => Promise<void> {
     return async () =>
       await this.assert(
         input,
         expectedOutput,
         expectedErrorType,
-        expectedErrorMessage,
+        expectedErrorMessage
       );
   }
 }
@@ -96,10 +97,9 @@ async function testFn(
   input: Configs = new Configs(),
   expectedOutput?: Configs | 'unchanged',
   expectedErrorType?: new (...args: any[]) => Error,
-  expectedErrorMessage?: string | RegExp,
+  expectedErrorMessage?: string | RegExp
 ) {
-  // We must clone the input as the function may mutate its input Configs.
-  const configs = deepClone(input);
+  const configs = input.deepCopy();
 
   const matcher = expectAsync(fn(configs));
 
@@ -129,14 +129,12 @@ async function testFn(
   }
 }
 
-function deepClone(configs: Configs): Configs {
-  const items = JSON.parse(JSON.stringify(configs.getAll()));
-  const functionConfig =
-    configs.getFunctionConfig() &&
-    JSON.parse(JSON.stringify(configs.getFunctionConfig()));
-  return new Configs(items, functionConfig);
-}
-
-function valueOf(configs?: Configs) {
-  return configs && JSON.parse(JSON.stringify(configs.getAll()));
+function valueOf(configs: Configs): string {
+  const output = configs.toResourceList();
+  return safeDump(output, {
+    indent: 2,
+    noArrayIndent: true,
+    skipInvalid: true,
+    sortKeys: true,
+  });
 }

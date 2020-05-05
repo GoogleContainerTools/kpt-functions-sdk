@@ -23,11 +23,17 @@ import { expandTeamCr } from './expand_team_cr';
 const RUNNER = new TestRunner(expandTeamCr);
 
 describe(expandTeamCr.name, () => {
-  it('does nothing to empty repos', RUNNER.assertCallback());
+  it(
+    'does nothing to empty repos',
+    RUNNER.assertCallback(undefined, 'unchanged')
+  );
 
   it(
     'does nothing to non-Team objects',
-    RUNNER.assertCallback(new Configs([Namespace.named('backend')]))
+    RUNNER.assertCallback(
+      new Configs([Namespace.named('backend')]),
+      'unchanged'
+    )
   );
 
   it(

@@ -22,18 +22,19 @@ import {
   Configs,
   readConfigs,
   FileFormat,
-  MultiConfigError,
+  configFileResult,
 } from 'kpt-functions';
 
 const RUNNER = new TestRunner(readYaml);
 
 describe('readYaml', () => {
   const functionConfig = ConfigMap.named('config');
-  functionConfig.data = {};
 
   it('works on empty dir', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/empty');
-    functionConfig.data![SOURCE_DIR] = sourceDir;
+    functionConfig.data = {
+      [SOURCE_DIR]: sourceDir,
+    };
     const configs = new Configs(undefined, functionConfig);
 
     await readYaml(configs);
@@ -51,7 +52,9 @@ describe('readYaml', () => {
       expectedIntermediateFile,
       FileFormat.YAML
     );
-    functionConfig.data![SOURCE_DIR] = sourceDir;
+    functionConfig.data = {
+      [SOURCE_DIR]: sourceDir,
+    };
     const actualConfigs = new Configs(undefined, functionConfig);
 
     await RUNNER.assert(actualConfigs, expectedConfigs);
@@ -59,9 +62,17 @@ describe('readYaml', () => {
 
   it('fails for invalid KubernetesObjects', async () => {
     const sourceDir = path.resolve(__dirname, '../test-data/source/invalid');
-    functionConfig.data![SOURCE_DIR] = sourceDir;
+    functionConfig.data = {
+      [SOURCE_DIR]: sourceDir,
+    };
     const actualConfigs = new Configs(undefined, functionConfig);
+    const expectedConfigs = new Configs(undefined, functionConfig, [
+      configFileResult(
+        `File contains invalid Kubernetes objects '[{"kind":"I don't have apiVersion"}]'`,
+        path.join(sourceDir, 'invalid.yaml')
+      ),
+    ]);
 
-    await RUNNER.assert(actualConfigs, undefined, MultiConfigError);
+    await RUNNER.assert(actualConfigs, expectedConfigs);
   });
 });

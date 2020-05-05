@@ -20,23 +20,22 @@ import { safeLoadAll } from 'js-yaml';
 import * as path from 'path';
 import {
   Configs,
-  ConfigError,
-  MultiConfigError,
   isKubernetesObject,
-  ConfigFileError,
   addAnnotation,
+  configFileResult,
   SOURCE_PATH_ANNOTATION,
   SOURCE_INDEX_ANNOTATION,
+  Result,
 } from 'kpt-functions';
 
 export const SOURCE_DIR = 'source_dir';
-export const FILTER_IVNALID = 'filter_invalid';
+export const FILTER_INVALID = 'filter_invalid';
 
 export async function readYaml(configs: Configs) {
   // Get the parameters.
   const sourceDir = configs.getFunctionConfigValueOrThrow(SOURCE_DIR);
   const ignoreInvalid =
-    configs.getFunctionConfigValue(FILTER_IVNALID) === 'true';
+    configs.getFunctionConfigValue(FILTER_INVALID) === 'true';
 
   // Discard any input objects since this is a source function.
   configs.deleteAll();
@@ -45,17 +44,10 @@ export async function readYaml(configs: Configs) {
   const files = glob.sync(sourceDir + '/**/*.+(yaml|yml)');
 
   // Parse each file and convert it to a KubernetesObject.
-  const errors: ConfigError[] = files
+  files
     .map(f => parseFile(configs, sourceDir, f, ignoreInvalid))
-    .filter(err => err !== undefined)
-    .map(err => err as ConfigError);
-
-  if (errors.length) {
-    throw new MultiConfigError(
-      `Found files containing invalid objects. To filter invalid objects set ${FILTER_IVNALID} to 'true'.`,
-      errors
-    );
-  }
+    .filter(result => result !== undefined)
+    .forEach(result => configs.addResults(result as Result));
 }
 
 readYaml.usage = `
@@ -64,7 +56,7 @@ Reads a directory of kubernetes YAML configs recursively.
 Configured using a ConfigMap with the following keys:
 
 ${SOURCE_DIR}: Path to the config directory to read.
-${FILTER_IVNALID}: [Optional] If 'true', ignores invalid Kubernetes objects instead of failing.
+${FILTER_INVALID}: [Optional] If 'true', ignores invalid Kubernetes objects instead of failing.
 
 Example:
 
@@ -81,7 +73,7 @@ function parseFile(
   sourceDir: string,
   file: string,
   ignoreInvalid: boolean
-): ConfigError | undefined {
+): Result | undefined {
   const contents = readFileOrThrow(file);
   let objects = safeLoadAll(contents);
 
@@ -91,7 +83,7 @@ function parseFile(
     if (ignoreInvalid) {
       objects = objects.filter(o => isKubernetesObject(o));
     } else {
-      return new ConfigFileError(
+      return configFileResult(
         `File contains invalid Kubernetes objects '${JSON.stringify(
           invalidObjects
         )}'`,

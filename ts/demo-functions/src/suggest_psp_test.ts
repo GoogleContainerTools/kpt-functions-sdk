@@ -14,27 +14,34 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner, ConfigError } from 'kpt-functions';
+import { Configs, TestRunner, kubernetesObjectResult } from 'kpt-functions';
 import { PodSecurityPolicy } from './gen/io.k8s.api.policy.v1beta1';
 import { suggestPsp } from './suggest_psp';
 
 const RUNNER = new TestRunner(suggestPsp);
 
 describe('suggestPsp', () => {
-  it('empty configs is noop', RUNNER.assertCallback());
+  it('empty configs is noop', RUNNER.assertCallback(undefined, 'unchanged'));
 
   it(
     'suggest PSP with allowPrivilegeEscalation = true to false',
     RUNNER.assertCallback(
       new Configs([psp(true)]),
-      new Configs([psp(true)]),
-      ConfigError
+      new Configs([psp(true)], undefined, [
+        kubernetesObjectResult(
+          'Suggest explicitly disabling privilege escalation',
+          psp(true),
+          { path: 'spec.allowPrivilegeEscalation', suggestedValue: false },
+          'warn',
+          { category: 'security' }
+        ),
+      ])
     )
   );
 
   it(
     'leaves PSP with allowPrivilegeEscalation = false alone',
-    RUNNER.assertCallback(new Configs([psp(false)]))
+    RUNNER.assertCallback(new Configs([psp(false)]), 'unchanged')
   );
 });
 

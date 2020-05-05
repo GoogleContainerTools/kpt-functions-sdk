@@ -21,13 +21,10 @@ import { Role } from './gen/io.k8s.api.rbac.v1';
 const RUNNER = new TestRunner(noOp);
 
 describe('noOp', () => {
-  it('empty', RUNNER.assertCallback());
+  it('empty passes', RUNNER.assertCallback(undefined, 'unchanged'));
 
   it(
     'pass through',
-    RUNNER.assertCallback(
-      new Configs([Role.named('alice')]),
-      new Configs([Role.named('alice')])
-    )
+    RUNNER.assertCallback(new Configs([Role.named('alice')]), 'unchanged')
   );
 });
