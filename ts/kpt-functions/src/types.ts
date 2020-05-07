@@ -353,6 +353,9 @@ interface ConfigMap extends KubernetesObject {
   data?: { [key: string]: string };
 }
 
-function isConfigMap(o: any): o is ConfigMap {
+/**
+ * Type guard for ConfigMap.
+ */
+export function isConfigMap(o: any): o is ConfigMap {
   return o && o.apiVersion === 'v1' && o.kind === 'ConfigMap';
 }
