@@ -40,9 +40,22 @@ function testcase() {
   cd "${tmp}"
 }
 
+function helm_testcase() {
+  echo "testcase: ${1}"
+  tmp=$(mktemp -d "/tmp/e2e.${1}.XXXXXXXX")
+  cp -r "${REPO}"/example-configs "${tmp}"
+  cd "${tmp}"
+  git clone -q https://github.com/bitnami/charts.git
+}
+
 function fail() {
   echo "FAIL: " "$@"
   exit 1
+}
+
+function assert_contains_string() {
+  content="$(<"$1")"
+  grep -q "$2" "$1" || fail "String $2 not contained in: ${content}"
 }
 
 function assert_empty_list() {
@@ -117,6 +130,40 @@ node "${DIST}"/read_yaml_run.js -i /dev/null -d source_dir="$(pwd)" |
 assert_dir_exists payments-dev
 assert_dir_exists payments-prod
 grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
+
+helm_testcase "node_helm_template_command_line_args"
+node "${DIST}"/helm_template_run.js -i /dev/null -d name=my-chart -d chart_path=charts/bitnami/redis/ >out.yaml
+assert_contains_string out.yaml "my-chart"
+
+helm_testcase "node_helm_template_function_config_args"
+cat >fc.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/helm-template
+    config.kubernetes.io/local-config: "true"
+data:
+  name: my-chart
+  chart_path: charts/bitnami/redis
+EOF
+node "${DIST}"/helm_template_run.js -i /dev/null -f fc.yaml >out.yaml
+assert_contains_string out.yaml "my-chart"
+
+helm_testcase "node_helm_template_undefined_args"
+node "${DIST}"/helm_template_run.js -i /dev/null 2>err.txt || true
+assert_contains_string err.txt "Error: functionConfig expected, instead undefined"
+
+helm_testcase "node_helm_template_transform_funct"
+node "${DIST}"/read_yaml_run.js -i /dev/null -d source_dir="$(pwd)"/example-configs |
+  node "${DIST}"/helm_template_run.js -i /dev/null -d name=my-chart -d chart_path=charts/bitnami/redis/ |
+  node "${DIST}"/write_yaml_run.js -o /dev/null -d sink_dir="$(pwd)"/example-configs -d overwrite=true
+assert_dir_exists example-configs/shipping-dev
+assert_dir_exists example-configs/default
+grep -q "name: my-chart-redis-master" example-configs/default/service_my-chart-redis-master.yaml
 
 ############################
 # Docker Tests
