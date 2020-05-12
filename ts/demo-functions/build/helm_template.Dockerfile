@@ -20,17 +20,25 @@ RUN npm run build && \
 
 #############################################
 
-FROM alpine/helm:3.2.1
-
-WORKDIR /home/node/app
-
-COPY --from=builder /home/node/app /home/node/app
+FROM node:10-alpine
 
 RUN apk add bash curl git
 RUN apk update
 
-RUN curl -fsSL -o /usr/local/bin/kpt https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt
-RUN chmod +x /usr/local/bin/kpt
+ENV HELM_LATEST_VERSION="v3.2.1"
+RUN curl -fsSL -o /helm-${HELM_LATEST_VERSION}-linux-amd64.tar.gz https://get.helm.sh/helm-${HELM_LATEST_VERSION}-linux-amd64.tar.gz && \
+    tar -zxvf /helm-${HELM_LATEST_VERSION}-linux-amd64.tar.gz && \
+    mv /linux-amd64/helm /usr/local/bin/helm && \
+    rm -f /helm-${HELM_LATEST_VERSION}-linux-amd64.tar.gz && \
+    rm -rf /linux-amd64
+
+RUN curl -fsSL -o /usr/local/bin/kpt https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt && \
+    chmod +x /usr/local/bin/kpt
+
 ENV PATH /usr/local/bin:$PATH
+
+WORKDIR /home/node/app
+
+COPY --from=builder /home/node/app /home/node/app
 
 ENTRYPOINT ["node", "/home/node/app/dist/helm_template_run.js"]
