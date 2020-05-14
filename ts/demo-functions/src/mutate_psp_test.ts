@@ -21,7 +21,7 @@ import { mutatePsp } from './mutate_psp';
 const RUNNER = new TestRunner(mutatePsp);
 
 describe('mutatePsp', () => {
-  it('empty configs is noop', RUNNER.assertCallback());
+  it('empty configs is noop', RUNNER.assertCallback(undefined, 'unchanged'));
 
   it(
     'modifies PSP with allowPrivilegeEscalation = true to false',
@@ -30,7 +30,7 @@ describe('mutatePsp', () => {
 
   it(
     'leaves PSP with allowPrivilegeEscalation = false alone',
-    RUNNER.assertCallback(new Configs([psp(false)]))
+    RUNNER.assertCallback(new Configs([psp(false)]), 'unchanged')
   );
 });
 

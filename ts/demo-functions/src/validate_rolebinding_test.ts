@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { Configs, TestRunner, FunctionConfigError } from 'kpt-functions';
+import {
+  Configs,
+  TestRunner,
+  FunctionConfigError,
+  kubernetesObjectResult,
+} from 'kpt-functions';
 import {
   ClusterRoleBinding,
   RoleBinding,
@@ -28,15 +33,19 @@ const FUNC_CONFIG: ConfigMap = new ConfigMap({
   metadata: { name: 'config' },
   data: { subject_name: 'alice@example.com' },
 });
+const BANNED_RB = roleBinding('alice', {
+  name: 'alice@example.com',
+  kind: 'User',
+});
 
 describe(validateRolebinding.name, () => {
   it(
-    'passes empty input',
+    'requires fuctionConfig',
     RUNNER.assertCallback(undefined, undefined, FunctionConfigError)
   );
 
   it(
-    'passes valid RoleBindings',
+    'no banned RoelBindings',
     RUNNER.assertCallback(
       new Configs(
         [
@@ -46,27 +55,22 @@ describe(validateRolebinding.name, () => {
           }),
         ],
         FUNC_CONFIG
-      )
+      ),
+      'unchanged'
     )
   );
 
-  it(
-    'fails invalid RoleBindings',
-    RUNNER.assertCallback(
-      new Configs(
-        [
-          roleBinding('alice', {
-            name: 'alice@example.com',
-            kind: 'User',
-          }),
-        ],
-        FUNC_CONFIG
-      ),
-      undefined,
-      undefined,
-      /Found RoleBindings with banned subjects/
-    )
-  );
+  it('with banned RoleBindings', async () => {
+    RUNNER.assert(
+      new Configs([BANNED_RB], FUNC_CONFIG),
+      new Configs([BANNED_RB], FUNC_CONFIG, [
+        kubernetesObjectResult(
+          `Found banned subject 'alice@example.com'`,
+          BANNED_RB
+        ),
+      ])
+    );
+  });
 
   it(
     'ignores ClusterRoleBinding subjects',
@@ -89,7 +93,8 @@ describe(validateRolebinding.name, () => {
           }),
         ],
         FUNC_CONFIG
-      )
+      ),
+      'unchanged'
     )
   );
 });

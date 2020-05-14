@@ -30,7 +30,7 @@ const FUNC_CONFIG: ConfigMap = new ConfigMap({
 describe('labelNamespace', () => {
   it(
     'empty input ok',
-    RUNNER.assertCallback(new Configs(undefined, FUNC_CONFIG))
+    RUNNER.assertCallback(new Configs(undefined, FUNC_CONFIG), 'unchanged')
   );
 
   it(
