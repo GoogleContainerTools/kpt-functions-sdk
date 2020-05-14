@@ -16,7 +16,7 @@
 
 import { DumpOptions, safeDump, safeLoad } from 'js-yaml';
 import rw from 'rw';
-import { Configs, KubernetesObject, ResourceList, Result } from './types';
+import { Configs, KubernetesObject } from './types';
 
 // Stdout is used for chaining functions so override global console object to send output to stderr.
 console = new console.Console(process.stderr, process.stderr);
@@ -90,7 +90,6 @@ export function parse(
     f = functionConfig;
   }
 
-  // TODO(b/144499462): Throw error if missing apiVersion/kind/items?
   return new Configs(i.items, f || i.functionConfig);
 }
 
@@ -112,19 +111,17 @@ function load(raw: string, format: FileFormat): any {
  * @param output Path to to the file to be created, it must not exist.
  * @param configs Contains objects to write to the output file.
  * @param format Defines whether to write the Configs as YAML or JSON.
- * @param results List of config results returned by the function.
  */
 export async function writeConfigs(
   output: FilePath,
   configs: Configs,
-  format: FileFormat,
-  results?: Result[]
+  format: FileFormat
 ): Promise<void> {
   if (output === '/dev/null') {
     return;
   }
 
-  await writeFile(output, stringify(configs, format, results));
+  await writeFile(output, stringify(configs, format));
 }
 
 /**
@@ -132,14 +129,9 @@ export async function writeConfigs(
  *
  * @param configs The configs to convert to a string.
  * @param format defines whether to write the configs as YAML or JSON.
- * @param results List of config results returned by the function.
  */
-export function stringify(
-  configs: Configs,
-  format: FileFormat,
-  results?: Result[]
-): string {
-  const output = new ResourceList(configs.getAll(), results);
+export function stringify(configs: Configs, format: FileFormat): string {
+  const output = configs.toResourceList();
 
   switch (format) {
     case FileFormat.JSON:

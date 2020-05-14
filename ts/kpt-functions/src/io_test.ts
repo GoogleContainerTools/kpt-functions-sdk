@@ -449,6 +449,23 @@ items:
     name: backend
 `);
     });
+
+    it('has results', () => {
+      const configs = new Configs();
+      configs.addResults({ message: 'hello', severity: 'error' });
+
+      const result = stringify(configs, FileFormat.YAML);
+
+      expect(result).toEqual(`apiVersion: v1
+kind: ResourceList
+metadata:
+  name: output
+items: []
+results:
+- message: hello
+  severity: error
+`);
+    });
   });
 
   describe('in JSON format', () => {
@@ -543,22 +560,6 @@ items:
     }
   ]
 }
-`);
-    });
-
-    it('has results', () => {
-      const result = stringify(new Configs(), FileFormat.YAML, [
-        { message: 'hello', severity: 'error' },
-      ]);
-
-      expect(result).toEqual(`apiVersion: v1
-kind: ResourceList
-metadata:
-  name: output
-items: []
-results:
-- message: hello
-  severity: error
 `);
     });
   });

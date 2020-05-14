@@ -17,6 +17,7 @@
 export * from './src/errors';
 export * from './src/io';
 export * from './src/metadata';
+export * from './src/result';
 export * from './src/run';
 export * from './src/testing';
 export * from './src/types';
