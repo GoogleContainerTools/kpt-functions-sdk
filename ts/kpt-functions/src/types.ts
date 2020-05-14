@@ -25,8 +25,7 @@ export interface KptFunc {
    * A function consumes and optionally mutates Kubernetes configurations using the given [[Configs]] object.
    *
    * The function should:
-   * - Throw a [[ConfigError]] when encountering one or more configuration-related issues.
-   * - Throw other error types when encountering operational issues such as IO exceptions.
+   * - Throw errors when encountering operational issues such as IO exceptions.
    * - Avoid writing to stdout (e.g. using process.stdout) as it is used for chaining functions.
    *   Use stderr instead.
    */
@@ -51,13 +50,16 @@ export class Configs {
    * If supplied multiple objects with the same [[kubernetesKey]] discards all but the last one.
    * Does not preserve insertion order of the given objects.
    * @param functionConfig Kubernetes object used to parameterize the function's behavior.
+   * @param results For testing only: List of Results returned by the function.
    */
   constructor(
     input: KubernetesObject[] = [],
-    functionConfig?: KubernetesObject
+    functionConfig?: KubernetesObject,
+    results?: Result[]
   ) {
-    this.functionConfig = functionConfig;
     this.insert(...input);
+    this.functionConfig = functionConfig;
+    this.results = results || [];
   }
 
   /**
@@ -201,6 +203,44 @@ export class Configs {
   }
 
   /**
+   * Adds given result(s) representing structured findings by the function.
+   */
+  addResults(...results: Result[]) {
+    if (this.logToStdErr) {
+      results.forEach(r => console.error(resultToString(r)));
+    }
+    this.results.push(...results);
+  }
+
+  /**
+   * Get result(s) represnting structured findings by teh function.
+   */
+  getResults(): Result[] {
+    return this.results;
+  }
+
+  /**
+   * Returns the ResourceList representation.
+   */
+  toResourceList(): ResourceList {
+    return new ResourceList(
+      this.getAll(),
+      this.results.length ? this.results : undefined
+    );
+  }
+
+  /**
+   * Returns a deep copy of Configs.
+   */
+  deepCopy(): Configs {
+    const objects = JSON.parse(JSON.stringify(this.getAll()));
+    const functionConfig =
+      this.functionConfig && JSON.parse(JSON.stringify(this.functionConfig));
+    const results = JSON.parse(JSON.stringify(this.results));
+    return new Configs(objects, functionConfig, results);
+  }
+
+  /**
    * Gets the index a key should go in a sorted array, and whether the key already exists.
    *
    * @param key The key to find.
@@ -242,6 +282,16 @@ export class Configs {
    * Object used as parameters to the function.
    */
   private readonly functionConfig: KubernetesObject | undefined;
+
+  /**
+   * List of Results returned by the function.
+   */
+  private readonly results: Result[];
+
+  /**
+   * Determines whether [[addResults]] also logs to stderr.
+   */
+  logToStdErr: boolean | undefined;
 }
 
 /**
@@ -298,24 +348,6 @@ export class ResourceList implements KubernetesObject {
 }
 
 /**
- * Severity of a configuration result.
- */
-export type Severity = 'error' | 'warn' | 'info';
-
-/**
- * Metadata about a specific field in a Kubernetes object.
- */
-export interface FieldInfo {
-  // JSON Path
-  // e.g. "spec.template.spec.containers[3].resources.limits.cpu"
-  path: string;
-  // Current value of the field.
-  currentValue?: string | number | boolean;
-  // Proposed value to fix the issue.
-  suggestedValue?: string | number | boolean;
-}
-
-/**
  * Result represents a configuration-related issue returned by a function.
  *
  * It can be at the following granularities:
@@ -347,6 +379,36 @@ export interface Result {
   };
   // A specific field in the object.
   field?: FieldInfo;
+}
+
+/**
+ * Severity of a configuration result.
+ */
+export type Severity = 'error' | 'warn' | 'info';
+
+/**
+ * Metadata about a specific field in a Kubernetes object.
+ */
+export interface FieldInfo {
+  // JSON Path
+  // e.g. "spec.template.spec.containers[3].resources.limits.cpu"
+  path: string;
+  // Current value of the field.
+  currentValue?: string | number | boolean;
+  // Proposed value to fix the issue.
+  suggestedValue?: string | number | boolean;
+}
+
+function resultToString(result: Result): string {
+  let s = `[${result.severity.toUpperCase()}] ${result.message}`;
+  if (result.resourceRef) {
+    const r = result.resourceRef;
+    s += ` in object '${r.apiVersion}/${r.kind}/${r.namespace}/${r.name}'`;
+  }
+  if (result.file && result.file.path) {
+    s += ` in file ${result.file.path}`;
+  }
+  return s;
 }
 
 interface ConfigMap extends KubernetesObject {

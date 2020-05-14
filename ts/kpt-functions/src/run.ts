@@ -17,7 +17,7 @@
 import { ArgumentParser, RawTextHelpFormatter } from 'argparse';
 import { FileFormat, readConfigs, writeConfigs } from './io';
 import { KptFunc, KubernetesObject } from './types';
-import { ConfigError, FunctionConfigError } from './errors';
+import { FunctionConfigError } from './errors';
 
 const INVOCATIONS = `
 Example invocations:
@@ -56,9 +56,9 @@ Example invocations:
 `;
 
 enum ExitCode {
-  CONFIG_ERROR = 1,
+  RESULT_ERROR = 1,
   EXCEPTION_ERROR,
-  FUNCTION_CONFIG_ERROR,
+  FUNCTION_RESULT_ERROR,
 }
 
 /**
@@ -71,11 +71,11 @@ export async function run(fn: KptFunc) {
   try {
     await runFn(fn);
   } catch (err) {
-    if (err instanceof ConfigError) {
-      process.exitCode = ExitCode.CONFIG_ERROR;
+    if (err instanceof ResultError) {
+      process.exitCode = ExitCode.RESULT_ERROR;
     } else if (err instanceof FunctionConfigError) {
       console.error(err.toString());
-      process.exitCode = ExitCode.FUNCTION_CONFIG_ERROR;
+      process.exitCode = ExitCode.FUNCTION_RESULT_ERROR;
     } else {
       console.error(err.stack);
       process.exitCode = ExitCode.EXCEPTION_ERROR;
@@ -115,10 +115,10 @@ Use this ONLY if the function accepts a ConfigMap.`,
     action: 'storeTrue',
     help: 'Input and output files are in JSON instead of YAML',
   });
-  parser.addArgument('--structured_results', {
+  parser.addArgument('--log-to-stderr', {
     action: 'storeTrue',
     help:
-      'Emit structured results using ".results" field in stdout. Otherwise, emit unstructured logs to stderr',
+      'Emit structured results to stderr in addition to setting".results" field in stdout',
   });
 
   // Parse args.
@@ -140,29 +140,29 @@ Use this ONLY if the function accepts a ConfigMap.`,
     }
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
-  const structuredResults =
-    process.env.STRUCTURED_RESULTS || Boolean(args.get('structured_results'));
+  const logToStdErr = Boolean(args.get('log_to_stderr'));
 
   // Read the input and construct Configs.
-  const configs = await readConfigs(inputFile, fileFormat, functionConfig);
+  let configs = await readConfigs(inputFile, fileFormat, functionConfig);
+  configs.logToStdErr = logToStdErr;
 
   // Run the function.
-  try {
-    await fn(configs);
-  } catch (err) {
-    if (err instanceof ConfigError) {
-      if (structuredResults) {
-        // Include Issues as part of function's output.
-        await writeConfigs(outputFile, configs, fileFormat, err.toResults());
-      } else {
-        err.log();
-      }
-    }
-    throw err;
-  }
+  await fn(configs);
 
   // Write the output.
   await writeConfigs(outputFile, configs, fileFormat);
+
+  for (let r of configs.getResults()) {
+    if (r.severity === 'error') {
+      throw new ResultError();
+    }
+  }
+}
+
+class ResultError extends Error {
+  constructor() {
+    super('Funciton returned a Result of error or higher');
+  }
 }
 
 function parseToConfigMap(

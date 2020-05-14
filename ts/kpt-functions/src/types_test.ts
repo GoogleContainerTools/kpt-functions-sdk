@@ -17,6 +17,7 @@
 import _ from 'lodash';
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
 import { Configs, KubernetesObject } from './types';
+import { generalResult } from './result';
 
 class Role implements KubernetesObject {
   readonly apiVersion: string = 'rbac.authorization.k8s.io/v1';
@@ -269,5 +270,30 @@ describe('functionConfig', () => {
     expect(configs.getFunctionConfig()).toEqual(r1);
     expect(() => configs.getFunctionConfigValue('k1')).toThrow();
     expect(() => configs.getFunctionConfigValueOrThrow('k1')).toThrow();
+  });
+});
+
+describe('results', () => {
+  it('empty result', () => {
+    const configs = new Configs();
+    const results = configs.getResults();
+
+    expect(results).toEqual([]);
+  });
+
+  it('one result', () => {
+    const configs = new Configs();
+    configs.addResults({ message: 'hello', severity: 'error' });
+    const results = configs.getResults();
+
+    expect(results).toEqual([{ message: 'hello', severity: 'error' }]);
+  });
+
+  it('multiple results', () => {
+    const configs = new Configs();
+    configs.addResults(generalResult('a'), generalResult('b'));
+    const results = configs.getResults();
+
+    expect(results).toEqual([generalResult('a'), generalResult('b')]);
   });
 });
