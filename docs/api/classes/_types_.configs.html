@@ -92,8 +92,16 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_types_.configs.html#logtostderr" class="tsd-kind-icon">log<wbr>ToStd<wbr>Err</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#addresults" class="tsd-kind-icon">add<wbr>Results</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#deepcopy" class="tsd-kind-icon">deep<wbr>Copy</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#delete" class="tsd-kind-icon">delete</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#deleteall" class="tsd-kind-icon">delete<wbr>All</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="_types_.configs.html#get" class="tsd-kind-icon">get</a></li>
@@ -101,8 +109,10 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#getfunctionconfig" class="tsd-kind-icon">get<wbr>Function<wbr>Config</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#getfunctionconfigvalue" class="tsd-kind-icon">get<wbr>Function<wbr>Config<wbr>Value</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#getfunctionconfigvalueorthrow" class="tsd-kind-icon">get<wbr>Function<wbr>Config<wbr>Value<wbr>OrThrow</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#getresults" class="tsd-kind-icon">get<wbr>Results</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#groupby" class="tsd-kind-icon">group<wbr>By</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#insert" class="tsd-kind-icon">insert</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_types_.configs.html#toresourcelist" class="tsd-kind-icon">to<wbr>Resource<wbr>List</a></li>
 							</ul>
 						</section>
 					</div>
@@ -114,13 +124,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Configs<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a><span class="tsd-signature-symbol">[]</span>, functionConfig<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Configs<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a><span class="tsd-signature-symbol">[]</span>, functionConfig<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a>, results<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L46">src/types.ts:46</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L45">src/types.ts:45</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -148,6 +158,14 @@
 										</div>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> results: <a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>For testing only: List of Results returned by the function.</p>
+										</div>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_types_.configs.html" class="tsd-signature-type">Configs</a></h4>
 						</li>
@@ -155,7 +173,75 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="logtostderr" class="tsd-anchor"></a>
+					<h3>log<wbr>ToStd<wbr>Err</h3>
+					<div class="tsd-signature tsd-kind-icon">log<wbr>ToStd<wbr>Err<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L294">src/types.ts:294</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Determines whether <a href="_types_.configs.html#addresults">addResults</a> should also log to stderr.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="addresults" class="tsd-anchor"></a>
+					<h3>add<wbr>Results</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">add<wbr>Results<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>results<span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L208">src/types.ts:208</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Adds given result(s) representing structured findings by the function.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>results: <a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="deepcopy" class="tsd-anchor"></a>
+					<h3>deep<wbr>Copy</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">deep<wbr>Copy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L235">src/types.ts:235</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a deep copy of Configs.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="_types_.configs.html" class="tsd-signature-type">Configs</a></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="delete" class="tsd-anchor"></a>
 					<h3>delete</h3>
@@ -166,7 +252,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L118">src/types.ts:118</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L120">src/types.ts:120</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -198,7 +284,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L131">src/types.ts:131</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L133">src/types.ts:133</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -220,7 +306,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L85">src/types.ts:85</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L87">src/types.ts:87</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -278,7 +364,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L70">src/types.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L72">src/types.ts:72</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -302,7 +388,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L163">src/types.ts:163</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L165">src/types.ts:165</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -324,7 +410,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L177">src/types.ts:177</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L179">src/types.ts:179</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -360,7 +446,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L193">src/types.ts:193</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L195">src/types.ts:195</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -379,6 +465,28 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getresults" class="tsd-anchor"></a>
+					<h3>get<wbr>Results</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Results<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L218">src/types.ts:218</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get result(s) representing structured findings by the function.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="groupby" class="tsd-anchor"></a>
 					<h3>group<wbr>By</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -388,7 +496,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L148">src/types.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L150">src/types.ts:150</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -440,7 +548,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/types.ts#L103">src/types.ts:103</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L105">src/types.ts:105</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -465,6 +573,28 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="toresourcelist" class="tsd-anchor"></a>
+					<h3>to<wbr>Resource<wbr>List</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Resource<wbr>List<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_types_.resourcelist.html" class="tsd-signature-type">ResourceList</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/types.ts#L225">src/types.ts:225</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the ResourceList representation of this Configs object.</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <a href="_types_.resourcelist.html" class="tsd-signature-type">ResourceList</a></h4>
+						</li>
+					</ul>
+				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -478,6 +608,9 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_metadata_.html">&quot;metadata&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_result_.html">&quot;result&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_run_.html">&quot;run&quot;</a>
@@ -499,6 +632,15 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_types_.configs.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_types_.configs.html#logtostderr" class="tsd-kind-icon">log<wbr>ToStd<wbr>Err</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_types_.configs.html#addresults" class="tsd-kind-icon">add<wbr>Results</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_types_.configs.html#deepcopy" class="tsd-kind-icon">deep<wbr>Copy</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_types_.configs.html#delete" class="tsd-kind-icon">delete</a>
@@ -522,10 +664,16 @@
 								<a href="_types_.configs.html#getfunctionconfigvalueorthrow" class="tsd-kind-icon">get<wbr>Function<wbr>Config<wbr>Value<wbr>OrThrow</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_types_.configs.html#getresults" class="tsd-kind-icon">get<wbr>Results</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_types_.configs.html#groupby" class="tsd-kind-icon">group<wbr>By</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_types_.configs.html#insert" class="tsd-kind-icon">insert</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_types_.configs.html#toresourcelist" class="tsd-kind-icon">to<wbr>Resource<wbr>List</a>
 							</li>
 						</ul>
 					</li>

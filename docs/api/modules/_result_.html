@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;run&quot; | kpt-functions</title>
+	<title>&quot;result&quot; | kpt-functions</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../index.html">Globals</a>
 				</li>
 				<li>
-					<a href="_run_.html">&quot;run&quot;</a>
+					<a href="_result_.html">&quot;result&quot;</a>
 				</li>
 			</ul>
-			<h1>External module &quot;run&quot;</h1>
+			<h1>External module &quot;result&quot;</h1>
 		</div>
 	</div>
 </header>
@@ -69,7 +69,9 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_run_.html#run" class="tsd-kind-icon">run</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_result_.html#configfileresult" class="tsd-kind-icon">config<wbr>File<wbr>Result</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_result_.html#generalresult" class="tsd-kind-icon">general<wbr>Result</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_result_.html#kubernetesobjectresult" class="tsd-kind-icon">kubernetes<wbr>Object<wbr>Result</a></li>
 							</ul>
 						</section>
 					</div>
@@ -78,32 +80,114 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
-					<a name="run" class="tsd-anchor"></a>
-					<h3>run</h3>
+					<a name="configfileresult" class="tsd-anchor"></a>
+					<h3>config<wbr>File<wbr>Result</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">run<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.kptfunc.html" class="tsd-signature-type">KptFunc</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">config<wbr>File<wbr>Result<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, severity<span class="tsd-signature-symbol">?: </span><a href="_types_.html#severity" class="tsd-signature-type">Severity</a>, tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/run.ts#L70">src/run.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/result.ts#L44">src/result.ts:44</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>This is the main entrypoint for running a KPT function.</p>
+									<p>A result relating to a configuration file.</p>
 								</div>
-								<p>This method does not throw any errors and can be invoked at the top-level without getting
-								an unhandled promise rejection error.</p>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>fn: <a href="../interfaces/_types_.kptfunc.html" class="tsd-signature-type">KptFunc</a></h5>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> severity: <a href="_types_.html#severity" class="tsd-signature-type">Severity</a><span class="tsd-signature-symbol"> = &quot;error&quot;</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> tags: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="generalresult" class="tsd-anchor"></a>
+					<h3>general<wbr>Result</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">general<wbr>Result<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, severity<span class="tsd-signature-symbol">?: </span><a href="_types_.html#severity" class="tsd-signature-type">Severity</a>, tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/result.ts#L29">src/result.ts:29</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>A general result.</p>
+								</div>
+								<p>Typically, the function should the more specific <a href="_result_.html#configfileresult">configFileResult</a> or <a href="_result_.html#kubernetesobjectresult">kubernetesObjectResult</a> functions.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> severity: <a href="_types_.html#severity" class="tsd-signature-type">Severity</a><span class="tsd-signature-symbol"> = &quot;error&quot;</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> tags: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="kubernetesobjectresult" class="tsd-anchor"></a>
+					<h3>kubernetes<wbr>Object<wbr>Result</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">kubernetes<wbr>Object<wbr>Result<span class="tsd-signature-symbol">(</span>message<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, object<span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a>, field<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_types_.fieldinfo.html" class="tsd-signature-type">FieldInfo</a>, severity<span class="tsd-signature-symbol">?: </span><a href="_types_.html#severity" class="tsd-signature-type">Severity</a>, tags<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/result.ts#L63">src/result.ts:63</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>A result relating to a Kubernetes object.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>message: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>object: <a href="../interfaces/_types_.kubernetesobject.html" class="tsd-signature-type">KubernetesObject</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> field: <a href="../interfaces/_types_.fieldinfo.html" class="tsd-signature-type">FieldInfo</a></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> severity: <a href="_types_.html#severity" class="tsd-signature-type">Severity</a><span class="tsd-signature-symbol"> = &quot;error&quot;</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> tags: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_types_.result.html" class="tsd-signature-type">Result</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -121,10 +205,10 @@
 					<li class=" tsd-kind-external-module">
 						<a href="_metadata_.html">&quot;metadata&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
+					<li class="current tsd-kind-external-module">
 						<a href="_result_.html">&quot;result&quot;</a>
 					</li>
-					<li class="current tsd-kind-external-module">
+					<li class=" tsd-kind-external-module">
 						<a href="_run_.html">&quot;run&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -138,7 +222,13 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="_run_.html#run" class="tsd-kind-icon">run</a>
+						<a href="_result_.html#configfileresult" class="tsd-kind-icon">config<wbr>File<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_result_.html#generalresult" class="tsd-kind-icon">general<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_result_.html#kubernetesobjectresult" class="tsd-kind-icon">kubernetes<wbr>Object<wbr>Result</a>
 					</li>
 				</ul>
 			</nav>

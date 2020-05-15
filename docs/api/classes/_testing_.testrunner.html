@@ -112,7 +112,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/testing.ts#L22">src/testing.ts:22</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/testing.ts#L23">src/testing.ts:23</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -132,18 +132,18 @@
 					<a name="assert" class="tsd-anchor"></a>
 					<h3>assert</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">assert<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a>, expectedOutput<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a>, expectedException<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span>, expectedExceptionMessage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">assert<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a>, expectedOutput<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"unchanged"</span>, expectedErrorType<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span>, expectedErrorMessage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/testing.ts#L45">src/testing.ts:45</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/testing.ts#L46">src/testing.ts:46</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Runs the KptFunc and asserts the expected output or exception.</p>
+									<p>Runs the KptFunc and asserts the expected output or error.</p>
 								</div>
 								<p>Example usage:</p>
 								<pre><code>const RUNNER = <span class="hljs-keyword">new</span> <span class="hljs-constructor">TestRunner(<span class="hljs-params">myFunc</span>)</span>;
@@ -162,22 +162,22 @@ it('<span class="hljs-keyword">function</span> is a NO OP', async<span class="hl
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedOutput: <a href="_types_.configs.html" class="tsd-signature-type">Configs</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedOutput: <a href="_types_.configs.html" class="tsd-signature-type">Configs</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"unchanged"</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>expected resultant Configs after KptFunc has successfully completed.
-										If undefined, assumes the output should remain unchanged (NO OP).</p>
+										<p>expected resultant Configs after running the function regardless of success or failure.
+										Use &#39;unchanged&#39; if the function is not expected to change input Configs.</p>
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedException: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedErrorType: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>expected exception to be thrown. If given, expectedOutput is ignored.</p>
+										<p>expected error type to be thrown.</p>
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedExceptionMessage: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedErrorMessage: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>expected message of expection to be thrown. If given, expectedOutput is ignored.</p>
+										<p>expected message of expection to be thrown.</p>
 									</div>
 								</li>
 							</ul>
@@ -189,13 +189,13 @@ it('<span class="hljs-keyword">function</span> is a NO OP', async<span class="hl
 					<a name="assertcallback" class="tsd-anchor"></a>
 					<h3>assert<wbr>Callback</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">assert<wbr>Callback<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a>, expectedOutput<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a>, expectedException<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span>, expectedExceptionMessage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">assert<wbr>Callback<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a>, expectedOutput<span class="tsd-signature-symbol">?: </span><a href="_types_.configs.html" class="tsd-signature-type">Configs</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"unchanged"</span>, expectedErrorType<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span>, expectedErrorMessage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/fcf775f/ts/kpt-functions/src/testing.ts#L78">src/testing.ts:78</a></li>
+									<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/10e7710/ts/kpt-functions/src/testing.ts#L79">src/testing.ts:79</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -217,22 +217,22 @@ it('<span class="hljs-keyword">function</span> is a NO OP', <span class="hljs-mo
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedOutput: <a href="_types_.configs.html" class="tsd-signature-type">Configs</a></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedOutput: <a href="_types_.configs.html" class="tsd-signature-type">Configs</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"unchanged"</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>expected resultant Configs after KptFunc has successfully completed.
-										If undefined, assumes the output should remain unchanged (NO OP).</p>
+										<p>expected resultant Configs after running the function regardless of success or failure.
+										Use &#39;unchanged&#39; if the function is not expected to change input Configs.</p>
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedException: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedErrorType: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{}</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>expected exception to be thrown. If given, expectedOutput is ignored.</p>
+										<p>expected error type to be thrown.</p>
 									</div>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedExceptionMessage: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> expectedErrorMessage: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RegExp</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>expected message of expection to be thrown. If given, expectedOutput is ignored.</p>
+										<p>expected message of expection to be thrown.</p>
 									</div>
 								</li>
 							</ul>
@@ -265,6 +265,9 @@ it('<span class="hljs-keyword">function</span> is a NO OP', <span class="hljs-mo
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_metadata_.html">&quot;metadata&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_result_.html">&quot;result&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_run_.html">&quot;run&quot;</a>
