@@ -213,14 +213,14 @@ export class Configs {
   }
 
   /**
-   * Get result(s) represnting structured findings by teh function.
+   * Get result(s) representing structured findings by the function.
    */
   getResults(): Result[] {
     return this.results;
   }
 
   /**
-   * Returns the ResourceList representation.
+   * Returns the ResourceList representation of this Configs object.
    */
   toResourceList(): ResourceList {
     return new ResourceList(
@@ -289,7 +289,7 @@ export class Configs {
   private readonly results: Result[];
 
   /**
-   * Determines whether [[addResults]] also logs to stderr.
+   * Determines whether [[addResults]] should also log to stderr.
    */
   logToStdErr: boolean | undefined;
 }

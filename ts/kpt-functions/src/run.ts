@@ -58,7 +58,7 @@ Example invocations:
 enum ExitCode {
   RESULT_ERROR = 1,
   EXCEPTION_ERROR,
-  FUNCTION_RESULT_ERROR,
+  FUNCTION_CONFIG_ERROR,
 }
 
 /**
@@ -75,7 +75,7 @@ export async function run(fn: KptFunc) {
       process.exitCode = ExitCode.RESULT_ERROR;
     } else if (err instanceof FunctionConfigError) {
       console.error(err.toString());
-      process.exitCode = ExitCode.FUNCTION_RESULT_ERROR;
+      process.exitCode = ExitCode.FUNCTION_CONFIG_ERROR;
     } else {
       console.error(err.stack);
       process.exitCode = ExitCode.EXCEPTION_ERROR;
@@ -140,7 +140,9 @@ Use this ONLY if the function accepts a ConfigMap.`,
     }
     functionConfig = parseToConfigMap(parser, functionConfigLiterals);
   }
-  const logToStdErr = Boolean(args.get('log_to_stderr'));
+  const logToStdErr =
+    process.env.LOG_TO_STDERR !== undefined ||
+    Boolean(args.get('log_to_stderr'));
 
   // Read the input and construct Configs.
   let configs = await readConfigs(inputFile, fileFormat, functionConfig);
