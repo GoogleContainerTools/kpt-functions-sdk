@@ -15,24 +15,22 @@
  */
 
 import { Configs, TestRunner, FunctionConfigError } from 'kpt-functions';
-import { labelNamespace, LABEL_NAME, LABEL_VALUE } from './label_namespace';
+import { labelNamespace } from './label_namespace';
 import { Namespace, ConfigMap } from './gen/io.k8s.api.core.v1';
 
+const RUNNER = new TestRunner(labelNamespace);
 const TEST_NAMESPACE = 'testNamespace';
 const TEST_LABEL_NAME = 'costCenter';
 const TEST_LABEL_VALUE = 'xyz';
+const FUNC_CONFIG: ConfigMap = new ConfigMap({
+  metadata: { name: 'config' },
+  data: { label_name: 'costCenter', label_value: 'xyz' },
+});
 
 describe('labelNamespace', () => {
-  let functionConfig = ConfigMap.named('foo');
-  functionConfig.data = {};
-  functionConfig.data[LABEL_NAME] = TEST_LABEL_NAME;
-  functionConfig.data[LABEL_VALUE] = TEST_LABEL_VALUE;
-
-  const RUNNER = new TestRunner(labelNamespace);
-
   it(
     'empty input ok',
-    RUNNER.assertCallback(new Configs(undefined, functionConfig))
+    RUNNER.assertCallback(new Configs(undefined, FUNC_CONFIG), 'unchanged')
   );
 
   it(
@@ -41,46 +39,46 @@ describe('labelNamespace', () => {
   );
 
   it('adds label namespace when metadata.labels is undefined', async () => {
-    const actual = new Configs(undefined, functionConfig);
-    actual.insert(Namespace.named(TEST_NAMESPACE));
+    const input = new Configs(undefined, FUNC_CONFIG);
+    input.insert(Namespace.named(TEST_NAMESPACE));
 
-    const expected = new Configs();
-    expected.insert(
+    const output = new Configs();
+    output.insert(
       new Namespace({
         metadata: {
           name: TEST_NAMESPACE,
-          labels: { [TEST_LABEL_NAME]: TEST_LABEL_VALUE }
-        }
+          labels: { [TEST_LABEL_NAME]: TEST_LABEL_VALUE },
+        },
       })
     );
 
-    await RUNNER.assert(actual, expected);
+    await RUNNER.assert(input, output);
   });
 
   it('adds label to namespace when metadata.labels is defined', async () => {
-    const actual = new Configs(undefined, functionConfig);
-    actual.insert(
+    const input = new Configs(undefined, FUNC_CONFIG);
+    input.insert(
       new Namespace({
         metadata: {
           name: TEST_NAMESPACE,
-          labels: { a: 'b' }
-        }
+          labels: { a: 'b' },
+        },
       })
     );
 
-    const expected = new Configs();
-    expected.insert(
+    const output = new Configs();
+    output.insert(
       new Namespace({
         metadata: {
           name: TEST_NAMESPACE,
           labels: {
             a: 'b',
-            [TEST_LABEL_NAME]: TEST_LABEL_VALUE
-          }
-        }
+            [TEST_LABEL_NAME]: TEST_LABEL_VALUE,
+          },
+        },
       })
     );
 
-    await RUNNER.assert(actual, expected);
+    await RUNNER.assert(input, output);
   });
 });
