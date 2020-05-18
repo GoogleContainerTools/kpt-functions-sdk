@@ -16,17 +16,17 @@
 
 import { Configs, TestRunner, FunctionConfigError } from 'kpt-functions';
 import { helmTemplate } from './helm_template';
-import { ConfigMap, Namespace } from './gen/io.k8s.api.core.v1';
+import { Namespace } from './gen/io.k8s.api.core.v1';
 
 const RUNNER = new TestRunner(helmTemplate);
 
 describe('helmTemplate', () => {
   it('outputs error given undefined function config', async () => {
-    const input = new Configs([], undefined);
+    const input = new Configs(undefined, undefined);
 
     await RUNNER.assert(
       input,
-      new Configs([]),
+      new Configs(undefined),
       FunctionConfigError,
       'functionConfig expected, instead undefined'
     );
@@ -34,27 +34,8 @@ describe('helmTemplate', () => {
 
   const namespace = Namespace.named('namespace');
   it('outputs error given namespace function config', async () => {
-    const input = new Configs([], namespace);
+    const input = new Configs(undefined, namespace);
 
-    await RUNNER.assert(input, new Configs([]), Error);
-  });
-
-  const emptyFunctionConfig = ConfigMap.named('empty-config');
-  emptyFunctionConfig.data = {};
-  it('outputs helm template error given empty function config', async () => {
-    const input = new Configs([], emptyFunctionConfig);
-
-    await RUNNER.assert(input, new Configs([]), Error);
-  });
-
-  const invalidFunctionConfig = ConfigMap.named('function-config');
-  invalidFunctionConfig.data = {
-    name: 'my-chart',
-    chart_path: '../path/to/helm/chart',
-  };
-  it('outputs helm template error given invalid function config', async () => {
-    const input = new Configs([], invalidFunctionConfig);
-
-    await RUNNER.assert(input, new Configs([]), Error);
+    await RUNNER.assert(input, new Configs(undefined, namespace), Error);
   });
 });
