@@ -19,12 +19,12 @@ import {
   Configs,
   FunctionConfigError,
   isKubernetesObject,
-  ConfigError,
+  generalResult,
 } from 'kpt-functions';
 import { spawnSync } from 'child_process';
 import { isConfigMap } from './gen/io.k8s.api.core.v1';
 
-const NAME = 'name';
+const CHART_NAME = 'name';
 const CHART_PATH = 'chart_path';
 const VALUES_PATH = '--values';
 
@@ -34,19 +34,20 @@ export async function helmTemplate(configs: Configs) {
   const args = readArguments(configs);
   args.unshift('template');
 
-  let child;
   let error;
   try {
-    child = spawnSync('helm', args);
+    const child = spawnSync('helm', args);
     error = child.stderr;
     let objects = safeLoadAll(child.stdout);
     objects = objects.filter(o => isKubernetesObject(o));
     configs.insert(...objects);
   } catch (err) {
-    throw new ConfigError(err);
+    configs.addResults(generalResult(err, 'error'));
   }
   if (error && error.length > 0) {
-    throw new ConfigError(`Helm template command results in error: ${error}`);
+    configs.addResults(
+      generalResult(`Helm template command results in error: ${error}`, 'error')
+    );
   }
 }
 
@@ -54,7 +55,7 @@ function readArguments(configs: Configs) {
   const args: string[] = [];
 
   // Helm template expects name then chart path then remaining flags
-  const name = configs.getFunctionConfigValue(NAME);
+  const name = configs.getFunctionConfigValue(CHART_NAME);
   if (name) {
     args.push(name);
   }
@@ -66,7 +67,7 @@ function readArguments(configs: Configs) {
   // Remaining flags
   const data = readConfigDataOrThrow(configs);
   for (const key in data) {
-    if (key !== NAME && key !== CHART_PATH) {
+    if (key !== CHART_NAME && key !== CHART_PATH) {
       args.push(key);
       args.push(data[key]);
     }
@@ -94,15 +95,14 @@ function readConfigDataOrThrow(configs: Configs) {
 }
 
 helmTemplate.usage = `
-Render chart templates locally using helm template.
-Display the output objects as a Kubernetes List. If piped a Kubernetes List in
+Render chart templates locally using helm template. If piped a Kubernetes List in
 addition to arguments then render the chart objects into the piped list,
 overwriting any chart objects that already exist in the list.
 
-Configured using a ConfigMap with keys for ${NAME}, ${CHART_PATH}, and optional helm
+Configured using a ConfigMap with keys for ${CHART_NAME}, ${CHART_PATH}, and optional helm
 template flags like --values:
 
-${NAME}: Name of helm chart.
+${CHART_NAME}: Name of helm chart.
 ${CHART_PATH}: Chart templates directory.
 ${VALUES_PATH}: [Optional] Path to values file.
 ...
@@ -121,7 +121,7 @@ metadata:
         image:  gcr.io/kpt-functions/helm-template
     config.kubernetes.io/local-config: "true"
 data:
-  ${NAME}: my-chart
+  ${CHART_NAME}: my-chart
   ${CHART_PATH}: ../path/to/helm/chart
   ${VALUES_PATH}: ./values.yaml
 `;

@@ -133,40 +133,6 @@ assert_dir_exists payments-dev
 assert_dir_exists payments-prod
 grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
 
-helm_testcase "node_helm_template_command_line_args"
-node "${DIST}"/helm_template_run.js -i /dev/null -d name=my-chart -d chart_path=charts/bitnami/redis/ >out.yaml
-assert_contains_string out.yaml "my-chart"
-
-helm_testcase "node_helm_template_function_config_args"
-cat >fc.yaml <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: my-config
-  annotations:
-    config.k8s.io/function: |
-      container:
-        image:  gcr.io/kpt-functions/helm-template
-    config.kubernetes.io/local-config: "true"
-data:
-  name: my-chart
-  chart_path: charts/bitnami/redis
-EOF
-node "${DIST}"/helm_template_run.js -i /dev/null -f fc.yaml >out.yaml
-assert_contains_string out.yaml "my-chart"
-
-helm_testcase "node_helm_template_undefined_args"
-node "${DIST}"/helm_template_run.js -i /dev/null 2>err.txt || true
-assert_contains_string err.txt "Error: functionConfig expected, instead undefined"
-
-helm_testcase "node_helm_template_transform_funct"
-node "${DIST}"/read_yaml_run.js -i /dev/null -d source_dir="$(pwd)"/example-configs |
-  node "${DIST}"/helm_template_run.js -i /dev/null -d name=my-chart -d chart_path=charts/bitnami/redis/ |
-  node "${DIST}"/write_yaml_run.js -o /dev/null -d sink_dir="$(pwd)"/example-configs -d overwrite=true
-assert_dir_exists example-configs/shipping-dev
-assert_dir_exists example-configs/default
-grep -q "name: my-chart-redis-master" example-configs/default/service_my-chart-redis-master.yaml
-
 ############################
 # Docker Tests
 ############################
@@ -211,13 +177,51 @@ assert_dir_exists payments-dev
 assert_dir_exists payments-prod
 grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
 
+helm_testcase "docker_helm_template_undefined_args"
+docker run -u "$(id -u)" -v "$(pwd)/${CHARTS_SRC}":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null 2>err.txt || true
+assert_contains_string err.txt "Error: functionConfig expected, instead undefined"
+
+helm_testcase "docker_helm_template_empty_fc"
+cat >fc.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: empty-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/helm-template
+    config.kubernetes.io/local-config: "true"
+data:
+EOF
+docker run -u "$(id -u)" -v "$(pwd)":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -f /source/fc.yaml 2>err.txt || true
+assert_contains_string err.txt "Error: functionConfig expected to contain data, instead empty"
+
+helm_testcase "docker_helm_template_invalid_fc"
+cat >fc.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: invalid-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image:  gcr.io/kpt-functions/helm-template
+    config.kubernetes.io/local-config: "true"
+data:
+  name: invalid-fc
+  chart_path: /path/to/helm/chart
+EOF
+docker run -u "$(id -u)" -v "$(pwd)":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -f /source/fc.yaml >out.yaml || true
+assert_contains_string out.yaml "${HELM_ERROR_SNIPPET}"
+
+helm_testcase "docker_helm_template_too_few_args"
+docker run -u "$(id -u)" -v "$(pwd)/${CHARTS_SRC}":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -d name=too-few-args >out.yaml || true
+assert_contains_string out.yaml "${HELM_ERROR_SNIPPET}"
+
 helm_testcase "docker_helm_template_expected_args"
 docker run -u "$(id -u)" -v "$(pwd)/${CHARTS_SRC}":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -d name=expected-args -d chart_path=/source/redis >out.yaml
 assert_contains_string out.yaml "expected-args"
-
-helm_testcase "docker_helm_template_error_too_few_args"
-docker run -u "$(id -u)" -v "$(pwd)/${CHARTS_SRC}":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -d name=too-few-args 2>err.txt || true
-assert_contains_string err.txt "${HELM_ERROR_SNIPPET}"
 
 helm_testcase "docker_helm_template_extra_args"
 cat >fc.yaml <<EOF
