@@ -168,13 +168,14 @@ grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
 
 testcase "kpt_label_namespace_imperative"
 kpt fn source . |
-  kpt fn run --image gcr.io/kpt-functions/label-namespace:"${TAG}" -- label_name=color label_value=orange |
+  kpt fn run . --image gcr.io/kpt-functions/label-namespace:"${TAG}" -- label_name=color label_value=orange |
   kpt fn sink .
-grep -qR 'color: orange' .
+grep -qR 'color: orange' audit/namespace.yaml
+grep -qR 'Comment should be preserved' audit/namespace.yaml
 
 testcase "kpt_label_namespace_imperative_short"
 kpt fn run --image gcr.io/kpt-functions/label-namespace:"${TAG}" . -- label_name=color label_value=orange
-grep -qR 'color: orange' .
+grep -qR 'color: orange' audit/namespace.yaml
 
 testcase "kpt_label_namespace_declarative"
 cat <<EOF >kpt-func.yaml
@@ -192,7 +193,7 @@ data:
   label_value: orange
 EOF
 kpt fn run .
-grep -qR 'color: orange' .
+grep -qR 'color: orange' audit/namespace.yaml
 
 testcase "kpt_label_namespace_declarative_multi"
 cat <<EOF >kpt-func.yaml
@@ -224,5 +225,5 @@ data:
   label_value: toronto
 EOF
 kpt fn run .
-grep -qR 'color: orange' .
-grep -qR 'city: toronto' .
+grep -qR 'color: orange' audit/namespace.yaml
+grep -qR 'city: toronto' audit/namespace.yaml

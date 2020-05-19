@@ -1,3 +1,4 @@
+# Comment should be preserved
 apiVersion: v1
 kind: Namespace
 metadata:
