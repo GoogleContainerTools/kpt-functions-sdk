@@ -28,7 +28,6 @@ metadata:
 items: []
 EOF
 )
-HELM_ERROR_SNIPPET="Helm template command results in error"
 CHARTS_SRC="charts/bitnami"
 
 ############################
@@ -176,48 +175,6 @@ docker run -i -u "$(id -u)" -v "$(pwd)":/source gcr.io/kpt-functions/read-yaml:"
 assert_dir_exists payments-dev
 assert_dir_exists payments-prod
 grep -q allowPrivilegeEscalation podsecuritypolicy_psp.yaml
-
-helm_testcase "docker_helm_template_undefined_args"
-docker run -u "$(id -u)" -v "$(pwd)/${CHARTS_SRC}":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null 2>err.txt || true
-assert_contains_string err.txt "Error: functionConfig expected, instead undefined"
-
-helm_testcase "docker_helm_template_empty_fc"
-cat >fc.yaml <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: empty-config
-  annotations:
-    config.k8s.io/function: |
-      container:
-        image:  gcr.io/kpt-functions/helm-template
-    config.kubernetes.io/local-config: "true"
-data:
-EOF
-docker run -u "$(id -u)" -v "$(pwd)":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -f /source/fc.yaml 2>err.txt || true
-assert_contains_string err.txt "Error: functionConfig expected to contain data, instead empty"
-
-helm_testcase "docker_helm_template_invalid_fc"
-cat >fc.yaml <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: invalid-config
-  annotations:
-    config.k8s.io/function: |
-      container:
-        image:  gcr.io/kpt-functions/helm-template
-    config.kubernetes.io/local-config: "true"
-data:
-  name: invalid-fc
-  chart_path: /path/to/helm/chart
-EOF
-docker run -u "$(id -u)" -v "$(pwd)":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -f /source/fc.yaml >out.yaml || true
-assert_contains_string out.yaml "${HELM_ERROR_SNIPPET}"
-
-helm_testcase "docker_helm_template_too_few_args"
-docker run -u "$(id -u)" -v "$(pwd)/${CHARTS_SRC}":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -d name=too-few-args >out.yaml || true
-assert_contains_string out.yaml "${HELM_ERROR_SNIPPET}"
 
 helm_testcase "docker_helm_template_expected_args"
 docker run -u "$(id -u)" -v "$(pwd)/${CHARTS_SRC}":/source gcr.io/kpt-functions/helm-template:"${TAG}" -i /dev/null -d name=expected-args -d chart_path=/source/redis >out.yaml
