@@ -79,7 +79,7 @@ export class RuntimeClassList {
 
   constructor(desc: RuntimeClassList) {
     this.apiVersion = RuntimeClassList.apiVersion;
-    this.items = desc.items.map(i => new RuntimeClass(i));
+    this.items = desc.items.map((i) => new RuntimeClass(i));
     this.kind = RuntimeClassList.kind;
     this.metadata = desc.metadata;
   }

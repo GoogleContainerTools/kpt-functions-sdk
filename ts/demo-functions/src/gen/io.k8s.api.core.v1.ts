@@ -452,7 +452,7 @@ export class ComponentStatusList {
 
   constructor(desc: ComponentStatusList) {
     this.apiVersion = ComponentStatusList.apiVersion;
-    this.items = desc.items.map(i => new ComponentStatus(i));
+    this.items = desc.items.map((i) => new ComponentStatus(i));
     this.kind = ComponentStatusList.kind;
     this.metadata = desc.metadata;
   }
@@ -582,7 +582,7 @@ export class ConfigMapList {
 
   constructor(desc: ConfigMapList) {
     this.apiVersion = ConfigMapList.apiVersion;
-    this.items = desc.items.map(i => new ConfigMap(i));
+    this.items = desc.items.map((i) => new ConfigMap(i));
     this.kind = ConfigMapList.kind;
     this.metadata = desc.metadata;
   }
@@ -1099,7 +1099,7 @@ export class EndpointsList {
 
   constructor(desc: EndpointsList) {
     this.apiVersion = EndpointsList.apiVersion;
-    this.items = desc.items.map(i => new Endpoints(i));
+    this.items = desc.items.map((i) => new Endpoints(i));
     this.kind = EndpointsList.kind;
     this.metadata = desc.metadata;
   }
@@ -1323,7 +1323,7 @@ export class EventList {
 
   constructor(desc: EventList) {
     this.apiVersion = EventList.apiVersion;
-    this.items = desc.items.map(i => new Event(i));
+    this.items = desc.items.map((i) => new Event(i));
     this.kind = EventList.kind;
     this.metadata = desc.metadata;
   }
@@ -1828,7 +1828,7 @@ export class LimitRangeList {
 
   constructor(desc: LimitRangeList) {
     this.apiVersion = LimitRangeList.apiVersion;
-    this.items = desc.items.map(i => new LimitRange(i));
+    this.items = desc.items.map((i) => new LimitRange(i));
     this.kind = LimitRangeList.kind;
     this.metadata = desc.metadata;
   }
@@ -1992,7 +1992,7 @@ export class NamespaceList {
 
   constructor(desc: NamespaceList) {
     this.apiVersion = NamespaceList.apiVersion;
-    this.items = desc.items.map(i => new Namespace(i));
+    this.items = desc.items.map((i) => new Namespace(i));
     this.kind = NamespaceList.kind;
     this.metadata = desc.metadata;
   }
@@ -2183,7 +2183,7 @@ export class NodeList {
 
   constructor(desc: NodeList) {
     this.apiVersion = NodeList.apiVersion;
-    this.items = desc.items.map(i => new Node(i));
+    this.items = desc.items.map((i) => new Node(i));
     this.kind = NodeList.kind;
     this.metadata = desc.metadata;
   }
@@ -2545,7 +2545,7 @@ export class PersistentVolumeClaimList {
 
   constructor(desc: PersistentVolumeClaimList) {
     this.apiVersion = PersistentVolumeClaimList.apiVersion;
-    this.items = desc.items.map(i => new PersistentVolumeClaim(i));
+    this.items = desc.items.map((i) => new PersistentVolumeClaim(i));
     this.kind = PersistentVolumeClaimList.kind;
     this.metadata = desc.metadata;
   }
@@ -2646,7 +2646,7 @@ export class PersistentVolumeList {
 
   constructor(desc: PersistentVolumeList) {
     this.apiVersion = PersistentVolumeList.apiVersion;
-    this.items = desc.items.map(i => new PersistentVolume(i));
+    this.items = desc.items.map((i) => new PersistentVolume(i));
     this.kind = PersistentVolumeList.kind;
     this.metadata = desc.metadata;
   }
@@ -2950,7 +2950,7 @@ export class PodList {
 
   constructor(desc: PodList) {
     this.apiVersion = PodList.apiVersion;
-    this.items = desc.items.map(i => new Pod(i));
+    this.items = desc.items.map((i) => new Pod(i));
     this.kind = PodList.kind;
     this.metadata = desc.metadata;
   }
@@ -3244,7 +3244,7 @@ export class PodTemplateList {
 
   constructor(desc: PodTemplateList) {
     this.apiVersion = PodTemplateList.apiVersion;
-    this.items = desc.items.map(i => new PodTemplate(i));
+    this.items = desc.items.map((i) => new PodTemplate(i));
     this.kind = PodTemplateList.kind;
     this.metadata = desc.metadata;
   }
@@ -3561,7 +3561,7 @@ export class ReplicationControllerList {
 
   constructor(desc: ReplicationControllerList) {
     this.apiVersion = ReplicationControllerList.apiVersion;
-    this.items = desc.items.map(i => new ReplicationController(i));
+    this.items = desc.items.map((i) => new ReplicationController(i));
     this.kind = ReplicationControllerList.kind;
     this.metadata = desc.metadata;
   }
@@ -3729,7 +3729,7 @@ export class ResourceQuotaList {
 
   constructor(desc: ResourceQuotaList) {
     this.apiVersion = ResourceQuotaList.apiVersion;
-    this.items = desc.items.map(i => new ResourceQuota(i));
+    this.items = desc.items.map((i) => new ResourceQuota(i));
     this.kind = ResourceQuotaList.kind;
     this.metadata = desc.metadata;
   }
@@ -4025,7 +4025,7 @@ export class SecretList {
 
   constructor(desc: SecretList) {
     this.apiVersion = SecretList.apiVersion;
-    this.items = desc.items.map(i => new Secret(i));
+    this.items = desc.items.map((i) => new Secret(i));
     this.kind = SecretList.kind;
     this.metadata = desc.metadata;
   }
@@ -4256,7 +4256,7 @@ export class ServiceAccountList {
 
   constructor(desc: ServiceAccountList) {
     this.apiVersion = ServiceAccountList.apiVersion;
-    this.items = desc.items.map(i => new ServiceAccount(i));
+    this.items = desc.items.map((i) => new ServiceAccount(i));
     this.kind = ServiceAccountList.kind;
     this.metadata = desc.metadata;
   }
@@ -4320,7 +4320,7 @@ export class ServiceList {
 
   constructor(desc: ServiceList) {
     this.apiVersion = ServiceList.apiVersion;
-    this.items = desc.items.map(i => new Service(i));
+    this.items = desc.items.map((i) => new Service(i));
     this.kind = ServiceList.kind;
     this.metadata = desc.metadata;
   }

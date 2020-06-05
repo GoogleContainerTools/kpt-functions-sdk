@@ -4,19 +4,19 @@ import * as apisMetaV1 from './io.k8s.apimachinery.pkg.apis.meta.v1';
 
 // Job represents the configuration of a single job.
 export class Job implements KubernetesObject {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
 
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
   public kind: string;
 
-  // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+  // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
   public metadata: apisMetaV1.ObjectMeta;
 
-  // Specification of the desired behavior of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+  // Specification of the desired behavior of a job. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
   public spec?: JobSpec;
 
-  // Current status of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+  // Current status of a job. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
   public status?: JobStatus;
 
   constructor(desc: Job.Interface) {
@@ -44,13 +44,13 @@ export namespace Job {
   }
   // Job represents the configuration of a single job.
   export interface Interface {
-    // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+    // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
     metadata: apisMetaV1.ObjectMeta;
 
-    // Specification of the desired behavior of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+    // Specification of the desired behavior of a job. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
     spec?: JobSpec;
 
-    // Current status of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+    // Current status of a job. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
     status?: JobStatus;
   }
 }
@@ -87,16 +87,16 @@ export class JobCondition {
 
 // JobList is a collection of jobs.
 export class JobList {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
 
   // items is the list of Jobs.
   public items: Job[];
 
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
   public kind: string;
 
-  // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+  // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
   public metadata?: apisMetaV1.ListMeta;
 
   constructor(desc: JobList) {
@@ -122,7 +122,7 @@ export namespace JobList {
     // items is the list of Jobs.
     items: Job[];
 
-    // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+    // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
     metadata?: apisMetaV1.ListMeta;
   }
 }

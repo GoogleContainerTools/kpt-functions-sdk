@@ -89,7 +89,7 @@ export class ControllerRevisionList {
 
   constructor(desc: ControllerRevisionList) {
     this.apiVersion = ControllerRevisionList.apiVersion;
-    this.items = desc.items.map(i => new ControllerRevision(i));
+    this.items = desc.items.map((i) => new ControllerRevision(i));
     this.kind = ControllerRevisionList.kind;
     this.metadata = desc.metadata;
   }
@@ -220,7 +220,7 @@ export class DeploymentList {
 
   constructor(desc: DeploymentList) {
     this.apiVersion = DeploymentList.apiVersion;
-    this.items = desc.items.map(i => new Deployment(i));
+    this.items = desc.items.map((i) => new Deployment(i));
     this.kind = DeploymentList.kind;
     this.metadata = desc.metadata;
   }
@@ -578,7 +578,7 @@ export class StatefulSetList {
 
   constructor(desc: StatefulSetList) {
     this.apiVersion = StatefulSetList.apiVersion;
-    this.items = desc.items.map(i => new StatefulSet(i));
+    this.items = desc.items.map((i) => new StatefulSet(i));
     this.kind = StatefulSetList.kind;
     this.metadata = desc.metadata;
   }
@@ -643,7 +643,7 @@ export class StatefulSetSpec {
     this.volumeClaimTemplates =
       desc.volumeClaimTemplates !== undefined
         ? desc.volumeClaimTemplates.map(
-            i => new apiCoreV1.PersistentVolumeClaim(i)
+            (i) => new apiCoreV1.PersistentVolumeClaim(i)
           )
         : undefined;
   }

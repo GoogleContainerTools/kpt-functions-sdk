@@ -6,8 +6,8 @@ export async function suggestPsp(configs: Configs) {
   // that do not have 'allowPrivilegeEscalation' field set to true.
   const results = configs
     .get(isPodSecurityPolicy)
-    .filter(psp => psp.spec && psp.spec.allowPrivilegeEscalation !== false)
-    .map(psp =>
+    .filter((psp) => psp.spec && psp.spec.allowPrivilegeEscalation !== false)
+    .map((psp) =>
       kubernetesObjectResult(
         'Suggest explicitly disabling privilege escalation',
         psp,

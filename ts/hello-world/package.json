@@ -20,9 +20,9 @@
   "devDependencies": {
     "@types/jasmine": "^3.5.10",
     "@types/node": "^14.0.11",
-    "create-kpt-functions": "^0.16.4",
-    "jasmine": "^3.4.0",
-    "tslint": "^5.19.0",
+    "create-kpt-functions": "^0.17.0",
+    "jasmine": "^3.5.0",
+    "tslint": "^6.1.2",
     "typescript": "^3.9.5"
   },
   "kpt": {

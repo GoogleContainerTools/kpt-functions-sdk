@@ -36,13 +36,13 @@ export class AllowedHostPath {
 
 // Eviction evicts a pod from its node subject to certain policies and safety constraints. This is a subresource of Pod.  A request to cause such an eviction is created by POSTing to .../pods/<pod name>/evictions.
 export class Eviction implements KubernetesObject {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
 
   // DeleteOptions may be provided
   public deleteOptions?: apisMetaV1.DeleteOptions;
 
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
   public kind: string;
 
   // ObjectMeta describes the pod that is being evicted.
@@ -119,10 +119,10 @@ export class IDRange {
 
 // PodDisruptionBudget is an object to define the max disruption that can be caused to a collection of pods
 export class PodDisruptionBudget implements KubernetesObject {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
 
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
   public kind: string;
 
   public metadata: apisMetaV1.ObjectMeta;
@@ -170,12 +170,12 @@ export namespace PodDisruptionBudget {
 
 // PodDisruptionBudgetList is a collection of PodDisruptionBudgets.
 export class PodDisruptionBudgetList {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
 
   public items: PodDisruptionBudget[];
 
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
   public kind: string;
 
   public metadata?: apisMetaV1.ListMeta;
@@ -250,13 +250,13 @@ export class PodDisruptionBudgetStatus {
 
 // PodSecurityPolicy governs the ability to make requests that affect the Security Context that will be applied to a pod and container.
 export class PodSecurityPolicy implements KubernetesObject {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
 
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
   public kind: string;
 
-  // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+  // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
   public metadata: apisMetaV1.ObjectMeta;
 
   // spec defines the policy enforced.
@@ -286,7 +286,7 @@ export namespace PodSecurityPolicy {
   }
   // PodSecurityPolicy governs the ability to make requests that affect the Security Context that will be applied to a pod and container.
   export interface Interface {
-    // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+    // Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
     metadata: apisMetaV1.ObjectMeta;
 
     // spec defines the policy enforced.
@@ -296,16 +296,16 @@ export namespace PodSecurityPolicy {
 
 // PodSecurityPolicyList is a list of PodSecurityPolicy objects.
 export class PodSecurityPolicyList {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
 
   // items is a list of schema objects.
   public items: PodSecurityPolicy[];
 
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
   public kind: string;
 
-  // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+  // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
   public metadata?: apisMetaV1.ListMeta;
 
   constructor(desc: PodSecurityPolicyList) {
@@ -331,7 +331,7 @@ export namespace PodSecurityPolicyList {
     // items is a list of schema objects.
     items: PodSecurityPolicy[];
 
-    // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+    // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
     metadata?: apisMetaV1.ListMeta;
   }
 }
@@ -341,7 +341,7 @@ export class PodSecurityPolicySpec {
   // allowPrivilegeEscalation determines if a pod can request to allow privilege escalation. If unspecified, defaults to true.
   public allowPrivilegeEscalation?: boolean;
 
-  // AllowedCSIDrivers is a whitelist of inline CSI drivers that must be explicitly set to be embedded within a pod spec. An empty value means no CSI drivers can run inline within a pod spec.
+  // AllowedCSIDrivers is a whitelist of inline CSI drivers that must be explicitly set to be embedded within a pod spec. An empty value indicates that any CSI driver can be used for inline ephemeral volumes. This is an alpha field, and is only honored if the API server enables the CSIInlineVolume feature gate.
   public allowedCSIDrivers?: AllowedCSIDriver[];
 
   // allowedCapabilities is a list of capabilities that can be requested to add to the container. Capabilities in this field may be added at the pod author's discretion. You must not list a capability in both allowedCapabilities and requiredDropCapabilities.
@@ -402,6 +402,9 @@ export class PodSecurityPolicySpec {
   // runAsUser is the strategy that will dictate the allowable RunAsUser values that may be set.
   public runAsUser: RunAsUserStrategyOptions;
 
+  // runtimeClass is the strategy that will dictate the allowable RuntimeClasses for a pod. If this field is omitted, the pod's runtimeClassName field is unrestricted. Enforcement of this field depends on the RuntimeClass feature gate being enabled.
+  public runtimeClass?: RuntimeClassStrategyOptions;
+
   // seLinux is the strategy that will dictate the allowable labels that may be set.
   public seLinux: SELinuxStrategyOptions;
 
@@ -432,6 +435,7 @@ export class PodSecurityPolicySpec {
     this.requiredDropCapabilities = desc.requiredDropCapabilities;
     this.runAsGroup = desc.runAsGroup;
     this.runAsUser = desc.runAsUser;
+    this.runtimeClass = desc.runtimeClass;
     this.seLinux = desc.seLinux;
     this.supplementalGroups = desc.supplementalGroups;
     this.volumes = desc.volumes;
@@ -463,6 +467,20 @@ export class RunAsUserStrategyOptions {
   constructor(desc: RunAsUserStrategyOptions) {
     this.ranges = desc.ranges;
     this.rule = desc.rule;
+  }
+}
+
+// RuntimeClassStrategyOptions define the strategy that will dictate the allowable RuntimeClasses for a pod.
+export class RuntimeClassStrategyOptions {
+  // allowedRuntimeClassNames is a whitelist of RuntimeClass names that may be specified on a pod. A value of "*" means that any RuntimeClass name is allowed, and must be the only item in the list. An empty list requires the RuntimeClassName field to be unset.
+  public allowedRuntimeClassNames: string[];
+
+  // defaultRuntimeClassName is the default RuntimeClassName to set on the pod. The default MUST be allowed by the allowedRuntimeClassNames list. A value of nil does not mutate the Pod.
+  public defaultRuntimeClassName?: string;
+
+  constructor(desc: RuntimeClassStrategyOptions) {
+    this.allowedRuntimeClassNames = desc.allowedRuntimeClassNames;
+    this.defaultRuntimeClassName = desc.defaultRuntimeClassName;
   }
 }
 

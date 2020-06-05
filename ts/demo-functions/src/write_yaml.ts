@@ -53,8 +53,10 @@ export async function writeYaml(configs: kpt.Configs) {
     // set by the source function. Remove these annotations before writing files.
     const documents = configsAtPath
       .sort(compareSourceIndex)
-      .map(config => kpt.removeAnnotation(config, kpt.SOURCE_INDEX_ANNOTATION))
-      .map(config => kpt.removeAnnotation(config, kpt.SOURCE_PATH_ANNOTATION))
+      .map((config) =>
+        kpt.removeAnnotation(config, kpt.SOURCE_INDEX_ANNOTATION)
+      )
+      .map((config) => kpt.removeAnnotation(config, kpt.SOURCE_PATH_ANNOTATION))
       .map(toYaml);
 
     const file = path.join(sinkDir, p);
@@ -78,7 +80,7 @@ export async function writeYaml(configs: kpt.Configs) {
 
   // Delete YAML files that are missing from the input.
   // Other file types are ignored.
-  filesToDelete.forEach(file => {
+  filesToDelete.forEach((file) => {
     fs.unlinkSync(file);
   });
 }
