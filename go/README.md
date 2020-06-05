@@ -7,13 +7,13 @@ make
 ## Publish container images
 
 ```console
-make publish-functions
+scripts/publish-functions.sh
 ```
 
 ## Update typegen binary
 
-To updated typgen binary in `create-kpt-functions` package:
+To generate an updated typgen binary in `create-kpt-functions` package:
 
 ```console
-make publish-typegen
+make package-typegen
 ```
