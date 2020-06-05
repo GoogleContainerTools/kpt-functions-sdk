@@ -9,7 +9,7 @@ WORKDIR /home/node/app
 
 # Install dependencies and cache them.
 COPY --chown=node:node package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Build the source.
 COPY --chown=node:node tsconfig.json .
