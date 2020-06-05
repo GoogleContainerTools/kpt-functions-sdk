@@ -45,9 +45,9 @@ export async function readYaml(configs: Configs) {
 
   // Parse each file and convert it to a KubernetesObject.
   files
-    .map(f => parseFile(configs, sourceDir, f, ignoreInvalid))
-    .filter(result => result !== undefined)
-    .forEach(result => configs.addResults(result as Result));
+    .map((f) => parseFile(configs, sourceDir, f, ignoreInvalid))
+    .filter((result) => result !== undefined)
+    .forEach((result) => configs.addResults(result as Result));
 }
 
 readYaml.usage = `
@@ -78,10 +78,12 @@ function parseFile(
   let objects = safeLoadAll(contents);
 
   // Filter for objects that are not KubernetesObject. This is conditional on 'ignoreValid' parameter.
-  const invalidObjects: object[] = objects.filter(o => !isKubernetesObject(o));
+  const invalidObjects: object[] = objects.filter(
+    (o) => !isKubernetesObject(o)
+  );
   if (invalidObjects.length) {
     if (ignoreInvalid) {
-      objects = objects.filter(o => isKubernetesObject(o));
+      objects = objects.filter((o) => isKubernetesObject(o));
     } else {
       return configFileResult(
         `File contains invalid Kubernetes objects '${JSON.stringify(

@@ -88,7 +88,7 @@ export class CronJobList {
 
   constructor(desc: CronJobList) {
     this.apiVersion = CronJobList.apiVersion;
-    this.items = desc.items.map(i => new CronJob(i));
+    this.items = desc.items.map((i) => new CronJob(i));
     this.kind = CronJobList.kind;
     this.metadata = desc.metadata;
   }

@@ -3,13 +3,13 @@ import * as apisMetaV1 from './io.k8s.apimachinery.pkg.apis.meta.v1';
 
 // MutatingWebhook describes an admission webhook and the resources and operations it applies to.
 export class MutatingWebhook {
-  // AdmissionReviewVersions is an ordered list of preferred `AdmissionReview` versions the Webhook expects. API server will try to use first version in the list which it supports. If none of the versions specified in this list supported by API server, validation will fail for this object. If a persisted webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail and be subject to the failure policy. Default to `['v1beta1']`.
-  public admissionReviewVersions?: string[];
+  // AdmissionReviewVersions is an ordered list of preferred `AdmissionReview` versions the Webhook expects. API server will try to use first version in the list which it supports. If none of the versions specified in this list supported by API server, validation will fail for this object. If a persisted webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail and be subject to the failure policy.
+  public admissionReviewVersions: string[];
 
   // ClientConfig defines how to communicate with the hook. Required
   public clientConfig: WebhookClientConfig;
 
-  // FailurePolicy defines how unrecognized errors from the admission endpoint are handled - allowed values are Ignore or Fail. Defaults to Ignore.
+  // FailurePolicy defines how unrecognized errors from the admission endpoint are handled - allowed values are Ignore or Fail. Defaults to Fail.
   public failurePolicy?: string;
 
   // matchPolicy defines how the "rules" list is used to match incoming requests. Allowed values are "Exact" or "Equivalent".
@@ -18,7 +18,7 @@ export class MutatingWebhook {
   // 
   // - Equivalent: match a request if modifies a resource listed in rules, even via another API group or version. For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1, and "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`, a request to apps/v1beta1 or extensions/v1beta1 would be converted to apps/v1 and sent to the webhook.
   // 
-  // Defaults to "Exact"
+  // Defaults to "Equivalent"
   public matchPolicy?: string;
 
   // The name of the admission webhook. Name should be fully qualified, e.g., imagepolicy.kubernetes.io, where "imagepolicy" is the name of the webhook, and kubernetes.io is the name of the organization. Required.
@@ -72,10 +72,10 @@ export class MutatingWebhook {
   // Rules describes what operations on what resources/subresources the webhook cares about. The webhook cares about an operation if it matches _any_ Rule. However, in order to prevent ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks from putting the cluster in a state which cannot be recovered from without completely disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
   public rules?: RuleWithOperations[];
 
-  // SideEffects states whether this webhookk has side effects. Acceptable values are: Unknown, None, Some, NoneOnDryRun Webhooks with side effects MUST implement a reconciliation system, since a request may be rejected by a future step in the admission change and the side effects therefore need to be undone. Requests with the dryRun attribute will be auto-rejected if they match a webhook with sideEffects == Unknown or Some. Defaults to Unknown.
-  public sideEffects?: string;
+  // SideEffects states whether this webhook has side effects. Acceptable values are: None, NoneOnDryRun (webhooks created via v1beta1 may also specify Some or Unknown). Webhooks with side effects MUST implement a reconciliation system, since a request may be rejected by a future step in the admission change and the side effects therefore need to be undone. Requests with the dryRun attribute will be auto-rejected if they match a webhook with sideEffects == Unknown or Some.
+  public sideEffects: string;
 
-  // TimeoutSeconds specifies the timeout for this webhook. After the timeout passes, the webhook call will be ignored or the API call will fail based on the failure policy. The timeout value must be between 1 and 30 seconds. Default to 30 seconds.
+  // TimeoutSeconds specifies the timeout for this webhook. After the timeout passes, the webhook call will be ignored or the API call will fail based on the failure policy. The timeout value must be between 1 and 30 seconds. Default to 10 seconds.
   public timeoutSeconds?: number;
 
   constructor(desc: MutatingWebhook) {
@@ -93,7 +93,7 @@ export class MutatingWebhook {
   }
 }
 
-// MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object. Deprecated in v1.16, planned for removal in v1.19. Use admissionregistration.k8s.io/v1 MutatingWebhookConfiguration instead.
+// MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.
 export class MutatingWebhookConfiguration implements KubernetesObject {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -120,16 +120,16 @@ export function isMutatingWebhookConfiguration(o: any): o is MutatingWebhookConf
 }
 
 export namespace MutatingWebhookConfiguration {
-  export const apiVersion = "admissionregistration.k8s.io/v1beta1";
+  export const apiVersion = "admissionregistration.k8s.io/v1";
   export const group = "admissionregistration.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1";
   export const kind = "MutatingWebhookConfiguration";
 
   // named constructs a MutatingWebhookConfiguration with metadata.name set to name.
   export function named(name: string): MutatingWebhookConfiguration {
     return new MutatingWebhookConfiguration({metadata: {name}});
   }
-  // MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object. Deprecated in v1.16, planned for removal in v1.19. Use admissionregistration.k8s.io/v1 MutatingWebhookConfiguration instead.
+  // MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.
   export interface Interface {
     // Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata.
     metadata: apisMetaV1.ObjectMeta;
@@ -166,9 +166,9 @@ export function isMutatingWebhookConfigurationList(o: any): o is MutatingWebhook
 }
 
 export namespace MutatingWebhookConfigurationList {
-  export const apiVersion = "admissionregistration.k8s.io/v1beta1";
+  export const apiVersion = "admissionregistration.k8s.io/v1";
   export const group = "admissionregistration.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1";
   export const kind = "MutatingWebhookConfigurationList";
 
   // MutatingWebhookConfigurationList is a list of MutatingWebhookConfiguration.
@@ -229,13 +229,13 @@ export class ServiceReference {
 
 // ValidatingWebhook describes an admission webhook and the resources and operations it applies to.
 export class ValidatingWebhook {
-  // AdmissionReviewVersions is an ordered list of preferred `AdmissionReview` versions the Webhook expects. API server will try to use first version in the list which it supports. If none of the versions specified in this list supported by API server, validation will fail for this object. If a persisted webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail and be subject to the failure policy. Default to `['v1beta1']`.
-  public admissionReviewVersions?: string[];
+  // AdmissionReviewVersions is an ordered list of preferred `AdmissionReview` versions the Webhook expects. API server will try to use first version in the list which it supports. If none of the versions specified in this list supported by API server, validation will fail for this object. If a persisted webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail and be subject to the failure policy.
+  public admissionReviewVersions: string[];
 
   // ClientConfig defines how to communicate with the hook. Required
   public clientConfig: WebhookClientConfig;
 
-  // FailurePolicy defines how unrecognized errors from the admission endpoint are handled - allowed values are Ignore or Fail. Defaults to Ignore.
+  // FailurePolicy defines how unrecognized errors from the admission endpoint are handled - allowed values are Ignore or Fail. Defaults to Fail.
   public failurePolicy?: string;
 
   // matchPolicy defines how the "rules" list is used to match incoming requests. Allowed values are "Exact" or "Equivalent".
@@ -244,7 +244,7 @@ export class ValidatingWebhook {
   // 
   // - Equivalent: match a request if modifies a resource listed in rules, even via another API group or version. For example, if deployments can be modified via apps/v1, apps/v1beta1, and extensions/v1beta1, and "rules" only included `apiGroups:["apps"], apiVersions:["v1"], resources: ["deployments"]`, a request to apps/v1beta1 or extensions/v1beta1 would be converted to apps/v1 and sent to the webhook.
   // 
-  // Defaults to "Exact"
+  // Defaults to "Equivalent"
   public matchPolicy?: string;
 
   // The name of the admission webhook. Name should be fully qualified, e.g., imagepolicy.kubernetes.io, where "imagepolicy" is the name of the webhook, and kubernetes.io is the name of the organization. Required.
@@ -289,10 +289,10 @@ export class ValidatingWebhook {
   // Rules describes what operations on what resources/subresources the webhook cares about. The webhook cares about an operation if it matches _any_ Rule. However, in order to prevent ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks from putting the cluster in a state which cannot be recovered from without completely disabling the plugin, ValidatingAdmissionWebhooks and MutatingAdmissionWebhooks are never called on admission requests for ValidatingWebhookConfiguration and MutatingWebhookConfiguration objects.
   public rules?: RuleWithOperations[];
 
-  // SideEffects states whether this webhookk has side effects. Acceptable values are: Unknown, None, Some, NoneOnDryRun Webhooks with side effects MUST implement a reconciliation system, since a request may be rejected by a future step in the admission change and the side effects therefore need to be undone. Requests with the dryRun attribute will be auto-rejected if they match a webhook with sideEffects == Unknown or Some. Defaults to Unknown.
-  public sideEffects?: string;
+  // SideEffects states whether this webhook has side effects. Acceptable values are: None, NoneOnDryRun (webhooks created via v1beta1 may also specify Some or Unknown). Webhooks with side effects MUST implement a reconciliation system, since a request may be rejected by a future step in the admission change and the side effects therefore need to be undone. Requests with the dryRun attribute will be auto-rejected if they match a webhook with sideEffects == Unknown or Some.
+  public sideEffects: string;
 
-  // TimeoutSeconds specifies the timeout for this webhook. After the timeout passes, the webhook call will be ignored or the API call will fail based on the failure policy. The timeout value must be between 1 and 30 seconds. Default to 30 seconds.
+  // TimeoutSeconds specifies the timeout for this webhook. After the timeout passes, the webhook call will be ignored or the API call will fail based on the failure policy. The timeout value must be between 1 and 30 seconds. Default to 10 seconds.
   public timeoutSeconds?: number;
 
   constructor(desc: ValidatingWebhook) {
@@ -309,7 +309,7 @@ export class ValidatingWebhook {
   }
 }
 
-// ValidatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and object without changing it. Deprecated in v1.16, planned for removal in v1.19. Use admissionregistration.k8s.io/v1 ValidatingWebhookConfiguration instead.
+// ValidatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and object without changing it.
 export class ValidatingWebhookConfiguration implements KubernetesObject {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -336,16 +336,16 @@ export function isValidatingWebhookConfiguration(o: any): o is ValidatingWebhook
 }
 
 export namespace ValidatingWebhookConfiguration {
-  export const apiVersion = "admissionregistration.k8s.io/v1beta1";
+  export const apiVersion = "admissionregistration.k8s.io/v1";
   export const group = "admissionregistration.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1";
   export const kind = "ValidatingWebhookConfiguration";
 
   // named constructs a ValidatingWebhookConfiguration with metadata.name set to name.
   export function named(name: string): ValidatingWebhookConfiguration {
     return new ValidatingWebhookConfiguration({metadata: {name}});
   }
-  // ValidatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and object without changing it. Deprecated in v1.16, planned for removal in v1.19. Use admissionregistration.k8s.io/v1 ValidatingWebhookConfiguration instead.
+  // ValidatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and object without changing it.
   export interface Interface {
     // Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata.
     metadata: apisMetaV1.ObjectMeta;
@@ -382,9 +382,9 @@ export function isValidatingWebhookConfigurationList(o: any): o is ValidatingWeb
 }
 
 export namespace ValidatingWebhookConfigurationList {
-  export const apiVersion = "admissionregistration.k8s.io/v1beta1";
+  export const apiVersion = "admissionregistration.k8s.io/v1";
   export const group = "admissionregistration.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1";
   export const kind = "ValidatingWebhookConfigurationList";
 
   // ValidatingWebhookConfigurationList is a list of ValidatingWebhookConfiguration.

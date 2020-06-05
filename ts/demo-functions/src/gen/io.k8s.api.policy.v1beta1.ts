@@ -202,7 +202,7 @@ export class PodDisruptionBudgetList {
 
   constructor(desc: PodDisruptionBudgetList) {
     this.apiVersion = PodDisruptionBudgetList.apiVersion;
-    this.items = desc.items.map(i => new PodDisruptionBudget(i));
+    this.items = desc.items.map((i) => new PodDisruptionBudget(i));
     this.kind = PodDisruptionBudgetList.kind;
     this.metadata = desc.metadata;
   }
@@ -340,7 +340,7 @@ export class PodSecurityPolicyList {
 
   constructor(desc: PodSecurityPolicyList) {
     this.apiVersion = PodSecurityPolicyList.apiVersion;
-    this.items = desc.items.map(i => new PodSecurityPolicy(i));
+    this.items = desc.items.map((i) => new PodSecurityPolicy(i));
     this.kind = PodSecurityPolicyList.kind;
     this.metadata = desc.metadata;
   }

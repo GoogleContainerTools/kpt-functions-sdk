@@ -3,14 +3,14 @@ import * as apisMetaV1 from './io.k8s.apimachinery.pkg.apis.meta.v1';
 
 // CustomResourceColumnDefinition specifies a column for server side printing.
 export class CustomResourceColumnDefinition {
-  // JSONPath is a simple JSON path (i.e. with array notation) which is evaluated against each custom resource to produce the value for this column.
-  public JSONPath: string;
-
   // description is a human readable description of this column.
   public description?: string;
 
   // format is an optional OpenAPI type definition for this column. The 'name' format is applied to the primary identifier column to assist in clients identifying column is the resource name. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#data-types for details.
   public format?: string;
+
+  // jsonPath is a simple JSON path (i.e. with array notation) which is evaluated against each custom resource to produce the value for this column.
+  public jsonPath: string;
 
   // name is a human readable name for the column.
   public name: string;
@@ -22,9 +22,9 @@ export class CustomResourceColumnDefinition {
   public type: string;
 
   constructor(desc: CustomResourceColumnDefinition) {
-    this.JSONPath = desc.JSONPath;
     this.description = desc.description;
     this.format = desc.format;
+    this.jsonPath = desc.jsonPath;
     this.name = desc.name;
     this.priority = desc.priority;
     this.type = desc.type;
@@ -33,24 +33,20 @@ export class CustomResourceColumnDefinition {
 
 // CustomResourceConversion describes how to convert different versions of a CR.
 export class CustomResourceConversion {
-  // conversionReviewVersions is an ordered list of preferred `ConversionReview` versions the Webhook expects. The API server will use the first version in the list which it supports. If none of the versions specified in this list are supported by API server, conversion will fail for the custom resource. If a persisted Webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail. Defaults to `["v1beta1"]`.
-  public conversionReviewVersions?: string[];
-
   // strategy specifies how custom resources are converted between versions. Allowed values are: - `None`: The converter only change the apiVersion and would not touch any other field in the custom resource. - `Webhook`: API Server will call to an external webhook to do the conversion. Additional information
-  //   is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhookClientConfig to be set.
+  //   is needed for this option. This requires spec.preserveUnknownFields to be false, and spec.conversion.webhook to be set.
   public strategy: string;
 
-  // webhookClientConfig is the instructions for how to call the webhook if strategy is `Webhook`. Required when `strategy` is set to `Webhook`.
-  public webhookClientConfig?: WebhookClientConfig;
+  // webhook describes how to call the conversion webhook. Required when `strategy` is set to `Webhook`.
+  public webhook?: WebhookConversion;
 
   constructor(desc: CustomResourceConversion) {
-    this.conversionReviewVersions = desc.conversionReviewVersions;
     this.strategy = desc.strategy;
-    this.webhookClientConfig = desc.webhookClientConfig;
+    this.webhook = desc.webhook;
   }
 }
 
-// CustomResourceDefinition represents a resource that should be exposed on the API server.  Its name MUST be in the format <.spec.name>.<.spec.group>. Deprecated in v1.16, planned for removal in v1.19. Use apiextensions.k8s.io/v1 CustomResourceDefinition instead.
+// CustomResourceDefinition represents a resource that should be exposed on the API server.  Its name MUST be in the format <.spec.name>.<.spec.group>.
 export class CustomResourceDefinition implements KubernetesObject {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -80,12 +76,12 @@ export function isCustomResourceDefinition(o: any): o is CustomResourceDefinitio
 }
 
 export namespace CustomResourceDefinition {
-  export const apiVersion = "apiextensions.k8s.io/v1beta1";
+  export const apiVersion = "apiextensions.k8s.io/v1";
   export const group = "apiextensions.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1";
   export const kind = "CustomResourceDefinition";
 
-  // CustomResourceDefinition represents a resource that should be exposed on the API server.  Its name MUST be in the format <.spec.name>.<.spec.group>. Deprecated in v1.16, planned for removal in v1.19. Use apiextensions.k8s.io/v1 CustomResourceDefinition instead.
+  // CustomResourceDefinition represents a resource that should be exposed on the API server.  Its name MUST be in the format <.spec.name>.<.spec.group>.
   export interface Interface {
     metadata: apisMetaV1.ObjectMeta;
 
@@ -149,9 +145,9 @@ export function isCustomResourceDefinitionList(o: any): o is CustomResourceDefin
 }
 
 export namespace CustomResourceDefinitionList {
-  export const apiVersion = "apiextensions.k8s.io/v1beta1";
+  export const apiVersion = "apiextensions.k8s.io/v1";
   export const group = "apiextensions.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1";
   export const kind = "CustomResourceDefinitionList";
 
   // CustomResourceDefinitionList is a list of CustomResourceDefinition objects.
@@ -195,9 +191,6 @@ export class CustomResourceDefinitionNames {
 
 // CustomResourceDefinitionSpec describes how a user wants their resource to appear
 export class CustomResourceDefinitionSpec {
-  // additionalPrinterColumns specifies additional columns returned in Table output. See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details. If present, this field configures columns for all versions. Top-level and per-version columns are mutually exclusive. If no top-level or per-version columns are specified, a single column displaying the age of the custom resource is used.
-  public additionalPrinterColumns?: CustomResourceColumnDefinition[];
-
   // conversion defines conversion settings for the CRD.
   public conversion?: CustomResourceConversion;
 
@@ -207,34 +200,21 @@ export class CustomResourceDefinitionSpec {
   // names specify the resource and kind names for the custom resource.
   public names: CustomResourceDefinitionNames;
 
-  // preserveUnknownFields indicates that object fields which are not specified in the OpenAPI schema should be preserved when persisting to storage. apiVersion, kind, metadata and known fields inside metadata are always preserved. If false, schemas must be defined for all versions. Defaults to true in v1beta for backwards compatibility. Deprecated: will be required to be false in v1. Preservation of unknown fields can be specified in the validation schema using the `x-kubernetes-preserve-unknown-fields: true` extension. See https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#pruning-versus-preserving-unknown-fields for details.
+  // preserveUnknownFields indicates that object fields which are not specified in the OpenAPI schema should be preserved when persisting to storage. apiVersion, kind, metadata and known fields inside metadata are always preserved. This field is deprecated in favor of setting `x-preserve-unknown-fields` to true in `spec.versions[*].schema.openAPIV3Schema`. See https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/#pruning-versus-preserving-unknown-fields for details.
   public preserveUnknownFields?: boolean;
 
   // scope indicates whether the defined custom resource is cluster- or namespace-scoped. Allowed values are `Cluster` and `Namespaced`. Default is `Namespaced`.
   public scope: string;
 
-  // subresources specify what subresources the defined custom resource has. If present, this field configures subresources for all versions. Top-level and per-version subresources are mutually exclusive.
-  public subresources?: CustomResourceSubresources;
-
-  // validation describes the schema used for validation and pruning of the custom resource. If present, this validation schema is used to validate all versions. Top-level and per-version schemas are mutually exclusive.
-  public validation?: CustomResourceValidation;
-
-  // version is the API version of the defined custom resource. The custom resources are served under `/apis/<group>/<version>/...`. Must match the name of the first item in the `versions` list if `version` and `versions` are both specified. Optional if `versions` is specified. Deprecated: use `versions` instead.
-  public version?: string;
-
-  // versions is the list of all API versions of the defined custom resource. Optional if `version` is specified. The name of the first item in the `versions` list must match the `version` field if `version` and `versions` are both specified. Version names are used to compute the order in which served versions are listed in API discovery. If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version), then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major version, then minor version. An example sorted list of versions: v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
-  public versions?: CustomResourceDefinitionVersion[];
+  // versions is the list of all API versions of the defined custom resource. Version names are used to compute the order in which served versions are listed in API discovery. If the version string is "kube-like", it will sort above non "kube-like" version strings, which are ordered lexicographically. "Kube-like" versions start with a "v", then are followed by a number (the major version), then optionally the string "alpha" or "beta" and another number (the minor version). These are sorted first by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing major version, then minor version. An example sorted list of versions: v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
+  public versions: CustomResourceDefinitionVersion[];
 
   constructor(desc: CustomResourceDefinitionSpec) {
-    this.additionalPrinterColumns = desc.additionalPrinterColumns;
     this.conversion = desc.conversion;
     this.group = desc.group;
     this.names = desc.names;
     this.preserveUnknownFields = desc.preserveUnknownFields;
     this.scope = desc.scope;
-    this.subresources = desc.subresources;
-    this.validation = desc.validation;
-    this.version = desc.version;
     this.versions = desc.versions;
   }
 }
@@ -259,13 +239,13 @@ export class CustomResourceDefinitionStatus {
 
 // CustomResourceDefinitionVersion describes a version for CRD.
 export class CustomResourceDefinitionVersion {
-  // additionalPrinterColumns specifies additional columns returned in Table output. See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details. Top-level and per-version columns are mutually exclusive. Per-version columns must not all be set to identical values (top-level columns should be used instead). If no top-level or per-version columns are specified, a single column displaying the age of the custom resource is used.
+  // additionalPrinterColumns specifies additional columns returned in Table output. See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details. If no columns are specified, a single column displaying the age of the custom resource is used.
   public additionalPrinterColumns?: CustomResourceColumnDefinition[];
 
   // name is the version name, e.g. “v1”, “v2beta1”, etc. The custom resources are served under this version at `/apis/<group>/<version>/...` if `served` is true.
   public name: string;
 
-  // schema describes the schema used for validation and pruning of this version of the custom resource. Top-level and per-version schemas are mutually exclusive. Per-version schemas must not all be set to identical values (top-level validation schema should be used instead).
+  // schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource.
   public schema?: CustomResourceValidation;
 
   // served is a flag enabling/disabling this version from being served via REST APIs
@@ -274,7 +254,7 @@ export class CustomResourceDefinitionVersion {
   // storage indicates this version should be used when persisting custom resources to storage. There must be exactly one version with storage=true.
   public storage: boolean;
 
-  // subresources specify what subresources this version of the defined custom resource have. Top-level and per-version subresources are mutually exclusive. Per-version subresources must not all be set to identical values (top-level subresources should be used instead).
+  // subresources specify what subresources this version of the defined custom resource have.
   public subresources?: CustomResourceSubresources;
 
   constructor(desc: CustomResourceDefinitionVersion) {
@@ -347,7 +327,7 @@ export class JSONSchemaProps {
 
   public anyOf?: JSONSchemaProps[];
 
-  // default is a default value for undefined object fields. Defaulting is a beta feature under the CustomResourceDefaulting feature gate. CustomResourceDefinitions with defaults must be created using the v1 (or newer) CustomResourceDefinition API.
+  // default is a default value for undefined object fields. Defaulting is a beta feature under the CustomResourceDefaulting feature gate. Defaulting requires spec.preserveUnknownFields to be false.
   public default?: JSON;
 
   public definitions?: {[key: string]: JSONSchemaProps};
@@ -464,4 +444,18 @@ export class WebhookClientConfig {
   // 
   // Attempting to use a user or basic auth e.g. "user:password@" is not allowed. Fragments ("#...") and query parameters ("?...") are not allowed, either.
   public url?: string;
+}
+
+// WebhookConversion describes how to call a conversion webhook
+export class WebhookConversion {
+  // clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
+  public clientConfig?: WebhookClientConfig;
+
+  // conversionReviewVersions is an ordered list of preferred `ConversionReview` versions the Webhook expects. The API server will use the first version in the list which it supports. If none of the versions specified in this list are supported by API server, conversion will fail for the custom resource. If a persisted Webhook configuration specifies allowed versions and does not include any versions known to the API Server, calls to the webhook will fail.
+  public conversionReviewVersions: string[];
+
+  constructor(desc: WebhookConversion) {
+    this.clientConfig = desc.clientConfig;
+    this.conversionReviewVersions = desc.conversionReviewVersions;
+  }
 }

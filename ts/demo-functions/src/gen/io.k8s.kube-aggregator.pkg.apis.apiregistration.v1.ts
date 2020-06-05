@@ -110,7 +110,7 @@ export class APIServiceList {
 
   constructor(desc: APIServiceList) {
     this.apiVersion = APIServiceList.apiVersion;
-    this.items = desc.items.map(i => new APIService(i));
+    this.items = desc.items.map((i) => new APIService(i));
     this.kind = APIServiceList.kind;
     this.metadata = desc.metadata;
   }
