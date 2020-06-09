@@ -80,7 +80,7 @@ func printTS(outPath string, refObjects map[swagger.Ref]swagger.Object, definiti
 		RefObjects: refObjects,
 	}
 	for pkg, defs := range pkgs {
-		var contents []string
+		var contents = []string{lang.PrintHeaderComment()}
 		header := lang.PrintHeader(defs)
 		if header != "" {
 			contents = append(contents, header)

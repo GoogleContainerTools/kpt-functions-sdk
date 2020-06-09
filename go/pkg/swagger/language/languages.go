@@ -26,6 +26,9 @@ type Language interface {
 	// File returns the relative path to definition's client code.
 	File(definition swagger.Definition) string
 
+	// PrintHeaderComment prints the top-level comment block.
+	PrintHeaderComment() string
+
 	// PrintHeader prints everything appearing before any Definitions, such as import statements.
 	//
 	// definitions is the set of Definitions to be printed in the current file.
