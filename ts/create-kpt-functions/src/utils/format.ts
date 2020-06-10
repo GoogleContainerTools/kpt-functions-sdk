@@ -31,6 +31,13 @@ export function failure(s: string): string {
 }
 
 /**
+ * Formats an input string to indicate a warn condition.
+ */
+export function warn(s: string): string {
+  return chalk.yellow(chalk.bold(s));
+}
+
+/**
  * Marks the starting point of an operation.
  */
 export function startMarker(s: string): string {

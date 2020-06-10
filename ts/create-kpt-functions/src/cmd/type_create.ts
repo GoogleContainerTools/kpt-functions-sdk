@@ -24,39 +24,41 @@ import * as request from 'request-promise';
 import * as format from '../utils/format';
 import { log } from '../utils/log';
 import * as validator from '../utils/validator';
-import { failure } from '../utils/format';
 import { spawnSync } from 'child_process';
 import { CLI_PACKAGE } from '../paths';
+import { warn } from '../utils/format';
 
 export async function typeCreate(packageDir: string) {
   const desc = 'Generating types from OpenAPI spec.';
   log(format.startMarker(desc));
-
+  // url for default swagger.json openAPI type definitions
+  let url = `https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/kyaml/openapi/kubernetesapi/swagger.json`;
   // Get the kubeconfig context the user wants to use.
   const kc = new KubeConfig();
   kc.loadFromDefault();
   const contexts = kc.contexts;
-  if (contexts.length == 0) {
+  if (contexts.length != 0) {
+    const currentContext = kc.currentContext;
+    const contextIdx = chooseContext(contexts, currentContext);
+    const useContext = contexts[contextIdx];
+    const cluster = kc.clusters.find(c => c.name === useContext.cluster);
+    if (!cluster) {
+      throw new Error('Cluster for specified context not found.');
+    }
+    kc.setCurrentContext(useContext.name);
+    // set the url to cluster openAPI if cluster exists
+    url = `${cluster.server}/openapi/v2`;
+  } else {
     log(
-      failure(
-        'No contexts found in kubeconfig file. Please set a context entry in kubeconfig.'
+      warn(
+        'No contexts found in kubeconfig file. Using default openAPI type definitions.'
       )
     );
-    process.exit(1);
   }
-  const currentContext = kc.currentContext;
-  const contextIdx = chooseContext(contexts, currentContext);
-  const useContext = contexts[contextIdx];
-  const cluster = kc.clusters.find(c => c.name === useContext.cluster);
-  if (!cluster) {
-    throw new Error('Cluster for specified context not found.');
-  }
-
-  // Download the swagger file from the cluster.
+  // Download the swagger file from the url.
   const opts: request.Options = {
-    url: `${cluster.server}/openapi/v2`,
+    url,
   };
-  kc.setCurrentContext(useContext.name);
   kc.applyToRequest(opts);
   const out = await request.get(opts);
   const tmp = mkdtempSync(resolve(tmpdir(), 'kpt-init'));
