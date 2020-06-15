@@ -167,6 +167,29 @@ export class Configs {
   }
 
   /**
+   * Returns the functionConfig data field if defined.
+   */
+  getFunctionConfigDataOrThrow() {
+    const cm = this.getFunctionConfig();
+    if (!cm) {
+      throw new FunctionConfigError(
+        `functionConfig expected, instead undefined`
+      );
+    }
+    if (!isConfigMap(cm)) {
+      throw new FunctionConfigError(
+        `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
+      );
+    }
+    if (!cm.data) {
+      throw new FunctionConfigError(
+        `functionConfig expected to contain data, instead empty`
+      );
+    }
+    return cm.data;
+  }
+
+  /**
    * Returns the value for the given key if functionConfig is of kind ConfigMap.
    *
    * Throws a FunctionConfigError if functionConfig kind is not a ConfigMap.
