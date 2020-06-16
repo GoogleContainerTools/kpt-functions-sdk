@@ -167,11 +167,14 @@ export class Configs {
   }
 
   /**
-   * Returns the functionConfig data field if defined.
+   * Returns the map of data values if functionConfig is of kind ConfigMap.
+   *
+   * Throws a FunctionConfigError if functionConfig is undefined OR
+   * if the kind is not a v1/ConfigMap.
    */
-  getFunctionConfigDataOrThrow() {
+  getFunctionConfigMap() {
     const cm = this.getFunctionConfig();
-    if (!cm) {
+    if (cm === undefined) {
       throw new FunctionConfigError(
         `functionConfig expected, instead undefined`
       );
@@ -181,12 +184,16 @@ export class Configs {
         `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
       );
     }
+    const configMap = new Map<string, string>();
     if (!cm.data) {
-      throw new FunctionConfigError(
-        `functionConfig expected to contain data, instead empty`
-      );
+      return configMap;
     }
-    return cm.data;
+    for (const key in cm.data) {
+      if (cm.data.hasOwnProperty(key)) {
+        configMap.set(key, cm.data[key]);
+      }
+    }
+    return configMap;
   }
 
   /**
@@ -200,16 +207,8 @@ export class Configs {
    * @key key The key in the 'data' field in the ConfigMap object given as the functionConfig.
    */
   getFunctionConfigValue(key: string): string | undefined {
-    const cm = this.functionConfig;
-    if (!cm) {
-      return undefined;
-    }
-    if (!isConfigMap(cm)) {
-      throw new FunctionConfigError(
-        `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
-      );
-    }
-    return cm.data && cm.data[key];
+    const configMap = this.getFunctionConfigMap();
+    return configMap.get(key);
   }
 
   /**

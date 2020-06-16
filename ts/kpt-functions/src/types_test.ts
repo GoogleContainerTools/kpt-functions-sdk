@@ -248,9 +248,12 @@ describe('functionConfig', () => {
         k2: 'v2',
       },
     };
+    const configMap = new Map<string, string>();
+    configMap.set('k1', 'v1');
+    configMap.set('k2', 'v2');
     const configs = new Configs(undefined, cm);
     expect(configs.getFunctionConfig()).toEqual(cm);
-    expect(configs.getFunctionConfigDataOrThrow()).toEqual(cm.data);
+    expect(configs.getFunctionConfigMap()).toEqual(configMap);
     expect(configs.getFunctionConfigValue('k1')).toEqual('v1');
     expect(configs.getFunctionConfigValue('k2')).toEqual('v2');
     expect(configs.getFunctionConfigValue('k3')).toBeUndefined();
@@ -261,8 +264,8 @@ describe('functionConfig', () => {
   it('no object', () => {
     const configs = new Configs(undefined);
     expect(configs.getFunctionConfig()).toBeUndefined();
-    expect(() => configs.getFunctionConfigDataOrThrow()).toThrow();
-    expect(configs.getFunctionConfigValue('k3')).toBeUndefined();
+    expect(() => configs.getFunctionConfigMap()).toThrow();
+    expect(() => configs.getFunctionConfigValue('k3')).toThrow();
     expect(() => configs.getFunctionConfigValueOrThrow('k3')).toThrow();
   });
 
@@ -270,7 +273,7 @@ describe('functionConfig', () => {
     const r1 = new Role('alice');
     const configs = new Configs(undefined, r1);
     expect(configs.getFunctionConfig()).toEqual(r1);
-    expect(() => configs.getFunctionConfigDataOrThrow()).toThrow();
+    expect(() => configs.getFunctionConfigMap()).toThrow();
     expect(() => configs.getFunctionConfigValue('k1')).toThrow();
     expect(() => configs.getFunctionConfigValueOrThrow('k1')).toThrow();
   });
