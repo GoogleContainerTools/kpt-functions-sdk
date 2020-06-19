@@ -1,3 +1,3 @@
 # KPT Functions SDK
 
-[Documentation](https://googlecontainertools.github.io/kpt-functions-sdk/)
+[Documentation](https://googlecontainertools.github.io/kpt/guides/producer/functions/ts/)
