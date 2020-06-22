@@ -185,9 +185,6 @@ export class Configs {
       );
     }
     const configMap = new Map<string, string>();
-    if (!cm.data) {
-      return configMap;
-    }
     for (const key in cm.data) {
       if (cm.data.hasOwnProperty(key)) {
         configMap.set(key, cm.data[key]);
