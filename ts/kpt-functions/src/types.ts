@@ -386,6 +386,14 @@ export interface Result {
  */
 export type Severity = 'error' | 'warn' | 'info';
 
+interface JsonArray extends Array<Json> {}
+
+interface JsonObject {
+  [field: string]: Json;
+}
+
+type Json = null | boolean | number | string | JsonArray | JsonObject;
+
 /**
  * Metadata about a specific field in a Kubernetes object.
  */
@@ -394,9 +402,9 @@ export interface FieldInfo {
   // e.g. "spec.template.spec.containers[3].resources.limits.cpu"
   path: string;
   // Current value of the field.
-  currentValue?: string | number | boolean;
+  currentValue?: Json;
   // Proposed value to fix the issue.
-  suggestedValue?: string | number | boolean;
+  suggestedValue?: Json;
 }
 
 function resultToString(result: Result): string {
