@@ -204,8 +204,7 @@ export class Configs {
    * @key key The key in the 'data' field in the ConfigMap object given as the functionConfig.
    */
   getFunctionConfigValue(key: string): string | undefined {
-    const configMap = this.getFunctionConfigMap();
-    return configMap.get(key);
+    return this.getFunctionConfigMap().get(key);
   }
 
   /**
