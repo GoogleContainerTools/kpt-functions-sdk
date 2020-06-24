@@ -1,4 +1,4 @@
-import { Configs, isKubernetesObject, addAnnotation } from 'kpt-functions';
+import { Configs, addAnnotation } from 'kpt-functions';
 
 const ANNOTATION_NAME = 'annotation_name';
 const ANNOTATION_VALUE = 'annotation_value';
@@ -9,7 +9,7 @@ export async function annotateConfig(configs: Configs) {
     ANNOTATION_VALUE
   );
   configs
-    .get(isKubernetesObject)
+    .getAll()
     .forEach((n) => addAnnotation(n, annotationName, annotationValue));
 }
 
