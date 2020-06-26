@@ -36,8 +36,8 @@ const YAML_STYLE: DumpOptions = {
   // Either reason about not having 'undefined' in all cases OR
   // only skip 'undefined'.
   skipInvalid: true,
-  // increase lineWidth from default of 80 to avoid reformatting
-  lineWidth: 120,
+  // unset lineWidth from default of 80 to avoid reformatting
+  lineWidth: -1,
 };
 
 /**

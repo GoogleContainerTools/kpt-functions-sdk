@@ -467,36 +467,7 @@ results:
 `);
     });
 
-    it('preserves lines under 120 chars', () => {
-      const result = stringify(
-        new Configs([
-          {
-            apiVersion: 'v1',
-            kind: 'Namespace',
-            metadata: {
-              name:
-                '012345678901234567890123456789012345678901234567890123456789012345678901234',
-            },
-          },
-        ]),
-        FileFormat.YAML
-      );
-
-      expect(result).toEqual(
-        `apiVersion: v1
-kind: ResourceList
-metadata:
-  name: output
-items:
-- apiVersion: v1
-  kind: Namespace
-  metadata:
-    name: 012345678901234567890123456789012345678901234567890123456789012345678901234
-`
-      );
-    });
-
-    it('splits lines over 120 chars', () => {
+    it('preserves long lines', () => {
       const result = stringify(
         new Configs([
           {
@@ -520,8 +491,7 @@ items:
 - apiVersion: v1
   kind: Namespace
   metadata:
-    name: >-
-      0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+    name: 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 `
       );
     });
