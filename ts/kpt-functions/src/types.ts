@@ -388,11 +388,11 @@ export type Severity = 'error' | 'warn' | 'info';
 
 interface JsonArray extends Array<Json> {}
 
-interface JsonObject {
+interface JsonMap {
   [field: string]: Json;
 }
 
-type Json = null | boolean | number | string | JsonArray | JsonObject;
+type Json = null | boolean | number | string | JsonArray | JsonMap;
 
 /**
  * Metadata about a specific field in a Kubernetes object.
