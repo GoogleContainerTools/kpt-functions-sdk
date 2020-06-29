@@ -528,6 +528,37 @@ results:
     - 4
 `);
     });
+
+    it('has results with null as a suggested value', () => {
+      const configs = new Configs();
+      configs.addResults({
+        message: 'hello',
+        severity: 'error',
+        field: {
+          path: 'foo',
+          // tslint:disable-next-line:no-null-keyword
+          currentValue: null,
+          // tslint:disable-next-line:no-null-keyword
+          suggestedValue: null,
+        },
+      });
+
+      const result = stringify(configs, FileFormat.YAML);
+
+      expect(result).toEqual(`apiVersion: v1
+kind: ResourceList
+metadata:
+  name: output
+items: []
+results:
+- message: hello
+  severity: error
+  field:
+    path: foo
+    currentValue: null
+    suggestedValue: null
+`);
+    });
   });
 
   describe('in JSON format', () => {
