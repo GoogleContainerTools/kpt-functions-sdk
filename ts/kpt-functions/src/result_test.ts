@@ -139,5 +139,71 @@ describe('Results', () => {
         field: { path: 'x.y.z[0]', currentValue: 1, suggestedValue: 2 },
       });
     });
+
+    it('supports object-typed value suggestions', () => {
+      const e = kubernetesObjectResult('hello', someObject, {
+        path: 'x.y.z[0]',
+        currentValue: {
+          w: 0,
+          v: false,
+        },
+        suggestedValue: {
+          w: 1,
+          v: 'hi',
+        },
+      });
+
+      expect(e).toEqual({
+        message: 'hello',
+        severity: 'error',
+        tags: undefined,
+
+        resourceRef: {
+          apiVersion: 'v1',
+          kind: 'Namespace',
+          name: 'foo',
+          namespace: 'bar',
+        },
+        file: { path: undefined, index: undefined },
+        field: {
+          path: 'x.y.z[0]',
+          currentValue: {
+            w: 0,
+            v: false,
+          },
+          suggestedValue: {
+            w: 1,
+            v: 'hi',
+          },
+        },
+      });
+    });
+
+    it('supports array-typed value suggestions', () => {
+      const e = kubernetesObjectResult('hello', someObject, {
+        path: 'x.y.z[0]',
+        currentValue: [1, 'true', false],
+        suggestedValue: [1, true, 'false'],
+      });
+
+      expect(e).toEqual({
+        message: 'hello',
+        severity: 'error',
+        tags: undefined,
+
+        resourceRef: {
+          apiVersion: 'v1',
+          kind: 'Namespace',
+          name: 'foo',
+          namespace: 'bar',
+        },
+        file: { path: undefined, index: undefined },
+        field: {
+          path: 'x.y.z[0]',
+          currentValue: [1, 'true', false],
+          suggestedValue: [1, true, 'false'],
+        },
+      });
+    });
   });
 });
