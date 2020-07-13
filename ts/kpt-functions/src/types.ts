@@ -203,7 +203,7 @@ export class Configs {
    */
   getFunctionConfigValue(key: string): string | undefined {
     const cm = this.getFunctionConfigMap();
-    return cm ? cm.get(key) : cm;
+    return cm ? cm.get(key) : undefined;
   }
 
   /**
