@@ -172,12 +172,10 @@ export class Configs {
    * Throws a FunctionConfigError if functionConfig is undefined OR
    * if the kind is not a v1/ConfigMap.
    */
-  getFunctionConfigMap() {
+  getFunctionConfigMap(): Map<string, string> | undefined {
     const cm = this.getFunctionConfig();
     if (cm === undefined) {
-      throw new FunctionConfigError(
-        `functionConfig expected, instead undefined`
-      );
+      return undefined;
     }
     if (!isConfigMap(cm)) {
       throw new FunctionConfigError(
@@ -204,7 +202,8 @@ export class Configs {
    * @key key The key in the 'data' field in the ConfigMap object given as the functionConfig.
    */
   getFunctionConfigValue(key: string): string | undefined {
-    return this.getFunctionConfigMap().get(key);
+    const cm = this.getFunctionConfigMap();
+    return cm ? cm.get(key) : cm;
   }
 
   /**
