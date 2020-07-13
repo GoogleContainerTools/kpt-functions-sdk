@@ -264,8 +264,8 @@ describe('functionConfig', () => {
   it('no object', () => {
     const configs = new Configs(undefined);
     expect(configs.getFunctionConfig()).toBeUndefined();
-    expect(() => configs.getFunctionConfigMap()).toThrow();
-    expect(() => configs.getFunctionConfigValue('k3')).toThrow();
+    expect(configs.getFunctionConfigMap()).toBeUndefined();
+    expect(configs.getFunctionConfigValue('k3')).toBeUndefined();
     expect(() => configs.getFunctionConfigValueOrThrow('k3')).toThrow();
   });
 
