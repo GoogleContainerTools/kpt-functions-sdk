@@ -103,13 +103,13 @@ export class APIGroup_v2 {
   public name: string;
 
   // preferredVersion is the version preferred by the API server, which probably is the storage version.
-  public preferredVersion?: GroupVersionForDiscovery_v2;
+  public preferredVersion?: GroupVersionForDiscovery;
 
   // a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-  public serverAddressByClientCIDRs?: ServerAddressByClientCIDR_v2[];
+  public serverAddressByClientCIDRs?: ServerAddressByClientCIDR[];
 
   // versions are the versions supported in this group.
-  public versions: GroupVersionForDiscovery_v2[];
+  public versions: GroupVersionForDiscovery[];
 
   constructor(desc: APIGroup_v2) {
     this.apiVersion = APIGroup_v2.apiVersion;
@@ -137,13 +137,13 @@ export namespace APIGroup_v2 {
     name: string;
 
     // preferredVersion is the version preferred by the API server, which probably is the storage version.
-    preferredVersion?: GroupVersionForDiscovery_v2;
+    preferredVersion?: GroupVersionForDiscovery;
 
     // a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-    serverAddressByClientCIDRs?: ServerAddressByClientCIDR_v2[];
+    serverAddressByClientCIDRs?: ServerAddressByClientCIDR[];
 
     // versions are the versions supported in this group.
-    versions: GroupVersionForDiscovery_v2[];
+    versions: GroupVersionForDiscovery[];
   }
 }
 
@@ -247,7 +247,7 @@ export class APIResourceList_v2 {
   public kind: string;
 
   // resources contains the name of the resources and if they are namespaced.
-  public resources: APIResource_v2[];
+  public resources: APIResource[];
 
   constructor(desc: APIResourceList_v2) {
     this.apiVersion = APIResourceList_v2.apiVersion;
@@ -273,49 +273,7 @@ export namespace APIResourceList_v2 {
     groupVersion: string;
 
     // resources contains the name of the resources and if they are namespaced.
-    resources: APIResource_v2[];
-  }
-}
-
-// APIResource specifies the name of a resource and whether it is namespaced.
-export class APIResource_v2 {
-  // categories is a list of the grouped resources this resource belongs to (e.g. 'all')
-  public categories?: string[];
-
-  // group is the preferred group of the resource.  Empty implies the group of the containing resource list. For subresources, this may have a different value, for example: Scale".
-  public group?: string;
-
-  // kind is the kind for the resource (e.g. 'Foo' is the kind for a resource 'foo')
-  public kind: string;
-
-  // name is the plural name of the resource.
-  public name: string;
-
-  // namespaced indicates if a resource is namespaced or not.
-  public namespaced: boolean;
-
-  // shortNames is a list of suggested short names of the resource.
-  public shortNames?: string[];
-
-  // singularName is the singular name of the resource.  This allows clients to handle plural and singular opaquely. The singularName is more correct for reporting status on a single item and both singular and plural are allowed from the kubectl CLI interface.
-  public singularName: string;
-
-  // verbs is a list of supported kube verbs (this includes get, list, watch, create, update, patch, delete, deletecollection, and proxy)
-  public verbs: string[];
-
-  // version is the preferred version of the resource.  Empty implies the version of the containing resource list For subresources, this may have a different value, for example: v1 (while inside a v1beta1 version of the core resource's group)".
-  public version?: string;
-
-  constructor(desc: APIResource_v2) {
-    this.categories = desc.categories;
-    this.group = desc.group;
-    this.kind = desc.kind;
-    this.name = desc.name;
-    this.namespaced = desc.namespaced;
-    this.shortNames = desc.shortNames;
-    this.singularName = desc.singularName;
-    this.verbs = desc.verbs;
-    this.version = desc.version;
+    resources: APIResource[];
   }
 }
 
@@ -424,61 +382,11 @@ export namespace DeleteOptions {
   }
 }
 
-// DeleteOptions may be provided when deleting an API object.
-export class DeleteOptions_v2 {
-  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
-  public apiVersion: string;
+// Duration is a wrapper around time.Duration which supports correct marshaling to YAML and JSON. In particular, it marshals into strings, which can be used as map keys in json.
+export type Duration = string;
 
-  // The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
-  public gracePeriodSeconds?: number;
-
-  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
-  public kind: string;
-
-  // Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
-  public orphanDependents?: boolean;
-
-  // Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
-  public preconditions?: Preconditions_v2;
-
-  // Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-  public propagationPolicy?: string;
-
-  constructor(desc: DeleteOptions_v2) {
-    this.apiVersion = DeleteOptions_v2.apiVersion;
-    this.gracePeriodSeconds = desc.gracePeriodSeconds;
-    this.kind = DeleteOptions_v2.kind;
-    this.orphanDependents = desc.orphanDependents;
-    this.preconditions = desc.preconditions;
-    this.propagationPolicy = desc.propagationPolicy;
-  }
-}
-
-export function isDeleteOptions_v2(o: any): o is DeleteOptions_v2 {
-  return o && o.apiVersion === DeleteOptions_v2.apiVersion && o.kind === DeleteOptions_v2.kind;
-}
-
-export namespace DeleteOptions_v2 {
-  export const apiVersion = "v1";
-  export const group = "";
-  export const version = "v1";
-  export const kind = "DeleteOptions";
-
-  // DeleteOptions may be provided when deleting an API object.
-  export interface Interface {
-    // The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
-    gracePeriodSeconds?: number;
-
-    // Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
-    orphanDependents?: boolean;
-
-    // Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
-    preconditions?: Preconditions_v2;
-
-    // Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-    propagationPolicy?: string;
-  }
-}
+// Fields stores a set of fields in a data structure like a Trie. To understand how this is used, see: https://github.com/kubernetes-sigs/structured-merge-diff
+export type Fields = object;
 
 // FieldsV1 stores a set of fields in a data structure like a Trie, in JSON format.
 // 
@@ -496,20 +404,6 @@ export class GroupVersionForDiscovery {
   public version: string;
 
   constructor(desc: GroupVersionForDiscovery) {
-    this.groupVersion = desc.groupVersion;
-    this.version = desc.version;
-  }
-}
-
-// GroupVersion contains the "group/version" and "version" string of a version. It is made a struct to keep extensibility.
-export class GroupVersionForDiscovery_v2 {
-  // groupVersion specifies the API group and version in the form "group/version"
-  public groupVersion: string;
-
-  // version specifies the version in the form of "version". This is to save the clients the trouble of splitting the GroupVersion.
-  public version: string;
-
-  constructor(desc: GroupVersionForDiscovery_v2) {
     this.groupVersion = desc.groupVersion;
     this.version = desc.version;
   }
@@ -585,7 +479,7 @@ export class ListMeta {
 
 // ListMeta describes metadata that synthetic resources must have, including lists and various status objects. A resource may have only one of {ObjectMeta, ListMeta}.
 export class ListMeta_v2 {
-  // continue may be set if the user set a limit on the number of items returned, and indicates that the server has more data available. The value is opaque and may be used to issue another request to the endpoint that served this list to retrieve the next set of available objects. Continuing a list may not be possible if the server configuration has changed or more than a few minutes have passed. The resourceVersion field returned when using this continue value will be identical to the value in the first response.
+  // continue may be set if the user set a limit on the number of items returned, and indicates that the server has more data available. The value is opaque and may be used to issue another request to the endpoint that served this list to retrieve the next set of available objects. Continuing a consistent list may not be possible if the server configuration has changed or more than a few minutes have passed. The resourceVersion field returned when using this continue value will be identical to the value in the first response, unless you have received this token from an error message.
   public continue?: string;
 
   // String that identifies the server's internal version of this object that can be used by clients to determine when objects have changed. Value must be treated as opaque by clients and passed unmodified back to the server. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency
@@ -605,6 +499,24 @@ export class ManagedFieldsEntry {
 
   // FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
   public fieldsV1?: FieldsV1;
+
+  // Manager is an identifier of the workflow managing these fields.
+  public manager?: string;
+
+  // Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
+  public operation?: string;
+
+  // Time is timestamp of when these fields were set. It should always be empty if Operation is 'Apply'
+  public time?: Time;
+}
+
+// ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to.
+export class ManagedFieldsEntry_v2 {
+  // APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
+  public apiVersion?: string;
+
+  // Fields identifies a set of fields.
+  public fields?: Fields;
 
   // Manager is an identifier of the workflow managing these fields.
   public manager?: string;
@@ -742,10 +654,17 @@ export class ObjectMeta_v2 {
   // An initializer is a controller which enforces some system invariant at object creation time. This field is a list of initializers that have not yet acted on this object. If nil or empty, this object has been completely initialized. Otherwise, the object is considered uninitialized and is hidden (in list/watch and get calls) from clients that haven't explicitly asked to observe uninitialized objects.
   // 
   // When an object is created, the system will populate this list with the current set of initializers. Only privileged users may set or modify this list. Once it is empty, it may not be modified further by any user.
+  // 
+  // DEPRECATED - initializers are an alpha field and will be removed in v1.15.
   public initializers?: Initializers;
 
   // Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
   public labels?: {[key: string]: string};
+
+  // ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
+  // 
+  // This field is alpha and can be changed or removed without notice.
+  public managedFields?: ManagedFieldsEntry_v2[];
 
   // Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
   public name?: string;
@@ -802,7 +721,7 @@ export class OwnerReference {
   }
 }
 
-// OwnerReference contains enough information to let you identify an owning object. Currently, an owning object must be in the same namespace, so there is no namespace field.
+// OwnerReference contains enough information to let you identify an owning object. An owning object must be in the same namespace as the dependent, or be cluster-scoped, so there is no namespace field.
 export class OwnerReference_v2 {
   // API version of the referent.
   public apiVersion: string;
@@ -835,20 +754,11 @@ export class OwnerReference_v2 {
 // Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.
 export type Patch = object;
 
-// Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.
-export type Patch_v2 = object;
-
 // Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
 export class Preconditions {
   // Specifies the target ResourceVersion
   public resourceVersion?: string;
 
-  // Specifies the target UID.
-  public uid?: string;
-}
-
-// Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
-export class Preconditions_v2 {
   // Specifies the target UID.
   public uid?: string;
 }
@@ -862,20 +772,6 @@ export class ServerAddressByClientCIDR {
   public serverAddress: string;
 
   constructor(desc: ServerAddressByClientCIDR) {
-    this.clientCIDR = desc.clientCIDR;
-    this.serverAddress = desc.serverAddress;
-  }
-}
-
-// ServerAddressByClientCIDR helps the client to determine the server address that they should use, depending on the clientCIDR that they match.
-export class ServerAddressByClientCIDR_v2 {
-  // The CIDR with which clients can match their IP to figure out the server address that they should use.
-  public clientCIDR: string;
-
-  // Address of this server, suitable for a client that matches the above CIDR. This can be a hostname, hostname:port, IP or IP:port.
-  public serverAddress: string;
-
-  constructor(desc: ServerAddressByClientCIDR_v2) {
     this.clientCIDR = desc.clientCIDR;
     this.serverAddress = desc.serverAddress;
   }
@@ -967,22 +863,6 @@ export class StatusCause {
   public reason?: string;
 }
 
-// StatusCause provides more information about an api.Status failure, including cases when multiple errors are encountered.
-export class StatusCause_v2 {
-  // The field of the resource that has caused this error, as named by its JSON serialization. May include dot and postfix notation for nested attributes. Arrays are zero-indexed.  Fields may appear more than once in an array of causes due to fields having multiple errors. Optional.
-  // 
-  // Examples:
-  //   "name" - the field "name" on the current resource
-  //   "items[0].name" - the field "name" on the first array entry in "items"
-  public field?: string;
-
-  // A human-readable description of the cause of the error.  This field may be presented as-is to a reader.
-  public message?: string;
-
-  // A machine-readable description of the cause of the error. If this value is empty there is no information available.
-  public reason?: string;
-}
-
 // StatusDetails is a set of additional properties that MAY be set by the server to provide additional information about a response. The Reason field of a Status object defines what attributes will be set. Clients must ignore fields that do not match the defined type of each attribute, and should assume that any attribute may be empty, invalid, or under defined.
 export class StatusDetails {
   // The Causes array includes more details associated with the StatusReason failure. Not all StatusReasons may provide detailed causes.
@@ -1007,7 +887,7 @@ export class StatusDetails {
 // StatusDetails is a set of additional properties that MAY be set by the server to provide additional information about a response. The Reason field of a Status object defines what attributes will be set. Clients must ignore fields that do not match the defined type of each attribute, and should assume that any attribute may be empty, invalid, or under defined.
 export class StatusDetails_v2 {
   // The Causes array includes more details associated with the StatusReason failure. Not all StatusReasons may provide detailed causes.
-  public causes?: StatusCause_v2[];
+  public causes?: StatusCause[];
 
   // The group attribute of the resource associated with the status StatusReason.
   public group?: string;
@@ -1139,52 +1019,6 @@ export namespace WatchEvent {
     //  * If Type is Error: *Status is recommended; other types may make sense
     //    depending on context.
     object: apimachineryPkgRuntime.RawExtension;
-
-    type: string;
-  }
-}
-
-// Event represents a single event to a watched resource.
-export class WatchEvent_v2 {
-  public apiVersion: string;
-
-  public kind: string;
-
-  // Object is:
-  //  * If Type is Added or Modified: the new state of the object.
-  //  * If Type is Deleted: the state of the object immediately before deletion.
-  //  * If Type is Error: *Status is recommended; other types may make sense
-  //    depending on context.
-  public object: apimachineryPkgRuntime.RawExtension_v2;
-
-  public type: string;
-
-  constructor(desc: WatchEvent_v2) {
-    this.apiVersion = WatchEvent_v2.apiVersion;
-    this.kind = WatchEvent_v2.kind;
-    this.object = desc.object;
-    this.type = desc.type;
-  }
-}
-
-export function isWatchEvent_v2(o: any): o is WatchEvent_v2 {
-  return o && o.apiVersion === WatchEvent_v2.apiVersion && o.kind === WatchEvent_v2.kind;
-}
-
-export namespace WatchEvent_v2 {
-  export const apiVersion = "v1";
-  export const group = "";
-  export const version = "v1";
-  export const kind = "WatchEvent";
-
-  // Event represents a single event to a watched resource.
-  export interface Interface {
-    // Object is:
-    //  * If Type is Added or Modified: the new state of the object.
-    //  * If Type is Deleted: the state of the object immediately before deletion.
-    //  * If Type is Error: *Status is recommended; other types may make sense
-    //    depending on context.
-    object: apimachineryPkgRuntime.RawExtension_v2;
 
     type: string;
   }
