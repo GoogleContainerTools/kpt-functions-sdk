@@ -122,7 +122,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
   });
 
   // Parse args.
-  const args = new Map(Object.entries(parser.parseArgs()));
+  const args = new Map<string, any>(Object.entries(parser.parseArgs()));
   const fileFormat = Boolean(args.get('json'))
     ? FileFormat.JSON
     : FileFormat.YAML;
