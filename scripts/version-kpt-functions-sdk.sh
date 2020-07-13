@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Usage:
-# $ version-kpt-functinos-sdk.sh 0.13.0-rc.1
+# $ version-kpt-functions-sdk.sh 0.13.0-rc.1
 
 set -euo pipefail
 
