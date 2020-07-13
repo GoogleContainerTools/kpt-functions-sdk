@@ -32,9 +32,9 @@ export function generalResult(
   tags?: { [key: string]: string }
 ): Result {
   return {
-    message: message,
-    severity: severity,
-    tags: tags,
+    message,
+    severity,
+    tags,
   };
 }
 
@@ -48,11 +48,11 @@ export function configFileResult(
   tags?: { [key: string]: string }
 ): Result {
   return {
-    message: message,
-    severity: severity,
-    tags: tags,
+    message,
+    severity,
+    tags,
     file: {
-      path: path,
+      path,
     },
   };
 }
@@ -74,9 +74,9 @@ export function kubernetesObjectResult(
   const index: number | undefined =
     Number(getAnnotation(object, SOURCE_INDEX_ANNOTATION)) || undefined;
   return {
-    message: message,
-    severity: severity,
-    tags: tags,
+    message,
+    severity,
+    tags,
     resourceRef: {
       apiVersion: object.apiVersion,
       kind: object.kind,
@@ -84,9 +84,9 @@ export function kubernetesObjectResult(
       name: object.metadata.name,
     },
     file: {
-      path: path,
-      index: index,
+      path,
+      index,
     },
-    field: field,
+    field,
   };
 }
