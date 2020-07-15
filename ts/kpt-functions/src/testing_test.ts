@@ -15,41 +15,88 @@
  */
 
 import { TestRunner } from './testing';
-import { Configs, Result } from './types';
+import { Configs } from './types';
 import { generalResult } from './result';
+import { isStatus } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
 
+const STATUS = {
+  apiVersion: 'v1',
+  kind: 'Status',
+  metadata: { name: 'testObject' },
+};
+const NON_STATUS = {
+  apiVersion: 'v1',
+  kind: 'NonStatus',
+  metadata: { name: 'testObject' },
+};
 const ERROR_DESCRIPTION =
   'Description of error written out in great detail\nhere.\n';
 const FUNCTION_ERROR = `Functions may add results to propogate error: ${ERROR_DESCRIPTION}`;
 
+async function testFunction(configs: Configs) {
+  configs
+    .getAll()
+    .filter(isStatus)
+    .forEach(s => configs.delete(s));
+}
+testFunction.usage = `A kpt function used for testing how the test framework handles functions without results`;
+const RUNNER = new TestRunner(testFunction);
+
 async function testGeneralResult(configs: Configs) {
+  configs.insert(STATUS);
   configs.addResults(generalResult(FUNCTION_ERROR, 'error'));
 }
-
 testGeneralResult.usage = `
-A kpt function used for testing how the test framework handles general results.
+A kpt function used for testing how the test framework handles functions with general results.
 `;
-
-const RUNNER = new TestRunner(testGeneralResult);
+const RESULTS_RUNNER = new TestRunner(testGeneralResult);
 
 describe('test', () => {
-  it('add results manually', async () => {
-    const input = new Configs(undefined);
-    const output = new Configs(undefined);
-    const errorResult: Result = {
-      severity: 'error',
-      message: FUNCTION_ERROR,
-    };
-    output.addResults(errorResult);
+  it('empty input, empty output', async () => {
+    const input = new Configs([]);
+    const output = new Configs([]);
 
     await RUNNER.assert(input, output);
   });
 
-  it('add results using generalResult', async () => {
-    const input = new Configs(undefined);
-    const output = new Configs(undefined);
-    output.addResults(generalResult(FUNCTION_ERROR, 'error'));
+  it('non-empty input, empty output', async () => {
+    const input = new Configs([STATUS]);
+    const output = new Configs([]);
 
     await RUNNER.assert(input, output);
+  });
+
+  it('empty input, non-empty output', async () => {
+    const input = new Configs([]);
+    const output = new Configs([STATUS]);
+    output.addResults(generalResult(FUNCTION_ERROR, 'error'));
+
+    await RESULTS_RUNNER.assert(input, output);
+  });
+
+  it('non-empty input, non-empty output', async () => {
+    const input = new Configs([NON_STATUS]);
+    const output = new Configs([NON_STATUS]);
+
+    await RUNNER.assert(input, output);
+  });
+
+  it('add results manually', async () => {
+    const input = new Configs(undefined);
+    const output = new Configs([STATUS]);
+    output.addResults({
+      severity: 'error',
+      message: FUNCTION_ERROR,
+    });
+
+    await RESULTS_RUNNER.assert(input, output);
+  });
+
+  it('add results using generalResult', async () => {
+    const input = new Configs([]);
+    const output = new Configs([STATUS]);
+    output.addResults(generalResult(FUNCTION_ERROR, 'error'));
+
+    await RESULTS_RUNNER.assert(input, output);
   });
 });
