@@ -24,7 +24,7 @@
   "dependencies": {
     "glob": "^7.1.3",
     "js-yaml": "^3.14.0",
-    "kpt-functions": "^0.14.0"
+    "kpt-functions": "^0.14.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
