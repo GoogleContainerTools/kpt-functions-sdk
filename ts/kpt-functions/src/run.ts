@@ -163,7 +163,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
 
 class ResultError extends Error {
   constructor() {
-    super('Funciton returned a Result of error or higher');
+    super('Function returned a Result of error or higher');
   }
 }
 
