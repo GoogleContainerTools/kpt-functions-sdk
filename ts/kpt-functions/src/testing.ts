@@ -83,7 +83,7 @@ export class TestRunner {
     expectedErrorMessage?: string | RegExp
   ): () => Promise<void> {
     return async () =>
-      await this.assert(
+      this.assert(
         input,
         expectedOutput,
         expectedErrorType,
