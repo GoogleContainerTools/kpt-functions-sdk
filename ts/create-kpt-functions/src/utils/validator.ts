@@ -157,7 +157,7 @@ function makeInvalidCharactersRed(s: string) {
   const splits: string[] = s.split(invalidCharSplit);
 
   return splits
-    .map(str => (invalidChars.test(str) ? failure(str) : success(str)))
+    .map((str) => (invalidChars.test(str) ? failure(str) : success(str)))
     .join('');
 }
 

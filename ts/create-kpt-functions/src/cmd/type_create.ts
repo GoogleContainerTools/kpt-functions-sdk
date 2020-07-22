@@ -119,7 +119,7 @@ function getOptsForTypeSource(typeSource: number): request.Options {
       const currentContext = kc.currentContext;
       const contextIdx = chooseContext(contexts, currentContext);
       const useContext = contexts[contextIdx];
-      const cluster = kc.clusters.find(c => c.name === useContext.cluster);
+      const cluster = kc.clusters.find((c) => c.name === useContext.cluster);
       if (!cluster) {
         throw new Error('Cluster for specified context not found.');
       }
@@ -139,7 +139,7 @@ function getOptsForTypeSource(typeSource: number): request.Options {
 
 function chooseContext(contexts: Context[], currentContext: string): number {
   const defaultContext =
-    contexts.findIndex(c => c.name === currentContext) || 0;
+    contexts.findIndex((c) => c.name === currentContext) || 0;
   log('Contexts:\n');
   contexts.forEach((c, idx) => {
     if (c.name === currentContext) {
