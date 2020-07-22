@@ -145,7 +145,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
     Boolean(args.get('log_to_stderr'));
 
   // Read the input and construct Configs.
-  let configs = await readConfigs(inputFile, fileFormat, functionConfig);
+  const configs = await readConfigs(inputFile, fileFormat, functionConfig);
   configs.logToStdErr = logToStdErr;
 
   // Run the function.
@@ -154,7 +154,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
   // Write the output.
   await writeConfigs(outputFile, configs, fileFormat);
 
-  for (let r of configs.getResults()) {
+  for (const r of configs.getResults()) {
     if (r.severity === 'error') {
       throw new ResultError();
     }
@@ -163,7 +163,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
 
 class ResultError extends Error {
   constructor() {
-    super('Funciton returned a Result of error or higher');
+    super('Function returned a Result of error or higher');
   }
 }
 
