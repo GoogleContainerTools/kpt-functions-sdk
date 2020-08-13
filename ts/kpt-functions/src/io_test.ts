@@ -15,7 +15,8 @@
  */
 
 import { FileFormat, parse, stringify } from './io';
-import { Configs, KubernetesObject } from './types';
+import { Configs, JsonArray, KubernetesObject } from './types';
+import { kubernetesObjectResult } from './result';
 
 describe('read', () => {
   describe('in YAML format', () => {
@@ -682,6 +683,71 @@ results:
     }
   ]
 }
+`);
+    });
+  });
+});
+
+describe('roundtrip', () => {
+  describe('using YAML', () => {
+    it('should not insert YAML references', () => {
+      interface Baz {
+        baz: number;
+      }
+
+      interface Foo extends KubernetesObject {
+        spec: {
+          array: Baz[];
+        };
+      }
+
+      const input =
+        'items: [{apiVersion: v1, kind: Foo, metadata: {name: bar}, spec: {array: [{baz: 1}]}}]';
+      const configs = parse(input, FileFormat.YAML);
+
+      const foo = configs.getAll()[0] as Foo;
+      configs.addResults(
+        kubernetesObjectResult('something is wrong', foo, {
+          path: 'spec.array',
+          // Note: we re-use objects from the input to trigger YAML refs to normally be created
+          currentValue: (foo.spec.array as unknown) as JsonArray,
+          suggestedValue: (foo.spec.array.concat([
+            { baz: 3 },
+          ]) as unknown) as JsonArray,
+        })
+      );
+
+      const stringified = stringify(configs, FileFormat.YAML);
+
+      // We want to verify that there are no back-references like &ref and *ref in the output
+      expect(stringified).toEqual(`apiVersion: v1
+kind: ResourceList
+metadata:
+  name: output
+items:
+- apiVersion: v1
+  kind: Foo
+  metadata:
+    name: bar
+  spec:
+    array:
+    - baz: 1
+results:
+- message: something is wrong
+  severity: error
+  resourceRef:
+    apiVersion: v1
+    kind: Foo
+    namespace: ''
+    name: bar
+  file: {}
+  field:
+    path: spec.array
+    currentValue:
+    - baz: 1
+    suggestedValue:
+    - baz: 1
+    - baz: 3
 `);
     });
   });

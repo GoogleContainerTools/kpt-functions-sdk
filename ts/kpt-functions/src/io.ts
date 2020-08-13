@@ -38,6 +38,8 @@ const YAML_STYLE: DumpOptions = {
   skipInvalid: true,
   // unset lineWidth from default of 80 to avoid reformatting
   lineWidth: -1,
+  // avoid refs because many YAML parsers in the k8s ecosystem don't support them
+  noRefs: true,
 };
 
 /**

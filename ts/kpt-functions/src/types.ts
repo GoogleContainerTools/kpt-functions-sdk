@@ -403,13 +403,13 @@ export interface Result {
  */
 export type Severity = 'error' | 'warn' | 'info';
 
-interface JsonArray extends Array<Json> {}
+export interface JsonArray extends Array<Json> {}
 
-interface JsonMap {
+export interface JsonMap {
   [field: string]: Json;
 }
 
-type Json = null | boolean | number | string | JsonArray | JsonMap;
+export type Json = null | boolean | number | string | JsonArray | JsonMap;
 
 /**
  * Metadata about a specific field in a Kubernetes object.
