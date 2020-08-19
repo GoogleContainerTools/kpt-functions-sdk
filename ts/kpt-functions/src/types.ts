@@ -403,12 +403,15 @@ export interface Result {
  */
 export type Severity = 'error' | 'warn' | 'info';
 
+/** A plain old JSON array according to ECMA-404. */
 export interface JsonArray extends Array<Json> {}
 
+/** A plain old JSON object/map according to ECMA-404. */
 export interface JsonMap {
   [field: string]: Json;
 }
 
+/** Any plain old JSON value according to ECMA-404. */
 export type Json = null | boolean | number | string | JsonArray | JsonMap;
 
 /**
