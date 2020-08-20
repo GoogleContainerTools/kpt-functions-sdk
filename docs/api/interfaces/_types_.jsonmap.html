@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>KubernetesObject | kpt-functions</title>
+	<title>JsonMap | kpt-functions</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules/_types_.html">&quot;types&quot;</a>
 				</li>
 				<li>
-					<a href="_types_.kubernetesobject.html">KubernetesObject</a>
+					<a href="_types_.jsonmap.html">JsonMap</a>
 				</li>
 			</ul>
-			<h1>Interface KubernetesObject</h1>
+			<h1>Interface JsonMap</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Interface implemented by Kubernetes objects.</p>
+						<p>A plain old JSON object/map according to ECMA-404.</p>
 					</div>
 				</div>
 			</section>
@@ -76,63 +76,18 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">KubernetesObject</span>
+						<span class="target">JsonMap</span>
 					</li>
 				</ul>
 			</section>
-			<section class="tsd-panel">
-				<h3>Implemented by</h3>
-				<ul class="tsd-hierarchy">
-					<li><a href="../classes/_types_.resourcelist.html" class="tsd-signature-type">ResourceList</a></li>
-				</ul>
-			</section>
-			<section class="tsd-panel-group tsd-index-group">
-				<h2>Index</h2>
-				<section class="tsd-panel tsd-index-panel">
-					<div class="tsd-index-content">
-						<section class="tsd-index-section ">
-							<h3>Properties</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_types_.kubernetesobject.html#apiversion" class="tsd-kind-icon">api<wbr>Version</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_types_.kubernetesobject.html#kind" class="tsd-kind-icon">kind</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_types_.kubernetesobject.html#metadata" class="tsd-kind-icon">metadata</a></li>
-							</ul>
-						</section>
+			<section class="tsd-panel tsd-kind-interface tsd-parent-kind-external-module">
+				<h3 class="tsd-before-signature">Indexable</h3>
+				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>field: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="../modules/_types_.html#json" class="tsd-signature-type">Json</a></div>
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A plain old JSON object/map according to ECMA-404.</p>
 					</div>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="apiversion" class="tsd-anchor"></a>
-					<h3>api<wbr>Version</h3>
-					<div class="tsd-signature tsd-kind-icon">api<wbr>Version<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/3232610/ts/kpt-functions/src/types.ts#L318">src/types.ts:318</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="kind" class="tsd-anchor"></a>
-					<h3>kind</h3>
-					<div class="tsd-signature tsd-kind-icon">kind<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/3232610/ts/kpt-functions/src/types.ts#L319">src/types.ts:319</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="metadata" class="tsd-anchor"></a>
-					<h3>metadata</h3>
-					<div class="tsd-signature tsd-kind-icon">metadata<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ObjectMeta</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/3232610/ts/kpt-functions/src/types.ts#L320">src/types.ts:320</a></li>
-						</ul>
-					</aside>
-				</section>
+				</div>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -175,30 +130,19 @@
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="_types_.jsonarray.html" class="tsd-kind-icon">Json<wbr>Array</a>
 					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="_types_.jsonmap.html" class="tsd-kind-icon">Json<wbr>Map</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="_types_.kptfunc.html" class="tsd-kind-icon">Kpt<wbr>Func</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
-						<a href="_types_.kubernetesobject.html" class="tsd-kind-icon">Kubernetes<wbr>Object</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_types_.kubernetesobject.html#apiversion" class="tsd-kind-icon">api<wbr>Version</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_types_.kubernetesobject.html#kind" class="tsd-kind-icon">kind</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_types_.kubernetesobject.html#metadata" class="tsd-kind-icon">metadata</a>
-							</li>
-						</ul>
+						<a href="_types_.jsonmap.html" class="tsd-kind-icon">Json<wbr>Map</a>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_types_.kptfunc.html" class="tsd-kind-icon">Kpt<wbr>Func</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_types_.kubernetesobject.html" class="tsd-kind-icon">Kubernetes<wbr>Object</a>
+					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
 						<a href="_types_.result.html" class="tsd-kind-icon">Result</a>
 					</li>
