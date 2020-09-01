@@ -2,7 +2,7 @@ name: mirror-functions
 
 on:
   push:
-    branches:
+    branches:roufique_pitch-1
       - "master"
   schedule:
     - cron: "0 18 * * *"
