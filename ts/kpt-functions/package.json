@@ -1,6 +1,6 @@
 {
   "name": "kpt-functions",
-  "version": "0.14.4",
+  "version": "0.14.5",
   "description": "KPT functions framework library",
   "author": "KPT Authors",
   "license": "Apache-2.0",
@@ -35,19 +35,19 @@
   },
   "devDependencies": {
     "@types/argparse": "^1.0.36",
-    "@types/jasmine": "^3.4.0",
+    "@types/jasmine": "^3.5.14",
     "@types/js-yaml": "^3.12.1",
-    "@types/lodash": "^4.14.137",
-    "@types/node": "^12.7.5",
+    "@types/lodash": "^4.14.161",
+    "@types/node": "^12.12.55",
     "@types/rw": "file:@types/rw",
-    "jasmine": "^3.4.0",
+    "jasmine": "^3.6.1",
     "license-checker": "^25.0.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.20",
     "prettier": "1.18.2",
     "tslint": "^5.19.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
     "typedoc": "^0.16.7",
-    "typescript": "^3.7.0"
+    "typescript": "^3.9.7"
   }
 }

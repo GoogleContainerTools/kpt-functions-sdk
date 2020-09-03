@@ -436,6 +436,9 @@ function resultToString(result: Result): string {
   if (result.file && result.file.path) {
     s += ` in file ${result.file.path}`;
   }
+  if (result.field && result.field.path) {
+    s += ` in field ${result.field.path}`;
+  }
   return s;
 }
 
