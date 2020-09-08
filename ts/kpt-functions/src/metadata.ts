@@ -54,8 +54,7 @@ export function removeAnnotation(
 ): KubernetesObject {
   removeFromObject(o.metadata.annotations, annotation);
   if (
-    o.metadata &&
-    o.metadata.annotations &&
+    o.metadata?.annotations &&
     Object.keys(o.metadata.annotations).length === 0
   ) {
     delete o.metadata.annotations;
@@ -105,11 +104,7 @@ export function removeLabel(
   label: string
 ): KubernetesObject {
   removeFromObject(o.metadata.labels, label);
-  if (
-    o.metadata &&
-    o.metadata.labels &&
-    Object.keys(o.metadata.labels).length === 0
-  ) {
+  if (o.metadata?.labels && Object.keys(o.metadata.labels).length === 0) {
     delete o.metadata.labels;
   }
   return o;

@@ -70,7 +70,7 @@ export class Configs {
    * Returned objects are pass-by-reference; mutating them results in changes being persisted.
    */
   getAll(): KubernetesObject[] {
-    return this.objects.map(e => e[1]);
+    return this.objects.map((e) => e[1]);
   }
 
   /**
@@ -103,7 +103,7 @@ export class Configs {
    * @param objects The objects to insert.
    */
   insert(...objects: KubernetesObject[]): void {
-    objects.forEach(o => {
+    objects.forEach((o) => {
       const key: string = kubernetesKey(o);
       const [index, found] = this.indexOf(key, this.objects, 0);
       this.objects.splice(index, found ? 1 : 0, [key, o]);
@@ -118,7 +118,7 @@ export class Configs {
    * @param objects The objects to delete.
    */
   delete(...objects: KubernetesObject[]): void {
-    objects.forEach(o => {
+    objects.forEach((o) => {
       const key: string = kubernetesKey(o);
       const [index, found] = this.indexOf(key, this.objects, 0);
       if (found) {
@@ -151,7 +151,7 @@ export class Configs {
     keyFn: (object: KubernetesObject) => string
   ): Array<[string, KubernetesObject[]]> {
     const map = new Map<string, KubernetesObject[]>();
-    this.getAll().forEach(o => {
+    this.getAll().forEach((o) => {
       const key = keyFn(o);
       const valuesAtKey = map.get(key) || [];
       map.set(key, [...valuesAtKey, o]);
@@ -224,7 +224,7 @@ export class Configs {
    */
   addResults(...results: Result[]) {
     if (this.logToStdErr) {
-      results.forEach(r => console.error(resultToString(r)));
+      results.forEach((r) => console.error(resultToString(r)));
     }
     this.results.push(...results);
   }
@@ -433,8 +433,11 @@ function resultToString(result: Result): string {
     const r = result.resourceRef;
     s += ` in object '${r.apiVersion}/${r.kind}/${r.namespace}/${r.name}'`;
   }
-  if (result.file && result.file.path) {
+  if (result.file?.path) {
     s += ` in file ${result.file.path}`;
+  }
+  if (result.field?.path) {
+    s += ` in field ${result.field.path}`;
   }
   return s;
 }

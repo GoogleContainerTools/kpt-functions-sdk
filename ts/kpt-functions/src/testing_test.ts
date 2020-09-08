@@ -37,7 +37,7 @@ async function testFunction(configs: Configs) {
   configs
     .getAll()
     .filter(isStatus)
-    .forEach(s => configs.delete(s));
+    .forEach((s) => configs.delete(s));
 }
 testFunction.usage = `A kpt function used for testing how the test framework handles functions without results`;
 const RUNNER = new TestRunner(testFunction);

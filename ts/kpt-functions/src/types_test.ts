@@ -115,12 +115,12 @@ describe('get', () => {
       'tinek',
       'walherich',
     ];
-    const roles = names.map(name => new Role(name));
+    const roles = names.map((name) => new Role(name));
     _.shuffle(roles);
 
     const configs = new Configs(roles);
 
-    expect(configs.getAll()).toEqual(names.map(name => new Role(name)));
+    expect(configs.getAll()).toEqual(names.map((name) => new Role(name)));
   });
 });
 
@@ -155,13 +155,13 @@ describe('insert', () => {
       'theo',
       'zuzka',
     ];
-    const roles = names.map(name => new Role(name));
+    const roles = names.map((name) => new Role(name));
     _.shuffle(roles);
 
     const configs = new Configs();
     configs.insert(...roles);
 
-    expect(configs.getAll()).toEqual(names.map(name => new Role(name)));
+    expect(configs.getAll()).toEqual(names.map((name) => new Role(name)));
   });
 });
 
