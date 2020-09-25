@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -68,7 +68,7 @@ describe('addAnnotation', () => {
 
     addAnnotation(ns, 'bar', 'qux');
     expect(ns.metadata.annotations).toBeDefined();
-    expect(ns.metadata.annotations!['bar']).toBe('qux');
+    expect(ns.metadata.annotations?.['bar']).toBe('qux');
   });
 
   it('works on defined annotations', () => {
@@ -77,7 +77,7 @@ describe('addAnnotation', () => {
 
     addAnnotation(ns, 'baz', 'xem');
     expect(ns.metadata.annotations).toBeDefined();
-    expect(ns.metadata.annotations!['baz']).toBe('xem');
+    expect(ns.metadata.annotations?.['baz']).toBe('xem');
   });
 
   it('overwrites existing values', () => {
@@ -86,7 +86,7 @@ describe('addAnnotation', () => {
 
     addAnnotation(ns, 'bar', 'bar');
     expect(ns.metadata.annotations).toBeDefined();
-    expect(ns.metadata.annotations!['bar']).toBe('bar');
+    expect(ns.metadata.annotations?.['bar']).toBe('bar');
   });
 });
 
@@ -105,8 +105,8 @@ describe('removeAnnotation', () => {
 
     removeAnnotation(ns, 'bar');
     expect(ns.metadata.annotations).toBeDefined();
-    expect(ns.metadata.annotations!['bar']).toBeUndefined();
-    expect(ns.metadata.annotations!['baz']).toBe('xem');
+    expect(ns.metadata.annotations?.['bar']).toBeUndefined();
+    expect(ns.metadata.annotations?.['baz']).toBe('xem');
   });
 
   it('removes annotations if no more annotations are left', () => {
@@ -151,7 +151,7 @@ describe('addLabel', () => {
 
     addLabel(ns, 'bar', 'qux');
     expect(ns.metadata.labels).toBeDefined();
-    expect(ns.metadata.labels!['bar']).toBe('qux');
+    expect(ns.metadata.labels?.['bar']).toBe('qux');
   });
 
   it('works on defined labels', () => {
@@ -160,7 +160,7 @@ describe('addLabel', () => {
 
     addLabel(ns, 'baz', 'xem');
     expect(ns.metadata.labels).toBeDefined();
-    expect(ns.metadata.labels!['baz']).toBe('xem');
+    expect(ns.metadata.labels?.['baz']).toBe('xem');
   });
 
   it('overwrites existing values', () => {
@@ -169,7 +169,7 @@ describe('addLabel', () => {
 
     addLabel(ns, 'bar', 'bar');
     expect(ns.metadata.labels).toBeDefined();
-    expect(ns.metadata.labels!['bar']).toBe('bar');
+    expect(ns.metadata.labels?.['bar']).toBe('bar');
   });
 });
 
@@ -188,8 +188,8 @@ describe('removeLabel', () => {
 
     removeLabel(ns, 'bar');
     expect(ns.metadata.labels).toBeDefined();
-    expect(ns.metadata.labels!['bar']).toBeUndefined();
-    expect(ns.metadata.labels!['baz']).toBe('xem');
+    expect(ns.metadata.labels?.['bar']).toBeUndefined();
+    expect(ns.metadata.labels?.['baz']).toBe('xem');
   });
 
   it('removes labels if no more labels are left', () => {

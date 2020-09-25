@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /**
  * Copyright 2019 Google LLC
  *
@@ -5,7 +10,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +24,7 @@ import rw from 'rw';
 import { Configs, KubernetesObject } from './types';
 
 // Stdout is used for chaining functions so override global console object to send output to stderr.
+// eslint-disable-next-line no-global-assign
 console = new console.Console(process.stderr, process.stderr);
 
 export enum FileFormat {
@@ -100,6 +106,7 @@ export function parse(
 function load(raw: string, format: FileFormat): any {
   switch (format) {
     case FileFormat.JSON:
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return JSON.parse(raw);
     case FileFormat.YAML:
       // safeLoad returns undefined if raw is empty string.
@@ -150,7 +157,9 @@ export function stringify(configs: Configs, format: FileFormat): string {
 async function readFile(path: string): Promise<string> {
   return new Promise((resolve, reject) => {
     rw.readFile(path, 'utf8', (err: any, data: string) => {
-      if (err) return reject(err);
+      if (err) {
+        return reject(err);
+      }
       resolve(data);
     });
   });
@@ -159,7 +168,9 @@ async function readFile(path: string): Promise<string> {
 async function writeFile(path: string, data: string): Promise<void> {
   return new Promise((resolve, reject) => {
     rw.writeFile(path, data, 'utf8', (err: any) => {
-      if (err) return reject(err);
+      if (err) {
+        return reject(err);
+      }
       resolve();
     });
   });

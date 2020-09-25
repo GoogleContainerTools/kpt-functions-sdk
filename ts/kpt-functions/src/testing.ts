@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright 2019 Google LLC
  *
@@ -5,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,12 +38,13 @@ export class TestRunner {
    * ```
    *
    * @param input input Configs passed to the function. It is deep-copied before running the function.
-   *   If undefined, assumes an empty Configs.
+   * If undefined, assumes an empty Configs.
    * @param expectedOutput expected resultant Configs after running the function regardless of success or failure.
-   *  Use 'unchanged' if the function is not expected to change input Configs.
+   * Use 'unchanged' if the function is not expected to change input Configs.
    * @param expectedErrorType expected error type to be thrown.
    * @param expectedErrorMessage expected message of expection to be thrown.
    */
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async assert(
     input: Configs = new Configs(),
     expectedOutput?: Configs | 'unchanged',
@@ -70,9 +72,9 @@ export class TestRunner {
    * ```
    *
    * @param input input Configs passed to the function. It is deep-copied before running the function.
-   *   If undefined, assumes an empty Configs.
+   * If undefined, assumes an empty Configs.
    * @param expectedOutput expected resultant Configs after running the function regardless of success or failure.
-   *  Use 'unchanged' if the function is not expected to change input Configs.
+   * Use 'unchanged' if the function is not expected to change input Configs.
    * @param expectedErrorType expected error type to be thrown.
    * @param expectedErrorMessage expected message of expection to be thrown.
    */

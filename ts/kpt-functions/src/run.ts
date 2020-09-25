@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Copyright 2019 Google LLC
  *
@@ -5,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,7 +71,7 @@ enum ExitCode {
  * This method does not throw any errors and can be invoked at the top-level without getting
  * an unhandled promise rejection error.
  */
-export async function run(fn: KptFunc) {
+export async function run(fn: KptFunc): Promise<void> {
   try {
     await runFn(fn);
   } catch (err) {
@@ -123,9 +127,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
 
   // Parse args.
   const args = new Map<string, any>(Object.entries(parser.parseArgs()));
-  const fileFormat = Boolean(args.get('json'))
-    ? FileFormat.JSON
-    : FileFormat.YAML;
+  const fileFormat = args.get('json') ? FileFormat.JSON : FileFormat.YAML;
   const inputFile = args.get('input') || '/dev/stdin';
   const outputFile = args.get('output') || '/dev/stdout';
   let functionConfig: string | KubernetesObject | undefined = args.get(

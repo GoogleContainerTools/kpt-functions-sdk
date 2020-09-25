@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright 2019 Google LLC
  *
@@ -5,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +30,7 @@ export interface KptFunc {
    * The function should:
    * - Throw errors when encountering operational issues such as IO exceptions.
    * - Avoid writing to stdout (e.g. using process.stdout) as it is used for chaining functions.
-   *   Use stderr instead.
+   * Use stderr instead.
    */
   (configs: Configs): Promise<void>;
 
@@ -87,7 +90,7 @@ export class Configs {
   get<Kind extends KubernetesObject>(
     isKind: (o: KubernetesObject) => o is Kind
   ): Kind[] {
-    return this.getAll().filter(isKind) as Kind[];
+    return this.getAll().filter(isKind);
   }
 
   /**
@@ -184,6 +187,7 @@ export class Configs {
     }
     const configMap = new Map<string, string>();
     for (const key in cm.data) {
+      // eslint-disable-next-line no-prototype-builtins
       if (cm.data.hasOwnProperty(key)) {
         configMap.set(key, cm.data[key]);
       }
@@ -222,7 +226,7 @@ export class Configs {
   /**
    * Adds given result(s) representing structured findings by the function.
    */
-  addResults(...results: Result[]) {
+  addResults(...results: Result[]): void {
     if (this.logToStdErr) {
       results.forEach((r) => console.error(resultToString(r)));
     }
@@ -323,6 +327,7 @@ export interface KubernetesObject {
 /**
  * Type guard for KubernetesObject.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isKubernetesObject(o: any): o is KubernetesObject {
   return (
     o &&
@@ -404,6 +409,7 @@ export interface Result {
 export type Severity = 'error' | 'warn' | 'info';
 
 /** A plain old JSON array according to ECMA-404. */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface JsonArray extends Array<Json> {}
 
 /** A plain old JSON object/map according to ECMA-404. */
