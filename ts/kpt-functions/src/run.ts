@@ -88,41 +88,41 @@ async function runFn(fn: KptFunc) {
   const parser = new ArgumentParser({
     // Used as placeholder name for all functions.
     prog: 'FUNC',
-    addHelp: true,
+    add_help: true,
     description: `${fn.usage}
 
 ${INVOCATIONS}`,
-    formatterClass: RawTextHelpFormatter,
+    formatter_class: RawTextHelpFormatter,
   });
-  parser.addArgument(['-i', '--input'], {
+  parser.add_argument('-i', '--input', {
     help: 'Path to the input file (if not reading from stdin)',
   });
-  parser.addArgument(['-o', '--output'], {
+  parser.add_argument('-o', '--output', {
     help: 'Path to the output file (if not writing to stdout)',
   });
-  parser.addArgument(['-f', '--function-config'], {
+  parser.add_argument('-f', '--function-config', {
     help:
       'Path to the function configuration file. If specified, ignores "functionConfig" field in the input',
   });
-  parser.addArgument(['-d', '--function-config-literal'], {
+  parser.add_argument('-d', '--function-config-literal', {
     help: `Specify a key and literal value (i.e. mykey=somevalue) to populate a ConfigMap instead of
 specifying a file using --function-config.
 Use this ONLY if the function accepts a ConfigMap.`,
     action: 'append',
     nargs: '*',
   });
-  parser.addArgument('--json', {
+  parser.add_argument('--json', {
     action: 'storeTrue',
     help: 'Input and output files are in JSON instead of YAML',
   });
-  parser.addArgument('--log-to-stderr', {
+  parser.add_argument('--log-to-stderr', {
     action: 'storeTrue',
     help:
       'Emit structured results to stderr in addition to setting".results" field in stdout',
   });
 
   // Parse args.
-  const args = new Map<string, any>(Object.entries(parser.parseArgs()));
+  const args = new Map<string, any>(Object.entries(parser.parse_args()));
   const fileFormat = Boolean(args.get('json'))
     ? FileFormat.JSON
     : FileFormat.YAML;

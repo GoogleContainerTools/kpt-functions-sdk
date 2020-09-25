@@ -26,7 +26,7 @@ export enum FileFormat {
   JSON,
 }
 type FilePath = string;
-const YAML_STYLE: DumpOptions = {
+export const YAML_STYLE: DumpOptions = {
   // indentation width to use (in spaces).
   indent: 2,
   // when true, will not add an indentation level to array elements.
