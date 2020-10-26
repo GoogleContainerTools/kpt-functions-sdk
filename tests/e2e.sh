@@ -262,4 +262,4 @@ data:
   data_key: "true"
 EOF
 kpt fn run local-configs --mount type=bind,src="$(pwd)"/kustomize-dir,dst=/source --image gcr.io/kpt-functions/kustomize-build:"${TAG}" --as-current-user -- path=/source
-assert_contains_string kustomize-build/local-configs/configmap_example-cm.yaml "name: example-cm"
+assert_contains_string local-configs/configmap_example-cm.yaml "name: example-cm"
