@@ -226,3 +226,34 @@ EOF
 kpt fn run .
 grep -qR 'color: orange' .
 grep -qR 'city: toronto' .
+
+testcase "kustomize_build"
+mkdir local-configs
+cat <<EOF >local-configs/fn-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-func-config
+  annotations:
+    config.k8s.io/function: |
+      container:
+        image: gcr.io/kpt-functions/kustomize-build
+    config.kubernetes.io/local-config: 'true'
+data:
+  path: /source
+  '--reorder': none
+EOF
+mkdir kustomize-dir
+cat <<EOF >kustomize-dir/kustomization.yaml
+resources:
+- example-cm.yaml
+EOF
+cat <<EOF >kustomize-dir/example-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-cm
+data:
+  data_key: "true"
+EOF
+kpt fn run local-configs --mount type=bind,src="$(pwd)"/kustomize-dir,dst=/source --image gcr.io/kpt-functions/kustomize-build:"${TAG}" --as-current-user -- path=/source
