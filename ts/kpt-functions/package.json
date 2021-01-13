@@ -37,7 +37,7 @@
     "@types/argparse": "^1.0.36",
     "@types/jasmine": "^3.5.14",
     "@types/js-yaml": "^3.12.5",
-    "@types/lodash": "^4.14.161",
+    "@types/lodash": "^4.14.165",
     "@types/node": "^12.12.55",
     "@types/rw": "file:@types/rw",
     "jasmine": "^3.6.1",
