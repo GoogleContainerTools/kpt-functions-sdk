@@ -40,7 +40,7 @@
     "@types/lodash": "^4.14.161",
     "@types/node": "^12.12.55",
     "@types/rw": "file:@types/rw",
-    "jasmine": "^3.6.1",
+    "jasmine": "^3.6.3",
     "license-checker": "^25.0.1",
     "lodash": "^4.17.20",
     "prettier": "2.1.1",
