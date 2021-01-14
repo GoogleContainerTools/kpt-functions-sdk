@@ -39,6 +39,7 @@
     "@types/js-yaml": "^3.12.5",
     "@types/lodash": "^4.14.165",
     "@types/node": "^12.12.55",
+    "@types/node": "^12.19.9",
     "@types/rw": "file:@types/rw",
     "jasmine": "^3.6.1",
     "license-checker": "^25.0.1",
@@ -48,6 +49,6 @@
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
     "typedoc": "^0.18.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.1.3"
   }
 }
