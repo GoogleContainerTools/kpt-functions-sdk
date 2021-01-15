@@ -33,7 +33,7 @@
     "@types/js-yaml": "^3.12.5",
     "@types/node": "^14.0.24",
     "create-kpt-functions": "^0.17.0",
-    "dir-compare": "^2.3.0",
+    "dir-compare": "^2.4.0",
     "fs-extra": "^9.0.1",
     "jasmine": "^3.5.0",
     "license-checker": "^25.0.1",
