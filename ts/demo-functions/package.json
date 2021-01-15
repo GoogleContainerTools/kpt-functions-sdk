@@ -37,7 +37,7 @@
     "fs-extra": "^9.0.1",
     "jasmine": "^3.5.0",
     "license-checker": "^25.0.1",
-    "prettier": "2.0.5",
+    "prettier": "2.2.1",
     "tslint": "^6.1.2",
     "tslint-config-prettier": "1.18.0",
     "tslint-consistent-codestyle": "^1.16.0",
