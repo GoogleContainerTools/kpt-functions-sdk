@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "glob": "^7.1.6",
-    "js-yaml": "^3.14.0",
+    "js-yaml": "^3.14.1",
     "kpt-functions": "^0.14.5"
   },
   "devDependencies": {
