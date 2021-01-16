@@ -43,7 +43,7 @@
     "mustache": "^4.0.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
-    "validator": "^13.1.1"
+    "validator": "^13.5.2"
   },
   "devDependencies": {
     "@types/argparse": "^1.0.38",
