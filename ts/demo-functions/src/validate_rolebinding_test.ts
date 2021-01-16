@@ -61,7 +61,7 @@ describe(validateRolebinding.name, () => {
   );
 
   it('with banned RoleBindings', async () => {
-    RUNNER.assert(
+    RUNNER.assertCallback(
       new Configs([BANNED_RB], FUNC_CONFIG),
       new Configs([BANNED_RB], FUNC_CONFIG, [
         kubernetesObjectResult(

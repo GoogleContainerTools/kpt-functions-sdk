@@ -73,7 +73,7 @@ describe('writeYaml', () => {
     functionConfig.data![SINK_DIR] = tmpDir;
     const configs = new kpt.Configs(input.getAll(), functionConfig);
 
-    expectAsync(writeYaml(configs)).toBeRejectedWithError(Error);
+    await expectAsync(writeYaml(configs)).toBeRejectedWithError(Error);
   });
 
   it("silently makes output directory if it doesn't exist", async () => {
