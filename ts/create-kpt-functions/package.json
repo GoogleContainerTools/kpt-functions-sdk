@@ -40,7 +40,7 @@
     "glob": "^7.1.6",
     "go-npm": "^0.1.9",
     "is-valid-npm-name": "0.0.5",
-    "mustache": "^4.0.1",
+    "mustache": "^4.1.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "validator": "^13.5.2"
