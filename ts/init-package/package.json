@@ -21,7 +21,7 @@
     "create-kpt-functions": "^0.17.0",
     "@types/jasmine": "^3.6.2",
     "@types/node": "^12.19.11",
-    "jasmine": "^3.6.3",
+    "jasmine": "^3.6.4",
     "tslint": "^5.19.0",
     "typescript": "^3.9.7"
   },
