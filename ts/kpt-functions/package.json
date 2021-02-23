@@ -42,7 +42,7 @@
     "@types/rw": "file:@types/rw",
     "jasmine": "^3.6.3",
     "license-checker": "^25.0.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "prettier": "2.2.1",
     "tslint": "^6.1.3",
     "tslint-config-prettier": "1.18.0",
