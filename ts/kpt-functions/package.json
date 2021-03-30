@@ -38,7 +38,7 @@
     "@types/jasmine": "^3.6.6",
     "@types/js-yaml": "^3.12.5",
     "@types/lodash": "^4.14.166",
-    "@types/node": "^12.19.11",
+    "@types/node": "^12.20.4",
     "@types/rw": "file:@types/rw",
     "jasmine": "^3.6.3",
     "license-checker": "^25.0.1",
