@@ -23,7 +23,7 @@
     "@types/node": "^12.19.11",
     "jasmine": "^3.6.3",
     "tslint": "^5.19.0",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.9"
   },
   "kpt": {
     "docker_repo_base": "gcr.io/kpt-functions-demo"
