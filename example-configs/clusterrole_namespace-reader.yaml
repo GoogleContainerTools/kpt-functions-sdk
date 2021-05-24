@@ -3,11 +3,11 @@ kind: ClusterRole
 metadata:
   name: namespace-reader
 rules:
-- resources:
-  - namespaces
-  apiGroups:
-  - ''
-  verbs:
-  - get
-  - watch
-  - list
+  - resources:
+      - namespaces
+    apiGroups:
+      - ''
+    verbs:
+      - get
+      - watch
+      - list

@@ -4,7 +4,7 @@ metadata:
   name: psp
 spec:
   volumes:
-  - '*'
+    - '*'
   fsGroup:
     rule: RunAsAny
   runAsUser:

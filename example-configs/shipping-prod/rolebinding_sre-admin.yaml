@@ -8,6 +8,6 @@ roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
 subjects:
-- name: sre@foo-corp.com
-  kind: Group
-  apiGroup: rbac.authorization.k8s.io
+  - name: sre@foo-corp.com
+    kind: Group
+    apiGroup: rbac.authorization.k8s.io
