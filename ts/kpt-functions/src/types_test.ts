@@ -276,6 +276,21 @@ describe('functionConfig', () => {
     expect(configs.hasUnexpetedFunctionParameter(['k2'])).toBeTrue();
   });
 
+  it('ConfigMap valid param', () => {
+    const cm = {
+      apiVersion: 'v1',
+      kind: 'ConfigMap',
+      metadata: {
+        name: 'my-config',
+      },
+      data: {
+        k1: 'v1',
+      },
+    };
+    const configs = new Configs(undefined, cm);
+    expect(configs.hasUnexpetedFunctionParameter(['k1'])).toBeFalse();
+  });
+
   it('no object', () => {
     const configs = new Configs(undefined);
     expect(configs.getFunctionConfig()).toBeUndefined();
