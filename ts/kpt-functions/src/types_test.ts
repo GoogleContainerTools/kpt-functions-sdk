@@ -273,7 +273,7 @@ describe('functionConfig', () => {
       },
     };
     const configs = new Configs(undefined, cm);
-    expect(configs.hasUnexpetedFunctionParameter(['k2'])).toBeTrue();
+    expect(configs.hasUnexpetedFunctionParameter(['k2'])).toEqual(['k1']);
   });
 
   it('ConfigMap valid param', () => {
@@ -288,7 +288,7 @@ describe('functionConfig', () => {
       },
     };
     const configs = new Configs(undefined, cm);
-    expect(configs.hasUnexpetedFunctionParameter(['k1'])).toBeFalse();
+    expect(configs.hasUnexpetedFunctionParameter(['k1'])).toEqual([]);
   });
 
   it('no object', () => {

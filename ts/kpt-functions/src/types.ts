@@ -208,22 +208,23 @@ export class Configs {
 
   /**
    * Detects if an unknown value has been provided to the config map
-   * @param expectedKeys The set of expecte keys for the function
-   * @returns Returns true if the config map is undefined or a value in the
-   * config map is not a recognized key. If all data values in the config map
-   * are known keys this will return false.
+   * @param expectedKeys The set of expected keys for the function
+   * @returns Returns undefined if the config map is undefined. Otherwise
+   * returns a string[] containing the invalid keys. The string[] will be empty
+   * if all of the config maps keys are members of the expecteKeys.
    */
-  hasUnexpetedFunctionParameter(expectedKeys: string[]): boolean {
+  hasUnexpetedFunctionParameter(expectedKeys: string[]): string[] | undefined {
     const cm = this.getFunctionConfigMap();
+    const unexpected: string[] = [];
     if (cm === undefined) {
-      return true;
+      return undefined;
     }
     for (let key of cm.keys()) {
       if (!expectedKeys.includes(key)) {
-        return true;
+        unexpected.push(key);
       }
     }
-    return false;
+    return unexpected;
   }
 
   /**
