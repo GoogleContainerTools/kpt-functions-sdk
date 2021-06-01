@@ -186,6 +186,8 @@ export class Configs {
     for (const key in cm.data) {
       if (cm.data.hasOwnProperty(key)) {
         configMap.set(key, cm.data[key]);
+      } else {
+        throw new TypeError(`an unknown parameter (${key}) was provided to the function`)
       }
     }
     return configMap;
