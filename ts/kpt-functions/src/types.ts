@@ -218,7 +218,7 @@ export class Configs {
     if (cm === undefined) {
       return true;
     }
-    for(let key of cm.keys()) {
+    for (let key of cm.keys()) {
       if (!expectedKeys.includes(key)) {
         return true;
       }

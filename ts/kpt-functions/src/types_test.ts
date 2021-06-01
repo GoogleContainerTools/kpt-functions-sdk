@@ -273,7 +273,7 @@ describe('functionConfig', () => {
       },
     };
     const configs = new Configs(undefined, cm);
-    expect(configs.hasUnexpetedFunctionParameter(["k2"])).toBeTrue();
+    expect(configs.hasUnexpetedFunctionParameter(['k2'])).toBeTrue();
   });
 
   it('no object', () => {
