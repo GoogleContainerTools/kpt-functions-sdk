@@ -186,8 +186,6 @@ export class Configs {
     for (const key in cm.data) {
       if (cm.data.hasOwnProperty(key)) {
         configMap.set(key, cm.data[key]);
-      } else {
-        throw new TypeError(`an unknown parameter (${key}) was provided to the function`)
       }
     }
     return configMap;
@@ -206,6 +204,26 @@ export class Configs {
   getFunctionConfigValue(key: string): string | undefined {
     const cm = this.getFunctionConfigMap();
     return cm ? cm.get(key) : undefined;
+  }
+
+  /**
+   * Detects if an unknown value has been provided to the config map
+   * @param expectedKeys The set of expecte keys for the function
+   * @returns Returns false if the config map is undefined or a value in the
+   * config map is not a recognized key. If all data values in the config map
+   * are known keys this will return true.
+   */
+  hasUnexpetedFunctionParameter(expectedKeys: string[]): boolean {
+    const cm = this.getFunctionConfigMap();
+    if (cm === undefined) {
+      return false;
+    }
+    for(let key of cm.keys()) {
+      if (!expectedKeys.includes(key)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
