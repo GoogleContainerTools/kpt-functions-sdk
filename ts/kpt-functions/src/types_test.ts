@@ -272,8 +272,8 @@ describe('functionConfig', () => {
         k1: 'v1',
       },
     };
-    const configs = new Configs(undefined, cm);
-    expect(configs.hasUnexpetedFunctionParameter(['k2'])).toEqual(['k1']);
+    const configs = new Configs(undefined, cm, undefined, ['k2']);
+    expect(configs.hasUnexpectedFunctionParameter()).toEqual(['k1']);
   });
 
   it('ConfigMap valid param', () => {
@@ -287,8 +287,8 @@ describe('functionConfig', () => {
         k1: 'v1',
       },
     };
-    const configs = new Configs(undefined, cm);
-    expect(configs.hasUnexpectedFunctionParameter(['k1'])).toEqual([]);
+    const configs = new Configs(undefined, cm, undefined, ['k1']);
+    expect(configs.hasUnexpectedFunctionParameter()).toEqual([]);
   });
 
   it('no object', () => {

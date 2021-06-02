@@ -55,11 +55,13 @@ export class Configs {
   constructor(
     input: KubernetesObject[] = [],
     functionConfig?: KubernetesObject,
-    results?: Result[]
+    results?: Result[],
+    expectedDataKeys?: string[]
   ) {
     this.insert(...input);
     this.functionConfig = functionConfig;
     this.results = results || [];
+    this.expectedDataKeys = expectedDataKeys;
   }
 
   /**
@@ -182,6 +184,12 @@ export class Configs {
         `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
       );
     }
+
+    const configKeys = this.hasUnexpectedFunctionParameter();
+    if (configKeys !== undefined && configKeys.length > 0) {
+      throw new TypeError(`an unexpected key was provided to the function (${configKeys})`);
+    }
+
     const configMap = new Map<string, string>();
     for (const key in cm.data) {
       if (cm.data.hasOwnProperty(key)) {
@@ -211,16 +219,20 @@ export class Configs {
    * @param expectedKeys The set of expected keys for the function
    * @returns Returns undefined if the config map is undefined. Otherwise
    * returns a string[] containing the invalid keys. The string[] will be empty
-   * if all of the config maps keys are members of the expecteKeys.
+   * if all of the config maps keys are members of the expecteKeys. If the
+   * Configs expectedKeys is undefined this will return an empty [].
    */
-  hasUnexpectedFunctionParameter(expectedKeys: string[]): string[] | undefined {
+  hasUnexpectedFunctionParameter(): string[] | undefined {
+    if (this.expectedDataKeys === undefined) {
+      return [];
+    }
     const cm = this.getFunctionConfigMap();
     const unexpected: string[] = [];
     if (cm === undefined) {
       return undefined;
     }
     for (let key of cm.keys()) {
-      if (!expectedKeys.includes(key)) {
+      if (!this.expectedDataKeys.includes(key)) {
         unexpected.push(key);
       }
     }
@@ -275,7 +287,8 @@ export class Configs {
     const functionConfig =
       this.functionConfig && JSON.parse(JSON.stringify(this.functionConfig));
     const results = JSON.parse(JSON.stringify(this.results));
-    return new Configs(objects, functionConfig, results);
+    const dataKeys = JSON.parse(JSON.stringify(this.expectedDataKeys));
+    return new Configs(objects, functionConfig, results, dataKeys);
   }
 
   /**
@@ -325,6 +338,11 @@ export class Configs {
    * List of Results returned by the function.
    */
   private readonly results: Result[];
+
+  /**
+   * The list of expected ConfigMap data keys or undefined if no filter applies.
+   */
+  private readonly expectedDataKeys: string[] | undefined;
 
   /**
    * Determines whether [[addResults]] should also log to stderr.
