@@ -185,17 +185,13 @@ export class Configs {
       );
     }
 
-    const configKeys = this.hasUnexpectedFunctionParameter();
-    if (configKeys !== undefined && configKeys.length > 0) {
-      throw new TypeError(`an unexpected key was provided to the function (${configKeys})`);
-    }
-
     const configMap = new Map<string, string>();
     for (const key in cm.data) {
       if (cm.data.hasOwnProperty(key)) {
         configMap.set(key, cm.data[key]);
       }
     }
+
     return configMap;
   }
 
@@ -222,16 +218,17 @@ export class Configs {
    * if all of the config maps keys are members of the expecteKeys. If the
    * Configs expectedKeys is undefined this will return an empty [].
    */
-  hasUnexpectedFunctionParameter(): string[] | undefined {
+  hasUnexpectedFunctionParameter(
+    configMap: Map<string, string>
+  ): string[] | undefined {
     if (this.expectedDataKeys === undefined) {
       return [];
     }
-    const cm = this.getFunctionConfigMap();
     const unexpected: string[] = [];
-    if (cm === undefined) {
+    if (configMap === undefined) {
       return undefined;
     }
-    for (let key of cm.keys()) {
+    for (let key of configMap.keys()) {
       if (!this.expectedDataKeys.includes(key)) {
         unexpected.push(key);
       }
@@ -243,6 +240,16 @@ export class Configs {
    * Similar to [[getFunctionConfigValue]] except it throws a ConfigError if the given key is undefined.
    */
   getFunctionConfigValueOrThrow(key: string): string {
+    const configMap = this.getFunctionConfigMap();
+    if (configMap === undefined) {
+      throw new FunctionConfigError(`The function config map was undefined`);
+    }
+    const configKeys = this.hasUnexpectedFunctionParameter(configMap);
+    if (configKeys !== undefined && configKeys.length > 0) {
+      throw new TypeError(
+        `an unexpected key was provided to the function (${configKeys})`
+      );
+    }
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
       throw new FunctionConfigError(
@@ -287,7 +294,10 @@ export class Configs {
     const functionConfig =
       this.functionConfig && JSON.parse(JSON.stringify(this.functionConfig));
     const results = JSON.parse(JSON.stringify(this.results));
-    const dataKeys = JSON.parse(JSON.stringify(this.expectedDataKeys));
+    const dataKeys =
+      this.expectedDataKeys === undefined
+        ? undefined
+        : JSON.parse(JSON.stringify(this.expectedDataKeys));
     return new Configs(objects, functionConfig, results, dataKeys);
   }
 
