@@ -288,7 +288,7 @@ describe('functionConfig', () => {
       },
     };
     const configs = new Configs(undefined, cm);
-    expect(configs.hasUnexpetedFunctionParameter(['k1'])).toEqual([]);
+    expect(configs.hasUnexpectedFunctionParameter(['k1'])).toEqual([]);
   });
 
   it('no object', () => {

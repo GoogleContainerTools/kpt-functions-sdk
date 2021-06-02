@@ -213,7 +213,7 @@ export class Configs {
    * returns a string[] containing the invalid keys. The string[] will be empty
    * if all of the config maps keys are members of the expecteKeys.
    */
-  hasUnexpetedFunctionParameter(expectedKeys: string[]): string[] | undefined {
+  hasUnexpectedFunctionParameter(expectedKeys: string[]): string[] | undefined {
     const cm = this.getFunctionConfigMap();
     const unexpected: string[] = [];
     if (cm === undefined) {
