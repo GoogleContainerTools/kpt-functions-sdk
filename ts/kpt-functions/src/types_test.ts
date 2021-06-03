@@ -272,10 +272,8 @@ describe('functionConfig', () => {
         k1: 'v1',
       },
     };
-    const configs = new Configs(undefined, cm, undefined, ['k2']);
-    expect(
-      configs.hasUnexpectedFunctionParameter(new Map([['k1', 'v1']]))
-    ).toEqual(['k1']);
+    const configs = new Configs(undefined, cm);
+    expect(configs.hasUnexpectedFunctionParameter(['k2'])).toEqual(['k1']);
   });
 
   it('ConfigMap valid param', () => {
@@ -289,26 +287,8 @@ describe('functionConfig', () => {
         k1: 'v1',
       },
     };
-    const configs = new Configs(undefined, cm, undefined, ['k1']);
-    expect(
-      configs.hasUnexpectedFunctionParameter(new Map([['k1', 'v1']]))
-    ).toEqual([]);
-  });
-
-  it('ConfigMap get value throws when unexpected key', () => {
-    const cm = {
-      apiVersion: 'v1',
-      kind: 'ConfigMap',
-      metadata: {
-        name: 'my-config',
-      },
-      data: {
-        k1: 'v1',
-      },
-    };
-    const configs = new Configs(undefined, cm, undefined, ['k2']);
-    // Attempt to get the existing key, detect that an unexpected param exists
-    expect(() => configs.getFunctionConfigValueOrThrow('k2')).toThrow();
+    const configs = new Configs(undefined, cm, undefined);
+    expect(configs.hasUnexpectedFunctionParameter(['k1'])).toEqual([]);
   });
 
   it('no object', () => {
