@@ -182,12 +182,14 @@ export class Configs {
         `functionConfig expected to be of kind ConfigMap, instead got: ${cm.kind}`
       );
     }
+
     const configMap = new Map<string, string>();
     for (const key in cm.data) {
       if (cm.data.hasOwnProperty(key)) {
         configMap.set(key, cm.data[key]);
       }
     }
+
     return configMap;
   }
 
@@ -207,9 +209,37 @@ export class Configs {
   }
 
   /**
+   * Detects if an unknown value has been provided to the config map
+   * @param expectedDataKeys The set of keys expected in the Configs data
+   * @returns Returns undefined if the config map is undefined. Otherwise
+   * returns a string[] containing the invalid keys. The string[] will be empty
+   * if all of the config maps keys are members of the expecteKeys.
+   */
+  hasUnexpectedFunctionParameter(
+    expectedDataKeys: string[]
+  ): string[] | undefined {
+    const unexpected: string[] = [];
+    const configMap = this.getFunctionConfigMap();
+    if (configMap === undefined) {
+      return undefined;
+    }
+    for (let key of configMap.keys()) {
+      if (!expectedDataKeys.includes(key)) {
+        unexpected.push(key);
+      }
+    }
+    return unexpected;
+  }
+
+  /**
    * Similar to [[getFunctionConfigValue]] except it throws a ConfigError if the given key is undefined.
    */
   getFunctionConfigValueOrThrow(key: string): string {
+    const configMap = this.getFunctionConfigMap();
+    if (configMap === undefined) {
+      throw new FunctionConfigError(`The function config map was undefined`);
+    }
+
     const val = this.getFunctionConfigValue(key);
     if (val === undefined) {
       throw new FunctionConfigError(
