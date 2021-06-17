@@ -3,9 +3,9 @@ kind: ClusterRole
 metadata:
   name: pod-creator
 rules:
-- resources:
-  - pods
-  apiGroups:
-  - ''
-  verbs:
-  - '*'
+  - resources:
+      - pods
+    apiGroups:
+      - ''
+    verbs:
+      - '*'

@@ -4,11 +4,11 @@ metadata:
   name: payments
 spec:
   roles:
-  - role: sre
-    users:
-    - jane@clearify.co
-  - groups:
-    - payments-developers@clearify.co
-    role: developer
-    users:
-    - basic@clearify.co
+    - role: sre
+      users:
+        - jane@clearify.co
+    - groups:
+        - payments-developers@clearify.co
+      role: developer
+      users:
+        - basic@clearify.co
