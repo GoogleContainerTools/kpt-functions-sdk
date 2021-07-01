@@ -3,7 +3,7 @@
 GOPATH := $(shell go env GOPATH)
 OUT_DIR := .out
 
-all: fix fmt test test-e2e lint
+all: fix fmt test lint
 
 api:
 	(which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0)
@@ -21,9 +21,6 @@ lint:
 
 test:
 	go test -cover ./...
-
-test-e2e:
-	./scripts/e2e.sh
 
 vet:
 	go vet ./...
