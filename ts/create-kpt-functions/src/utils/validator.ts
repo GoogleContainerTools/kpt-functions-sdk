@@ -153,7 +153,8 @@ export function getValidString(
 function makeInvalidCharactersRed(s: string) {
   const invalidChars = /([^a-z0-9_])/;
   // Splits text at the boundaries of good and bad characters.
-  const invalidCharSplit = /((?<=[a-z0-9_])(?=[^a-z0-9_])|(?<=[^a-z0-9_])(?=[a-z0-9_]))/;
+  const invalidCharSplit =
+    /((?<=[a-z0-9_])(?=[^a-z0-9_])|(?<=[^a-z0-9_])(?=[a-z0-9_]))/;
   const splits: string[] = s.split(invalidCharSplit);
 
   return splits

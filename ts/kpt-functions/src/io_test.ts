@@ -475,8 +475,7 @@ results:
             apiVersion: 'v1',
             kind: 'Namespace',
             metadata: {
-              name:
-                '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789',
+              name: '0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789',
             },
           },
         ]),
@@ -710,10 +709,10 @@ describe('roundtrip', () => {
         kubernetesObjectResult('something is wrong', foo, {
           path: 'spec.array',
           // Note: we re-use objects from the input to trigger YAML refs to normally be created
-          currentValue: (foo.spec.array as unknown) as JsonArray,
-          suggestedValue: (foo.spec.array.concat([
+          currentValue: foo.spec.array as unknown as JsonArray,
+          suggestedValue: foo.spec.array.concat([
             { baz: 3 },
-          ]) as unknown) as JsonArray,
+          ]) as unknown as JsonArray,
         })
       );
 

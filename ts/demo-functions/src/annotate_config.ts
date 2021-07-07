@@ -5,9 +5,8 @@ const ANNOTATION_VALUE = 'annotation_value';
 
 export async function annotateConfig(configs: Configs) {
   const annotationName = configs.getFunctionConfigValueOrThrow(ANNOTATION_NAME);
-  const annotationValue = configs.getFunctionConfigValueOrThrow(
-    ANNOTATION_VALUE
-  );
+  const annotationValue =
+    configs.getFunctionConfigValueOrThrow(ANNOTATION_VALUE);
   configs
     .getAll()
     .forEach((n) => addAnnotation(n, annotationName, annotationValue));
