@@ -114,6 +114,17 @@ Before releasing major changes, you first want to create a `rc` release.
     ```console
     ./scripts/version-kpt-functions-sdk.sh 0.15.0
     ```
+7.  In a separate PR, update the SDK API docs which are
+    [hosted here](https://googlecontainertools.github.io/kpt-functions-sdk/api/)
+
+    ```console
+    cd ts/kpt-functions
+    npm run gen-docs
+    ```
+
+    **NOTE**: You want to merge this PR. Do not squash or rebase this PR. The
+    API docs refer to the commit SHA of the your local repo, so you want to make
+    sure that commit will exist on the master branch after merging it.
 
 #### `create-kpt-functions`
 
