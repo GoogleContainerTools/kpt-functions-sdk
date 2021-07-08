@@ -102,7 +102,7 @@ Before releasing major changes, you first want to create a `rc` release.
 4.  In a separate PR, update the dependant packages
 
     ```console
-    ./scripts/version-kpt-functions-sdk-deps.sh 0.15.0
+    ./scripts/version-kpt-functions-sdk-deps.sh 0.15.0-rc.1
     ```
 
 5.  Create a PR and commit.
