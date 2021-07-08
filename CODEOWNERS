@@ -1,5 +1,5 @@
-*       @frankfarzan @mengqiy @Shell32-Natsu
+*       @droot @frankfarzan @mengqiy
 
 # When dependencies are updated.
-*/package.json @mengqiy @Shell32-Natsu
-*/package-lock.json @mengqiy @Shell32-Natsu
+*/package.json @droot @mengqiy
+*/package-lock.json @droot @mengqiy

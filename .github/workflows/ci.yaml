@@ -55,32 +55,9 @@ jobs:
         npm run gen-docs
         DIFF=$(git status -s)
         [[ -z $DIFF ]] || { echo "Need to update docs: $DIFF"; }
-        
-  go-ci:
-    strategy:
-      matrix:
-        platform: [ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
-    env:
-      GOPATH: /home/runner/work/kpt-functions-sdk/go
-      GO111MODULE: on
-    steps:
-    - name: Set up Go 1.15
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.15
-      id: go
-    - name: Check out code into GOPATH
-      uses: actions/checkout@v1
-      with:
-        path: go/src/github.com/GoogleContainerTools/kpt-functions-sdk
-    - name: Build, Test, Lint
-      run: |
-        cd go
-        make all
 
   e2e-ci:
-    needs: [node-ci, go-ci]
+    needs: [node-ci]
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest]
