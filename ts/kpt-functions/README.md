@@ -1,5 +1,5 @@
-# KPT Functions SDK
+# kpt Functions SDK Library
 
 Documentation:
 
-https://googlecontainertools.github.io/kpt-functions-sdk/
+https://kpt.dev/book/05-developing-functions/03-developing-in-Typescript
