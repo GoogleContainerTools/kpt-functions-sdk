@@ -29,34 +29,130 @@ This project follows
 
 ## Additional Notes
 
-The following sections give additional tips and best practices when submitting changes.
+The following sections give additional tips and best practices when submitting
+changes.
 
 ### Adding an NPM dependency
 
-When adding a new dependency (especially in `dependency`), you
-need to perform due diligence.
+When adding a new dependency (especially in `dependency`), you need to perform
+due diligence.
 
-1. Look at the transitive dependencies of the package:
-   <http://npm.broofa.com/>
+1. Look at the transitive dependencies of the package: <http://npm.broofa.com/>
 1. Does the package depend on a lot of dependencies?
 1. What's size of the package? Will it cause binary bloat?
-1. Is the package and its transitive dependencies high quality, trust-worthy, and well-maintained projects?
+1. Is the package and its transitive dependencies high quality, trust-worthy,
+   and well-maintained projects?
 1. What version of the package should we depend on?
-1. Are the licenses for the package and its transitive dependencies green? See next section for checking licenses.
+1. Are the licenses for the package and its transitive dependencies green? See
+   next section for checking licenses.
 
 ### Checking NPM dependencies licenses
 
-When adding any new dependencies or updating existing dependencies
-we need to check licenses:
+When adding any new dependencies or updating existing dependencies we need to
+check licenses:
 
 ```console
 npm run lint-license
 ```
 
+### Local development
+
+When developing locally, you often want to use the the local modified version of
+NPM packages (`kpt-functions` and `create-kpt-functions`) used by function
+packages (e.g. `demo-functions`). You can do the following:
+
+```console
+cd ts/demo-functions
+# May need to run as `sudo` depending on how you intalled NPM
+npm link ../kpt-functions
+npm run build
+```
+
 ### Releases
 
-Release workflows are triggered by creating Releases in the GitHub UI with a tag following the
-format:
+This repo contains two NPM packages that are published to the NPM registry.
+
+#### `kpt-functions`
+
+This is the library used by all TS SDK functions.
+
+##### NPM registry
+
+https://www.npmjs.com/package/kpt-functions
+
+##### Release candidates
+
+Before releasing major changes, you first want to create a `rc` release.
+
+1.  In pristine git repo, run:
+
+    ```console
+    ./scripts/version-kpt-functions-sdk.sh 0.15.0-rc.1
+    ```
+
+    This automatically creates a Git commit in your local repo.
+
+2.  Create a PR and commit.
+    [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/commit/d944c818f564a183c3cb092b282f5e83f770b18a)
+3.  Create a release in GitHub which pushes the package to NPM registry. But,
+    because this is marked as an `rc` release, it will not be pulled by default
+    form the NPM registry.
+    [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/releases/tag/release-kpt-functions-v0.14.0)
+
+4.  In a separate PR, update the dependant packages
+
+    ```console
+    ./scripts/version-kpt-functions-sdk-deps.sh 0.15.0
+    ```
+
+5.  Create a PR and commit.
+    [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/commit/e1126e5a23fac3d3a79706ceaca924a9b4d31a18)
+    This PR ensures that dependant packages are tested against the `rc` release.
+
+6.  Once you are confident that the `rc` release is good, you can then repeat
+    the process with out the `rc` suffix:
+    ```console
+    ./scripts/version-kpt-functions-sdk.sh 0.15.0
+    ```
+
+#### `create-kpt-functions`
+
+This is the CLI for TS SDK.
+
+##### NPM registry
+
+https://www.npmjs.com/package/create-kpt-functions
+
+##### Release candidates
+
+Before releasing major changes, you first want to create a `rc` release.
+
+1.  In pristine git repo, make changes following this
+    [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/pull/102/files)
+2.  Create a PR and commit.
+3.  Create a release in GitHub which pushes the package to NPM registry. But,
+    because this is marked as an `rc` release, it will not be pulled by default
+    form the NPM registry.
+    [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/releases/tag/release-create-kpt-functions-v0.16.0)
+4.  In a separate PR, update the dependant packages following this
+    [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/pull/103/files)
+    (Ignore workflow change)
+
+5.  Create a PR and commit. This PR ensures that dependant packages are tested
+    against the `rc` release.
+
+6.  Once you are confident that the `rc` release is good, you can then repeat
+    the process with out the `rc` suffix.
+7.  You can test the CLI for creating a new package using this script:
+    ```console
+    ./scripts/init-package.sh
+    ```
+    This will update the the `init-package` in the repo.
+
+#### GitHub Release Workflows
+
+Release workflows are triggered by creating Releases in the GitHub UI with a tag
+following the format:
 
 `release-<workflow>-vX.Y.Z`
 
