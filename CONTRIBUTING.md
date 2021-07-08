@@ -87,7 +87,7 @@ Before releasing major changes, you first want to create a `rc` release.
 1.  In pristine git repo, run:
 
     ```console
-    ./scripts/version-kpt-functions-sdk.sh 0.15.0-rc.1
+    ./scripts/version-kpt-functions-sdk.sh 0.14.0-rc.1
     ```
 
     This automatically creates a Git commit in your local repo.
@@ -102,7 +102,7 @@ Before releasing major changes, you first want to create a `rc` release.
 4.  In a separate PR, update the dependant packages
 
     ```console
-    ./scripts/version-kpt-functions-sdk-deps.sh 0.15.0-rc.1
+    ./scripts/version-kpt-functions-sdk-deps.sh 0.14.0-rc.1
     ```
 
 5.  Create a PR and commit.
@@ -112,7 +112,7 @@ Before releasing major changes, you first want to create a `rc` release.
 6.  Once you are confident that the `rc` release is good, you can then repeat
     the process with out the `rc` suffix:
     ```console
-    ./scripts/version-kpt-functions-sdk.sh 0.15.0
+    ./scripts/version-kpt-functions-sdk.sh 0.14.0
     ```
 7.  In a separate PR, update the SDK API docs which are
     [hosted here](https://googlecontainertools.github.io/kpt-functions-sdk/api/)
@@ -140,6 +140,7 @@ Before releasing major changes, you first want to create a `rc` release.
 
 1.  In pristine git repo, make changes following this
     [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/pull/102/files)
+    but specifying an rc suffix (e.g. `0.16.0-rc.1`)
 2.  Create a PR and commit.
 3.  Create a release in GitHub which pushes the package to NPM registry. But,
     because this is marked as an `rc` release, it will not be pulled by default
@@ -153,7 +154,7 @@ Before releasing major changes, you first want to create a `rc` release.
     against the `rc` release.
 
 6.  Once you are confident that the `rc` release is good, you can then repeat
-    the process with out the `rc` suffix.
+    the process with out the `rc` suffix (e.g. `0.16.0`).
 7.  You can test the CLI for creating a new package using this script:
     ```console
     ./scripts/init-package.sh
