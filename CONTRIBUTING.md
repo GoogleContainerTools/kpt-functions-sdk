@@ -148,20 +148,31 @@ Before releasing major changes, you first want to create a `rc` release.
     because this is marked as an `rc` release, it will not be pulled by default
     form the NPM registry.
     [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/releases/tag/release-create-kpt-functions-v0.16.0)
-4.  In a separate PR, update the dependant packages following this
+4.  You can invoke the the released CLI locally:
+   ```console
+   npx create-kpt-functions@0.16.0-rc.1
+   ```
+6.  In a separate PR, update the dependant packages following this
     [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/pull/103/files)
     (Ignore workflow change)
 
-5.  Create a PR and commit. This PR ensures that dependant packages are tested
+6.  Create a PR and commit. This PR ensures that dependant packages are tested
     against the `rc` release.
 
-6.  Once you are confident that the `rc` release is good, you can then repeat
+7.  Once you are confident that the `rc` release is good, you can then repeat
     the process with out the `rc` suffix (e.g. `0.16.0`).
-7.  You can test the CLI for creating a new package using this script:
-    ```console
-    ./scripts/init-package.sh
-    ```
-    This will update the the `init-package` in the repo.
+8.  You can manually the the released CLI locally:
+      ```console
+      # This is equivilant to npx create-kpt-functions@latest
+      npm init kpt-functions
+      ```
+      
+    However, the following script automatically invokes the CLI,
+    and updates the `init-package` in the repo:
+
+       ```console
+       ./scripts/init-package.sh
+       ```
 
 #### GitHub Release Workflows
 
