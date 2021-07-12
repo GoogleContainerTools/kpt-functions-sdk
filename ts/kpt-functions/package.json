@@ -1,8 +1,8 @@
 {
   "name": "kpt-functions",
-  "version": "0.14.6-rc.0",
-  "description": "KPT functions framework library",
-  "author": "KPT Authors",
+  "version": "0.15.0",
+  "description": "kpt functions framework library",
+  "author": "kpt Authors",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
