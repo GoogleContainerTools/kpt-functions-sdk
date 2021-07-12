@@ -82,7 +82,7 @@ https://www.npmjs.com/package/kpt-functions
 
 ##### Release candidates
 
-Before releasing major changes, you first want to create a `rc` release.
+Before releasing major changes, or whenever you want additinal verification, first create a `rc` release:
 
 1.  In pristine git repo, run:
 
