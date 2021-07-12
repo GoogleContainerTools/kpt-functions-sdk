@@ -152,7 +152,7 @@ Before releasing major changes, you first want to create a `rc` release.
    ```console
    npx create-kpt-functions@0.16.0-rc.1
    ```
-6.  In a separate PR, update the dependant packages following this
+5.  In a separate PR, update the dependant packages following this
     [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/pull/103/files)
     (Ignore workflow change)
 
