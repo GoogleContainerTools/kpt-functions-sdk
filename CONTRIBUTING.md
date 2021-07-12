@@ -141,6 +141,8 @@ Before releasing major changes, you first want to create a `rc` release.
 1.  In pristine git repo, make changes following this
     [Example](https://github.com/GoogleContainerTools/kpt-functions-sdk/pull/102/files)
     but specifying an rc suffix (e.g. `0.16.0-rc.1`)
+    
+    You should uprev any dependencies in [package.json template](https://github.com/GoogleContainerTools/kpt-functions-sdk/blob/master/ts/create-kpt-functions/templates/package.json.mustache). This includes the two 1st-party NPM packages as well as third-party dependencies.
 2.  Create a PR and commit.
 3.  Create a release in GitHub which pushes the package to NPM registry. But,
     because this is marked as an `rc` release, it will not be pulled by default
