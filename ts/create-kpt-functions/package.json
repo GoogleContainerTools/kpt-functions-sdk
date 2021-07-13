@@ -1,6 +1,6 @@
 {
   "name": "create-kpt-functions",
-  "version": "0.18.0-rc.0",
+  "version": "0.18.0-rc.1",
   "description": "kpt functions CLI",
   "author": "kpt Authors",
   "license": "Apache-2.0",
