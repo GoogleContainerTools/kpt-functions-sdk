@@ -116,6 +116,8 @@ Before releasing major changes, or whenever you want additinal verification, fir
     ```
 7.  In a separate PR, update the SDK API docs which are
     [hosted here](https://googlecontainertools.github.io/kpt-functions-sdk/api/)
+    You need to run the following generate command on a pristine repo where
+    `HEAD` points to the current master branch.
 
     ```console
     cd ts/kpt-functions
