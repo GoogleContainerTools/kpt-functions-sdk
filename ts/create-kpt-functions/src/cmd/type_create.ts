@@ -28,9 +28,9 @@ import { spawnSync } from 'child_process';
 import { CLI_PACKAGE } from '../paths';
 import { failure } from '../utils/format';
 
-// url for default swagger.json openAPI type definitions from kyaml library
-// current kubernetes version v1.17.1
-const BUILTIN_OPENAPI_URL = `https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/kyaml/openapi/kubernetesapi/swagger.json`;
+// url for default swagger.json openAPI type definitions from the kubernetes repo.
+// current kubernetes version is v1.21.2
+const BUILTIN_OPENAPI_URL = `https://raw.githubusercontent.com/kubernetes/kubernetes/v1.21.2/api/openapi-spec/swagger.json`;
 
 export async function typeCreate(packageDir: string) {
   const desc = 'Generating types from OpenAPI spec.';
