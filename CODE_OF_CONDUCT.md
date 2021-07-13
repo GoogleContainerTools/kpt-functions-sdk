@@ -70,7 +70,7 @@ behavior is threatening or harassing, report it. We are dedicated to providing
 an environment where participants feel welcome and safe.
 
 Reports should be directed to Frank Farzan frankf@google.com, the
-Project Steward(s) for KPT Functions. It is the Project Steward’s duty to
+Project Steward(s) for kpt Functions. It is the Project Steward’s duty to
 receive and address reported violations of the code of conduct. They will then
 work with a committee consisting of representatives from the Open Source
 Programs Office and the Google Open Source Strategy team. If for any reason you

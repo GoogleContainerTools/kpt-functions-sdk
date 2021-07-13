@@ -28,7 +28,7 @@ async function main() {
   const parser = new ArgumentParser({
     version: '0.0.1',
     addHelp: true,
-    description: 'KPT functions CLI.',
+    description: 'kpt functions CLI.',
   });
 
   const subparsers = parser.addSubparsers({

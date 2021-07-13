@@ -18,7 +18,7 @@ import { Configs, KptFunc } from './types';
 import { safeDump } from 'js-yaml';
 
 /**
- * TestRunner makes it easy to write unit tests for KPT functions.
+ * TestRunner makes it easy to write unit tests for kpt functions.
  */
 export class TestRunner {
   constructor(private readonly fn: KptFunc) {}

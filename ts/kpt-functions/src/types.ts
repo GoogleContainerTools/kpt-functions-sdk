@@ -18,7 +18,7 @@ import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
 import { FunctionConfigError } from './errors';
 
 /**
- * Interface describing KPT functions.
+ * Interface describing kpt functions.
  */
 export interface KptFunc {
   /**
@@ -372,7 +372,7 @@ export function kubernetesKey(o: KubernetesObject): string {
 }
 
 /**
- * ResourceList is the wire format for the output of the KPT function as defined by the spec:
+ * ResourceList is the wire format for the output of the kpt function as defined by the spec:
  * https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
  */
 export class ResourceList implements KubernetesObject {
