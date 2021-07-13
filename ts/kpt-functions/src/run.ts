@@ -62,7 +62,7 @@ enum ExitCode {
 }
 
 /**
- * This is the main entrypoint for running a KPT function.
+ * This is the main entrypoint for running a kpt function.
  *
  * This method does not throw any errors and can be invoked at the top-level without getting
  * an unhandled promise rejection error.

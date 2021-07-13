@@ -1,8 +1,8 @@
 {
   "name": "create-kpt-functions",
   "version": "0.17.0",
-  "description": "KPT functions CLI",
-  "author": "KPT Authors",
+  "description": "kpt functions CLI",
+  "author": "kpt Authors",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

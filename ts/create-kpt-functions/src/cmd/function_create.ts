@@ -23,7 +23,7 @@ import { Templates } from '../utils/templates';
 import * as validator from '../utils/validator';
 
 export function functionCreate(appDir: string) {
-  const desc = 'Adding a KPT function.';
+  const desc = 'Adding a kpt function.';
   log(format.startMarker(desc));
 
   const defaultFuncName = 'my_func';
