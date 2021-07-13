@@ -189,5 +189,6 @@ List of release workflows:
 | -------------------------------- | -------------------------------------------------------- |
 | `release-kpt-functions-*`        | Publishes `kpt-functions` NPM package                    |
 | `release-create-kpt-functions-*` | Publishes `create-kpt-functions` NPM package             |
+| `release-typgen-*`               | Publishes `typgen` Go binaries to GCS bucket             |
 | `release-demo-functions-*`       | Publishes `demo-functions` functions container images    |
 | `release-gatekeeper-function-*`  | Publishes `gatekeeper-validate` function container image |
