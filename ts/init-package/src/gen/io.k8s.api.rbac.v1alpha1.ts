@@ -14,7 +14,7 @@ export class AggregationRule {
   public clusterRoleSelectors?: apisMetaV1.LabelSelector[];
 }
 
-// ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.
+// ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRole, and will no longer be served in v1.22.
 export class ClusterRole implements KubernetesObject {
   // AggregationRule is an optional field that describes how to build the Rules for this ClusterRole. If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be stomped by the controller.
   public aggregationRule?: AggregationRule;
@@ -45,16 +45,16 @@ export function isClusterRole(o: any): o is ClusterRole {
 }
 
 export namespace ClusterRole {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "ClusterRole";
 
   // named constructs a ClusterRole with metadata.name set to name.
   export function named(name: string): ClusterRole {
     return new ClusterRole({metadata: {name}});
   }
-  // ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.
+  // ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRole, and will no longer be served in v1.22.
   export interface Interface {
     // AggregationRule is an optional field that describes how to build the Rules for this ClusterRole. If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be stomped by the controller.
     aggregationRule?: AggregationRule;
@@ -67,7 +67,7 @@ export namespace ClusterRole {
   }
 }
 
-// ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace, and adds who information via Subject.
+// ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace, and adds who information via Subject. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoleBinding, and will no longer be served in v1.22.
 export class ClusterRoleBinding implements KubernetesObject {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -98,12 +98,12 @@ export function isClusterRoleBinding(o: any): o is ClusterRoleBinding {
 }
 
 export namespace ClusterRoleBinding {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "ClusterRoleBinding";
 
-  // ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace, and adds who information via Subject.
+  // ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace, and adds who information via Subject. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoleBinding, and will no longer be served in v1.22.
   export interface Interface {
     // Standard object's metadata.
     metadata: apisMetaV1.ObjectMeta;
@@ -116,7 +116,7 @@ export namespace ClusterRoleBinding {
   }
 }
 
-// ClusterRoleBindingList is a collection of ClusterRoleBindings
+// ClusterRoleBindingList is a collection of ClusterRoleBindings. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoleBindings, and will no longer be served in v1.22.
 export class ClusterRoleBindingList {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -143,12 +143,12 @@ export function isClusterRoleBindingList(o: any): o is ClusterRoleBindingList {
 }
 
 export namespace ClusterRoleBindingList {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "ClusterRoleBindingList";
 
-  // ClusterRoleBindingList is a collection of ClusterRoleBindings
+  // ClusterRoleBindingList is a collection of ClusterRoleBindings. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoleBindings, and will no longer be served in v1.22.
   export interface Interface {
     // Items is a list of ClusterRoleBindings
     items: ClusterRoleBinding[];
@@ -158,7 +158,7 @@ export namespace ClusterRoleBindingList {
   }
 }
 
-// ClusterRoleList is a collection of ClusterRoles
+// ClusterRoleList is a collection of ClusterRoles. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoles, and will no longer be served in v1.22.
 export class ClusterRoleList {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -185,12 +185,12 @@ export function isClusterRoleList(o: any): o is ClusterRoleList {
 }
 
 export namespace ClusterRoleList {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "ClusterRoleList";
 
-  // ClusterRoleList is a collection of ClusterRoles
+  // ClusterRoleList is a collection of ClusterRoles. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 ClusterRoles, and will no longer be served in v1.22.
   export interface Interface {
     // Items is a list of ClusterRoles
     items: ClusterRole[];
@@ -226,7 +226,7 @@ export class PolicyRule {
   }
 }
 
-// Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding.
+// Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 Role, and will no longer be served in v1.22.
 export class Role implements KubernetesObject {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -253,16 +253,16 @@ export function isRole(o: any): o is Role {
 }
 
 export namespace Role {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "Role";
 
   // named constructs a Role with metadata.name set to name.
   export function named(name: string): Role {
     return new Role({metadata: {name}});
   }
-  // Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding.
+  // Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 Role, and will no longer be served in v1.22.
   export interface Interface {
     // Standard object's metadata.
     metadata: apisMetaV1.ObjectMeta;
@@ -272,7 +272,7 @@ export namespace Role {
   }
 }
 
-// RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace. It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given namespace only have effect in that namespace.
+// RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace. It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given namespace only have effect in that namespace. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleBinding, and will no longer be served in v1.22.
 export class RoleBinding implements KubernetesObject {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -303,12 +303,12 @@ export function isRoleBinding(o: any): o is RoleBinding {
 }
 
 export namespace RoleBinding {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "RoleBinding";
 
-  // RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace. It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given namespace only have effect in that namespace.
+  // RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace. It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given namespace only have effect in that namespace. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleBinding, and will no longer be served in v1.22.
   export interface Interface {
     // Standard object's metadata.
     metadata: apisMetaV1.ObjectMeta;
@@ -321,7 +321,7 @@ export namespace RoleBinding {
   }
 }
 
-// RoleBindingList is a collection of RoleBindings
+// RoleBindingList is a collection of RoleBindings Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleBindingList, and will no longer be served in v1.22.
 export class RoleBindingList {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -348,12 +348,12 @@ export function isRoleBindingList(o: any): o is RoleBindingList {
 }
 
 export namespace RoleBindingList {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "RoleBindingList";
 
-  // RoleBindingList is a collection of RoleBindings
+  // RoleBindingList is a collection of RoleBindings Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleBindingList, and will no longer be served in v1.22.
   export interface Interface {
     // Items is a list of RoleBindings
     items: RoleBinding[];
@@ -363,7 +363,7 @@ export namespace RoleBindingList {
   }
 }
 
-// RoleList is a collection of Roles
+// RoleList is a collection of Roles. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleList, and will no longer be served in v1.22.
 export class RoleList {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
   public apiVersion: string;
@@ -390,12 +390,12 @@ export function isRoleList(o: any): o is RoleList {
 }
 
 export namespace RoleList {
-  export const apiVersion = "rbac.authorization.k8s.io/v1";
+  export const apiVersion = "rbac.authorization.k8s.io/v1alpha1";
   export const group = "rbac.authorization.k8s.io";
-  export const version = "v1";
+  export const version = "v1alpha1";
   export const kind = "RoleList";
 
-  // RoleList is a collection of Roles
+  // RoleList is a collection of Roles. Deprecated in v1.17 in favor of rbac.authorization.k8s.io/v1 RoleList, and will no longer be served in v1.22.
   export interface Interface {
     // Items is a list of Roles
     items: Role[];
@@ -425,8 +425,8 @@ export class RoleRef {
 
 // Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference, or a value for non-objects such as user and group names.
 export class Subject {
-  // APIGroup holds the API group of the referenced subject. Defaults to "" for ServiceAccount subjects. Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
-  public apiGroup?: string;
+  // APIVersion holds the API group and version of the referenced subject. Defaults to "v1" for ServiceAccount subjects. Defaults to "rbac.authorization.k8s.io/v1alpha1" for User and Group subjects.
+  public apiVersion?: string;
 
   // Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount". If the Authorizer does not recognized the kind value, the Authorizer should report an error.
   public kind: string;
@@ -438,7 +438,7 @@ export class Subject {
   public namespace?: string;
 
   constructor(desc: Subject) {
-    this.apiGroup = desc.apiGroup;
+    this.apiVersion = desc.apiVersion;
     this.kind = desc.kind;
     this.name = desc.name;
     this.namespace = desc.namespace;

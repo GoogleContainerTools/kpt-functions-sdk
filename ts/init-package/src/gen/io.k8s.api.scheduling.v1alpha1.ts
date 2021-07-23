@@ -47,9 +47,9 @@ export function isPriorityClass(o: any): o is PriorityClass {
 }
 
 export namespace PriorityClass {
-  export const apiVersion = "scheduling.k8s.io/v1beta1";
+  export const apiVersion = "scheduling.k8s.io/v1alpha1";
   export const group = "scheduling.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1alpha1";
   export const kind = "PriorityClass";
 
   // DEPRECATED - This group version of PriorityClass is deprecated by scheduling.k8s.io/v1/PriorityClass. PriorityClass defines mapping from a priority class name to the priority integer value. The value can be any valid integer.
@@ -98,9 +98,9 @@ export function isPriorityClassList(o: any): o is PriorityClassList {
 }
 
 export namespace PriorityClassList {
-  export const apiVersion = "scheduling.k8s.io/v1beta1";
+  export const apiVersion = "scheduling.k8s.io/v1alpha1";
   export const group = "scheduling.k8s.io";
-  export const version = "v1beta1";
+  export const version = "v1alpha1";
   export const kind = "PriorityClassList";
 
   // PriorityClassList is a collection of priority classes.
