@@ -35,7 +35,7 @@
     "create-kpt-functions": "^0.18.0",
     "dir-compare": "^2.4.0",
     "fs-extra": "^9.0.1",
-    "jasmine": "^3.7.0",
+    "jasmine": "^3.8.0",
     "license-checker": "^25.0.1",
     "prettier": "2.3.2",
     "tslint": "^6.1.3",
