@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	kptfilev1 "github.com/GoogleContainerTools/kpt-functions-sdk/go/pkg/api/kptfile/v1"
-	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 func TestReadKptfile(t *testing.T) {
@@ -44,13 +43,13 @@ pipeline:
       configPath: fn-config.yaml
 `,
 			expected: &kptfilev1.KptFile{
-				ResourceMeta: yaml.ResourceMeta{
-					TypeMeta: yaml.TypeMeta{
+				ResourceMeta: kptfilev1.ResourceMeta{
+					TypeMeta: kptfilev1.TypeMeta{
 						APIVersion: "kpt.dev/v1",
 						Kind:       "Kptfile",
 					},
-					ObjectMeta: yaml.ObjectMeta{
-						NameMeta: yaml.NameMeta{
+					ObjectMeta: kptfilev1.ObjectMeta{
+						NameMeta: kptfilev1.NameMeta{
 							Name: "test",
 						},
 					},
@@ -91,15 +90,8 @@ openAPI:
 			expectedErr: "invalid 'v1' Kptfile",
 		},
 	}
-	runTestcase := func(tc testcase) (*kptfilev1.KptFile, error) {
-		rnode, err := yaml.Parse(tc.input)
-		if err != nil {
-			return nil, err
-		}
-		return ReadKptfile(rnode)
-	}
 	for _, tc := range testcases {
-		actual, err := runTestcase(tc)
+		actual, err := DecodeKptfile(tc.input)
 		if tc.expectedErr != "" {
 			if err == nil || !strings.Contains(err.Error(), tc.expectedErr) {
 				t.Errorf("%q is failing: expect error: %v to contain %q", tc.name, err, tc.expectedErr)

@@ -19,21 +19,17 @@ import (
 	"strings"
 
 	kptfilev1 "github.com/GoogleContainerTools/kpt-functions-sdk/go/pkg/api/kptfile/v1"
-	"sigs.k8s.io/kustomize/kyaml/yaml"
+	"gopkg.in/yaml.v3"
 )
 
-// ReadKptfile reads a KptFile from a yaml.RNode
-func ReadKptfile(node *yaml.RNode) (*kptfilev1.KptFile, error) {
-	kpgfile := &kptfilev1.KptFile{}
-	s, err := node.String()
-	if err != nil {
-		return &kptfilev1.KptFile{}, err
-	}
-	f := strings.NewReader(s)
+// DecodeKptfile decodes a KptFile from a yaml string.
+func DecodeKptfile(kf string) (*kptfilev1.KptFile, error) {
+	kptfile := &kptfilev1.KptFile{}
+	f := strings.NewReader(kf)
 	d := yaml.NewDecoder(f)
 	d.KnownFields(true)
-	if err = d.Decode(&kpgfile); err != nil {
+	if err := d.Decode(&kptfile); err != nil {
 		return &kptfilev1.KptFile{}, fmt.Errorf("invalid 'v1' Kptfile: %w", err)
 	}
-	return kpgfile, nil
+	return kptfile, nil
 }
