@@ -7,7 +7,7 @@ all: fix fmt test test-e2e lint
 
 api:
 	(which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0)
-	$(GOPATH)/bin/swagger generate spec -m -w pkg/api/kptfile/v1 -o ../kptfile.yaml
+	$(GOPATH)/bin/swagger generate spec -m -w pkg/api/kptfile/v1 -o ../openapi/kptfile.yaml
 
 fix:
 	go fix ./...
