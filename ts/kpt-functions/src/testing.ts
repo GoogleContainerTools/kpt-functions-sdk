@@ -129,7 +129,7 @@ async function testFn(
   }
 }
 
-function valueOf(configs: Configs): string {
+function valueOf(configs: Configs): Configs {
   const output = configs.toResourceList();
   const yaml = safeDump(output, {
     indent: 2,
