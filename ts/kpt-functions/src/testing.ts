@@ -15,7 +15,7 @@
  */
 
 import { Configs, KptFunc } from './types';
-import { safeDump } from 'js-yaml';
+import { safeDump, safeLoad } from 'js-yaml';
 
 /**
  * TestRunner makes it easy to write unit tests for kpt functions.
@@ -131,10 +131,11 @@ async function testFn(
 
 function valueOf(configs: Configs): string {
   const output = configs.toResourceList();
-  return safeDump(output, {
+  const yaml = safeDump(output, {
     indent: 2,
     noArrayIndent: true,
     skipInvalid: true,
     sortKeys: true,
   });
+  return safeLoad(yaml);
 }
