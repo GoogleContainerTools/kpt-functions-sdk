@@ -53,9 +53,27 @@ export function processDockerfile(
   dockerTag: string,
   func: ConsumeDockerfiles
 ) {
-  const dockerRepoBase = process.env.npm_package_kpt_docker_repo_base;
+  const legacyDockerRepoBase = process.env.npm_package_kpt_docker_repo_base;
+  let dockerRepoBase = process.env.npm_package_config_docker_repo_base;
+  // First check if the new env var is set. If so, we use it. Otherwise, we
+  // check if the legacy env var is still used. If so, we use it but print a
+  // warning.
   if (!dockerRepoBase) {
-    throw new Error('Env variable not set: npm_package_kpt_docker_repo_base\n');
+    if (legacyDockerRepoBase) {
+      dockerRepoBase = legacyDockerRepoBase;
+      console.warn(
+        'WARNING: npm_package_kpt_docker_repo_base is no longer supported in npm v7+.\n' +
+          'Please migrate `kpt.docker_repo_base` to `config.docker_repo_base` in your package.json.\n' +
+          'More details can be found in https://github.com/npm/rfcs/blob/main/implemented/0021-reduce-lifecycle-script-environment.md#detailed-explanation\n'
+      );
+    } else {
+      throw new Error(
+        'Env variable not set: npm_package_config_docker_repo_base. You can set `config.docker_repo_base` in your package.json\n' +
+          'npm_package_kpt_docker_repo_base is no longer supported in npm v7+.\n' +
+          'Please migrate `kpt.docker_repo_base` to `config.docker_repo_base` in your package.json if you are still using `kpt.docker_repo_base`.\n' +
+          'More details can be found in https://github.com/npm/rfcs/blob/main/implemented/0021-reduce-lifecycle-script-environment.md#detailed-explanation\n'
+      );
+    }
   }
 
   const buildDir = path.join(packageDir, USER_PACKAGE.build);
