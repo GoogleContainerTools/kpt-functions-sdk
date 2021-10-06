@@ -1,5 +1,5 @@
-*       @droot @frankfarzan @mengqiy @phanimarupaka @etefera
+*       @droot @frankfarzan @mengqiy @phanimarupaka
 
 # When dependencies are updated.
-*/package.json @mengqiy @phanimarupaka @etefera
-*/package-lock.json @mengqiy @phanimarupaka @etefera
+*/package.json @mengqiy @phanimarupaka
+*/package-lock.json @mengqiy @phanimarupaka
