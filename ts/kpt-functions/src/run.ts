@@ -16,8 +16,18 @@
 
 import { ArgumentParser, RawTextHelpFormatter } from 'argparse';
 import { FileFormat, readConfigs, writeConfigs } from './io';
-import { KptFunc, KubernetesObject } from './types';
+import { KptFunc, KubernetesObject, Configs } from './types';
 import { FunctionConfigError } from './errors';
+import {
+  getAnnotation,
+  addAnnotation,
+  SOURCE_PATH_ANNOTATION,
+  SOURCE_INDEX_ANNOTATION,
+  ID_ANNOTATION,
+  LEGACY_SOURCE_PATH_ANNOTATION,
+  LEGACY_SOURCE_INDEX_ANNOTATION,
+  LEGACY_ID_ANNOTATION,
+} from './metadata';
 
 const INVOCATIONS = `
 Example invocations:
@@ -145,8 +155,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
   const configs = await readConfigs(inputFile, fileFormat, functionConfig);
   configs.logToStdErr = logToStdErr;
 
-  // Run the function.
-  await fn(configs);
+  await runFnWithConfigs(fn, configs);
 
   // Write the output.
   await writeConfigs(outputFile, configs, fileFormat);
@@ -156,6 +165,109 @@ Use this ONLY if the function accepts a ConfigMap.`,
       throw new ResultError();
     }
   }
+}
+
+export async function runFnWithConfigs(fn: KptFunc, configs: Configs) {
+  // Save the original annotation values.
+  const m = recordOriginalAnnotation(configs);
+
+  // Run the function.
+  await fn(configs);
+
+  // Reconcile the legacy and the new annotations by comparing them with the original value.
+  reconcileAnnotations(configs, m);
+}
+
+class filePathAndIndex {
+  constructor(path: string | undefined, index: string | undefined) {
+    this.path = path;
+    this.index = index;
+  }
+
+  path: string | undefined;
+  index: string | undefined;
+}
+
+function recordOriginalAnnotation(
+  configs: Configs
+): Map<string, filePathAndIndex> {
+  const m = new Map();
+  for (var obj of configs.getAll()) {
+    let idAnno = getAnnotation(obj, ID_ANNOTATION);
+    if (!idAnno) {
+      idAnno = getAnnotation(obj, LEGACY_ID_ANNOTATION);
+    }
+    if (!idAnno) {
+      continue;
+    }
+    addAnnotation(obj, ID_ANNOTATION, idAnno);
+    addAnnotation(obj, LEGACY_ID_ANNOTATION, idAnno);
+
+    let pathAnno = getAnnotation(obj, SOURCE_PATH_ANNOTATION);
+    if (!pathAnno) {
+      pathAnno = getAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION);
+    }
+    if (pathAnno) {
+      addAnnotation(obj, SOURCE_PATH_ANNOTATION, pathAnno);
+      addAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION, pathAnno);
+    }
+
+    let indexAnno = getAnnotation(obj, SOURCE_INDEX_ANNOTATION);
+    if (!indexAnno) {
+      indexAnno = getAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION);
+    }
+    if (indexAnno) {
+      addAnnotation(obj, SOURCE_INDEX_ANNOTATION, indexAnno);
+      addAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION, indexAnno);
+    }
+
+    m.set(idAnno, new filePathAndIndex(pathAnno, indexAnno));
+  }
+  return m;
+}
+
+function reconcileAnnotations(
+  configs: Configs,
+  m: Map<string, filePathAndIndex>
+) {
+  // for (var obj of configs.getAll()) {
+  configs.getAll().forEach(function (obj) {
+    let idAnno = getAnnotation(obj, ID_ANNOTATION);
+    if (!idAnno) {
+      idAnno = getAnnotation(obj, LEGACY_ID_ANNOTATION);
+    }
+    if (!idAnno) {
+      return;
+    }
+
+    const originalPathIndex = m.get(idAnno);
+    if (!originalPathIndex) {
+      return;
+    }
+    const origPath = originalPathIndex.path;
+    const origIndex = originalPathIndex.index;
+
+    // Infer the user's intend by comparing if there are changes to either the
+    // new annotation or the legacy annotation.
+    const pathAnno = getAnnotation(obj, SOURCE_PATH_ANNOTATION);
+    const legacyPathAnno = getAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION);
+    if (pathAnno && (pathAnno != origPath || !legacyPathAnno)) {
+      addAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION, pathAnno);
+    } else if (legacyPathAnno && (legacyPathAnno != origPath || !pathAnno)) {
+      addAnnotation(obj, SOURCE_PATH_ANNOTATION, legacyPathAnno);
+    }
+
+    const indexAnno = getAnnotation(obj, SOURCE_INDEX_ANNOTATION);
+    const legacyIndexAnno = getAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION);
+    if (indexAnno && (indexAnno != origIndex || !legacyIndexAnno)) {
+      addAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION, indexAnno);
+    } else if (
+      legacyIndexAnno &&
+      (legacyIndexAnno != origIndex || !indexAnno)
+    ) {
+      addAnnotation(obj, SOURCE_INDEX_ANNOTATION, legacyIndexAnno);
+    }
+  });
 }
 
 class ResultError extends Error {
