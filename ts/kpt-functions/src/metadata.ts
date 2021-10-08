@@ -20,6 +20,8 @@ export const ANNOTATION_PREFIX = 'internal.config.kubernetes.io';
 export const SOURCE_PATH_ANNOTATION = `${ANNOTATION_PREFIX}/path`;
 export const SOURCE_INDEX_ANNOTATION = `${ANNOTATION_PREFIX}/index`;
 export const ID_ANNOTATION = `${ANNOTATION_PREFIX}/id`;
+
+// The legacy annotations have been deprecated. Please use the ones starting with the `internal` prefix.
 export const LEGACY_ANNOTATION_PREFIX = 'config.kubernetes.io';
 export const LEGACY_SOURCE_PATH_ANNOTATION = `${LEGACY_ANNOTATION_PREFIX}/path`;
 export const LEGACY_SOURCE_INDEX_ANNOTATION = `${LEGACY_ANNOTATION_PREFIX}/index`;
