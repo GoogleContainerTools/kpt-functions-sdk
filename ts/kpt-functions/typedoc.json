@@ -1,4 +1,5 @@
 {
+  "entryPoints": ["index.ts"],
   "out": "../../docs/api",
   "readme": "none",
   "exclude": ["src/**/*_test.ts", "src/io.ts", "src/gen/**"],
