@@ -77,7 +77,7 @@ export async function run(fn: KptFunc) {
       console.error(err.toString());
       process.exitCode = ExitCode.FUNCTION_CONFIG_ERROR;
     } else {
-      console.error(err.stack);
+      console.error((err as Error).stack);
       process.exitCode = ExitCode.EXCEPTION_ERROR;
     }
   }
