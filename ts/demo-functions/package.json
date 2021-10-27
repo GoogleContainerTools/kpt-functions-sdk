@@ -22,7 +22,7 @@
     "kpt:type-create": "kpt type-create"
   },
   "dependencies": {
-    "glob": "^7.1.6",
+    "glob": "^7.2.0",
     "js-yaml": "^3.14.1",
     "kpt-functions": "^0.15.1"
   },
