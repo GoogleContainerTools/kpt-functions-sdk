@@ -19,6 +19,8 @@ import {
   addAnnotation,
   SOURCE_INDEX_ANNOTATION,
   SOURCE_PATH_ANNOTATION,
+  LEGACY_SOURCE_INDEX_ANNOTATION,
+  LEGACY_SOURCE_PATH_ANNOTATION,
 } from './metadata';
 import {
   generalResult,
@@ -101,6 +103,26 @@ describe('Results', () => {
     it('path/index defined', () => {
       addAnnotation(someObject, SOURCE_PATH_ANNOTATION, 'a/b/c.yaml');
       addAnnotation(someObject, SOURCE_INDEX_ANNOTATION, '2');
+      const e = kubernetesObjectResult('hello', someObject);
+
+      expect(e).toEqual({
+        message: 'hello',
+        severity: 'error',
+        tags: undefined,
+        resourceRef: {
+          apiVersion: 'v1',
+          kind: 'Namespace',
+          name: 'foo',
+          namespace: 'bar',
+        },
+        file: { path: 'a/b/c.yaml', index: 2 },
+        field: undefined,
+      });
+    });
+
+    it('legacy path/index defined', () => {
+      addAnnotation(someObject, LEGACY_SOURCE_PATH_ANNOTATION, 'a/b/c.yaml');
+      addAnnotation(someObject, LEGACY_SOURCE_INDEX_ANNOTATION, '2');
       const e = kubernetesObjectResult('hello', someObject);
 
       expect(e).toEqual({

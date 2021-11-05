@@ -14,8 +14,346 @@
  * limitations under the License.
  */
 
+import * as apimachineryPkgRuntime from './io.k8s.apimachinery.pkg.runtime';
+
+// APIGroup contains the name, the supported versions, and the preferred version of a group.
+export class APIGroup {
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  public apiVersion: string;
+
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public kind: string;
+
+  // name is the name of the group.
+  public name: string;
+
+  // preferredVersion is the version preferred by the API server, which probably is the storage version.
+  public preferredVersion?: GroupVersionForDiscovery;
+
+  // a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+  public serverAddressByClientCIDRs?: ServerAddressByClientCIDR[];
+
+  // versions are the versions supported in this group.
+  public versions: GroupVersionForDiscovery[];
+
+  constructor(desc: APIGroup) {
+    this.apiVersion = APIGroup.apiVersion;
+    this.kind = APIGroup.kind;
+    this.name = desc.name;
+    this.preferredVersion = desc.preferredVersion;
+    this.serverAddressByClientCIDRs = desc.serverAddressByClientCIDRs;
+    this.versions = desc.versions;
+  }
+}
+
+export function isAPIGroup(o: any): o is APIGroup {
+  return o && o.apiVersion === APIGroup.apiVersion && o.kind === APIGroup.kind;
+}
+
+export namespace APIGroup {
+  export const apiVersion = 'v1';
+  export const group = '';
+  export const version = 'v1';
+  export const kind = 'APIGroup';
+
+  // APIGroup contains the name, the supported versions, and the preferred version of a group.
+  export interface Interface {
+    // name is the name of the group.
+    name: string;
+
+    // preferredVersion is the version preferred by the API server, which probably is the storage version.
+    preferredVersion?: GroupVersionForDiscovery;
+
+    // a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+    serverAddressByClientCIDRs?: ServerAddressByClientCIDR[];
+
+    // versions are the versions supported in this group.
+    versions: GroupVersionForDiscovery[];
+  }
+}
+
+// APIGroupList is a list of APIGroup, to allow clients to discover the API at /apis.
+export class APIGroupList {
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  public apiVersion: string;
+
+  // groups is a list of APIGroup.
+  public groups: APIGroup[];
+
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public kind: string;
+
+  constructor(desc: APIGroupList) {
+    this.apiVersion = APIGroupList.apiVersion;
+    this.groups = desc.groups;
+    this.kind = APIGroupList.kind;
+  }
+}
+
+export function isAPIGroupList(o: any): o is APIGroupList {
+  return (
+    o &&
+    o.apiVersion === APIGroupList.apiVersion &&
+    o.kind === APIGroupList.kind
+  );
+}
+
+export namespace APIGroupList {
+  export const apiVersion = 'v1';
+  export const group = '';
+  export const version = 'v1';
+  export const kind = 'APIGroupList';
+
+  // APIGroupList is a list of APIGroup, to allow clients to discover the API at /apis.
+  export interface Interface {
+    // groups is a list of APIGroup.
+    groups: APIGroup[];
+  }
+}
+
+// APIResource specifies the name of a resource and whether it is namespaced.
+export class APIResource {
+  // categories is a list of the grouped resources this resource belongs to (e.g. 'all')
+  public categories?: string[];
+
+  // group is the preferred group of the resource.  Empty implies the group of the containing resource list. For subresources, this may have a different value, for example: Scale".
+  public group?: string;
+
+  // kind is the kind for the resource (e.g. 'Foo' is the kind for a resource 'foo')
+  public kind: string;
+
+  // name is the plural name of the resource.
+  public name: string;
+
+  // namespaced indicates if a resource is namespaced or not.
+  public namespaced: boolean;
+
+  // shortNames is a list of suggested short names of the resource.
+  public shortNames?: string[];
+
+  // singularName is the singular name of the resource.  This allows clients to handle plural and singular opaquely. The singularName is more correct for reporting status on a single item and both singular and plural are allowed from the kubectl CLI interface.
+  public singularName: string;
+
+  // The hash value of the storage version, the version this resource is converted to when written to the data store. Value must be treated as opaque by clients. Only equality comparison on the value is valid. This is an alpha feature and may change or be removed in the future. The field is populated by the apiserver only if the StorageVersionHash feature gate is enabled. This field will remain optional even if it graduates.
+  public storageVersionHash?: string;
+
+  // verbs is a list of supported kube verbs (this includes get, list, watch, create, update, patch, delete, deletecollection, and proxy)
+  public verbs: string[];
+
+  // version is the preferred version of the resource.  Empty implies the version of the containing resource list For subresources, this may have a different value, for example: v1 (while inside a v1beta1 version of the core resource's group)".
+  public version?: string;
+
+  constructor(desc: APIResource) {
+    this.categories = desc.categories;
+    this.group = desc.group;
+    this.kind = desc.kind;
+    this.name = desc.name;
+    this.namespaced = desc.namespaced;
+    this.shortNames = desc.shortNames;
+    this.singularName = desc.singularName;
+    this.storageVersionHash = desc.storageVersionHash;
+    this.verbs = desc.verbs;
+    this.version = desc.version;
+  }
+}
+
+// APIResourceList is a list of APIResource, it is used to expose the name of the resources supported in a specific group and version, and if the resource is namespaced.
+export class APIResourceList {
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  public apiVersion: string;
+
+  // groupVersion is the group and version this APIResourceList is for.
+  public groupVersion: string;
+
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public kind: string;
+
+  // resources contains the name of the resources and if they are namespaced.
+  public resources: APIResource[];
+
+  constructor(desc: APIResourceList) {
+    this.apiVersion = APIResourceList.apiVersion;
+    this.groupVersion = desc.groupVersion;
+    this.kind = APIResourceList.kind;
+    this.resources = desc.resources;
+  }
+}
+
+export function isAPIResourceList(o: any): o is APIResourceList {
+  return (
+    o &&
+    o.apiVersion === APIResourceList.apiVersion &&
+    o.kind === APIResourceList.kind
+  );
+}
+
+export namespace APIResourceList {
+  export const apiVersion = 'v1';
+  export const group = '';
+  export const version = 'v1';
+  export const kind = 'APIResourceList';
+
+  // APIResourceList is a list of APIResource, it is used to expose the name of the resources supported in a specific group and version, and if the resource is namespaced.
+  export interface Interface {
+    // groupVersion is the group and version this APIResourceList is for.
+    groupVersion: string;
+
+    // resources contains the name of the resources and if they are namespaced.
+    resources: APIResource[];
+  }
+}
+
+// APIVersions lists the versions that are available, to allow clients to discover the API at /api, which is the root path of the legacy v1 API.
+export class APIVersions {
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  public apiVersion: string;
+
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public kind: string;
+
+  // a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+  public serverAddressByClientCIDRs: ServerAddressByClientCIDR[];
+
+  // versions are the api versions that are available.
+  public versions: string[];
+
+  constructor(desc: APIVersions) {
+    this.apiVersion = APIVersions.apiVersion;
+    this.kind = APIVersions.kind;
+    this.serverAddressByClientCIDRs = desc.serverAddressByClientCIDRs;
+    this.versions = desc.versions;
+  }
+}
+
+export function isAPIVersions(o: any): o is APIVersions {
+  return (
+    o && o.apiVersion === APIVersions.apiVersion && o.kind === APIVersions.kind
+  );
+}
+
+export namespace APIVersions {
+  export const apiVersion = 'v1';
+  export const group = '';
+  export const version = 'v1';
+  export const kind = 'APIVersions';
+
+  // APIVersions lists the versions that are available, to allow clients to discover the API at /api, which is the root path of the legacy v1 API.
+  export interface Interface {
+    // a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+    serverAddressByClientCIDRs: ServerAddressByClientCIDR[];
+
+    // versions are the api versions that are available.
+    versions: string[];
+  }
+}
+
+// DeleteOptions may be provided when deleting an API object.
+export class DeleteOptions {
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  public apiVersion: string;
+
+  // When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed
+  public dryRun?: string[];
+
+  // The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+  public gracePeriodSeconds?: number;
+
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public kind: string;
+
+  // Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+  public orphanDependents?: boolean;
+
+  // Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
+  public preconditions?: Preconditions;
+
+  // Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
+  public propagationPolicy?: string;
+
+  constructor(desc: DeleteOptions) {
+    this.apiVersion = DeleteOptions.apiVersion;
+    this.dryRun = desc.dryRun;
+    this.gracePeriodSeconds = desc.gracePeriodSeconds;
+    this.kind = DeleteOptions.kind;
+    this.orphanDependents = desc.orphanDependents;
+    this.preconditions = desc.preconditions;
+    this.propagationPolicy = desc.propagationPolicy;
+  }
+}
+
+export function isDeleteOptions(o: any): o is DeleteOptions {
+  return (
+    o &&
+    o.apiVersion === DeleteOptions.apiVersion &&
+    o.kind === DeleteOptions.kind
+  );
+}
+
+export namespace DeleteOptions {
+  export const apiVersion = 'v1';
+  export const group = '';
+  export const version = 'v1';
+  export const kind = 'DeleteOptions';
+
+  // DeleteOptions may be provided when deleting an API object.
+  export interface Interface {
+    // When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed
+    dryRun?: string[];
+
+    // The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+    gracePeriodSeconds?: number;
+
+    // Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+    orphanDependents?: boolean;
+
+    // Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
+    preconditions?: Preconditions;
+
+    // Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
+    propagationPolicy?: string;
+  }
+}
+
+// DeleteOptions may be provided when deleting an API object.
+export class DeleteOptions_v2 {
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  public apiVersion?: string;
+
+  // When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed
+  public dryRun?: string[];
+
+  // The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+  public gracePeriodSeconds?: number;
+
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public kind?: string;
+
+  // Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+  public orphanDependents?: boolean;
+
+  // Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
+  public preconditions?: Preconditions;
+
+  // Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
+  public propagationPolicy?: string;
+}
+
 // Fields stores a set of fields in a data structure like a Trie. To understand how this is used, see: https://github.com/kubernetes-sigs/structured-merge-diff
 export type Fields = object;
+
+// GroupVersion contains the "group/version" and "version" string of a version. It is made a struct to keep extensibility.
+export class GroupVersionForDiscovery {
+  // groupVersion specifies the API group and version in the form "group/version"
+  public groupVersion: string;
+
+  // version specifies the version in the form of "version". This is to save the clients the trouble of splitting the GroupVersion.
+  public version: string;
+
+  constructor(desc: GroupVersionForDiscovery) {
+    this.groupVersion = desc.groupVersion;
+    this.version = desc.version;
+  }
+}
 
 // Initializer is information about an initializer that has not yet completed.
 export class Initializer {
@@ -38,6 +376,33 @@ export class Initializers {
   constructor(desc: Initializers) {
     this.pending = desc.pending;
     this.result = desc.result;
+  }
+}
+
+// A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.
+export class LabelSelector {
+  // matchExpressions is a list of label selector requirements. The requirements are ANDed.
+  public matchExpressions?: LabelSelectorRequirement[];
+
+  // matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+  public matchLabels?: { [key: string]: string };
+}
+
+// A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+export class LabelSelectorRequirement {
+  // key is the label key that the selector applies to.
+  public key: string;
+
+  // operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+  public operator: string;
+
+  // values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+  public values?: string[];
+
+  constructor(desc: LabelSelectorRequirement) {
+    this.key = desc.key;
+    this.operator = desc.operator;
+    this.values = desc.values;
   }
 }
 
@@ -70,6 +435,9 @@ export class ManagedFieldsEntry {
   // Time is timestamp of when these fields were set. It should always be empty if Operation is 'Apply'
   public time?: Time;
 }
+
+// MicroTime is version of Time with microsecond level precision.
+export type MicroTime = string;
 
 // ObjectMeta is metadata that all persisted resources must have, which includes all objects users must create.
 export class ObjectMeta {
@@ -195,6 +563,32 @@ export class OwnerReference {
   }
 }
 
+// Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.
+export type Patch = object;
+
+// Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
+export class Preconditions {
+  // Specifies the target ResourceVersion
+  public resourceVersion?: string;
+
+  // Specifies the target UID.
+  public uid?: string;
+}
+
+// ServerAddressByClientCIDR helps the client to determine the server address that they should use, depending on the clientCIDR that they match.
+export class ServerAddressByClientCIDR {
+  // The CIDR with which clients can match their IP to figure out the server address that they should use.
+  public clientCIDR: string;
+
+  // Address of this server, suitable for a client that matches the above CIDR. This can be a hostname, hostname:port, IP or IP:port.
+  public serverAddress: string;
+
+  constructor(desc: ServerAddressByClientCIDR) {
+    this.clientCIDR = desc.clientCIDR;
+    this.serverAddress = desc.serverAddress;
+  }
+}
+
 // Status is a return value for calls that don't return other objects.
 export class Status {
   // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
@@ -302,5 +696,80 @@ export class StatusDetails {
   public uid?: string;
 }
 
+// Status is a return value for calls that don't return other objects.
+export class Status_v2 {
+  // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+  public apiVersion?: string;
+
+  // Suggested HTTP return code for this status, 0 if not set.
+  public code?: number;
+
+  // Extended data associated with the reason.  Each reason may define its own extended details. This field is optional and the data returned is not guaranteed to conform to any schema except that defined by the reason type.
+  public details?: StatusDetails;
+
+  // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public kind?: string;
+
+  // A human-readable description of the status of this operation.
+  public message?: string;
+
+  // Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+  public metadata?: ListMeta;
+
+  // A machine-readable description of why this operation is in the "Failure" status. If this value is empty there is no information available. A Reason clarifies an HTTP status code but does not override it.
+  public reason?: string;
+
+  // Status of the operation. One of: "Success" or "Failure". More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+  public status?: string;
+}
+
 // Time is a wrapper around time.Time which supports correct marshaling to YAML and JSON.  Wrappers are provided for many of the factory methods that the time package offers.
 export type Time = string;
+
+// Event represents a single event to a watched resource.
+export class WatchEvent {
+  public apiVersion: string;
+
+  public kind: string;
+
+  // Object is:
+  //  * If Type is Added or Modified: the new state of the object.
+  //  * If Type is Deleted: the state of the object immediately before deletion.
+  //  * If Type is Error: *Status is recommended; other types may make sense
+  //    depending on context.
+  public object: apimachineryPkgRuntime.RawExtension;
+
+  public type: string;
+
+  constructor(desc: WatchEvent) {
+    this.apiVersion = WatchEvent.apiVersion;
+    this.kind = WatchEvent.kind;
+    this.object = desc.object;
+    this.type = desc.type;
+  }
+}
+
+export function isWatchEvent(o: any): o is WatchEvent {
+  return (
+    o && o.apiVersion === WatchEvent.apiVersion && o.kind === WatchEvent.kind
+  );
+}
+
+export namespace WatchEvent {
+  export const apiVersion = 'v1';
+  export const group = '';
+  export const version = 'v1';
+  export const kind = 'WatchEvent';
+
+  // Event represents a single event to a watched resource.
+  export interface Interface {
+    // Object is:
+    //  * If Type is Added or Modified: the new state of the object.
+    //  * If Type is Deleted: the state of the object immediately before deletion.
+    //  * If Type is Error: *Status is recommended; other types may make sense
+    //    depending on context.
+    object: apimachineryPkgRuntime.RawExtension;
+
+    type: string;
+  }
+}

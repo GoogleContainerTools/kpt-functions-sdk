@@ -18,6 +18,8 @@ import { KubernetesObject, Result, Severity, FieldInfo } from './types';
 import {
   SOURCE_INDEX_ANNOTATION,
   SOURCE_PATH_ANNOTATION,
+  LEGACY_SOURCE_INDEX_ANNOTATION,
+  LEGACY_SOURCE_PATH_ANNOTATION,
   getAnnotation,
 } from './metadata';
 
@@ -67,12 +69,17 @@ export function kubernetesObjectResult(
   severity: Severity = 'error',
   tags?: { [key: string]: string }
 ): Result {
-  const path: string | undefined = getAnnotation(
-    object,
-    SOURCE_PATH_ANNOTATION
-  );
-  const index: number | undefined =
+  let path: string | undefined = getAnnotation(object, SOURCE_PATH_ANNOTATION);
+  if (!path) {
+    path = getAnnotation(object, LEGACY_SOURCE_PATH_ANNOTATION);
+  }
+  let index: number | undefined =
     Number(getAnnotation(object, SOURCE_INDEX_ANNOTATION)) || undefined;
+  if (!index) {
+    index =
+      Number(getAnnotation(object, LEGACY_SOURCE_INDEX_ANNOTATION)) ||
+      undefined;
+  }
   return {
     message,
     severity,
