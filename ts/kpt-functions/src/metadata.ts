@@ -25,7 +25,7 @@ export const ID_ANNOTATION = `${ANNOTATION_PREFIX}/id`;
 export const LEGACY_ANNOTATION_PREFIX = 'config.kubernetes.io';
 export const LEGACY_SOURCE_PATH_ANNOTATION = `${LEGACY_ANNOTATION_PREFIX}/path`;
 export const LEGACY_SOURCE_INDEX_ANNOTATION = `${LEGACY_ANNOTATION_PREFIX}/index`;
-export const LEGACY_ID_ANNOTATION = `${LEGACY_ANNOTATION_PREFIX}/id`;
+export const LEGACY_ID_ANNOTATION = `config.k8s.io/id`;
 
 /**
  * Add an annotation to a KubernetesObject's metadata. Overwrites the previously existing annotation if it exists.
