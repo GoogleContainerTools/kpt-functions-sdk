@@ -376,7 +376,7 @@ export function kubernetesKey(o: KubernetesObject): string {
  * https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
  */
 export class ResourceList implements KubernetesObject {
-  readonly apiVersion = 'v1';
+  readonly apiVersion = 'config.kubernetes.io/v1';
   readonly kind = 'ResourceList';
   readonly metadata = {
     name: 'output',
