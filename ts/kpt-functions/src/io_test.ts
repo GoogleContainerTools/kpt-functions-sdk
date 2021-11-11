@@ -53,7 +53,7 @@ items:
     it('parses ResourceList object', () => {
       const result = parse(
         `
-apiVersion: v1
+apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 items:
 - apiVersion: v1
@@ -378,7 +378,7 @@ describe('write', () => {
     it('writes empty Configs as empty List', () => {
       const result = stringify(new Configs(), FileFormat.YAML);
 
-      expect(result).toEqual(`apiVersion: v1
+      expect(result).toEqual(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -401,7 +401,7 @@ items: []
       );
 
       expect(result).toEqual(
-        `apiVersion: v1
+        `apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -435,7 +435,7 @@ items:
         FileFormat.YAML
       );
 
-      expect(result).toEqual(`apiVersion: v1
+      expect(result).toEqual(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -457,7 +457,7 @@ items:
 
       const result = stringify(configs, FileFormat.YAML);
 
-      expect(result).toEqual(`apiVersion: v1
+      expect(result).toEqual(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -483,7 +483,7 @@ results:
       );
 
       expect(result).toEqual(
-        `apiVersion: v1
+        `apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -510,7 +510,7 @@ items:
 
       const result = stringify(configs, FileFormat.YAML);
 
-      expect(result).toEqual(`apiVersion: v1
+      expect(result).toEqual(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -541,7 +541,7 @@ results:
 
       const result = stringify(configs, FileFormat.YAML);
 
-      expect(result).toEqual(`apiVersion: v1
+      expect(result).toEqual(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -574,7 +574,7 @@ results:
 
       const result = stringify(configs, FileFormat.YAML);
 
-      expect(result).toEqual(`apiVersion: v1
+      expect(result).toEqual(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
@@ -595,7 +595,7 @@ results:
       const result = stringify(new Configs(), FileFormat.JSON);
 
       expect(result).toEqual(`{
-  "apiVersion": "v1",
+  "apiVersion": "config.kubernetes.io/v1",
   "kind": "ResourceList",
   "metadata": {
     "name": "output"
@@ -620,7 +620,7 @@ results:
       );
 
       expect(result).toEqual(`{
-  "apiVersion": "v1",
+  "apiVersion": "config.kubernetes.io/v1",
   "kind": "ResourceList",
   "metadata": {
     "name": "output"
@@ -660,7 +660,7 @@ results:
       );
 
       expect(result).toEqual(`{
-  "apiVersion": "v1",
+  "apiVersion": "config.kubernetes.io/v1",
   "kind": "ResourceList",
   "metadata": {
     "name": "output"
@@ -719,7 +719,7 @@ describe('roundtrip', () => {
       const stringified = stringify(configs, FileFormat.YAML);
 
       // We want to verify that there are no back-references like &ref and *ref in the output
-      expect(stringified).toEqual(`apiVersion: v1
+      expect(stringified).toEqual(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output
