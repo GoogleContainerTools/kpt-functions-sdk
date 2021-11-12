@@ -21,7 +21,7 @@ TAG=${TAG:-dev}
 NODOCKER=${NODOCKER:-}
 EMPTY_OUTPUT=$(
   cat <<-EOF
-apiVersion: v1
+apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 metadata:
   name: output

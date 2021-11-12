@@ -1,14 +1,14 @@
-apiVersion: v1
-kind: List
+apiVersion: config.kubernetes.io/v1
+kind: ResourceList
 items:
 - apiVersion: apiextensions.k8s.io/v1beta1
   kind: CustomResourceDefinition
   metadata:
     name: fulfillmentcenters.foo-corp.com
     annotations:
-      config.kubernetes.io/path: >-
+      internal.config.kubernetes.io/path: >-
         foo-corp-1.0.0/customresourcedefinition_fulfillmentcenters.foo-corp.com.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/index: '0'
   spec:
     group: foo-corp.com
     names:
@@ -39,8 +39,8 @@ items:
     name: production
     namespace: shipping-prod
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/fulfillmentcenter_production.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/fulfillmentcenter_production.yaml
+      internal.config.kubernetes.io/index: '0'
   spec:
     address: 100 Industry St.
 - apiVersion: foo-corp.com/v1
@@ -49,8 +49,8 @@ items:
     name: staging
     namespace: shipping-staging
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-staging/fulfillmentcenter_staging.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-staging/fulfillmentcenter_staging.yaml
+      internal.config.kubernetes.io/index: '0'
   spec:
     address: 100 Main St.
 - apiVersion: policy/v1beta1
@@ -58,8 +58,8 @@ items:
   metadata:
     name: psp
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/podsecuritypolicy_psp.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/podsecuritypolicy_psp.yaml
+      internal.config.kubernetes.io/index: '0'
   spec:
     fsGroup:
       rule: RunAsAny
@@ -76,8 +76,8 @@ items:
   metadata:
     name: namespace-reader
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/clusterrole_namespace-reader.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/clusterrole_namespace-reader.yaml
+      internal.config.kubernetes.io/index: '0'
   rules:
   - apiGroups:
     - ''
@@ -92,8 +92,8 @@ items:
   metadata:
     name: pod-creator
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/clusterrole_pod-creator.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/clusterrole_pod-creator.yaml
+      internal.config.kubernetes.io/index: '0'
   rules:
   - apiGroups:
     - ''
@@ -106,8 +106,8 @@ items:
   metadata:
     name: namespace-readers
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/clusterrolebinding_namespace-readers.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/clusterrolebinding_namespace-readers.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -122,8 +122,8 @@ items:
     name: job-creator
     namespace: shipping-dev
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_job-creators.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_job-creators.yaml
+      internal.config.kubernetes.io/index: '0'
   rules:
   - apiGroups:
     - batch/v1
@@ -137,8 +137,8 @@ items:
     name: viewers
     namespace: audit
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/audit/rolebinding_viewers.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/audit/rolebinding_viewers.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -153,8 +153,8 @@ items:
     name: job-creators
     namespace: shipping-dev
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_job-creators.yaml
-      config.kubernetes.io/index: '1'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_job-creators.yaml
+      internal.config.kubernetes.io/index: '1'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: Role
@@ -169,8 +169,8 @@ items:
     name: pod-creators
     namespace: shipping-dev
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_pod-creators.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_pod-creators.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -185,8 +185,8 @@ items:
     name: viewers
     namespace: shipping-dev
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_viewers.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-dev/rolebinding_viewers.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -201,8 +201,8 @@ items:
     name: pod-creators
     namespace: shipping-prod
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/rolebinding_pod-creators.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/rolebinding_pod-creators.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -217,8 +217,8 @@ items:
     name: sre-admin
     namespace: shipping-prod
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/rolebinding_sre-admin.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/rolebinding_sre-admin.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -233,8 +233,8 @@ items:
     name: viewers
     namespace: shipping-prod
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/rolebinding_viewers.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-prod/rolebinding_viewers.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -249,8 +249,8 @@ items:
     name: pod-creators
     namespace: shipping-staging
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-staging/rolebinding_pod-creators.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-staging/rolebinding_pod-creators.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -265,8 +265,8 @@ items:
     name: viewers
     namespace: shipping-staging
     annotations:
-      config.kubernetes.io/path: foo-corp-1.0.0/shipping-staging/rolebinding_viewers.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: foo-corp-1.0.0/shipping-staging/rolebinding_viewers.yaml
+      internal.config.kubernetes.io/index: '0'
   roleRef:
     apiGroup: rbac.authorization.k8s.io
     kind: ClusterRole
@@ -283,9 +283,9 @@ items:
     name: config-management-resource-quota
     namespace: shipping-dev
     annotations:
-      config.kubernetes.io/path: >-
+      internal.config.kubernetes.io/path: >-
         foo-corp-1.0.0/shipping-dev/resourcequota_config-management-resource-quota.yaml
-      config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/index: '0'
   spec:
     hard:
       cpu: 100m
