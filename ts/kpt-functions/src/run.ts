@@ -261,6 +261,14 @@ function determineAnnotationFormat(
     const path = annotations[SOURCE_PATH_ANNOTATION];
     const index = annotations[SOURCE_INDEX_ANNOTATION];
     const id = annotations[ID_ANNOTATION];
+    const legacyPath = annotations[LEGACY_SOURCE_PATH_ANNOTATION];
+    const legacyIndex = annotations[LEGACY_SOURCE_INDEX_ANNOTATION];
+    const legacyId = annotations[LEGACY_ID_ANNOTATION];
+
+    if (!(path || index || id || legacyPath || legacyIndex || legacyId)) {
+      continue;
+    }
+
     const foundOneOf =
       path !== undefined || index !== undefined || id !== undefined;
     if (!internal) {
@@ -270,9 +278,6 @@ function determineAnnotationFormat(
       throw new AnnotationsFormatMismatchError();
     }
 
-    const legacyPath = annotations[LEGACY_SOURCE_PATH_ANNOTATION];
-    const legacyIndex = annotations[LEGACY_SOURCE_INDEX_ANNOTATION];
-    const legacyId = annotations[LEGACY_ID_ANNOTATION];
     const foundOneOfLegacy =
       legacyPath !== undefined ||
       legacyIndex !== undefined ||
