@@ -21,12 +21,14 @@ import { FunctionConfigError } from './errors';
 import {
   getAnnotation,
   addAnnotation,
+  removeAnnotation,
   SOURCE_PATH_ANNOTATION,
   SOURCE_INDEX_ANNOTATION,
   ID_ANNOTATION,
   LEGACY_SOURCE_PATH_ANNOTATION,
   LEGACY_SOURCE_INDEX_ANNOTATION,
   LEGACY_ID_ANNOTATION,
+  ANNOTATION_PREFIX,
 } from './metadata';
 
 const INVOCATIONS = `
@@ -64,6 +66,9 @@ Example invocations:
 
     This is a convenient way to populate the functionConfig if it's a ConfigMap.
 `;
+
+const RESOURCE_ID_ANNOTATION =
+  'internal.kubernetes.io/annotations-migration-resource-id';
 
 enum ExitCode {
   RESULT_ERROR = 1,
@@ -169,7 +174,7 @@ Use this ONLY if the function accepts a ConfigMap.`,
 
 export async function runFnWithConfigs(fn: KptFunc, configs: Configs) {
   // Save the original annotation values.
-  const m = recordOriginalAnnotation(configs);
+  const m = preprocessResourceForInternalAnnotationsMigration(configs);
 
   // Run the function.
   await fn(configs);
@@ -178,96 +183,249 @@ export async function runFnWithConfigs(fn: KptFunc, configs: Configs) {
   reconcileAnnotations(configs, m);
 }
 
-class filePathAndIndex {
-  constructor(path: string | undefined, index: string | undefined) {
-    this.path = path;
-    this.index = index;
+function getInternalAnnotations(obj: KubernetesObject): {
+  [key: string]: string;
+} {
+  const m: { [index: string]: string } = {};
+  if (!obj.metadata) {
+    return m;
   }
-
-  path: string | undefined;
-  index: string | undefined;
-}
-
-function recordOriginalAnnotation(
-  configs: Configs
-): Map<string, filePathAndIndex> {
-  const m = new Map();
-  for (var obj of configs.getAll()) {
-    let idAnno = getAnnotation(obj, ID_ANNOTATION);
-    if (!idAnno) {
-      idAnno = getAnnotation(obj, LEGACY_ID_ANNOTATION);
+  if (!obj.metadata.annotations) {
+    return m;
+  }
+  for (const key in obj.metadata.annotations) {
+    if (
+      key.startsWith(ANNOTATION_PREFIX) ||
+      key === LEGACY_SOURCE_PATH_ANNOTATION ||
+      key === LEGACY_SOURCE_INDEX_ANNOTATION ||
+      key === LEGACY_ID_ANNOTATION
+    ) {
+      m[key] = obj.metadata.annotations[key];
     }
-    if (!idAnno) {
-      continue;
-    }
-    addAnnotation(obj, ID_ANNOTATION, idAnno);
-    addAnnotation(obj, LEGACY_ID_ANNOTATION, idAnno);
-
-    let pathAnno = getAnnotation(obj, SOURCE_PATH_ANNOTATION);
-    if (!pathAnno) {
-      pathAnno = getAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION);
-    }
-    if (pathAnno) {
-      addAnnotation(obj, SOURCE_PATH_ANNOTATION, pathAnno);
-      addAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION, pathAnno);
-    }
-
-    let indexAnno = getAnnotation(obj, SOURCE_INDEX_ANNOTATION);
-    if (!indexAnno) {
-      indexAnno = getAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION);
-    }
-    if (indexAnno) {
-      addAnnotation(obj, SOURCE_INDEX_ANNOTATION, indexAnno);
-      addAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION, indexAnno);
-    }
-
-    m.set(idAnno, new filePathAndIndex(pathAnno, indexAnno));
   }
   return m;
 }
 
+function preprocessResourceForInternalAnnotationsMigration(
+  configs: Configs
+): Map<string, { [key: string]: string }> {
+  const m = new Map();
+  let id = 0;
+  for (const obj of configs.getAll()) {
+    const idStr = id.toString();
+    addAnnotation(obj, RESOURCE_ID_ANNOTATION, idStr);
+    m.set(idStr, getInternalAnnotations(obj));
+    id++;
+
+    checkMismatchAnnos(obj.metadata.annotations);
+  }
+  return m;
+}
+
+function checkMismatchAnnos(
+  annotations: { [key: string]: string } | undefined
+) {
+  if (!annotations) {
+    return;
+  }
+  const path = annotations[SOURCE_PATH_ANNOTATION];
+  const legacyPath = annotations[LEGACY_SOURCE_PATH_ANNOTATION];
+  if (path && legacyPath && path !== legacyPath) {
+    throw new AnnotationsValueMismatchError();
+  }
+
+  const index = annotations[SOURCE_INDEX_ANNOTATION];
+  const legacyIndex = annotations[LEGACY_SOURCE_INDEX_ANNOTATION];
+  if (index && legacyIndex && index !== legacyIndex) {
+    throw new AnnotationsValueMismatchError();
+  }
+
+  const id = annotations[ID_ANNOTATION];
+  const legacyId = annotations[LEGACY_ID_ANNOTATION];
+  if (id && legacyId && id !== legacyId) {
+    throw new AnnotationsValueMismatchError();
+  }
+}
+
+// determineAnnotationFormat returns 2 values:
+// - if the internal format should be used.
+// - if the legacy format should be used.
+function determineAnnotationFormat(
+  m: Map<string, { [key: string]: string }>
+): [boolean, boolean] {
+  if (m.size === 0) {
+    return [true, true];
+  }
+  let internal: boolean | undefined, legacy: boolean | undefined;
+  for (const [, annotations] of m) {
+    const path = annotations[SOURCE_PATH_ANNOTATION];
+    const index = annotations[SOURCE_INDEX_ANNOTATION];
+    const id = annotations[ID_ANNOTATION];
+    const legacyPath = annotations[LEGACY_SOURCE_PATH_ANNOTATION];
+    const legacyIndex = annotations[LEGACY_SOURCE_INDEX_ANNOTATION];
+    const legacyId = annotations[LEGACY_ID_ANNOTATION];
+
+    if (!(path || index || id || legacyPath || legacyIndex || legacyId)) {
+      continue;
+    }
+
+    const foundOneOf =
+      path !== undefined || index !== undefined || id !== undefined;
+    if (!internal) {
+      internal = foundOneOf;
+    }
+    if ((foundOneOf && !internal) || (!foundOneOf && internal)) {
+      throw new AnnotationsFormatMismatchError();
+    }
+
+    const foundOneOfLegacy =
+      legacyPath !== undefined ||
+      legacyIndex !== undefined ||
+      legacyId !== undefined;
+    if (!legacy) {
+      legacy = foundOneOfLegacy;
+    }
+    if ((foundOneOfLegacy && !legacy) || (!foundOneOfLegacy && legacy)) {
+      throw new AnnotationsFormatMismatchError();
+    }
+  }
+  if (internal !== undefined && legacy !== undefined) {
+    return [internal, legacy];
+  }
+  return [true, true];
+}
+
+function setMissingAnnotations(obj: KubernetesObject) {
+  setMissingAnnotation(
+    obj,
+    SOURCE_PATH_ANNOTATION,
+    LEGACY_SOURCE_PATH_ANNOTATION
+  );
+  setMissingAnnotation(
+    obj,
+    SOURCE_INDEX_ANNOTATION,
+    LEGACY_SOURCE_INDEX_ANNOTATION
+  );
+  setMissingAnnotation(obj, ID_ANNOTATION, LEGACY_ID_ANNOTATION);
+}
+
+function setMissingAnnotation(
+  obj: KubernetesObject,
+  internalKey: string,
+  legacyKey: string
+) {
+  const internalVal = getAnnotation(obj, internalKey);
+  const legacyVal = getAnnotation(obj, legacyKey);
+  if (!internalVal && !legacyVal) {
+    return;
+  } else if (!internalVal && legacyVal) {
+    addAnnotation(obj, internalKey, legacyVal);
+  } else if (!legacyVal && internalVal) {
+    addAnnotation(obj, legacyKey, internalVal);
+  }
+}
+
+function checkAnnotationsAltered(
+  obj: KubernetesObject,
+  idToAnnos: Map<string, { [key: string]: string }>
+) {
+  const path = getAnnotation(obj, SOURCE_PATH_ANNOTATION);
+  const index = getAnnotation(obj, SOURCE_INDEX_ANNOTATION);
+  const legacyPath = getAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION);
+  const legacyIndex = getAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION);
+
+  const rid = getAnnotation(obj, RESOURCE_ID_ANNOTATION);
+  if (!rid) {
+    return;
+  }
+  const originalAnnotations = idToAnnos.get(rid);
+  if (!originalAnnotations) {
+    return;
+  }
+
+  let originalPath = originalAnnotations[SOURCE_PATH_ANNOTATION];
+  if (!originalPath) {
+    originalPath = originalAnnotations[LEGACY_SOURCE_PATH_ANNOTATION];
+  }
+  if (originalPath) {
+    if (
+      path &&
+      legacyPath &&
+      originalPath !== path &&
+      originalPath !== legacyPath &&
+      path !== legacyPath
+    ) {
+      throw new AnnotationsValueMismatchError();
+    } else if (path && originalPath !== path) {
+      addAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION, path);
+    } else if (legacyPath && originalPath !== legacyPath) {
+      addAnnotation(obj, SOURCE_PATH_ANNOTATION, legacyPath);
+    }
+  }
+
+  let originalIndex = originalAnnotations[SOURCE_INDEX_ANNOTATION];
+  if (!originalIndex) {
+    originalIndex = originalAnnotations[LEGACY_SOURCE_INDEX_ANNOTATION];
+  }
+  if (originalIndex) {
+    if (
+      index &&
+      legacyIndex &&
+      originalIndex !== index &&
+      originalIndex !== legacyIndex &&
+      index !== legacyIndex
+    ) {
+      throw new AnnotationsValueMismatchError();
+    } else if (index && originalIndex !== index) {
+      addAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION, index);
+    } else if (legacyIndex && originalIndex !== legacyIndex) {
+      addAnnotation(obj, SOURCE_INDEX_ANNOTATION, legacyIndex);
+    }
+  }
+}
+
+function formatInternalAnnotations(
+  obj: KubernetesObject,
+  useInternal: boolean,
+  useLegacy: boolean
+) {
+  if (!useInternal) {
+    removeAnnotation(obj, SOURCE_PATH_ANNOTATION);
+    removeAnnotation(obj, SOURCE_INDEX_ANNOTATION);
+    removeAnnotation(obj, ID_ANNOTATION);
+  }
+  if (!useLegacy) {
+    removeAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION);
+    removeAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION);
+    removeAnnotation(obj, LEGACY_ID_ANNOTATION);
+  }
+}
+
 function reconcileAnnotations(
   configs: Configs,
-  m: Map<string, filePathAndIndex>
+  m: Map<string, { [key: string]: string }>
 ) {
-  // for (var obj of configs.getAll()) {
-  configs.getAll().forEach(function (obj) {
-    let idAnno = getAnnotation(obj, ID_ANNOTATION);
-    if (!idAnno) {
-      idAnno = getAnnotation(obj, LEGACY_ID_ANNOTATION);
-    }
-    if (!idAnno) {
-      return;
-    }
+  const [useInternal, useLegacy] = determineAnnotationFormat(m);
 
-    const originalPathIndex = m.get(idAnno);
-    if (!originalPathIndex) {
-      return;
-    }
-    const origPath = originalPathIndex.path;
-    const origIndex = originalPathIndex.index;
+  for (const obj of configs.getAll()) {
+    setMissingAnnotations(obj);
+    checkAnnotationsAltered(obj, m);
+    formatInternalAnnotations(obj, useInternal, useLegacy);
+    checkMismatchAnnos(obj.metadata.annotations);
+    removeAnnotation(obj, RESOURCE_ID_ANNOTATION);
+  }
+}
 
-    // Infer the user's intend by comparing if there are changes to either the
-    // new annotation or the legacy annotation.
-    const pathAnno = getAnnotation(obj, SOURCE_PATH_ANNOTATION);
-    const legacyPathAnno = getAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION);
-    if (pathAnno && (pathAnno != origPath || !legacyPathAnno)) {
-      addAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION, pathAnno);
-    } else if (legacyPathAnno && (legacyPathAnno != origPath || !pathAnno)) {
-      addAnnotation(obj, SOURCE_PATH_ANNOTATION, legacyPathAnno);
-    }
+class AnnotationsValueMismatchError extends Error {
+  constructor() {
+    super('the legacy and internal annotation values mismatch');
+  }
+}
 
-    const indexAnno = getAnnotation(obj, SOURCE_INDEX_ANNOTATION);
-    const legacyIndexAnno = getAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION);
-    if (indexAnno && (indexAnno != origIndex || !legacyIndexAnno)) {
-      addAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION, indexAnno);
-    } else if (
-      legacyIndexAnno &&
-      (legacyIndexAnno != origIndex || !indexAnno)
-    ) {
-      addAnnotation(obj, SOURCE_INDEX_ANNOTATION, legacyIndexAnno);
-    }
-  });
+class AnnotationsFormatMismatchError extends Error {
+  constructor() {
+    super('the legacy and internal annotation formats mismatch');
+  }
 }
 
 class ResultError extends Error {

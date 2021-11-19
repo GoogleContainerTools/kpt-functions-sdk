@@ -34,9 +34,6 @@ describe('test reconcile annotations', () => {
     addAnnotation(expectedCM, SOURCE_PATH_ANNOTATION, 'y.yaml');
     addAnnotation(expectedCM, SOURCE_INDEX_ANNOTATION, '1');
     addAnnotation(expectedCM, ID_ANNOTATION, '99');
-    addAnnotation(expectedCM, LEGACY_SOURCE_PATH_ANNOTATION, 'y.yaml');
-    addAnnotation(expectedCM, LEGACY_SOURCE_INDEX_ANNOTATION, '1');
-    addAnnotation(expectedCM, LEGACY_ID_ANNOTATION, '99');
     const expectedObjects = new Configs([expectedCM]);
     expect(objects).toEqual(expectedObjects);
   });
@@ -59,9 +56,6 @@ describe('test reconcile annotations', () => {
         name: 'foo',
       },
     });
-    addAnnotation(expectedCM, SOURCE_PATH_ANNOTATION, 'y.yaml');
-    addAnnotation(expectedCM, SOURCE_INDEX_ANNOTATION, '1');
-    addAnnotation(expectedCM, ID_ANNOTATION, '99');
     addAnnotation(expectedCM, LEGACY_SOURCE_PATH_ANNOTATION, 'y.yaml');
     addAnnotation(expectedCM, LEGACY_SOURCE_INDEX_ANNOTATION, '1');
     addAnnotation(expectedCM, LEGACY_ID_ANNOTATION, '99');
@@ -90,9 +84,6 @@ describe('test reconcile annotations', () => {
     addAnnotation(expectedCM, SOURCE_PATH_ANNOTATION, 'y.yaml');
     addAnnotation(expectedCM, SOURCE_INDEX_ANNOTATION, '1');
     addAnnotation(expectedCM, ID_ANNOTATION, '99');
-    addAnnotation(expectedCM, LEGACY_SOURCE_PATH_ANNOTATION, 'y.yaml');
-    addAnnotation(expectedCM, LEGACY_SOURCE_INDEX_ANNOTATION, '1');
-    addAnnotation(expectedCM, LEGACY_ID_ANNOTATION, '99');
     const expectedObjects = new Configs([expectedCM]);
     expect(objects).toEqual(expectedObjects);
   });
@@ -115,9 +106,6 @@ describe('test reconcile annotations', () => {
         name: 'foo',
       },
     });
-    addAnnotation(expectedCM, SOURCE_PATH_ANNOTATION, 'y.yaml');
-    addAnnotation(expectedCM, SOURCE_INDEX_ANNOTATION, '1');
-    addAnnotation(expectedCM, ID_ANNOTATION, '99');
     addAnnotation(expectedCM, LEGACY_SOURCE_PATH_ANNOTATION, 'y.yaml');
     addAnnotation(expectedCM, LEGACY_SOURCE_INDEX_ANNOTATION, '1');
     addAnnotation(expectedCM, LEGACY_ID_ANNOTATION, '99');
@@ -140,6 +128,68 @@ describe('test reconcile annotations', () => {
     const objects = new Configs([cm]);
 
     await runFnWithConfigs(updateNewAnnotations, objects);
+
+    const expectedCM = new ConfigMap({
+      metadata: {
+        name: 'foo',
+      },
+    });
+    addAnnotation(expectedCM, SOURCE_PATH_ANNOTATION, 'y.yaml');
+    addAnnotation(expectedCM, SOURCE_INDEX_ANNOTATION, '1');
+    addAnnotation(expectedCM, ID_ANNOTATION, '99');
+    addAnnotation(expectedCM, LEGACY_SOURCE_PATH_ANNOTATION, 'y.yaml');
+    addAnnotation(expectedCM, LEGACY_SOURCE_INDEX_ANNOTATION, '1');
+    addAnnotation(expectedCM, LEGACY_ID_ANNOTATION, '99');
+    const expectedObjects = new Configs([expectedCM]);
+    expect(objects).toEqual(expectedObjects);
+  });
+
+  it('input has both new and legacy annotations, fn modify the legacy annotations', async () => {
+    const cm = new ConfigMap({
+      metadata: {
+        name: 'foo',
+      },
+    });
+    addAnnotation(cm, SOURCE_PATH_ANNOTATION, 'x.yaml');
+    addAnnotation(cm, SOURCE_INDEX_ANNOTATION, '0');
+    addAnnotation(cm, ID_ANNOTATION, '99');
+    addAnnotation(cm, LEGACY_SOURCE_PATH_ANNOTATION, 'x.yaml');
+    addAnnotation(cm, LEGACY_SOURCE_INDEX_ANNOTATION, '0');
+    addAnnotation(cm, LEGACY_ID_ANNOTATION, '99');
+    const objects = new Configs([cm]);
+
+    await runFnWithConfigs(updateLegacyAnnotations, objects);
+
+    const expectedCM = new ConfigMap({
+      metadata: {
+        name: 'foo',
+      },
+    });
+    addAnnotation(expectedCM, SOURCE_PATH_ANNOTATION, 'y.yaml');
+    addAnnotation(expectedCM, SOURCE_INDEX_ANNOTATION, '1');
+    addAnnotation(expectedCM, ID_ANNOTATION, '99');
+    addAnnotation(expectedCM, LEGACY_SOURCE_PATH_ANNOTATION, 'y.yaml');
+    addAnnotation(expectedCM, LEGACY_SOURCE_INDEX_ANNOTATION, '1');
+    addAnnotation(expectedCM, LEGACY_ID_ANNOTATION, '99');
+    const expectedObjects = new Configs([expectedCM]);
+    expect(objects).toEqual(expectedObjects);
+  });
+
+  it('input has both new and legacy annotations, fn modify the both annotations', async () => {
+    const cm = new ConfigMap({
+      metadata: {
+        name: 'foo',
+      },
+    });
+    addAnnotation(cm, SOURCE_PATH_ANNOTATION, 'x.yaml');
+    addAnnotation(cm, SOURCE_INDEX_ANNOTATION, '0');
+    addAnnotation(cm, ID_ANNOTATION, '99');
+    addAnnotation(cm, LEGACY_SOURCE_PATH_ANNOTATION, 'x.yaml');
+    addAnnotation(cm, LEGACY_SOURCE_INDEX_ANNOTATION, '0');
+    addAnnotation(cm, LEGACY_ID_ANNOTATION, '99');
+    const objects = new Configs([cm]);
+
+    await runFnWithConfigs(updateBothAnnotations, objects);
 
     const expectedCM = new ConfigMap({
       metadata: {
@@ -296,6 +346,17 @@ async function updateLegacyAnnotations(configs: Configs) {
   }
 }
 updateLegacyAnnotations.usage = 'update legacy path and index annotations';
+
+async function updateBothAnnotations(configs: Configs) {
+  for (const obj of configs.getAll()) {
+    addAnnotation(obj, SOURCE_PATH_ANNOTATION, 'y.yaml');
+    addAnnotation(obj, SOURCE_INDEX_ANNOTATION, '1');
+    addAnnotation(obj, LEGACY_SOURCE_PATH_ANNOTATION, 'y.yaml');
+    addAnnotation(obj, LEGACY_SOURCE_INDEX_ANNOTATION, '1');
+  }
+}
+updateBothAnnotations.usage =
+  'update new and legacy path and index annotations';
 
 async function removeNewAnnotations(configs: Configs) {
   for (const obj of configs.getAll()) {
