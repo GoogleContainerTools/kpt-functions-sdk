@@ -144,7 +144,7 @@ describe('Results', () => {
       const e = kubernetesObjectResult('hello', someObject, {
         path: 'x.y.z[0]',
         currentValue: 1,
-        suggestedValue: 2,
+        proposedValue: 2,
       });
 
       expect(e).toEqual({
@@ -158,7 +158,7 @@ describe('Results', () => {
           namespace: 'bar',
         },
         file: { path: undefined, index: undefined },
-        field: { path: 'x.y.z[0]', currentValue: 1, suggestedValue: 2 },
+        field: { path: 'x.y.z[0]', currentValue: 1, proposedValue: 2 },
       });
     });
 
@@ -169,7 +169,7 @@ describe('Results', () => {
           w: 0,
           v: false,
         },
-        suggestedValue: {
+        proposedValue: {
           w: 1,
           v: 'hi',
         },
@@ -193,7 +193,7 @@ describe('Results', () => {
             w: 0,
             v: false,
           },
-          suggestedValue: {
+          proposedValue: {
             w: 1,
             v: 'hi',
           },
@@ -205,7 +205,7 @@ describe('Results', () => {
       const e = kubernetesObjectResult('hello', someObject, {
         path: 'x.y.z[0]',
         currentValue: [1, 'true', false],
-        suggestedValue: [1, true, 'false'],
+        proposedValue: [1, true, 'false'],
       });
 
       expect(e).toEqual({
@@ -223,7 +223,7 @@ describe('Results', () => {
         field: {
           path: 'x.y.z[0]',
           currentValue: [1, 'true', false],
-          suggestedValue: [1, true, 'false'],
+          proposedValue: [1, true, 'false'],
         },
       });
     });

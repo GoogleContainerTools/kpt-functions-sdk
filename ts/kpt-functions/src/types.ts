@@ -454,7 +454,7 @@ export interface FieldInfo {
   // Current value of the field.
   currentValue?: Json;
   // Proposed value to fix the issue.
-  suggestedValue?: Json;
+  proposedValue?: Json;
 }
 
 function resultToString(result: Result): string {
