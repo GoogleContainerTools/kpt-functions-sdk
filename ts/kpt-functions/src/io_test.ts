@@ -504,7 +504,7 @@ items:
         field: {
           path: 'foo',
           currentValue: { a: 3 },
-          suggestedValue: { a: 4 },
+          proposedValue: { a: 4 },
         },
       });
 
@@ -522,7 +522,7 @@ results:
     path: foo
     currentValue:
       a: 3
-    suggestedValue:
+    proposedValue:
       a: 4
 `);
     });
@@ -535,7 +535,7 @@ results:
         field: {
           path: 'foo',
           currentValue: [3],
-          suggestedValue: [4],
+          proposedValue: [4],
         },
       });
 
@@ -553,7 +553,7 @@ results:
     path: foo
     currentValue:
     - 3
-    suggestedValue:
+    proposedValue:
     - 4
 `);
     });
@@ -568,7 +568,7 @@ results:
           // tslint:disable-next-line:no-null-keyword
           currentValue: null,
           // tslint:disable-next-line:no-null-keyword
-          suggestedValue: null,
+          proposedValue: null,
         },
       });
 
@@ -585,7 +585,7 @@ results:
   field:
     path: foo
     currentValue: null
-    suggestedValue: null
+    proposedValue: null
 `);
     });
   });
@@ -710,7 +710,7 @@ describe('roundtrip', () => {
           path: 'spec.array',
           // Note: we re-use objects from the input to trigger YAML refs to normally be created
           currentValue: foo.spec.array as unknown as JsonArray,
-          suggestedValue: foo.spec.array.concat([
+          proposedValue: foo.spec.array.concat([
             { baz: 3 },
           ]) as unknown as JsonArray,
         })
@@ -744,7 +744,7 @@ results:
     path: spec.array
     currentValue:
     - baz: 1
-    suggestedValue:
+    proposedValue:
     - baz: 1
     - baz: 3
 `);
