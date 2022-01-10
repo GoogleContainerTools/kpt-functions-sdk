@@ -16,7 +16,7 @@
 
 import _ from 'lodash';
 import { ObjectMeta } from './gen/io.k8s.apimachinery.pkg.apis.meta.v1';
-import { Configs, KubernetesObject } from './types';
+import { Configs, KubernetesObject, sortResults } from './types';
 import { generalResult } from './result';
 
 class Role implements KubernetesObject {
@@ -331,5 +331,143 @@ describe('results', () => {
     const results = configs.getResults();
 
     expect(results).toEqual([generalResult('a'), generalResult('b')]);
+  });
+});
+
+describe('sortResults', () => {
+  it('sort based on severity', () => {
+    const configs = new Configs();
+    configs.addResults({ message: 'Error message 1', severity: 'info' });
+    configs.addResults({ message: 'Error message 2', severity: 'error' });
+    const results = sortResults(configs.getResults());
+
+    expect(results).toEqual([
+      { message: 'Error message 2', severity: 'error' },
+      { message: 'Error message 1', severity: 'info' },
+    ]);
+  });
+
+  it('sort based on file', () => {
+    const configs = new Configs();
+    configs.addResults({
+      message: 'Error message',
+      severity: 'error',
+      file: { path: 'resource.yaml', index: 1 },
+    });
+    configs.addResults({
+      message: 'Error message',
+      severity: 'info',
+      file: { path: 'resource.yaml', index: 0 },
+    });
+    configs.addResults({
+      message: 'Error message',
+      severity: 'info',
+      file: { path: 'other-resource.yaml', index: 0 },
+    });
+    configs.addResults({
+      message: 'Error message',
+      severity: 'warn',
+      file: { path: 'resource.yaml', index: 2 },
+    });
+    configs.addResults({ message: 'Error message', severity: 'warn' });
+    const results = sortResults(configs.getResults());
+
+    expect(results).toEqual([
+      { message: 'Error message', severity: 'warn' },
+      {
+        message: 'Error message',
+        severity: 'info',
+        file: { path: 'other-resource.yaml', index: 0 },
+      },
+      {
+        message: 'Error message',
+        severity: 'info',
+        file: { path: 'resource.yaml', index: 0 },
+      },
+      {
+        message: 'Error message',
+        severity: 'error',
+        file: { path: 'resource.yaml', index: 1 },
+      },
+      {
+        message: 'Error message',
+        severity: 'warn',
+        file: { path: 'resource.yaml', index: 2 },
+      },
+    ]);
+  });
+
+  it('sort based on other fields', () => {
+    const configs = new Configs();
+    configs.addResults({
+      message: 'Error message',
+      severity: 'error',
+      resourceRef: {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        name: 'bar',
+        namespace: 'foo-ns',
+      },
+      field: { path: 'spec' },
+    });
+    configs.addResults({
+      message: 'Error message',
+      severity: 'error',
+      resourceRef: {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        name: 'bar',
+        namespace: 'foo-ns',
+      },
+      field: { path: 'metadata.name' },
+    });
+    configs.addResults({
+      message: 'Another error message',
+      severity: 'error',
+      resourceRef: {
+        apiVersion: 'v1',
+        kind: 'ConfigMap',
+        name: 'bar',
+        namespace: 'foo-ns',
+      },
+      field: { path: 'metadata.name' },
+    });
+    const results = sortResults(configs.getResults());
+
+    expect(results).toEqual([
+      {
+        message: 'Another error message',
+        severity: 'error',
+        resourceRef: {
+          apiVersion: 'v1',
+          kind: 'ConfigMap',
+          name: 'bar',
+          namespace: 'foo-ns',
+        },
+        field: { path: 'metadata.name' },
+      },
+      {
+        message: 'Error message',
+        severity: 'error',
+        resourceRef: {
+          apiVersion: 'v1',
+          kind: 'Pod',
+          name: 'bar',
+          namespace: 'foo-ns',
+        },
+        field: { path: 'metadata.name' },
+      },
+      {
+        message: 'Error message',
+        severity: 'error',
+        resourceRef: {
+          apiVersion: 'v1',
+          kind: 'Pod',
+          name: 'bar',
+          namespace: 'foo-ns',
+        },
+        field: { path: 'spec' },
+      },
+    ]);
   });
 });
