@@ -73,7 +73,7 @@ function initPackage() {
     validator.isValidDockerRepo,
     defaultDockerRepoBase
   );
-  log(`Using docker repository prefix ${defaultDockerRepoBase}.\n`);
+  log(`Using docker repository prefix ${dockerRepoBase}.\n`);
 
   new Templates([
     {
