@@ -479,3 +479,63 @@ interface ConfigMap extends KubernetesObject {
 function isConfigMap(o: any): o is ConfigMap {
   return o && o.apiVersion === 'v1' && o.kind === 'ConfigMap';
 }
+
+function fileLess(a: Result, b: Result): number {
+  const pathA = a.file?.path ?? '';
+  const pathB = b.file?.path ?? '';
+  const indexA = a.file?.index ?? 0;
+  const indexB = b.file?.index ?? 0;
+
+  if (pathA < pathB) {
+    return -1;
+  } else if (pathA > pathB) {
+    return 1;
+  }
+  return indexA - indexB;
+}
+
+function severityLess(a: Result, b: Result): number {
+  const severityToNumber = {
+    error: 0,
+    warn: 1,
+    info: 2,
+  };
+  const severityLevelA = severityToNumber[a.severity];
+  const severityLevelB = severityToNumber[b.severity];
+  return severityLevelA - severityLevelB;
+}
+
+function stringLess(a: Result, b: Result): number {
+  const stringify = (r: Result): string => {
+    return `resource-ref:${JSON.stringify(
+      r.resourceRef
+    )},field:${JSON.stringify(r.field)},message:${r.message}`;
+  };
+  const s1 = stringify(a);
+  const s2 = stringify(b);
+  if (s1 < s2) {
+    return -1;
+  } else if (s1 > s2) {
+    return 1;
+  }
+  return 0;
+}
+
+/**
+ * Perform an in place sort of Results
+ * @param results Array of Result objects
+ */
+export function sortResults(results: Result[]): Result[] {
+  results.sort((a: Result, b: Result): number => {
+    const file = fileLess(a, b);
+    if (file !== 0) {
+      return file;
+    }
+    const severity = severityLess(a, b);
+    if (severity !== 0) {
+      return severity;
+    }
+    return stringLess(a, b);
+  });
+  return results;
+}
