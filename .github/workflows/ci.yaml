@@ -78,38 +78,3 @@ jobs:
       run: |
         cd go
         make all
-
-  e2e-ci:
-    needs: [node-ci, go-ci]
-    strategy:
-      matrix:
-        platform: [ubuntu-latest, macos-latest]
-        node-version: [12.x, 14.x]
-    runs-on: ${{ matrix.platform }}
-    steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Install NPM packages
-      run: |
-        cd ts/demo-functions
-        npm ci
-    - name: Build docker images
-      if: matrix.platform == 'ubuntu-latest'
-      run: |
-        cd ts/demo-functions
-        npm run kpt:docker-build
-    - name: Run all e2e tests
-      if: matrix.platform == 'ubuntu-latest'
-      run: |
-        sudo curl https://storage.googleapis.com/kpt-dev/latest/linux_amd64/kpt -o /usr/local/bin/kpt
-        sudo chmod +x /usr/local/bin/kpt
-        tests/e2e.sh
-    - name: Run non-docker e2e tests
-      if: matrix.platform == 'macos-latest'
-      run: |
-        sudo curl https://storage.googleapis.com/kpt-dev/latest/darwin_amd64/kpt -o /usr/local/bin/kpt
-        sudo chmod +x /usr/local/bin/kpt
-        NODOCKER=true tests/e2e.sh
