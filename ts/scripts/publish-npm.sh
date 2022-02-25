@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Usage ex:
-# $ publish-npm.sh release-kpt-functions-v0.13.0-rc.1
+# $ publish-npm.sh release-ts-kpt-functions-v0.13.0-rc.1
 
 set -euo pipefail
 

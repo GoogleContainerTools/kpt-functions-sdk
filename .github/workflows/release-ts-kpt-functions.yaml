@@ -1,9 +1,9 @@
-name: release-create-kpt-functions
+name: release-ts-kpt-functions
 
 on:
   push:
     tags:
-      - release-create-kpt-functions-*
+      - release-ts-kpt-functions-*
 
 jobs:
   release:
@@ -17,12 +17,12 @@ jobs:
         registry-url: 'https://wombat-dressing-room.appspot.com'
     - name: Install, test
       run: |
-        cd ts/create-kpt-functions
+        cd ts/kpt-functions
         npm ci
         npm test
     - name: Publish
       run: |
-        cd ts/create-kpt-functions
-        ../../scripts/publish-npm.sh $GITHUB_REF
+        cd ts/kpt-functions
+        ../scripts/publish-npm.sh $GITHUB_REF
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.WOMBAT_CREATE_KPT_FUNCTIONS }}
+        NODE_AUTH_TOKEN: ${{ secrets.WOMBAT_KPT_FUNCTIONS }}

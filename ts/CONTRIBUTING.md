@@ -58,13 +58,13 @@ npm run lint-license
 ### Local development
 
 When developing locally, you often want to use the the local modified version of
-NPM packages (`kpt-functions` and `create-kpt-functions`) used by function
-packages (e.g. `demo-functions`). You can do the following:
+NPM packages (`ts-kpt-functions` and `ts-create-kpt-functions`) used by function
+packages (e.g. `ts-demo-functions`). You can do the following:
 
 ```console
 cd ts/demo-functions
 # May need to run as `sudo` depending on how you intalled NPM
-npm link ../kpt-functions
+npm link ./kpt-functions
 npm run build
 ```
 
@@ -87,7 +87,7 @@ Before releasing major changes, or whenever you want additinal verification, fir
 1.  In pristine git repo, run:
 
     ```console
-    ./scripts/version-kpt-functions-sdk.sh 0.14.0-rc.1
+    ./ts/scripts/version-kpt-functions-sdk.sh 0.14.0-rc.1
     ```
 
     This automatically creates a Git commit in your local repo.
@@ -102,7 +102,7 @@ Before releasing major changes, or whenever you want additinal verification, fir
 4.  In a separate PR, update the dependant packages
 
     ```console
-    ./scripts/version-kpt-functions-sdk-deps.sh 0.14.0-rc.1
+    ./ts/scripts/version-kpt-functions-sdk-deps.sh 0.14.0-rc.1
     ```
 
 5.  Create a PR and commit.
@@ -112,7 +112,7 @@ Before releasing major changes, or whenever you want additinal verification, fir
 6.  Once you are confident that the `rc` release is good, you can then repeat
     the process with out the `rc` suffix:
     ```console
-    ./scripts/version-kpt-functions-sdk.sh 0.14.0
+    ./ts/scripts/version-kpt-functions-sdk.sh 0.14.0
     ```
 7.  In a separate PR, update the SDK API docs which are
     [hosted here](https://googlecontainertools.github.io/kpt-functions-sdk/api/)
@@ -163,7 +163,7 @@ Before releasing major changes, you first want to create a `rc` release.
 
 7.  Once you are confident that the `rc` release is good, you can then repeat
     the process with out the `rc` suffix (e.g. `0.16.0`).
-8.  You can manually the the released CLI locally:
+8.  You can manually run the released CLI locally:
       ```console
       # This is equivilant to npx create-kpt-functions@latest
       npm init kpt-functions
@@ -173,7 +173,7 @@ Before releasing major changes, you first want to create a `rc` release.
     and updates the `init-package` in the repo:
 
        ```console
-       ./scripts/init-package.sh
+       ./ts/scripts/init-package.sh
        ```
 
 #### GitHub Release Workflows
@@ -187,7 +187,7 @@ List of release workflows:
 
 | Tag                              | Workflow                                                 |
 | -------------------------------- | -------------------------------------------------------- |
-| `release-kpt-functions-*`        | Publishes `kpt-functions` NPM package                    |
-| `release-create-kpt-functions-*` | Publishes `create-kpt-functions` NPM package             |
+| `release-ts-kpt-functions-*`        | Publishes `kpt-functions` NPM package                    |
+| `release-ts-create-kpt-functions-*` | Publishes `create-kpt-functions` NPM package             |
 | `release-typgen-*`               | Publishes `typgen` Go binaries to GCS bucket             |
-| `release-demo-functions-*`       | Publishes `demo-functions` functions container images    |
+| `release-ts-demo-functions-*`       | Publishes `demo-functions` functions container images    |

@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	kptfilev1 "github.com/GoogleContainerTools/kpt-functions-sdk/api/kptfile/v1"
+	kptfilev1 "github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1"
 )
 
 func TestReadKptfile(t *testing.T) {

@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	kptfilev1 "github.com/GoogleContainerTools/kpt-functions-sdk/api/kptfile/v1"
+	kptfilev1 "github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1"
 	"gopkg.in/yaml.v3"
 )
 

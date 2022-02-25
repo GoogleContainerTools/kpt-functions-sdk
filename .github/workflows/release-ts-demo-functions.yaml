@@ -1,9 +1,9 @@
-name: release-demo-functions
+name: release-ts-demo-functions
 
 on:
   push:
     tags:
-      - release-demo-functions-*
+      - release-ts-demo-functions-*
 
 jobs:
   e2e-ci:
