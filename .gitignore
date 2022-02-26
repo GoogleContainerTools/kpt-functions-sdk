@@ -3,7 +3,7 @@ dist
 node_modules
 *.iml
 .npmrc
-go/.out
+ts/go/.out
 ts/create-kpt-functions/bin
 .DS_Store
 *.swo
