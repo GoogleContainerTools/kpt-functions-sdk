@@ -419,7 +419,7 @@ func (o *KubeObject) Name() string {
 }
 
 func (o *KubeObject) SetName(name string) {
-	if err := o.obj.SetNestedString("metadata", "name", name); err != nil {
+	if err := o.obj.SetNestedString(name, "metadata", "name"); err != nil {
 		panic(fmt.Errorf("cannot set metadata name '%v': %v", name, err))
 	}
 }
@@ -435,7 +435,7 @@ func (o *KubeObject) HasNamespace() bool {
 }
 
 func (o *KubeObject) SetNamespace(name string) {
-	if err := o.obj.SetNestedString("namespace", name); err != nil {
+	if err := o.obj.SetNestedString(name, "metadata", "namespace"); err != nil {
 		panic(fmt.Errorf("cannot set namespace '%v': %v", name, err))
 	}
 }
