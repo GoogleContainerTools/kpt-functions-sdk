@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/GoogleContainerTools/kpt-functions-sdk/krmfn"
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,15 +16,15 @@ import (
 // accepts Revision and ID as input.
 
 func Example_generator() {
-	if err := krmfn.AsMain(krmfn.ResourceListProcessorFunc(generate)); err != nil {
+	if err := fn.AsMain(fn.ResourceListProcessorFunc(generate)); err != nil {
 		os.Exit(1)
 	}
 }
 
 // generate generates a ConfigMap.
-func generate(rl *krmfn.ResourceList) error {
+func generate(rl *fn.ResourceList) error {
 	if rl.FunctionConfig == nil {
-		return krmfn.ErrMissingFnConfig{}
+		return fn.ErrMissingFnConfig{}
 	}
 
 	revision := rl.FunctionConfig.GetStringOrDie("data", "revision")

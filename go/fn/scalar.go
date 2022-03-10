@@ -1,4 +1,4 @@
-package krmfn
+package fn
 
 import (
 	"strconv"

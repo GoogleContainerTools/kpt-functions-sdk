@@ -4,12 +4,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	yaml2 "sigs.k8s.io/kustomize/kyaml/yaml"
 
-	"github.com/GoogleContainerTools/kpt-functions-sdk/krmfn"
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
 var (
-	deployment krmfn.KubeObject
-	configMap  krmfn.KubeObject
+	deployment fn.KubeObject
+	configMap  fn.KubeObject
 )
 
 func ExampleKubeObject_mutatePrimitiveField() {

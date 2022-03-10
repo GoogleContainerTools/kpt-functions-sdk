@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/GoogleContainerTools/kpt-functions-sdk/krmfn"
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
 // In this example, we mutate line comments for field metadata.name.
@@ -12,12 +12,12 @@ import (
 // apply-setters function: https://catalog.kpt.dev/apply-setters/v0.2/)
 
 func Example_dMutateComments() {
-	if err := krmfn.AsMain(krmfn.ResourceListProcessorFunc(mutateComments)); err != nil {
+	if err := fn.AsMain(fn.ResourceListProcessorFunc(mutateComments)); err != nil {
 		os.Exit(1)
 	}
 }
 
-func mutateComments(rl *krmfn.ResourceList) error {
+func mutateComments(rl *fn.ResourceList) error {
 	for i := range rl.Items {
 		lineComment, found, err := rl.Items[i].LineComment("metadata", "name")
 		if err != nil {

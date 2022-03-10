@@ -2,6 +2,7 @@
 
 GOPATH := $(shell go env GOPATH)
 OUT_DIR := .out
+MODULES = $(shell find . -name 'go.mod' -print)
 
 all: fix fmt test lint
 
@@ -9,18 +10,27 @@ api:
 	(which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0)
 	$(GOPATH)/bin/swagger generate spec -m -w api/kptfile/v1 -o ../openapi/kptfile.yaml
 
-fix:
-	go fix ./...
+.PHONY: fix
+fix: $(MODULES)
+	@for f in $(^D); do (cd $$f; echo "Fixing $$f"; go fix ./...) || exit 1; done
 
-fmt:
-	go fmt ./...
+.PHONY: fmt
+fmt: $(MODULES)
+	@for f in $(^D); do (cd $$f; echo "Formatting $$f"; gofmt -s -w .); done
 
-lint:
-	(which $(GOPATH)/bin/golangci-lint || go get github.com/golangci/golangci-lint/cmd/golangci-lint)
-	$(GOPATH)/bin/golangci-lint -c ./.golangci.yml run ./...
+.PHONY: lint
+lint: $(MODULES)
+	@for f in $(^D); do \
+	(cd $$f; echo "Checking golangci-lint $$f"; \
+	(which $(GOPATH)/bin/golangci-lint || go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.44.2); \
+	$(GOPATH)/bin/golangci-lint run ./...); \
+	done
 
-test:
-	go test -cover ./...
+.PHONY: test
+test: $(MODULES)
+	@for f in $(^D); do (cd $$f; echo "Testing $$f"; go test ./...) || exit 1; done
 
-vet:
-	go vet ./...
+.PHONY: vet
+vet: $(MODULES)
+	@#for f in $(^D); do (cd $$f; echo "Checking $$f"; go run honnef.co/go/tools/cmd/staticcheck@latest ./...); done
+	@for f in $(^D); do (cd $$f; echo "Vetting $$f"; go vet ./...); done
