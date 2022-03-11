@@ -47,4 +47,4 @@ KubeObject hides all the details about yaml.Node and yaml.RNode. It is always
 recommended converting a KubeObject to a strong typed object or getting a field
 as a strong typed object. Then do the CRUD operation on the strong typed objects.
 */
-package krmfn
+package fn

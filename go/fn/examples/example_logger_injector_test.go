@@ -4,23 +4,23 @@ import (
 	"os"
 
 	corev1 "k8s.io/api/core/v1"
-	yaml2 "github.com/GoogleContainerTools/kpt-functions-sdk/internal/forked/kyaml/yaml"
+	yaml2 "sigs.k8s.io/kustomize/kyaml/yaml"
 
-	"github.com/GoogleContainerTools/kpt-functions-sdk/alpha"
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
 // In this example, we implement a function that injects a logger as a sidecar
 // container in workload APIs.
 
 func Example_loggeInjector() {
-	if err := alpha.AsMain(alpha.ResourceListProcessorFunc(injectLogger)); err != nil {
+	if err := fn.AsMain(fn.ResourceListProcessorFunc(injectLogger)); err != nil {
 		os.Exit(1)
 	}
 }
 
 // injectLogger injects a logger container into the workload API resources.
-// generate implements the goalpha.KRMFunction interface.
-func injectLogger(rl *alpha.ResourceList) error {
+// generate implements the gokrmfn.KRMFunction interface.
+func injectLogger(rl *fn.ResourceList) error {
 	var li LoggerInjection
 	if err := rl.FunctionConfig.As(&li); err != nil {
 		return err

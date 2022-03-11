@@ -1,4 +1,4 @@
-package krmfn
+package fn
 
 import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
