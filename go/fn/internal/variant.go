@@ -1,4 +1,4 @@
-package fn
+package internal
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ const (
 )
 
 type variant interface {
-	Kind() variantKind
+	GetKind() variantKind
 	Node() *yaml.Node
 }
 
@@ -74,7 +74,7 @@ func toVariant(n *yaml.Node) variant {
 	case yaml.ScalarNode:
 		return &scalarVariant{node: n}
 	case yaml.MappingNode:
-		return &mapVariant{node: n}
+		return &MapVariant{node: n}
 	case yaml.SequenceNode:
 		return &sliceVariant{node: n}
 
@@ -83,8 +83,8 @@ func toVariant(n *yaml.Node) variant {
 	}
 }
 
-func extractObjects(nodes ...*yaml.Node) ([]*mapVariant, error) {
-	var objects []*mapVariant
+func extractObjects(nodes ...*yaml.Node) ([]*MapVariant, error) {
+	var objects []*MapVariant
 
 	for _, node := range nodes {
 		switch node.Kind {
@@ -95,7 +95,7 @@ func extractObjects(nodes ...*yaml.Node) ([]*mapVariant, error) {
 			}
 			objects = append(objects, children...)
 		case yaml.MappingNode:
-			objects = append(objects, &mapVariant{node: node})
+			objects = append(objects, &MapVariant{node: node})
 		default:
 			return nil, fmt.Errorf("unhandled node kind %v", node.Kind)
 		}
@@ -103,7 +103,7 @@ func extractObjects(nodes ...*yaml.Node) ([]*mapVariant, error) {
 	return objects, nil
 }
 
-func typedObjectToMapVariant(v interface{}) (*mapVariant, error) {
+func TypedObjectToMapVariant(v interface{}) (*MapVariant, error) {
 	// The built-in types only have json tags. We can't simply do ynode.Encode(v),
 	// since it use the lowercased field name by default if no yaml tag is specified.
 	// This affects both k8s built-in types (e.g. appsv1.Deployment) and any types
@@ -130,13 +130,13 @@ func typedObjectToMapVariant(v interface{}) (*mapVariant, error) {
 		return nil, fmt.Errorf("unable to convert strong typed object to yaml node: %w", err)
 	}
 
-	mv := &mapVariant{node: node}
+	mv := &MapVariant{node: node}
 	mv.cleanupCreationTimestamp()
 	err = mv.sortFields()
 	return mv, err
 }
 
-func typedObjectToSliceVariant(v interface{}) (*sliceVariant, error) {
+func TypedObjectToSliceVariant(v interface{}) (*sliceVariant, error) {
 	// The built-in types only have json tags. We can't simply do ynode.Encode(v),
 	// since it use the lowercased field name by default if no yaml tag is specified.
 	// This affects both k8s built-in types (e.g. appsv1.Deployment) and any types
@@ -166,7 +166,7 @@ func typedObjectToSliceVariant(v interface{}) (*sliceVariant, error) {
 	return &sliceVariant{node: node}, nil
 }
 
-func mapVariantToTypedObject(mv *mapVariant, ptr interface{}) error {
+func MapVariantToTypedObject(mv *MapVariant, ptr interface{}) error {
 	if ptr == nil || reflect.ValueOf(ptr).Kind() != reflect.Ptr {
 		return fmt.Errorf("ptr must be a pointer to an object")
 	}

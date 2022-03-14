@@ -5,25 +5,19 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 // KubeObject presents a k8s object.
 type KubeObject struct {
-	obj *mapVariant
+	obj *internal.MapVariant
 }
 
-func NewFromRNode(rn *yaml.RNode) *KubeObject {
-	return &KubeObject{obj: &mapVariant{rn.YNode()}}
-}
-
-func (o *KubeObject) ToRNode() *yaml.RNode {
-	return yaml.NewRNode(o.obj.node)
-}
-
+// ParseKubeObject parses input byte slice to a KubeObject.
 func ParseKubeObject(in []byte) (*KubeObject, error) {
-	doc, err := parseDoc(in)
+	doc, err := internal.ParseDoc(in)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse input bytes: %w", err)
 	}
@@ -36,14 +30,6 @@ func ParseKubeObject(in []byte) (*KubeObject, error) {
 	}
 	rlMap := objects[0]
 	return asKubeObject(rlMap), nil
-}
-
-func asKubeObject(obj *mapVariant) *KubeObject {
-	return &KubeObject{obj}
-}
-
-func (o *KubeObject) node() *mapVariant {
-	return o.obj
 }
 
 // GetOrDie gets the value for a nested field located by fields. A pointer must
@@ -220,13 +206,13 @@ func (o *KubeObject) Set(val interface{}, fields ...string) error {
 
 		switch kind {
 		case reflect.Struct, reflect.Map:
-			m, err := typedObjectToMapVariant(val)
+			m, err := internal.TypedObjectToMapVariant(val)
 			if err != nil {
 				return err
 			}
 			return o.obj.SetNestedMap(m, fields...)
 		case reflect.Slice:
-			s, err := typedObjectToSliceVariant(val)
+			s, err := internal.TypedObjectToSliceVariant(val)
 			if err != nil {
 				return err
 			}
@@ -348,7 +334,7 @@ func (o *KubeObject) As(ptr interface{}) error {
 		if ptr == nil || reflect.ValueOf(ptr).Kind() != reflect.Ptr {
 			return fmt.Errorf("ptr must be a pointer to an object")
 		}
-		return mapVariantToTypedObject(o.obj, ptr)
+		return internal.MapVariantToTypedObject(o.obj, ptr)
 	}()
 	if err != nil {
 		return fmt.Errorf("unable to convert object to %T with error: %w", ptr, err)
@@ -358,7 +344,7 @@ func (o *KubeObject) As(ptr interface{}) error {
 
 // NewFromTypedObject construct a KubeObject from a typed object (e.g. corev1.Pod)
 func NewFromTypedObject(v interface{}) (*KubeObject, error) {
-	m, err := typedObjectToMapVariant(v)
+	m, err := internal.TypedObjectToMapVariant(v)
 	if err != nil {
 		return nil, err
 	}
@@ -367,18 +353,18 @@ func NewFromTypedObject(v interface{}) (*KubeObject, error) {
 
 // String serializes the object in yaml format.
 func (o *KubeObject) String() string {
-	doc := newDoc([]*yaml.Node{o.obj.Node()}...)
+	doc := internal.NewDoc([]*yaml.Node{o.obj.Node()}...)
 	s, _ := doc.ToYAML()
 	return string(s)
 }
 
-// ResourceIdentifier returns the resource identifier including apiVersion, kind,
+// resourceIdentifier returns the resource identifier including apiVersion, kind,
 // namespace and name.
-func (o *KubeObject) ResourceIdentifier() *yaml.ResourceIdentifier {
-	apiVersion := o.APIVersion()
-	kind := o.Kind()
-	name := o.Name()
-	ns := o.Namespace()
+func (o *KubeObject) resourceIdentifier() *yaml.ResourceIdentifier {
+	apiVersion := o.GetAPIVersion()
+	kind := o.GetKind()
+	name := o.GetName()
+	ns := o.GetNamespace()
 	return &yaml.ResourceIdentifier{
 		TypeMeta: yaml.TypeMeta{
 			APIVersion: apiVersion,
@@ -391,7 +377,7 @@ func (o *KubeObject) ResourceIdentifier() *yaml.ResourceIdentifier {
 	}
 }
 
-func (o *KubeObject) APIVersion() string {
+func (o *KubeObject) GetAPIVersion() string {
 	apiVersion, _, _ := o.obj.GetNestedString("apiVersion")
 	return apiVersion
 }
@@ -402,7 +388,7 @@ func (o *KubeObject) SetAPIVersion(apiVersion string) {
 	}
 }
 
-func (o *KubeObject) Kind() string {
+func (o *KubeObject) GetKind() string {
 	kind, _, _ := o.obj.GetNestedString("kind")
 	return kind
 }
@@ -413,7 +399,7 @@ func (o *KubeObject) SetKind(kind string) {
 	}
 }
 
-func (o *KubeObject) Name() string {
+func (o *KubeObject) GetName() string {
 	s, _, _ := o.obj.GetNestedString("metadata", "name")
 	return s
 }
@@ -424,7 +410,7 @@ func (o *KubeObject) SetName(name string) {
 	}
 }
 
-func (o *KubeObject) Namespace() string {
+func (o *KubeObject) GetNamespace() string {
 	s, _, _ := o.obj.GetNestedString("metadata", "namespace")
 	return s
 }
@@ -447,13 +433,13 @@ func (o *KubeObject) SetAnnotation(k, v string) {
 }
 
 // Annotations returns all annotations.
-func (o *KubeObject) Annotations() map[string]string {
+func (o *KubeObject) GetAnnotations() map[string]string {
 	v, _, _ := o.obj.GetNestedStringMap("metadata", "annotations")
 	return v
 }
 
 // Annotation returns one annotation with key k.
-func (o *KubeObject) Annotation(k string) string {
+func (o *KubeObject) GetAnnotation(k string) string {
 	v, _, _ := o.obj.GetNestedString("metadata", "annotations", k)
 	return v
 }
@@ -478,25 +464,25 @@ func (o *KubeObject) SetLabel(k, v string) {
 }
 
 // Label returns one label with key k.
-func (o *KubeObject) Label(k string) string {
+func (o *KubeObject) GetLabel(k string) string {
 	v, _, _ := o.obj.GetNestedString("metadata", "labels", k)
 	return v
 }
 
 // Labels returns all labels.
-func (o *KubeObject) Labels() map[string]string {
+func (o *KubeObject) GetLabels() map[string]string {
 	v, _, _ := o.obj.GetNestedStringMap("metadata", "labels")
 	return v
 }
 
 func (o *KubeObject) PathAnnotation() string {
-	anno := o.Annotation(kioutil.PathAnnotation)
+	anno := o.GetAnnotation(kioutil.PathAnnotation)
 	return anno
 }
 
 // IndexAnnotation return -1 if not found.
 func (o *KubeObject) IndexAnnotation() int {
-	anno := o.Annotation(kioutil.IndexAnnotation)
+	anno := o.GetAnnotation(kioutil.IndexAnnotation)
 	if anno == "" {
 		return -1
 	}
@@ -506,7 +492,7 @@ func (o *KubeObject) IndexAnnotation() int {
 
 // IdAnnotation return -1 if not found.
 func (o *KubeObject) IdAnnotation() int {
-	anno := o.Annotation(kioutil.IdAnnotation)
+	anno := o.GetAnnotation(kioutil.IdAnnotation)
 
 	if anno == "" {
 		return -1
@@ -515,14 +501,27 @@ func (o *KubeObject) IdAnnotation() int {
 	return i
 }
 
-type kubeObjects []*KubeObject
+type KubeObjects []*KubeObject
 
-func (o kubeObjects) Len() int      { return len(o) }
-func (o kubeObjects) Swap(i, j int) { o[i], o[j] = o[j], o[i] }
-func (o kubeObjects) Less(i, j int) bool {
-	idi := o[i].ResourceIdentifier()
-	idj := o[j].ResourceIdentifier()
+func (o KubeObjects) Len() int      { return len(o) }
+func (o KubeObjects) Swap(i, j int) { o[i], o[j] = o[j], o[i] }
+func (o KubeObjects) Less(i, j int) bool {
+	idi := o[i].resourceIdentifier()
+	idj := o[j].resourceIdentifier()
 	idStrI := fmt.Sprintf("%s %s %s %s", idi.GetAPIVersion(), idi.GetKind(), idi.GetNamespace(), idi.GetName())
 	idStrJ := fmt.Sprintf("%s %s %s %s", idj.GetAPIVersion(), idj.GetKind(), idj.GetNamespace(), idj.GetName())
 	return idStrI < idStrJ
+}
+
+func asKubeObject(obj *internal.MapVariant) *KubeObject {
+	return &KubeObject{obj}
+}
+
+func (o *KubeObject) node() *internal.MapVariant {
+	return o.obj
+}
+
+func rnodeToKubeObject(rn *yaml.RNode) *KubeObject {
+	mapVariant := internal.NewMap(rn.YNode())
+	return &KubeObject{obj: mapVariant}
 }

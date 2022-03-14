@@ -1,4 +1,4 @@
-package fn
+package internal
 
 import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
@@ -8,7 +8,7 @@ type sliceVariant struct {
 	node *yaml.Node
 }
 
-func newSliceVariant(s ...variant) *sliceVariant {
+func NewSliceVariant(s ...variant) *sliceVariant {
 	node := buildSequenceNode()
 	for _, v := range s {
 		node.Content = append(node.Content, v.Node())
@@ -16,7 +16,7 @@ func newSliceVariant(s ...variant) *sliceVariant {
 	return &sliceVariant{node: node}
 }
 
-func (v *sliceVariant) Kind() variantKind {
+func (v *sliceVariant) GetKind() variantKind {
 	return variantKindSlice
 }
 
@@ -28,7 +28,7 @@ func (v *sliceVariant) Clear() {
 	v.node.Content = nil
 }
 
-func (v *sliceVariant) Objects() ([]*mapVariant, error) {
+func (v *sliceVariant) Objects() ([]*MapVariant, error) {
 	return extractObjects(v.node.Content...)
 }
 

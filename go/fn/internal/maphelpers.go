@@ -1,10 +1,10 @@
-package fn
+package internal
 
 import (
 	"fmt"
 )
 
-func (o *mapVariant) GetNestedValue(fields ...string) (variant, bool, error) {
+func (o *MapVariant) GetNestedValue(fields ...string) (variant, bool, error) {
 	current := o
 	n := len(fields)
 	for i := 0; i < n; i++ {
@@ -16,7 +16,7 @@ func (o *mapVariant) GetNestedValue(fields ...string) (variant, bool, error) {
 		if i == n-1 {
 			return entry, true, nil
 		}
-		entryM, ok := entry.(*mapVariant)
+		entryM, ok := entry.(*MapVariant)
 		if !ok {
 			return nil, found, fmt.Errorf("wrong type, got: %T", entry)
 		}
@@ -25,7 +25,7 @@ func (o *mapVariant) GetNestedValue(fields ...string) (variant, bool, error) {
 	return nil, false, fmt.Errorf("unexpected code reached")
 }
 
-func (o *mapVariant) SetNestedValue(val variant, fields ...string) error {
+func (o *MapVariant) SetNestedValue(val variant, fields ...string) error {
 	current := o
 	n := len(fields)
 	var err error
@@ -42,23 +42,23 @@ func (o *mapVariant) SetNestedValue(val variant, fields ...string) error {
 	return nil
 }
 
-func (o *mapVariant) GetNestedMap(fields ...string) (*mapVariant, bool, error) {
+func (o *MapVariant) GetNestedMap(fields ...string) (*MapVariant, bool, error) {
 	v, found, err := o.GetNestedValue(fields...)
 	if err != nil || !found {
 		return nil, found, err
 	}
-	mv, ok := v.(*mapVariant)
+	mv, ok := v.(*MapVariant)
 	if !ok {
 		return nil, found, fmt.Errorf("wrong type, got: %T", v)
 	}
 	return mv, found, err
 }
 
-func (o *mapVariant) SetNestedMap(m *mapVariant, fields ...string) error {
+func (o *MapVariant) SetNestedMap(m *MapVariant, fields ...string) error {
 	return o.SetNestedValue(m, fields...)
 }
 
-func (o *mapVariant) GetNestedStringMap(fields ...string) (map[string]string, bool, error) {
+func (o *MapVariant) GetNestedStringMap(fields ...string) (map[string]string, bool, error) {
 	v, found, err := o.GetNestedValue(fields...)
 	if err != nil || !found {
 		return nil, found, err
@@ -74,11 +74,11 @@ func (o *mapVariant) GetNestedStringMap(fields ...string) (map[string]string, bo
 	return m, found, nil
 }
 
-func (o *mapVariant) SetNestedStringMap(m map[string]string, fields ...string) error {
+func (o *MapVariant) SetNestedStringMap(m map[string]string, fields ...string) error {
 	return o.SetNestedMap(newStringMapVariant(m), fields...)
 }
 
-func (o *mapVariant) GetNestedScalar(fields ...string) (*scalarVariant, bool, error) {
+func (o *MapVariant) GetNestedScalar(fields ...string) (*scalarVariant, bool, error) {
 	node, found, err := o.GetNestedValue(fields...)
 	if err != nil || !found {
 		return nil, found, err
@@ -90,7 +90,7 @@ func (o *mapVariant) GetNestedScalar(fields ...string) (*scalarVariant, bool, er
 	return nodeS, found, nil
 }
 
-func (o *mapVariant) GetNestedString(fields ...string) (string, bool, error) {
+func (o *MapVariant) GetNestedString(fields ...string) (string, bool, error) {
 	scalar, found, err := o.GetNestedScalar(fields...)
 	if err != nil || !found {
 		return "", found, err
@@ -102,11 +102,11 @@ func (o *mapVariant) GetNestedString(fields ...string) (string, bool, error) {
 	return "", found, fmt.Errorf("node was not a string, was %v", scalar.node.Tag)
 }
 
-func (o *mapVariant) SetNestedString(s string, fields ...string) error {
+func (o *MapVariant) SetNestedString(s string, fields ...string) error {
 	return o.SetNestedValue(newStringScalarVariant(s), fields...)
 }
 
-func (o *mapVariant) GetNestedBool(fields ...string) (bool, bool, error) {
+func (o *MapVariant) GetNestedBool(fields ...string) (bool, bool, error) {
 	scalar, found, err := o.GetNestedScalar(fields...)
 	if err != nil || !found {
 		return false, found, err
@@ -118,11 +118,11 @@ func (o *mapVariant) GetNestedBool(fields ...string) (bool, bool, error) {
 	return false, found, fmt.Errorf("node was not a bool, was %v", scalar.Node().Tag)
 }
 
-func (o *mapVariant) SetNestedBool(b bool, fields ...string) error {
+func (o *MapVariant) SetNestedBool(b bool, fields ...string) error {
 	return o.SetNestedValue(newBoolScalarVariant(b), fields...)
 }
 
-func (o *mapVariant) GetNestedInt(fields ...string) (int, bool, error) {
+func (o *MapVariant) GetNestedInt(fields ...string) (int, bool, error) {
 	scalar, found, err := o.GetNestedScalar(fields...)
 	if err != nil || !found {
 		return 0, found, err
@@ -134,11 +134,11 @@ func (o *mapVariant) GetNestedInt(fields ...string) (int, bool, error) {
 	return 0, found, fmt.Errorf("node was not a int, was %v", scalar.node.Tag)
 }
 
-func (o *mapVariant) SetNestedInt(i int, fields ...string) error {
+func (o *MapVariant) SetNestedInt(i int, fields ...string) error {
 	return o.SetNestedValue(newIntScalarVariant(i), fields...)
 }
 
-func (o *mapVariant) GetNestedFloat(fields ...string) (float64, bool, error) {
+func (o *MapVariant) GetNestedFloat(fields ...string) (float64, bool, error) {
 	scalar, found, err := o.GetNestedScalar(fields...)
 	if err != nil || !found {
 		return 0, found, err
@@ -150,11 +150,11 @@ func (o *mapVariant) GetNestedFloat(fields ...string) (float64, bool, error) {
 	return 0, found, fmt.Errorf("node was not a float, was %v", scalar.node.Tag)
 }
 
-func (o *mapVariant) SetNestedFloat(f float64, fields ...string) error {
+func (o *MapVariant) SetNestedFloat(f float64, fields ...string) error {
 	return o.SetNestedValue(newFloatScalarVariant(f), fields...)
 }
 
-func (o *mapVariant) GetNestedSlice(fields ...string) (*sliceVariant, bool, error) {
+func (o *MapVariant) GetNestedSlice(fields ...string) (*sliceVariant, bool, error) {
 	node, found, err := o.GetNestedValue(fields...)
 	if err != nil || !found {
 		return nil, found, err
@@ -166,11 +166,11 @@ func (o *mapVariant) GetNestedSlice(fields ...string) (*sliceVariant, bool, erro
 	return nodeS, found, err
 }
 
-func (o *mapVariant) SetNestedSlice(s *sliceVariant, fields ...string) error {
+func (o *MapVariant) SetNestedSlice(s *sliceVariant, fields ...string) error {
 	return o.SetNestedValue(s, fields...)
 }
 
-func (o *mapVariant) RemoveNestedField(fields ...string) (bool, error) {
+func (o *MapVariant) RemoveNestedField(fields ...string) (bool, error) {
 	current := o
 	n := len(fields)
 	for i := 0; i < n; i++ {
@@ -183,7 +183,7 @@ func (o *mapVariant) RemoveNestedField(fields ...string) (bool, error) {
 			return current.remove(fields[i])
 		}
 		switch entry := entry.(type) {
-		case *mapVariant:
+		case *MapVariant:
 			current = entry
 		default:
 			return false, fmt.Errorf("value is of unexpected type %T", entry)
@@ -192,7 +192,7 @@ func (o *mapVariant) RemoveNestedField(fields ...string) (bool, error) {
 	return false, fmt.Errorf("unexpected code reached")
 }
 
-func (o *mapVariant) getMap(field string, create bool) (*mapVariant, bool, error) {
+func (o *MapVariant) getMap(field string, create bool) (*MapVariant, bool, error) {
 	node, found := o.getVariant(field)
 
 	if !found {
@@ -202,11 +202,11 @@ func (o *mapVariant) getMap(field string, create bool) (*mapVariant, bool, error
 		keyNode := buildStringNode(field)
 		valueNode := buildMappingNode()
 		o.node.Content = append(o.node.Content, keyNode, valueNode)
-		valueVariant := &mapVariant{node: valueNode}
+		valueVariant := &MapVariant{node: valueNode}
 		return valueVariant, found, nil
 	}
 
-	if node, ok := node.(*mapVariant); ok {
+	if node, ok := node.(*MapVariant); ok {
 		return node, found, nil
 	}
 	return nil, found, fmt.Errorf("incorrect type, was %T", node)

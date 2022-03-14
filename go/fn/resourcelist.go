@@ -8,12 +8,10 @@ import (
 	"reflect"
 	"sort"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
-
-// TODO(mengqiy): we want eventually reconcile the following with the ResourceList
-// definition in kyaml/fn/fnsdk.
 
 // ResourceList is a Kubernetes list type used as the primary data interchange format
 // in the Configuration Functions Specification:
@@ -66,8 +64,8 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse input bytes: %w", err)
 	}
-	if rlObj.Kind() != kio.ResourceListKind {
-		return nil, fmt.Errorf("input was of unexpected kind %q; expected ResourceList", rlObj.Kind())
+	if rlObj.GetKind() != kio.ResourceListKind {
+		return nil, fmt.Errorf("input was of unexpected kind %q; expected ResourceList", rlObj.GetKind())
 	}
 	fc, found, err := rlObj.obj.GetNestedMap("functionConfig")
 	if err != nil {
@@ -94,13 +92,13 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 
 // toYNode converts the ResourceList to the yaml.Node representation.
 func (rl *ResourceList) toYNode() (*yaml.Node, error) {
-	reMap := newMap()
-	reObj := asKubeObject(reMap)
+	reMap := internal.NewMap(nil)
+	reObj := &KubeObject{obj: reMap}
 	reObj.SetAPIVersion(kio.ResourceListAPIVersion)
 	reObj.SetKind(kio.ResourceListKind)
 
 	if rl.Items != nil && len(rl.Items) > 0 {
-		itemsSlice := newSliceVariant()
+		itemsSlice := internal.NewSliceVariant()
 		for i := range rl.Items {
 			itemsSlice.Add(rl.Items[i].node())
 		}
@@ -116,9 +114,9 @@ func (rl *ResourceList) toYNode() (*yaml.Node, error) {
 	}
 
 	if rl.Results != nil && len(rl.Results) > 0 {
-		resultsSlice := newSliceVariant()
+		resultsSlice := internal.NewSliceVariant()
 		for _, result := range rl.Results {
-			mv, err := typedObjectToMapVariant(result)
+			mv, err := internal.TypedObjectToMapVariant(result)
 			if err != nil {
 				return nil, err
 			}
@@ -140,13 +138,13 @@ func (rl *ResourceList) ToYAML() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	doc := newDoc([]*yaml.Node{ynode}...)
+	doc := internal.NewDoc([]*yaml.Node{ynode}...)
 	return doc.ToYAML()
 }
 
 // Sort sorts the ResourceList.items by apiVersion, kind, namespace and name.
 func (rl *ResourceList) Sort() {
-	sort.Sort(kubeObjects(rl.Items))
+	sort.Sort(KubeObjects(rl.Items))
 }
 
 // UpsertObjectToItems adds an object to ResourceList.items. The input object can
@@ -154,8 +152,8 @@ func (rl *ResourceList) Sort() {
 func (rl *ResourceList) UpsertObjectToItems(obj interface{}, checkExistence func(obj, another *KubeObject) bool, replaceIfAlreadyExist bool) error {
 	if checkExistence == nil {
 		checkExistence = func(obj, another *KubeObject) bool {
-			ri1 := obj.ResourceIdentifier()
-			ri2 := another.ResourceIdentifier()
+			ri1 := obj.resourceIdentifier()
+			ri2 := another.resourceIdentifier()
 			return reflect.DeepEqual(ri1, ri2)
 		}
 	}
@@ -167,13 +165,13 @@ func (rl *ResourceList) UpsertObjectToItems(obj interface{}, checkExistence func
 	case *KubeObject:
 		ko = obj
 	case yaml.RNode:
-		ko = NewFromRNode(&obj)
+		ko = rnodeToKubeObject(&obj)
 	case *yaml.RNode:
-		ko = NewFromRNode(obj)
+		ko = rnodeToKubeObject(obj)
 	case yaml.Node:
-		ko = NewFromRNode(yaml.NewRNode(&obj))
+		ko = rnodeToKubeObject(yaml.NewRNode(&obj))
 	case *yaml.Node:
-		ko = NewFromRNode(yaml.NewRNode(obj))
+		ko = rnodeToKubeObject(yaml.NewRNode(obj))
 	default:
 		var err error
 		ko, err = NewFromTypedObject(obj)

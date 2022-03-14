@@ -1,4 +1,4 @@
-package fn
+package internal
 
 import (
 	"bytes"
@@ -11,11 +11,11 @@ type doc struct {
 	nodes []*yaml.Node
 }
 
-func newDoc(nodes ...*yaml.Node) *doc {
+func NewDoc(nodes ...*yaml.Node) *doc {
 	return &doc{nodes: nodes}
 }
 
-func parseDoc(b []byte) (*doc, error) {
+func ParseDoc(b []byte) (*doc, error) {
 	br := bytes.NewReader(b)
 
 	var nodes []*yaml.Node
@@ -52,6 +52,6 @@ func (d *doc) ToYAML() ([]byte, error) {
 	return w.Bytes(), nil
 }
 
-func (d *doc) Objects() ([]*mapVariant, error) {
+func (d *doc) Objects() ([]*MapVariant, error) {
 	return extractObjects(d.nodes...)
 }

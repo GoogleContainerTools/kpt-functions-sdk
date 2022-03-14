@@ -26,7 +26,7 @@ func injectLogger(rl *fn.ResourceList) error {
 		return err
 	}
 	for i, obj := range rl.Items {
-		if obj.APIVersion() == "apps/v1" && (obj.Kind() == "Deployment" || obj.Kind() == "StatefulSet" || obj.Kind() == "DaemonSet" || obj.Kind() == "ReplicaSet") {
+		if obj.GetAPIVersion() == "apps/v1" && (obj.GetKind() == "Deployment" || obj.GetKind() == "StatefulSet" || obj.GetKind() == "DaemonSet" || obj.GetKind() == "ReplicaSet") {
 			var containers []corev1.Container
 			obj.GetOrDie(&containers, "spec", "template", "spec", "containers")
 			foundTargetContainer := false
