@@ -377,6 +377,20 @@ func (o *KubeObject) resourceIdentifier() *yaml.ResourceIdentifier {
 	}
 }
 
+// IsGVK compares the given apiVersion and kind with KubeObject's apiVersion and Kind.
+func (o *KubeObject) IsGVK(apiVersion, kind string) bool {
+	if o.GetAPIVersion() == apiVersion && o.GetKind() == kind {
+		return true
+	}
+	if apiVersion == "" && o.GetKind() == kind {
+		return true
+	}
+	if kind == "" && o.GetAPIVersion() == apiVersion {
+		return true
+	}
+	return false
+}
+
 func (o *KubeObject) GetAPIVersion() string {
 	apiVersion, _, _ := o.obj.GetNestedString("apiVersion")
 	return apiVersion
