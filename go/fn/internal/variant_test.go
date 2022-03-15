@@ -1,4 +1,4 @@
-package fn
+package internal
 
 import (
 	"testing"
@@ -91,8 +91,8 @@ desiredReplicas: 1
 
 	for _, tc := range testcases {
 		rn := yaml.MustParse(tc.src)
-		mv := &mapVariant{node: rn.YNode()}
-		err := mapVariantToTypedObject(mv, tc.dst)
+		mv := &MapVariant{node: rn.YNode()}
+		err := MapVariantToTypedObject(mv, tc.dst)
 		assert.NoError(t, err)
 		assert.Equal(t, tc.expected, tc.dst)
 	}
@@ -173,7 +173,7 @@ desiredReplicas: 1
 	}
 
 	for _, tc := range testcases {
-		mv, err := typedObjectToMapVariant(tc.input)
+		mv, err := TypedObjectToMapVariant(tc.input)
 		assert.NoError(t, err)
 		s, err := yaml.NewRNode(mv.node).String()
 		assert.NoError(t, err)

@@ -22,7 +22,7 @@ func updateReplicas(rl *fn.ResourceList) error {
 	var replicas int
 	rl.FunctionConfig.GetOrDie(&replicas, "replicas")
 	for i, obj := range rl.Items {
-		if obj.APIVersion() == "apps/v1" && obj.Kind() == "Deployment" {
+		if obj.GetAPIVersion() == "apps/v1" && obj.GetKind() == "Deployment" {
 			rl.Items[i].SetOrDie(replicas, "spec", "replicas")
 		}
 	}

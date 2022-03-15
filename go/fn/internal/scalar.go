@@ -1,4 +1,4 @@
-package fn
+package internal
 
 import (
 	"strconv"
@@ -18,7 +18,7 @@ type scalarVariant struct {
 	node *yaml.Node
 }
 
-func (v *scalarVariant) Kind() variantKind {
+func (v *scalarVariant) GetKind() variantKind {
 	return variantKindScalar
 }
 

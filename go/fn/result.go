@@ -224,12 +224,12 @@ func ConfigObjectResult(msg string, obj *KubeObject, severity Severity) *Result 
 		Severity: severity,
 		ResourceRef: &yaml.ResourceIdentifier{
 			TypeMeta: yaml.TypeMeta{
-				APIVersion: obj.APIVersion(),
-				Kind:       obj.Kind(),
+				APIVersion: obj.GetAPIVersion(),
+				Kind:       obj.GetKind(),
 			},
 			NameMeta: yaml.NameMeta{
-				Name:      obj.Name(),
-				Namespace: obj.Namespace(),
+				Name:      obj.GetName(),
+				Namespace: obj.GetNamespace(),
 			},
 		},
 		File: &File{

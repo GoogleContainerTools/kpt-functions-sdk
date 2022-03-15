@@ -1,4 +1,4 @@
-package fn
+package internal
 
 import (
 	"fmt"
@@ -8,36 +8,38 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
-func newMap() *mapVariant {
-	var node = &yaml.Node{
-		Kind: yaml.MappingNode,
+func NewMap(node *yaml.Node) *MapVariant {
+	if node == nil {
+		node = &yaml.Node{
+			Kind: yaml.MappingNode,
+		}
 	}
-	return &mapVariant{node: node}
+	return &MapVariant{node: node}
 }
 
-func newStringMapVariant(m map[string]string) *mapVariant {
+func newStringMapVariant(m map[string]string) *MapVariant {
 	node := &yaml.Node{
 		Kind: yaml.MappingNode,
 	}
 	for k, v := range m {
 		node.Content = append(node.Content, buildStringNode(k), buildStringNode(v))
 	}
-	return &mapVariant{node: node}
+	return &MapVariant{node: node}
 }
 
-type mapVariant struct {
+type MapVariant struct {
 	node *yaml.Node
 }
 
-func (o *mapVariant) Kind() variantKind {
+func (o *MapVariant) GetKind() variantKind {
 	return variantKindMap
 }
 
-func (o *mapVariant) Node() *yaml.Node {
+func (o *MapVariant) Node() *yaml.Node {
 	return o.node
 }
 
-func (o *mapVariant) Entries() (map[string]variant, error) {
+func (o *MapVariant) Entries() (map[string]variant, error) {
 	entries := make(map[string]variant)
 
 	ynode := o.node
@@ -75,7 +77,7 @@ func asString(node *yaml.Node) (string, bool) {
 	return "", false
 }
 
-func (o *mapVariant) getVariant(key string) (variant, bool) {
+func (o *MapVariant) getVariant(key string) (variant, bool) {
 	valueNode, found := getValueNode(o.node, key)
 	if !found {
 		return nil, found
@@ -103,11 +105,11 @@ func getValueNode(m *yaml.Node, key string) (*yaml.Node, bool) {
 	return nil, false
 }
 
-func (o *mapVariant) set(key string, val variant) {
+func (o *MapVariant) set(key string, val variant) {
 	o.setYAMLNode(key, val.Node())
 }
 
-func (o *mapVariant) setYAMLNode(key string, node *yaml.Node) {
+func (o *MapVariant) setYAMLNode(key string, node *yaml.Node) {
 	children := o.node.Content
 	if len(children)%2 != 0 {
 		log.Fatalf("unexpected number of children for map %d", len(children))
@@ -131,7 +133,7 @@ func (o *mapVariant) setYAMLNode(key string, node *yaml.Node) {
 	o.node.Content = append(o.node.Content, buildStringNode(key), node)
 }
 
-func (o *mapVariant) remove(key string) (bool, error) {
+func (o *MapVariant) remove(key string) (bool, error) {
 	removed := false
 
 	children := o.node.Content
@@ -158,7 +160,7 @@ func (o *mapVariant) remove(key string) (bool, error) {
 }
 
 // remove field metadata.creationTimestamp when it's null.
-func (o *mapVariant) cleanupCreationTimestamp() {
+func (o *MapVariant) cleanupCreationTimestamp() {
 	if o.node.Kind != yaml.MappingNode {
 		return
 	}
@@ -173,7 +175,7 @@ func (o *mapVariant) cleanupCreationTimestamp() {
 
 // sortFields tried to sort fields that it understands. e.g. data should come
 // after apiVersion, kind and metadata in corev1.ConfigMap.
-func (o *mapVariant) sortFields() error {
+func (o *MapVariant) sortFields() error {
 	return sortFields(o.node)
 }
 

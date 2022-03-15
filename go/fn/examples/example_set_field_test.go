@@ -16,7 +16,7 @@ func Example_cSetField() {
 
 func setField(rl *fn.ResourceList) error {
 	for _, obj := range rl.Items {
-		if obj.APIVersion() == "apps/v1" && obj.Kind() == "Deployment" {
+		if obj.GetAPIVersion() == "apps/v1" && obj.GetKind() == "Deployment" {
 			replicas := 10
 			obj.SetOrDie(&replicas, "spec", "replicas")
 		}

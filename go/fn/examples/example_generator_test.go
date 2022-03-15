@@ -40,14 +40,14 @@ func generate(rl *fn.ResourceList) error {
 			Kind:       "ConfigMap",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%v-gen", rl.FunctionConfig.Name()),
-			Namespace: rl.FunctionConfig.Namespace(),
+			Name:      fmt.Sprintf("%v-gen", rl.FunctionConfig.GetName()),
+			Namespace: rl.FunctionConfig.GetNamespace(),
 			Labels: map[string]string{
 				"grafana_dashboard": "true",
 			},
 		},
 		Data: map[string]string{
-			fmt.Sprintf("%v.json", rl.FunctionConfig.Name()): fmt.Sprintf("%q", js),
+			fmt.Sprintf("%v.json", rl.FunctionConfig.GetName()): fmt.Sprintf("%q", js),
 		},
 	}
 	return rl.UpsertObjectToItems(cm, nil, false)

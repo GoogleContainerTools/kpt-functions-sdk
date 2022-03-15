@@ -1,4 +1,4 @@
-package fn
+package internal
 
 import (
 	"bytes"
@@ -36,7 +36,7 @@ spec:
             - containerPort: 80
 `
 
-func parseRaw(in []byte) ([]*mapVariant, error) {
+func parseRaw(in []byte) ([]*MapVariant, error) {
 	d := yaml2.NewDecoder(bytes.NewBuffer(in))
 	node := &yaml2.Node{}
 	err := d.Decode(node)
@@ -165,7 +165,7 @@ func TestHelpers(t *testing.T) {
 		RunAsNonRoot:             &trueVar,
 		AllowPrivilegeEscalation: &falseVar,
 	}
-	scmv, err := typedObjectToMapVariant(sc)
+	scmv, err := TypedObjectToMapVariant(sc)
 	assert.NoError(t, err)
 	err = mv.SetNestedMap(scmv, "spec", "template", "spec", "securityContext")
 	assert.NoError(t, err)
