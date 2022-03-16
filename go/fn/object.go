@@ -38,7 +38,7 @@ func ParseKubeObject(in []byte) (*KubeObject, error) {
 func (o *KubeObject) GetOrDie(ptr interface{}, fields ...string) {
 	_, err := o.Get(ptr, fields...)
 	if err != nil {
-		panic(err)
+		panic(ErrOpOrDie{obj: o, fields: fields})
 	}
 }
 
@@ -54,7 +54,7 @@ func (o *KubeObject) GetString(fields ...string) (string, bool, error) {
 func (o *KubeObject) GetStringOrDie(fields ...string) string {
 	val, _, err := o.GetString(fields...)
 	if err != nil {
-		panic(err)
+		panic(ErrOpOrDie{obj: o, fields: fields})
 	}
 	return val
 }
@@ -71,7 +71,7 @@ func (o *KubeObject) GetInt(fields ...string) (int, bool, error) {
 func (o *KubeObject) GetIntOrDie(fields ...string) int {
 	val, _, err := o.GetInt(fields...)
 	if err != nil {
-		panic(err)
+		panic(ErrOpOrDie{obj: o, fields: fields})
 	}
 	return val
 }
@@ -184,7 +184,7 @@ func (o *KubeObject) HeadComment(fields ...string) (string, bool, error) {
 // It will panic if it encounters any error.
 func (o *KubeObject) SetOrDie(val interface{}, fields ...string) {
 	if err := o.Set(val, fields...); err != nil {
-		panic(err)
+		panic(ErrOpOrDie{obj: o, fields: fields})
 	}
 }
 
@@ -297,7 +297,7 @@ func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
 // encounters any error.
 func (o *KubeObject) RemoveOrDie(fields ...string) {
 	if _, err := o.Remove(fields...); err != nil {
-		panic(err)
+		panic(ErrOpOrDie{obj: o, fields: fields})
 	}
 }
 
@@ -320,7 +320,7 @@ func (o *KubeObject) Remove(fields ...string) (bool, error) {
 // be a pointer to a typed object. It will panic if it encounters an error.
 func (o *KubeObject) AsOrDie(ptr interface{}) {
 	if err := o.As(ptr); err != nil {
-		panic(err)
+		panic(ErrOpOrDie{obj: o, fields: nil})
 	}
 }
 

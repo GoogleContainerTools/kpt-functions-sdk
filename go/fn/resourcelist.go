@@ -263,9 +263,3 @@ func ApplyFnBySelector(rl *ResourceList, selector func(obj *KubeObject) bool, fn
 	}
 	return nil
 }
-
-type ErrMissingFnConfig struct{}
-
-func (ErrMissingFnConfig) Error() string {
-	return "unable to find the functionConfig in the resourceList"
-}

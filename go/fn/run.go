@@ -29,6 +29,7 @@ func Run(p ResourceListProcessor, input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer handleOptOrDieErr()
 	err = p.Process(rl)
 	if err != nil {
 		// If the error is not a Results type, we wrap the error as a Result.
