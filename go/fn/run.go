@@ -16,8 +16,13 @@ package fn
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
+
+	"sigs.k8s.io/kustomize/kyaml/errors"
+	"sigs.k8s.io/kustomize/kyaml/kio"
+	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 // AsMain reads the resourceList in yaml format from stdin, evaluates the
@@ -58,4 +63,42 @@ func Run(p ResourceListProcessor, input []byte) ([]byte, error) {
 		}
 	}
 	return rl.ToYAML()
+}
+
+func Execute(p ResourceListProcessor, r io.Reader, w io.Writer) error {
+	rw := &byteReadWriter{
+		kio.ByteReadWriter{
+			Reader:                r,
+			Writer:                w,
+			KeepReaderAnnotations: true,
+		},
+	}
+	return execute(p, rw)
+}
+
+func execute(p ResourceListProcessor, rw *byteReadWriter) error {
+	// Read the input
+	rl := ResourceList{}
+	var err error
+	if rl.Items, rl.FunctionConfig, err = rw.Read(); err != nil {
+		return errors.WrapPrefixf(err, "failed to read ResourceList input")
+	}
+	retErr := p.Process(&rl)
+
+	// Write the results
+	if len(rl.Results) > 0 {
+		b, err := yaml.Marshal(rl.Results)
+		if err != nil {
+			return errors.Wrap(err)
+		}
+		y, err := yaml.Parse(string(b))
+		if err != nil {
+			return errors.Wrap(err)
+		}
+		rw.Results = y
+	}
+	if err := rw.Write(rl.Items); err != nil {
+		return err
+	}
+	return retErr
 }
