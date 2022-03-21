@@ -34,6 +34,10 @@ func AsMain(p ResourceListProcessor) error {
 	}
 	out, err := Run(p, in)
 	if err != nil {
+		_, outErr := os.Stdout.Write(out)
+		if outErr != nil {
+			return outErr
+		}
 		return err
 	}
 	_, err = os.Stdout.Write(out)
@@ -61,7 +65,11 @@ func Run(p ResourceListProcessor, input []byte) ([]byte, error) {
 			rl.Results = append(rl.Results, ErrorResult(err))
 		}
 	}
-	return rl.ToYAML()
+	out, yamlErr := rl.ToYAML()
+	if yamlErr != nil {
+		return out, yamlErr
+	}
+	return out, rl.Results
 }
 
 func Execute(p ResourceListProcessor, r io.Reader, w io.Writer) error {
