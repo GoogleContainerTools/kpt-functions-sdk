@@ -1,10 +1,11 @@
-.PHONY: fix vet fmt test lint
+.PHONY: fix vet fmt test lint license
 
 GOPATH := $(shell go env GOPATH)
+GOBIN := $(shell go env GOPATH)/bin
 OUT_DIR := .out
 MODULES = $(shell find . -name 'go.mod' -print)
 
-all: fix fmt test lint
+all: fix fmt license lint test
 
 api:
 	(which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0)
@@ -34,3 +35,6 @@ test: $(MODULES)
 vet: $(MODULES)
 	@#for f in $(^D); do (cd $$f; echo "Checking $$f"; go run honnef.co/go/tools/cmd/staticcheck@latest ./...); done
 	@for f in $(^D); do (cd $$f; echo "Vetting $$f"; go vet ./...); done
+
+license:
+	GOBIN=$(GOBIN) hack/update-license.sh
