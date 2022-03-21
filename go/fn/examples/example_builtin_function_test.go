@@ -42,13 +42,12 @@ functionConfig:
 	fmt.Println(writer.String())
 
 	// Output:
-
 	// apiVersion: config.kubernetes.io/v1
 	// kind: ResourceList
 	// items:
 	// - kind: Deployment
 	//   metadata:
-	//    name: source
+	//     name: source
 	// - kind: Service
 	//   metadata:
 	//     name: source
