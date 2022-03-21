@@ -9,7 +9,7 @@ import (
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
-// This example implements a function that updates the replicas field for all deployments.
+// This example uses apply-replacements as a builtin function by using fn.Execute.
 
 func Example_builtinFunction() {
 	reader := strings.NewReader(`
@@ -35,12 +35,10 @@ functionConfig:
         kind: Service`)
 
 	var writer bytes.Buffer
-
 	err := fn.Execute(&replacements.Replacements{}, reader, &writer)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
 	fmt.Println(writer.String())
 
 	// Output:

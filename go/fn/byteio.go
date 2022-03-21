@@ -1,6 +1,7 @@
 package fn
 
 import (
+	"sigs.k8s.io/kustomize/kyaml/errors"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
@@ -10,30 +11,43 @@ type byteReadWriter struct {
 	kio.ByteReadWriter
 }
 
-func (rw *byteReadWriter) Read() (KubeObjects, *KubeObject, error) {
-	items, err := rw.ByteReadWriter.Read()
+func (rw *byteReadWriter) Read() (*ResourceList, error) {
+	nodes, err := rw.ByteReadWriter.Read()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	var result KubeObjects
-	for _, item := range items {
-		obj, err := ParseKubeObject([]byte(item.MustString()))
+	var items KubeObjects
+	for _, n := range nodes {
+		obj, err := ParseKubeObject([]byte(n.MustString()))
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		result = append(result, obj)
+		items = append(items, obj)
 	}
 	obj, err := ParseKubeObject([]byte(rw.ByteReadWriter.FunctionConfig.MustString()))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-
-	return result, obj, nil
+	return &ResourceList{
+		Items:          items,
+		FunctionConfig: obj,
+	}, nil
 }
 
-func (rw *byteReadWriter) Write(objs KubeObjects) error {
+func (rw *byteReadWriter) Write(rl *ResourceList) error {
+	if len(rl.Results) > 0 {
+		b, err := yaml.Marshal(rl.Results)
+		if err != nil {
+			return errors.Wrap(err)
+		}
+		y, err := yaml.Parse(string(b))
+		if err != nil {
+			return errors.Wrap(err)
+		}
+		rw.Results = y
+	}
 	var nodes []*yaml.RNode
-	for _, item := range objs {
+	for _, item := range rl.Items {
 		node, err := yaml.Parse(item.String())
 		if err != nil {
 			return err
