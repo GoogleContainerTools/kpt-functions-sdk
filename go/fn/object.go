@@ -405,6 +405,17 @@ func (o *KubeObject) IsGVK(apiVersion, kind string) bool {
 	return false
 }
 
+
+// IsLocalConfig checks the "config.kubernetes.io/local-config" field to tell
+// whether a KRM resource will be skipped by `kpt live apply` or not.
+func (o *KubeObject) IsLocalConfig() bool {
+	isLocalConfig := o.GetAnnotation(KptLocalConfig)
+	if isLocalConfig == "" || isLocalConfig == "false" {
+		return false
+	}
+	return true
+}
+
 func (o *KubeObject) GetAPIVersion() string {
 	apiVersion, _, _ := o.obj.GetNestedString("apiVersion")
 	return apiVersion

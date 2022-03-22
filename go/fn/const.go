@@ -34,4 +34,10 @@ const (
 	// resources during round trip to and from a function execution. We will use it
 	// to track the internal annotations and reconcile them if needed.
 	InternalAnnotationsMigrationResourceIDAnnotation = internalPrefix + "annotations-migration-resource-id"
+
+	// ConfigPrefix is the prefix given to the custom kubernetes annotations.
+	ConfigPrefix string = "config.kubernetes.io/"
+
+	// KptLocalConfig marks a KRM resource to be skipped from deploying to the cluster via `kpt live apply`.
+	KptLocalConfig = ConfigPrefix  + "local-config"
 )
