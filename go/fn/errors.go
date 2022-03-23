@@ -38,9 +38,13 @@ func (e *ErrOpOrDie) Error() string {
 		e.obj.GetAPIVersion(), e.obj.GetKind(), e.obj.GetName(), strings.Join(e.fields, "/"))
 }
 
-func handleOptOrDieErr() {
+func handlePanic() {
 	if v := recover(); v != nil {
 		if e, ok := v.(ErrOpOrDie); ok {
+			log.Fatalf(e.Error())
+		} else if e, ok := v.(Result); ok {
+			log.Fatalf(e.Error())
+		} else if e, ok := v.(Results); ok {
 			log.Fatalf(e.Error())
 		} else {
 			panic(v)

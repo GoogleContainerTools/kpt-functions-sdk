@@ -28,19 +28,20 @@ import (
 // function and write the updated resourceList in yaml to stdout. Errors if any
 // will be printed to stderr.
 func AsMain(p ResourceListProcessor) error {
-	in, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		return fmt.Errorf("unable to read from stdin: %v", err)
-	}
-	out, err := Run(p, in)
-	if err != nil {
+	err := func() error {
+		in, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			return fmt.Errorf("unable to read from stdin: %v", err)
+		}
+		out, err := Run(p, in)
+		// If there is an error, we don't return the error immediately.
+		// We write out to stdout before returning any error.
 		_, outErr := os.Stdout.Write(out)
 		if outErr != nil {
 			return outErr
 		}
 		return err
-	}
-	_, err = os.Stdout.Write(out)
+	}()
 	return err
 }
 
@@ -51,25 +52,19 @@ func Run(p ResourceListProcessor, input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer handleOptOrDieErr()
-	err = p.Process(rl)
-	if err != nil {
-		// If the error is not a Results type, we wrap the error as a Result.
-		if results, ok := err.(Results); ok {
-			rl.Results = append(rl.Results, results...)
-		} else if result, ok := err.(Result); ok {
-			rl.Results = append(rl.Results, &result)
-		} else if result, ok := err.(*Result); ok {
-			rl.Results = append(rl.Results, result)
-		} else {
-			rl.Results = append(rl.Results, ErrorResult(err))
-		}
-	}
+	defer handlePanic()
+	success, fnErr := p.Process(rl)
 	out, yamlErr := rl.ToYAML()
 	if yamlErr != nil {
 		return out, yamlErr
 	}
-	return out, rl.Results
+	if fnErr != nil {
+		return out, fnErr
+	}
+	if !success {
+		return out, fmt.Errorf("error: function failure")
+	}
+	return out, nil
 }
 
 func Execute(p ResourceListProcessor, r io.Reader, w io.Writer) error {

@@ -195,42 +195,68 @@ func (rl *ResourceList) UpsertObjectToItems(obj interface{}, checkExistence func
 	return nil
 }
 
+func (rl *ResourceList) LogResult(err error) {
+	// If the error is not a Results type, we wrap the error as a Result.
+	if err == nil {
+		return
+	}
+	if results, ok := err.(Results); ok {
+		rl.Results = append(rl.Results, results...)
+	} else if result, ok := err.(Result); ok {
+		rl.Results = append(rl.Results, &result)
+	} else if result, ok := err.(*Result); ok {
+		rl.Results = append(rl.Results, result)
+	} else {
+		rl.Results = append(rl.Results, ErrorResult(err))
+	}
+}
+
 // ResourceListProcessor is implemented by configuration functions built with this framework
 // to conform to the Configuration Functions Specification:
 // https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 type ResourceListProcessor interface {
-	Process(rl *ResourceList) error
+	Process(rl *ResourceList) (bool, error)
 }
 
 // ResourceListProcessorFunc converts a compatible function to a ResourceListProcessor.
-type ResourceListProcessorFunc func(rl *ResourceList) error
+type ResourceListProcessorFunc func(rl *ResourceList) (bool, error)
 
-func (p ResourceListProcessorFunc) Process(rl *ResourceList) error {
+func (p ResourceListProcessorFunc) Process(rl *ResourceList) (bool, error) {
 	return p(rl)
 }
 
 // Chain chains a list of ResourceListProcessor as a single ResourceListProcessor.
 func Chain(processors ...ResourceListProcessor) ResourceListProcessor {
-	return ResourceListProcessorFunc(func(rl *ResourceList) error {
+	return ResourceListProcessorFunc(func(rl *ResourceList) (bool, error) {
+		success := true
 		for _, processor := range processors {
-			if err := processor.Process(rl); err != nil {
-				return err
+			s, err := processor.Process(rl)
+			if !s {
+				success = false
+			}
+			if err != nil {
+				return false, err
 			}
 		}
-		return nil
+		return success, nil
 	})
 }
 
 // ChainFunctions chains a list of ResourceListProcessorFunc as a single
 // ResourceListProcessorFunc.
 func ChainFunctions(functions ...ResourceListProcessorFunc) ResourceListProcessorFunc {
-	return func(rl *ResourceList) error {
+	return func(rl *ResourceList) (bool, error) {
+		success := true
 		for _, fn := range functions {
-			if err := fn(rl); err != nil {
-				return err
+			s, err := fn(rl)
+			if !s {
+				success = false
+			}
+			if err != nil {
+				return false, err
 			}
 		}
-		return nil
+		return success, nil
 	}
 }
 
@@ -242,12 +268,10 @@ func ApplyFnBySelector(rl *ResourceList, selector func(obj *KubeObject) bool, fn
 		if !selector(obj) {
 			continue
 		}
-
 		err := fn(rl.Items[i])
 		if err == nil {
 			continue
 		}
-
 		switch te := err.(type) {
 		case Results:
 			results = append(results, te...)
