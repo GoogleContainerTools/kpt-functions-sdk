@@ -11,6 +11,7 @@ type byteReadWriter struct {
 	kio.ByteReadWriter
 }
 
+// Read decodes input bytes into a ResourceList
 func (rw *byteReadWriter) Read() (*ResourceList, error) {
 	nodes, err := rw.ByteReadWriter.Read()
 	if err != nil {
@@ -34,6 +35,7 @@ func (rw *byteReadWriter) Read() (*ResourceList, error) {
 	}, nil
 }
 
+// Write writes a ResourceList into bytes
 func (rw *byteReadWriter) Write(rl *ResourceList) error {
 	if len(rl.Results) > 0 {
 		b, err := yaml.Marshal(rl.Results)
