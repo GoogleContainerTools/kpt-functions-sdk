@@ -17,6 +17,7 @@ package fn
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -28,34 +29,65 @@ func AsMain(p ResourceListProcessor) error {
 	if err != nil {
 		return fmt.Errorf("unable to read from stdin: %v", err)
 	}
-	out, err := Run(p, in)
-	if err != nil {
-		return err
-	}
+	out := Run(p, in)
 	_, err = os.Stdout.Write(out)
 	return err
 }
 
 // Run evaluates the function. input must be a resourceList in yaml format. An
 // updated resourceList will be returned.
-func Run(p ResourceListProcessor, input []byte) ([]byte, error) {
+func Run(p ResourceListProcessor, input []byte) []byte {
 	rl, err := ParseResourceList(input)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 	defer handleOptOrDieErr()
 	err = p.Process(rl)
-	if err != nil {
-		// If the error is not a Results type, we wrap the error as a Result.
-		if results, ok := err.(Results); ok {
-			rl.Results = append(rl.Results, results...)
-		} else if result, ok := err.(Result); ok {
-			rl.Results = append(rl.Results, &result)
-		} else if result, ok := err.(*Result); ok {
-			rl.Results = append(rl.Results, result)
+	defer handleCritical()
+	logResult(rl, err)
+	o, _ := rl.ToYAML()
+	return o
+}
+
+func handleCritical() {
+	if v := recover(); v != nil {
+		if e, ok := v.(Result); ok {
+			log.Fatalf(e.Message)
+		} else if e, ok := v.(error); ok {
+			log.Fatalf(e.Error())
 		} else {
-			rl.Results = append(rl.Results, ErrorResult(err))
+			panic(v)
 		}
 	}
-	return rl.ToYAML()
+}
+func IsErrorResults(rl *ResourceList) bool {
+	for _, r := range rl.Results {
+		if r.Severity == Error {
+			return true
+		}
+	}
+}
+
+func logResult(rl *ResourceList, err error) {
+	if err == nil {
+		for _, r := range rl.Results {
+			if r.Severity == Error {
+				panic(r)
+			}
+		}
+		return
+	}
+	// If the error is not a Results type, we wrap the error as a Result.
+	if results, ok := err.(Results); ok {
+		rl.Results = append(rl.Results, results...)
+	} else if result, ok := err.(Result); ok {
+		rl.Results = append(rl.Results, &result)
+
+	} else if result, ok := err.(*Result); ok {
+		rl.Results = append(rl.Results, result)
+
+	} else {
+		rl.Results = append(rl.Results, ErrorResult(err))
+	}
+	panic(err)
 }
