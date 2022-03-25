@@ -31,14 +31,14 @@ func Example_dMutateComments() {
 	}
 }
 
-func mutateComments(rl *fn.ResourceList) error {
+func mutateComments(rl *fn.ResourceList) (bool, error) {
 	for i := range rl.Items {
 		lineComment, found, err := rl.Items[i].LineComment("metadata", "name")
 		if err != nil {
-			return err
+			return false, err
 		}
 		if !found {
-			return nil
+			return true, nil
 		}
 
 		if strings.TrimSpace(lineComment) == "" {
@@ -47,8 +47,8 @@ func mutateComments(rl *fn.ResourceList) error {
 			lineComment = strings.Replace(lineComment, "foo", "bar", -1)
 		}
 		if err = rl.Items[i].SetLineComment(lineComment, "metadata", "name"); err != nil {
-			return err
+			return false, err
 		}
 	}
-	return nil
+	return true, nil
 }

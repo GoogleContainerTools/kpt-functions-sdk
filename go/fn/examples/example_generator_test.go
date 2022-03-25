@@ -36,16 +36,16 @@ func Example_generator() {
 }
 
 // generate generates a ConfigMap.
-func generate(rl *fn.ResourceList) error {
+func generate(rl *fn.ResourceList) (bool, error) {
 	if rl.FunctionConfig == nil {
-		return fn.ErrMissingFnConfig{}
+		return false, fn.ErrMissingFnConfig{}
 	}
 
 	revision := rl.FunctionConfig.GetStringOrDie("data", "revision")
 	id := rl.FunctionConfig.GetStringOrDie("data", "id")
 	js, err := fetchDashboard(revision, id)
 	if err != nil {
-		return fmt.Errorf("fetch dashboard: %v", err)
+		return false, fmt.Errorf("fetch dashboard: %v", err)
 	}
 
 	cm := corev1.ConfigMap{
@@ -64,7 +64,7 @@ func generate(rl *fn.ResourceList) error {
 			fmt.Sprintf("%v.json", rl.FunctionConfig.GetName()): fmt.Sprintf("%q", js),
 		},
 	}
-	return rl.UpsertObjectToItems(cm, nil, false)
+	return true, rl.UpsertObjectToItems(cm, nil, false)
 }
 
 func fetchDashboard(revision, id string) (string, error) {

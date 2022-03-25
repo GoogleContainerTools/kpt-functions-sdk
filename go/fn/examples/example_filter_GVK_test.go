@@ -29,9 +29,9 @@ func Example_filterGVK() {
 }
 
 // updateReplicas sets a field in resources selecting by GVK.
-func updateReplicas(rl *fn.ResourceList) error {
+func updateReplicas(rl *fn.ResourceList) (bool, error) {
 	if rl.FunctionConfig == nil {
-		return fn.ErrMissingFnConfig{}
+		return false, fn.ErrMissingFnConfig{}
 	}
 	var replicas int
 	rl.FunctionConfig.GetOrDie(&replicas, "replicas")
@@ -40,5 +40,5 @@ func updateReplicas(rl *fn.ResourceList) error {
 			rl.Items[i].SetOrDie(replicas, "spec", "replicas")
 		}
 	}
-	return nil
+	return true, nil
 }

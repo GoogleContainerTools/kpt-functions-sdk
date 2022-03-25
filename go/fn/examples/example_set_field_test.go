@@ -28,12 +28,12 @@ func Example_cSetField() {
 	}
 }
 
-func setField(rl *fn.ResourceList) error {
+func setField(rl *fn.ResourceList) (bool, error) {
 	for _, obj := range rl.Items {
 		if obj.GetAPIVersion() == "apps/v1" && obj.GetKind() == "Deployment" {
 			replicas := 10
 			obj.SetOrDie(&replicas, "spec", "replicas")
 		}
 	}
-	return nil
+	return true, nil
 }

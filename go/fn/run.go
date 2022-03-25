@@ -47,12 +47,33 @@ func AsMain(p ResourceListProcessor) error {
 
 // Run evaluates the function. input must be a resourceList in yaml format. An
 // updated resourceList will be returned.
-func Run(p ResourceListProcessor, input []byte) ([]byte, error) {
+func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 	rl, err := ParseResourceList(input)
 	if err != nil {
 		return nil, err
 	}
-	defer handlePanic()
+	defer func() {
+		// if we run into a panic, we still need to log the error to Results,
+		// and return the ResourceList and error.
+		v := recover()
+		if v != nil {
+			if e, ok := v.(ErrOpOrDie); ok {
+				err = fmt.Errorf(e.Error())
+				rl.LogResult(err)
+				out, _ = rl.ToYAML()
+			} else if e, ok := v.(Result); ok {
+				err = fmt.Errorf(e.Message)
+				rl.LogResult(err)
+				out, _ = rl.ToYAML()
+			} else if e, ok := v.(Results); ok {
+				err = fmt.Errorf(e.Error())
+				rl.LogResult(err)
+				out, _ = rl.ToYAML()
+			} else {
+				panic(v)
+			}
+		}
+	}()
 	success, fnErr := p.Process(rl)
 	out, yamlErr := rl.ToYAML()
 	if yamlErr != nil {
@@ -84,10 +105,16 @@ func execute(p ResourceListProcessor, rw *byteReadWriter) error {
 	if err != nil {
 		return errors.WrapPrefixf(err, "failed to read ResourceList input")
 	}
-	fnErr := p.Process(rl)
+	success, fnErr := p.Process(rl)
 	// Write the output
 	if err := rw.Write(rl); err != nil {
 		return errors.WrapPrefixf(err, "failed to write ResourceList output")
 	}
-	return fnErr
+	if fnErr != nil {
+		return fnErr
+	}
+	if !success {
+		return fmt.Errorf("error: function failure")
+	}
+	return nil
 }

@@ -30,11 +30,11 @@ func Example_bReadFunctionConfig() {
 	}
 }
 
-func readFunctionConfig(rl *fn.ResourceList) error {
+func readFunctionConfig(rl *fn.ResourceList) (bool, error) {
 	var sr SetReplicas
 	rl.FunctionConfig.AsOrDie(&sr)
 	fn.Logf("desired replicas is %v\n", sr.DesiredReplicas)
-	return nil
+	return true, nil
 }
 
 // SetReplicas is the type definition of the functionConfig

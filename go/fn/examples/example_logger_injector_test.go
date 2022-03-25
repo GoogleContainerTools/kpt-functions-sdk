@@ -34,10 +34,10 @@ func Example_loggeInjector() {
 
 // injectLogger injects a logger container into the workload API resources.
 // generate implements the gokrmfn.KRMFunction interface.
-func injectLogger(rl *fn.ResourceList) error {
+func injectLogger(rl *fn.ResourceList) (bool, error) {
 	var li LoggerInjection
 	if err := rl.FunctionConfig.As(&li); err != nil {
-		return err
+		return false, err
 	}
 	for i, obj := range rl.Items {
 		if obj.GetAPIVersion() == "apps/v1" && (obj.GetKind() == "Deployment" || obj.GetKind() == "StatefulSet" || obj.GetKind() == "DaemonSet" || obj.GetKind() == "ReplicaSet") {
@@ -61,7 +61,7 @@ func injectLogger(rl *fn.ResourceList) error {
 			rl.Items[i].SetOrDie(containers, "spec", "template", "spec", "containers")
 		}
 	}
-	return nil
+	return true, nil
 }
 
 // LoggerInjection is type definition of the functionConfig.

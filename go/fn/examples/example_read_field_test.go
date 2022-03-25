@@ -28,7 +28,7 @@ func Example_aReadField() {
 	}
 }
 
-func readField(rl *fn.ResourceList) error {
+func readField(rl *fn.ResourceList) (bool, error) {
 	for _, obj := range rl.Items {
 		if obj.GetAPIVersion() == "apps/v1" && obj.GetKind() == "Deployment" {
 			var replicas int
@@ -36,5 +36,5 @@ func readField(rl *fn.ResourceList) error {
 			fn.Logf("replicas is %v\n", replicas)
 		}
 	}
-	return nil
+	return true, nil
 }
