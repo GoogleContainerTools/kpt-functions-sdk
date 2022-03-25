@@ -26,7 +26,7 @@ import (
 
 // KubeObject presents a k8s object.
 type KubeObject struct {
-	obj *internal.MapVariant
+	SubObject
 }
 
 // ParseKubeObject parses input byte slice to a KubeObject.
@@ -205,7 +205,7 @@ func (o *KubeObject) SetOrDie(val interface{}, fields ...string) {
 // Set sets a nested field located by fields to the value provided as val. val
 // should not be a yaml.RNode. If you want to deal with yaml.RNode, you should
 // use Get method and modify the underlying yaml.Node.
-func (o *KubeObject) Set(val interface{}, fields ...string) error {
+func (o *SubObject) Set(val interface{}, fields ...string) error {
 	err := func() error {
 		if o == nil {
 			return fmt.Errorf("the object doesn't exist")
@@ -405,7 +405,6 @@ func (o *KubeObject) IsGVK(apiVersion, kind string) bool {
 	return false
 }
 
-
 // IsLocalConfig checks the "config.kubernetes.io/local-config" field to tell
 // whether a KRM resource will be skipped by `kpt live apply` or not.
 func (o *KubeObject) IsLocalConfig() bool {
@@ -553,7 +552,7 @@ func (o KubeObjects) Less(i, j int) bool {
 }
 
 func asKubeObject(obj *internal.MapVariant) *KubeObject {
-	return &KubeObject{obj}
+	return &KubeObject{SubObject{obj}}
 }
 
 func (o *KubeObject) node() *internal.MapVariant {
@@ -562,5 +561,5 @@ func (o *KubeObject) node() *internal.MapVariant {
 
 func rnodeToKubeObject(rn *yaml.RNode) *KubeObject {
 	mapVariant := internal.NewMap(rn.YNode())
-	return &KubeObject{obj: mapVariant}
+	return &KubeObject{SubObject{mapVariant}}
 }
