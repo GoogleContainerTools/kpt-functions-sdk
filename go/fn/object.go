@@ -56,17 +56,17 @@ func (o *KubeObject) GetOrDie(ptr interface{}, fields ...string) {
 	}
 }
 
-// GetString returns the string value, if the field exist and a potential error.
-func (o *KubeObject) GetString(fields ...string) (string, bool, error) {
+// GetNestedString returns the string value, if the field exist and a potential error.
+func (o *KubeObject) GetNestedString(fields ...string) (string, bool, error) {
 	var val string
 	found, err := o.Get(&val, fields...)
 	return val, found, err
 }
 
-// GetStringOrDie returns the string value at fields. An empty string will be
+// GetNestedStringOrDie returns the string value at fields. An empty string will be
 // returned if the field is not found. It will panic if encountering any errors.
-func (o *KubeObject) GetStringOrDie(fields ...string) string {
-	val, _, err := o.GetString(fields...)
+func (o *KubeObject) GetNestedStringOrDie(fields ...string) string {
+	val, _, err := o.GetNestedString(fields...)
 	if err != nil {
 		panic(ErrOpOrDie{obj: o, fields: fields})
 	}

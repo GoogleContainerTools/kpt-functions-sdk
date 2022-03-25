@@ -41,8 +41,8 @@ func generate(rl *fn.ResourceList) error {
 		return fn.ErrMissingFnConfig{}
 	}
 
-	revision := rl.FunctionConfig.GetStringOrDie("data", "revision")
-	id := rl.FunctionConfig.GetStringOrDie("data", "id")
+	revision := rl.FunctionConfig.GetNestedStringOrDie("data", "revision")
+	id := rl.FunctionConfig.GetNestedStringOrDie("data", "id")
 	js, err := fetchDashboard(revision, id)
 	if err != nil {
 		return fmt.Errorf("fetch dashboard: %v", err)
