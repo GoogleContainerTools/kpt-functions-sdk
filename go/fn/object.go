@@ -90,6 +90,22 @@ func (o *KubeObject) GetIntOrDie(fields ...string) int {
 	return val
 }
 
+// GetInt returns the string value, if the field exist and a potential error.
+func (o *KubeObject) GetSlice(fields ...string) ([]*KubeObject, bool, error) {
+	var val []*KubeObject
+	found, err := o.Get(&val, fields...)
+	return val, found, err
+}
+
+// GetInt returns the string value, if the field exist and a potential error.
+func (o *KubeObject) GetSliceOrDie(fields ...string) []*KubeObject {
+	val, _, err := o.GetSlice(fields...)
+	if err != nil {
+		panic(ErrOpOrDie{obj: o, fields: fields})
+	}
+	return val
+}
+
 // Get gets the value for a nested field located by fields. A pointer must be
 // passed in, and the value will be stored in ptr. ptr can be a concrete type
 // (e.g. string, []corev1.Container, []string, corev1.Pod, map[string]string) or
@@ -405,7 +421,6 @@ func (o *KubeObject) IsGVK(apiVersion, kind string) bool {
 	return false
 }
 
-
 // IsLocalConfig checks the "config.kubernetes.io/local-config" field to tell
 // whether a KRM resource will be skipped by `kpt live apply` or not.
 func (o *KubeObject) IsLocalConfig() bool {
@@ -417,69 +432,112 @@ func (o *KubeObject) IsLocalConfig() bool {
 }
 
 func (o *KubeObject) GetAPIVersion() string {
-	apiVersion, _, _ := o.obj.GetNestedString("apiVersion")
+	apiVersion, _, err := o.obj.GetNestedString("apiVersion")
+	if err != nil {
+		panic(MetaTypeError{metaType: ApiVersion})
+	}
 	return apiVersion
 }
 
 func (o *KubeObject) SetAPIVersion(apiVersion string) {
 	if err := o.obj.SetNestedString(apiVersion, "apiVersion"); err != nil {
-		panic(fmt.Errorf("cannot set apiVersion '%v': %v", apiVersion, err))
+		panic(MetaTypeError{metaType: ApiVersion})
 	}
 }
 
 func (o *KubeObject) GetKind() string {
-	kind, _, _ := o.obj.GetNestedString("kind")
+	kind, found, err := o.GetString("kind")
+	if !found || err != nil {
+		panic(MetaTypeError{metaType: Kind})
+	}
 	return kind
 }
 
 func (o *KubeObject) SetKind(kind string) {
-	if err := o.obj.SetNestedString(kind, "kind"); err != nil {
-		panic(fmt.Errorf("cannot set kind '%v': %v", kind, err))
+	err := o.obj.SetNestedString(kind, "kind")
+	if err != nil {
+		panic(MetaTypeError{metaType: Kind})
 	}
 }
 
 func (o *KubeObject) GetName() string {
-	s, _, _ := o.obj.GetNestedString("metadata", "name")
-	return s
+	s, _, err := o.GetString("metadata", "name")
+	if err == nil {
+		return s
+	}
+	s, _, subErr := o.obj.GetNestedString("name")
+	if subErr == nil {
+		return s
+	}
+	panic(MetaTypeError{metaType: Name})
 }
 
 func (o *KubeObject) SetName(name string) {
-	if err := o.obj.SetNestedString(name, "metadata", "name"); err != nil {
-		panic(fmt.Errorf("cannot set metadata name '%v': %v", name, err))
+	err := o.obj.SetNestedString(name, "metadata", "name")
+	if err != nil {
+		subErr := o.obj.SetNestedString(name, "name")
+		if subErr != nil {
+			panic(MetaTypeError{metaType: Name})
+		}
 	}
 }
 
 func (o *KubeObject) GetNamespace() string {
-	s, _, _ := o.obj.GetNestedString("metadata", "namespace")
-	return s
+	s, _, err := o.GetString("metadata", "namespace")
+	if err == nil {
+		return s
+	}
+	s, _, subErr := o.obj.GetNestedString("namespace")
+	if subErr == nil {
+		return s
+	}
+	panic(MetaTypeError{metaType: Namespace})
 }
 
 func (o *KubeObject) HasNamespace() bool {
-	_, found, _ := o.obj.GetNestedString("metadata", "namespace")
-	return found
+	_, found, err := o.GetString("metadata", "namespace")
+	if err == nil {
+		return found
+	}
+	_, found, subErr := o.GetString("namespace")
+	if subErr == nil {
+		return found
+	}
+	panic(MetaTypeError{metaType: Namespace})
 }
 
 func (o *KubeObject) SetNamespace(name string) {
-	if err := o.obj.SetNestedString(name, "metadata", "namespace"); err != nil {
-		panic(fmt.Errorf("cannot set namespace '%v': %v", name, err))
+	err := o.obj.SetNestedString(name, "metadata", "namespace")
+	if err != nil {
+		subErr := o.obj.SetNestedString(name, "namespace")
+		if subErr != nil {
+			panic(MetaTypeError{metaType: Namespace})
+		}
 	}
 }
 
 func (o *KubeObject) SetAnnotation(k, v string) {
-	if err := o.obj.SetNestedString(v, "metadata", "annotations", k); err != nil {
-		panic(fmt.Errorf("cannot set metadata annotations '%v': %v", k, err))
+	err := o.obj.SetNestedString(v, "metadata", "annotations", k)
+	if err != nil {
+		panic(MetaTypeError{metaType: Annotations, annotation: k})
 	}
 }
 
 // Annotations returns all annotations.
 func (o *KubeObject) GetAnnotations() map[string]string {
-	v, _, _ := o.obj.GetNestedStringMap("metadata", "annotations")
+	v, _, err := o.obj.GetNestedStringMap("metadata", "annotations")
+	if err != nil {
+		panic(MetaTypeError{metaType: Annotations})
+	}
 	return v
 }
 
 // Annotation returns one annotation with key k.
 func (o *KubeObject) GetAnnotation(k string) string {
-	v, _, _ := o.obj.GetNestedString("metadata", "annotations", k)
+	v, _, err := o.obj.GetNestedString("metadata", "annotations", k)
+	if err != nil {
+		panic(MetaTypeError{metaType: Annotations, annotation: k})
+	}
 	return v
 }
 
@@ -487,7 +545,7 @@ func (o *KubeObject) GetAnnotation(k string) string {
 func (o *KubeObject) RemoveAnnotationsIfEmpty() error {
 	annotations, found, err := o.obj.GetNestedStringMap("metadata", "annotations")
 	if err != nil {
-		return err
+		panic(MetaTypeError{metaType: Annotations})
 	}
 	if found && len(annotations) == 0 {
 		_, err = o.obj.RemoveNestedField("metadata", "annotations")
@@ -497,20 +555,27 @@ func (o *KubeObject) RemoveAnnotationsIfEmpty() error {
 }
 
 func (o *KubeObject) SetLabel(k, v string) {
-	if err := o.obj.SetNestedString(v, "metadata", "labels", k); err != nil {
-		panic(fmt.Errorf("cannot set metadata labels '%v': %v", k, err))
+	err := o.obj.SetNestedString(v, "metadata", "labels", k)
+	if err != nil {
+		panic(MetaTypeError{metaType: Labels, label: k})
 	}
 }
 
 // Label returns one label with key k.
 func (o *KubeObject) GetLabel(k string) string {
-	v, _, _ := o.obj.GetNestedString("metadata", "labels", k)
+	v, _, err := o.obj.GetNestedString("metadata", "labels", k)
+	if err != nil {
+		panic(MetaTypeError{metaType: Labels, label: k})
+	}
 	return v
 }
 
 // Labels returns all labels.
 func (o *KubeObject) GetLabels() map[string]string {
-	v, _, _ := o.obj.GetNestedStringMap("metadata", "labels")
+	v, _, err := o.obj.GetNestedStringMap("metadata", "labels")
+	if err != nil {
+		panic(MetaTypeError{metaType: Labels})
+	}
 	return v
 }
 
