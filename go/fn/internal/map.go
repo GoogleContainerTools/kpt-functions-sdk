@@ -19,6 +19,7 @@ import (
 	"log"
 	"sort"
 
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
@@ -257,3 +258,43 @@ func (nodes yamlKeyValuePairs) Less(i, j int) bool {
 }
 
 func (nodes yamlKeyValuePairs) Swap(i, j int) { nodes[i], nodes[j] = nodes[j], nodes[i] }
+
+// UpsertMap will return the field as a map if it exists and is a map,
+// otherwise it will insert a map at the specified field.
+// Note that if the value exists but is not a map, it will be replaced with a map.
+func (obj *MapVariant) UpsertMap(field string) *MapVariant {
+	m := obj.GetMap(field)
+	if m != nil {
+		return m
+	}
+
+	keyNode := &yaml.Node{
+		Kind:  yaml.ScalarNode,
+		Value: field,
+		Tag:   "!!str",
+	}
+	valueNode := &yaml.Node{
+		Kind: yaml.MappingNode,
+	}
+	obj.node.Content = append(obj.node.Content, keyNode, valueNode)
+	return &MapVariant{node: valueNode}
+}
+
+// GetMap will return the field as a map if it exists and is a map,
+// otherwise it will return nil.
+// Note that if the value exists but is not a map, nil will be returned.
+func (obj *MapVariant) GetMap(field string) *MapVariant {
+	node, found := obj.getVariant(field)
+
+	if found {
+		switch node := node.(type) {
+		case *MapVariant:
+			return node
+
+		default:
+			klog.Warningf("getting value of unexpected type, got %T, want map", node)
+		}
+	}
+
+	return nil
+}
