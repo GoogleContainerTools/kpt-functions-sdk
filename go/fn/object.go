@@ -90,6 +90,25 @@ func (o *KubeObject) GetIntOrDie(fields ...string) int {
 	return val
 }
 
+// GetSlice returns the value of the `fields` as a list of SubObjects, whether the `fields` exists
+// and error if the `fields` type is not slice.
+func (o *KubeObject) GetSlice(fields ...string) ([]*SubObject, bool, error) {
+	var val []*SubObject
+	found, err := o.Get(&val, fields...)
+	return val, found, err
+}
+
+// GetSliceOrDie returns the value of the `fields` as a list of SubObjects.
+// It panics if the `fields` are not slice.
+func (o *KubeObject) GetSliceOrDie(fields ...string) []*SubObject {
+	var val []*SubObject
+	val, _, err := o.GetSlice(fields...)
+	if err != nil {
+		panic(ErrOpOrDie{obj: o, fields: fields})
+	}
+	return val
+}
+
 // Get gets the value for a nested field located by fields. A pointer must be
 // passed in, and the value will be stored in ptr. ptr can be a concrete type
 // (e.g. string, []corev1.Container, []string, corev1.Pod, map[string]string) or
