@@ -200,13 +200,14 @@ func (rl *ResourceList) LogResult(err error) {
 	if err == nil {
 		return
 	}
-	if results, ok := err.(Results); ok {
-		rl.Results = append(rl.Results, results...)
-	} else if result, ok := err.(Result); ok {
+	switch result := err.(type) {
+	case Results:
+		rl.Results = append(rl.Results, result...)
+	case Result:
 		rl.Results = append(rl.Results, &result)
-	} else if result, ok := err.(*Result); ok {
+	case *Result:
 		rl.Results = append(rl.Results, result)
-	} else {
+	default:
 		rl.Results = append(rl.Results, ErrorResult(err))
 	}
 }

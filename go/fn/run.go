@@ -57,21 +57,13 @@ func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 		// and return the ResourceList and error.
 		v := recover()
 		if v != nil {
-			if e, ok := v.(ErrOpOrDie); ok {
-				err = fmt.Errorf(e.Error())
-				rl.LogResult(err)
-				out, _ = rl.ToYAML()
-			} else if e, ok := v.(Result); ok {
-				err = fmt.Errorf(e.Message)
-				rl.LogResult(err)
-				out, _ = rl.ToYAML()
-			} else if e, ok := v.(Results); ok {
-				err = fmt.Errorf(e.Error())
-				rl.LogResult(err)
-				out, _ = rl.ToYAML()
+			if e, ok := v.(error); ok {
+				err = e
 			} else {
-				panic(v)
+				err = fmt.Errorf("panic with %v", v)
 			}
+			rl.LogResult(err)
+			out, _ = rl.ToYAML()
 		}
 	}()
 	success, fnErr := p.Process(rl)
