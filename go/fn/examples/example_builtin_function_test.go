@@ -12,9 +12,9 @@ import (
 
 type RemoveAllResources struct{}
 
-func (*RemoveAllResources) Process(rl *fn.ResourceList) error {
+func (*RemoveAllResources) Process(rl *fn.ResourceList) (bool, error) {
 	rl.Items = nil
-	return nil
+	return true, nil
 }
 
 func Example_builtinFunction() {

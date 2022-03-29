@@ -29,7 +29,7 @@ func Example_validator() {
 	}
 }
 
-func validator(rl *fn.ResourceList) error {
+func validator(rl *fn.ResourceList) (bool, error) {
 	var results fn.Results
 	for _, obj := range rl.Items {
 		if obj.GetAPIVersion() == "apps/v1" && (obj.GetKind() == "Deployment" || obj.GetKind() == "StatefulSet" || obj.GetKind() == "DaemonSet" || obj.GetKind() == "ReplicaSet") {
@@ -40,5 +40,5 @@ func validator(rl *fn.ResourceList) error {
 			}
 		}
 	}
-	return results
+	return true, results
 }
