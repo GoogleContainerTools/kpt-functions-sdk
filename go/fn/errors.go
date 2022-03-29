@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"log"
 	"strings"
+
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 )
 
 // ErrMissingFnConfig raises error if a required functionConfig is missing.
@@ -40,9 +42,12 @@ func (e *ErrOpOrDie) Error() string {
 
 func handleOptOrDieErr() {
 	if v := recover(); v != nil {
-		if e, ok := v.(ErrOpOrDie); ok {
-			log.Fatalf(e.Error())
-		} else {
+		switch v.(type) {
+		case ErrOpOrDie:
+			log.Fatalf(v.(*ErrOpOrDie).Error())
+		case internal.ErrEqualSelector:
+			log.Fatalf(v.(*internal.ErrEqualSelector).Error())
+		default:
 			panic(v)
 		}
 	}

@@ -30,9 +30,13 @@ func Example_cSetField() {
 
 func setField(rl *fn.ResourceList) error {
 	for _, obj := range rl.Items {
-		if obj.GetAPIVersion() == "apps/v1" && obj.GetKind() == "Deployment" {
+		switch{
+		case obj.IsGVK("apps/v1", "Deployment"):
 			replicas := 10
 			obj.SetOrDie(&replicas, "spec", "replicas")
+		case obj.IsGVK("rbac.authorization.k8s.io/v1", "ClusterRoleBinding"):
+			namespace := "test"
+			obj.SetOrDie(&namespace, "subjects", "kind=ServiceAccount", "namespace")
 		}
 	}
 	return nil

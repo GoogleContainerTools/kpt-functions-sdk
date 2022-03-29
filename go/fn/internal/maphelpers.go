@@ -16,13 +16,15 @@ package internal
 
 import (
 	"fmt"
+	"strings"
 )
 
 func (o *MapVariant) GetNestedValue(fields ...string) (variant, bool, error) {
-	current := o
+	var current variant
+	current = o
 	n := len(fields)
 	for i := 0; i < n; i++ {
-		entry, found := current.getVariant(fields[i])
+		entry, found := current.(*MapVariant).getVariant(fields[i])
 		if !found {
 			return nil, found, nil
 		}
@@ -30,26 +32,67 @@ func (o *MapVariant) GetNestedValue(fields ...string) (variant, bool, error) {
 		if i == n-1 {
 			return entry, true, nil
 		}
-		entryM, ok := entry.(*MapVariant)
-		if !ok {
+		switch entry.(type){
+		case *MapVariant:
+			current, _ = entry.(*MapVariant)
+		case *sliceVariant:
+			if i+1 < n && IsEqualSelector(fields[i+1]) {
+				foundMapVar, err := entry.(*sliceVariant).GetSliceElementBySelector(fields[i+1])
+				if err != nil {
+					return nil, found, err
+				}
+				if foundMapVar != nil {
+					current = foundMapVar
+					i += 1
+				} else {
+					return nil, false, nil
+				}
+			} else {
+				return nil, found, fmt.Errorf("wrong type, got: %T", entry)
+			}
+		default:
 			return nil, found, fmt.Errorf("wrong type, got: %T", entry)
 		}
-		current = entryM
 	}
 	return nil, false, fmt.Errorf("unexpected code reached")
 }
 
 func (o *MapVariant) SetNestedValue(val variant, fields ...string) error {
-	current := o
+	var current variant
+	current = o
 	n := len(fields)
 	var err error
 	for i := 0; i < n; i++ {
 		if i == n-1 {
-			current.set(fields[i], val)
+			current.(*MapVariant).set(fields[i], val)
 		} else {
-			current, _, err = current.getMap(fields[i], true)
-			if err != nil {
-				return err
+			entry, found := current.(*MapVariant).getVariant(fields[i])
+			if !found{
+				return fmt.Errorf("fields not exist %v", strings.Join(fields, "."))
+			}
+			switch entry.(type){
+			case *sliceVariant:
+				if i+1 < n && IsEqualSelector(fields[i+1]) {
+					mapVar, err := entry.(*sliceVariant).GetSliceElementBySelector(fields[i+1])
+					if err != nil {
+						return err
+					}
+					if mapVar == nil {
+						valueNode := buildMappingNode()
+						valueVariant := &MapVariant{node: valueNode}
+						entry.(*sliceVariant).Add(valueVariant)
+						current = valueVariant
+						return fmt.Errorf("no matching element in selector %v", fields[i+1])
+					} else {
+						current = mapVar
+						i += 1
+					}
+				}
+			default: // MapVariant or not exist
+				current, _, err = current.(*MapVariant).getMap(fields[i], true)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
