@@ -49,3 +49,24 @@ func (v *sliceVariant) Objects() ([]*MapVariant, error) {
 func (v *sliceVariant) Add(node variant) {
 	v.node.Content = append(v.node.Content, node.Node())
 }
+
+func (o *sliceVariant) GetSliceElementBySelector(field string) (*MapVariant, error) {
+	key, expected := GetEqualSelector(field)
+	elements, err := o.Objects()
+	if err != nil {
+		return nil, err
+	}
+	for _, mapElement := range elements {
+		actual, found, err := mapElement.GetNestedString(key)
+		if !found {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		if actual == expected {
+			return mapElement, nil
+		}
+	}
+	return nil, nil
+}

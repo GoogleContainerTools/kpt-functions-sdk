@@ -30,10 +30,13 @@ func Example_aReadField() {
 
 func readField(rl *fn.ResourceList) error {
 	for _, obj := range rl.Items {
-		if obj.GetAPIVersion() == "apps/v1" && obj.GetKind() == "Deployment" {
+		switch{
+		case obj.IsGVK("apps/v1", "Deployment"):
 			var replicas int
 			obj.GetOrDie(&replicas, "spec", "replicas")
-			fn.Logf("replicas is %v\n", replicas)
+		case obj.IsGVK("rbac.authorization.k8s.io/v1", "ClusterRoleBinding"):
+			var namespace string
+			obj.GetOrDie(&namespace, "subjects", "kind=ServiceAccount", "namespace")
 		}
 	}
 	return nil
