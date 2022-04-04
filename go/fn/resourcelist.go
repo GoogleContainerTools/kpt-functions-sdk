@@ -79,7 +79,7 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed when tried to get items: %w", err)
 	}
-	objectItems, err := items.Objects()
+	objectItems, err := items.Elements()
 	if err != nil {
 		return nil, fmt.Errorf("failed extract objects from items: %w", err)
 	}

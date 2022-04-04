@@ -42,7 +42,7 @@ func (v *sliceVariant) Clear() {
 	v.node.Content = nil
 }
 
-func (v *sliceVariant) Objects() ([]*MapVariant, error) {
+func (v *sliceVariant) Elements() ([]*MapVariant, error) {
 	return extractObjects(v.node.Content...)
 }
 

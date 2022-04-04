@@ -57,10 +57,13 @@ func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 		// and return the ResourceList and error.
 		v := recover()
 		if v != nil {
-			if e, ok := v.(error); ok {
-				err = e
-			} else {
-				err = fmt.Errorf("panic with %v", v)
+			switch t := v.(type) {
+			case *ErrKubeObjectFields:
+				err = t
+			case *ErrSubObjectFields:
+				err = t
+			default:
+				err = fmt.Errorf("panic with %s", v)
 			}
 			rl.LogResult(err)
 			out, _ = rl.ToYAML()
