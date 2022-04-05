@@ -66,6 +66,6 @@ func (d *doc) ToYAML() ([]byte, error) {
 	return w.Bytes(), nil
 }
 
-func (d *doc) Objects() ([]*MapVariant, error) {
+func (d *doc) Elements() ([]*MapVariant, error) {
 	return extractObjects(d.nodes...)
 }
