@@ -33,8 +33,8 @@ type KubeObject struct {
 	SubObject
 }
 
-// ParseKubeObject parses input byte slice to a KubeObject.
-func ParseKubeObject(in []byte) (*KubeObject, error) {
+// ParseKubeObjects parses input byte slice to multiple KubeObjects.
+func ParseKubeObjects(in []byte) ([]*KubeObject, error) {
 	doc, err := internal.ParseDoc(in)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse input bytes: %w", err)
@@ -43,11 +43,25 @@ func ParseKubeObject(in []byte) (*KubeObject, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract objects: %w", err)
 	}
+	var kubeObjects []*KubeObject
+	for _, obj := range objects {
+		kubeObjects = append(kubeObjects, asKubeObject(obj))
+	}
+	return kubeObjects, nil
+}
+
+// ParseKubeObject parses input byte slice to a single KubeObject.
+func ParseKubeObject(in []byte) (*KubeObject, error) {
+	objects, err := ParseKubeObjects(in)
+	if err != nil {
+		return nil, err
+	}
+
 	if len(objects) != 1 {
 		return nil, fmt.Errorf("expected exactly one object, got %d", len(objects))
 	}
-	rlMap := objects[0]
-	return asKubeObject(rlMap), nil
+	obj := objects[0]
+	return obj, nil
 }
 
 // GetOrDie gets the value for a nested field located by fields. A pointer must
