@@ -15,6 +15,7 @@
 package fn
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -48,6 +49,7 @@ func TestUpsertMap(t *testing.T) {
 	for k := range entries {
 		got = append(got, k)
 	}
+	sort.Strings(got)
 
 	want := []string{"foo", "foo2"}
 	if diff := cmp.Diff(want, got); diff != "" {
