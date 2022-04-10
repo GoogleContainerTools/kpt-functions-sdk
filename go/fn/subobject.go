@@ -92,7 +92,7 @@ type SliceSubObjects []*SubObject
 
 // MarshalJSON provides the custom encoding format for encode.json. This is used
 // when KubeObject `Set` a slice of SubObjects.
-func (s *SliceSubObjects) MarshalJSON() ([]byte, error){
+func (s *SliceSubObjects) MarshalJSON() ([]byte, error) {
 	node := &yaml.Node{Kind: yaml.SequenceNode}
 	for _, subObject := range *s {
 		node.Content = append(node.Content, subObject.obj.Node())
