@@ -49,45 +49,167 @@ func ParseKubeObject(in []byte) (*KubeObject, error) {
 // GetOrDie gets the value for a nested field located by fields. A pointer must
 // be passed in, and the value will be stored in ptr. If the field doesn't
 // exist, the ptr will be set to nil. It will panic if it encounters any error.
-func (o *KubeObject) GetOrDie(ptr interface{}, fields ...string) {
+func (o *SubObject) GetOrDie(ptr interface{}, fields ...string) {
 	_, err := o.Get(ptr, fields...)
 	if err != nil {
-		panic(ErrKubeObjectFields{obj: o, fields: fields})
+		panic(ErrSubObjectFields{fields: fields})
 	}
 }
 
-// GetString returns the string value, if the field exist and a potential error.
-func (o *SubObject) GetString(fields ...string) (string, bool, error) {
+// NestedBool returns the bool value, if the field exist and a potential error.
+func (o *SubObject) NestedBool(fields ...string) (bool, bool, error) {
+	var val bool
+	found, err := o.Get(&val, fields...)
+	return val, found, err
+}
+
+// NestedBoolOrDie returns the bool value at `fields`. An empty string will be
+// returned if the field is not found. It will panic if encountering any errors.
+func (o *SubObject) NestedBoolOrDie(fields ...string) bool {
+	val, _, err := o.NestedBool(fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+	return val
+}
+
+// NestedString returns the string value, if the field exist and a potential error.
+func (o *SubObject) NestedString(fields ...string) (string, bool, error) {
 	var val string
 	found, err := o.Get(&val, fields...)
 	return val, found, err
 }
 
-// GetStringOrDie returns the string value at fields. An empty string will be
+// NestedStringOrDie returns the string value at fields. An empty string will be
 // returned if the field is not found. It will panic if encountering any errors.
-func (o *KubeObject) GetStringOrDie(fields ...string) string {
-	val, _, err := o.GetString(fields...)
+func (o *SubObject) NestedStringOrDie(fields ...string) string {
+	val, _, err := o.NestedString(fields...)
 	if err != nil {
-		panic(ErrKubeObjectFields{obj: o, fields: fields})
+		panic(ErrSubObjectFields{fields: fields})
 	}
 	return val
 }
 
-// GetInt returns the string value, if the field exist and a potential error.
-func (o *KubeObject) GetInt(fields ...string) (int, bool, error) {
-	var val int
+// NestedFloat64 returns the float64 value, if the field exist and a potential error.
+func (o *SubObject) NestedFloat64(fields ...string) (float64, bool, error) {
+	var val float64
 	found, err := o.Get(&val, fields...)
 	return val, found, err
 }
 
-// GetIntOrDie returns the string value at fields. An empty string will be
+// NestedFloat64OrDie returns the string value at fields. 0 will be
 // returned if the field is not found. It will panic if encountering any errors.
-func (o *KubeObject) GetIntOrDie(fields ...string) int {
-	val, _, err := o.GetInt(fields...)
+func (o *SubObject) NestedFloat64OrDie(fields ...string) float64 {
+	val, _, err := o.NestedFloat64(fields...)
 	if err != nil {
-		panic(ErrKubeObjectFields{obj: o, fields: fields})
+		panic(ErrSubObjectFields{fields: fields})
 	}
 	return val
+}
+
+// NestedInt64 returns the int64 value, if the field exist and a potential error.
+func (o *SubObject) NestedInt64(fields ...string) (int64, bool, error) {
+	var val int64
+	found, err := o.Get(&val, fields...)
+	return val, found, err
+}
+
+// NestedInt64OrDie returns the string value at fields. An empty string will be
+// returned if the field is not found. It will panic if encountering any errors.
+func (o *SubObject) NestedInt64OrDie(fields ...string) int64 {
+	val, _, err := o.NestedInt64(fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+	return val
+}
+
+// NestedSlice accepts a slice of `fields` which represents the path to the slice component and
+// return a slice of SubObjects as the first return value; whether the component exists or
+// not as the second return value, and errors as the third return value.
+func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error) {
+	var mapVariant *internal.MapVariant
+	if len(fields) > 1 {
+		m, found, err := o.obj.GetNestedMap(fields[:len(fields)-1]...)
+		if err != nil || !found {
+			return nil, found, err
+		}
+		mapVariant = m
+	} else {
+		mapVariant = o.obj
+	}
+	sliceVal, found, err := mapVariant.GetNestedSlice(fields[len(fields)-1])
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+	if !found {
+		return nil, found, nil
+	}
+	objects, err := sliceVal.Elements()
+	if err != nil {
+		return nil, found, err
+	}
+	var val []*SubObject
+	for _, obj := range objects {
+		val = append(val, &SubObject{obj: obj})
+	}
+	return val, true, nil
+}
+
+// NestedSliceOrDie accepts a slice of `fields` which represents the path to the slice component and
+// return a slice of SubObjects.
+// - It returns nil if the fields does not exist.
+// - It panics with ErrSubObjectFields error if the field is not a slice type.
+func (o *SubObject) NestedSliceOrDie(fields ...string) SliceSubObjects {
+	val, _, err := o.NestedSlice(fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+	return val
+}
+
+
+// NestedInt64 returns the int64 value, if the field exist and a potential error.
+func (o *SubObject) NestedMap(fields ...string) (*SubObject, bool, error) {
+	var variant internal.MapVariant
+	found, err := o.Get(&variant, fields...)
+	if err != nil || !found {
+		return nil, found, err
+	}
+	return &SubObject{obj: &variant}, found, err
+}
+
+// NestedInt64OrDie returns the string value at fields. An empty string will be
+// returned if the field is not found. It will panic if encountering any errors.
+func (o *SubObject) NestedMapOrDie(fields ...string) *SubObject {
+	val, _, err := o.NestedMap(fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+	return val
+}
+
+// RemoveNestedFieldOrDie removes the field located by fields if found. It will panic if it
+// encounters any error.
+func (o *KubeObject) RemoveNestedFieldOrDie(fields ...string) {
+	if _, err := o.RemoveNestedField(fields...); err != nil {
+		panic(ErrKubeObjectFields{obj: o, fields: fields})
+	}
+}
+
+// RemoveNestedField removes the field located by fields if found. It returns if the field
+// is found and a potential error.
+func (o *KubeObject) RemoveNestedField(fields ...string) (bool, error) {
+	found, err := func() (bool, error) {
+		if o == nil {
+			return false, fmt.Errorf("the object doesn't exist")
+		}
+		return o.obj.RemoveNestedField(fields...)
+	}()
+	if err != nil {
+		return found, fmt.Errorf("unable to remove fields %v with error: %w", fields, err)
+	}
+	return found, nil
 }
 
 // Get gets the value for a nested field located by fields. A pointer must be
@@ -172,40 +294,18 @@ func (o *SubObject) Get(ptr interface{}, fields ...string) (bool, error) {
 	return found, nil
 }
 
-// LineComment returns the line comment, if the target field exist and a
-// potential error.
-func (o *KubeObject) LineComment(fields ...string) (string, bool, error) {
-	rn := &yaml.RNode{}
-	found, err := o.Get(rn, fields...)
-	if !found || err != nil {
-		return "", found, err
-	}
-	return rn.YNode().LineComment, true, nil
-}
-
-// HeadComment returns the head comment, if the target field exist and a
-// potential error.
-func (o *KubeObject) HeadComment(fields ...string) (string, bool, error) {
-	rn := &yaml.RNode{}
-	found, err := o.Get(rn, fields...)
-	if !found || err != nil {
-		return "", found, err
-	}
-	return rn.YNode().HeadComment, true, nil
-}
-
 // SetOrDie sets a nested field located by fields to the value provided as val.
 // It will panic if it encounters any error.
-func (o *KubeObject) SetOrDie(val interface{}, fields ...string) {
-	if err := o.Set(val, fields...); err != nil {
-		panic(ErrKubeObjectFields{obj: o, fields: fields})
+func (o *SubObject) SetOrDie(val interface{}, fields ...string) {
+	if err := o.SetNestedField(val, fields...); err != nil {
+		panic(ErrSubObjectFields{fields: fields})
 	}
 }
 
-// Set sets a nested field located by fields to the value provided as val. val
+// SetNestedField sets a nested field located by fields to the value provided as val. val
 // should not be a yaml.RNode. If you want to deal with yaml.RNode, you should
 // use Get method and modify the underlying yaml.Node.
-func (o *SubObject) Set(val interface{}, fields ...string) error {
+func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 	err := func() error {
 		if o == nil {
 			return fmt.Errorf("the object doesn't exist")
@@ -281,6 +381,30 @@ func (o *SubObject) Set(val interface{}, fields ...string) error {
 	return nil
 }
 
+
+
+// LineComment returns the line comment, if the target field exist and a
+// potential error.
+func (o *KubeObject) LineComment(fields ...string) (string, bool, error) {
+	rn := &yaml.RNode{}
+	found, err := o.Get(rn, fields...)
+	if !found || err != nil {
+		return "", found, err
+	}
+	return rn.YNode().LineComment, true, nil
+}
+
+// HeadComment returns the head comment, if the target field exist and a
+// potential error.
+func (o *KubeObject) HeadComment(fields ...string) (string, bool, error) {
+	rn := &yaml.RNode{}
+	found, err := o.Get(rn, fields...)
+	if !found || err != nil {
+		return "", found, err
+	}
+	return rn.YNode().HeadComment, true, nil
+}
+
 func (o *KubeObject) SetLineComment(comment string, fields ...string) error {
 	rn := &yaml.RNode{}
 	found, err := o.Get(rn, fields...)
@@ -305,29 +429,6 @@ func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
 	}
 	rn.YNode().HeadComment = comment
 	return nil
-}
-
-// RemoveOrDie removes the field located by fields if found. It will panic if it
-// encounters any error.
-func (o *KubeObject) RemoveOrDie(fields ...string) {
-	if _, err := o.Remove(fields...); err != nil {
-		panic(ErrKubeObjectFields{obj: o, fields: fields})
-	}
-}
-
-// Remove removes the field located by fields if found. It returns if the field
-// is found and a potential error.
-func (o *KubeObject) Remove(fields ...string) (bool, error) {
-	found, err := func() (bool, error) {
-		if o == nil {
-			return false, fmt.Errorf("the object doesn't exist")
-		}
-		return o.obj.RemoveNestedField(fields...)
-	}()
-	if err != nil {
-		return found, fmt.Errorf("unable to remove fields %v with error: %w", fields, err)
-	}
-	return found, nil
 }
 
 // AsOrDie converts a KubeObject to the desired typed object. ptr must

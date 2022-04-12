@@ -29,63 +29,39 @@ func (o *SubObject) UpsertMap(k string) *SubObject {
 	return &SubObject{obj: m}
 }
 
+// GetMap accepts a single key `k` whose value is expected to be a map. It returns
+// the map in the form of a SubObject pointer.
+// It panic with ErrSubObjectFields error if the field cannot be represented as a SubObject.
 func (o *SubObject) GetMap(k string) *SubObject {
-	m := o.obj.GetMap(k)
-	if m == nil {
-		return nil
-	}
-	return &SubObject{obj: m}
+	return o.NestedMapOrDie(k)
+}
+
+// GetBool accepts a single key `k` whose value is expected to be a boolean. It returns
+// the int value of the `k`. It panic with ErrSubObjectFields error if the
+// field is not an integer type.
+func (o *SubObject) GetBool(k string) bool {
+	return o.NestedBoolOrDie(k)
+}
+
+// GetInt accepts a single key `k` whose value is expected to be an integer. It returns
+// the int value of the `k`. It panic with ErrSubObjectFields error if the
+// field is not an integer type.
+func (o *SubObject) GetInt(k string) int64 {
+	return o.NestedInt64OrDie(k)
+}
+
+// GetString accepts a single key `k` whose value is expected to be a string. It returns
+// the value of the `k`. It panic with ErrSubObjectFields error if the
+// field is not a string type.
+func (o *SubObject) GetString(k string) string {
+	return o.NestedStringOrDie(k)
 }
 
 // GetSlice accepts a single key `k` whose value is expected to be a slice. It returns
 // the value as a slice of SubObject. It panic with ErrSubObjectFields error if the
 // field is not a slice type.
 func (o *SubObject) GetSlice(k string) SliceSubObjects {
-	return o.GetSliceNOrDie(k)
-}
-
-// GetSliceN accepts a slice of `fields` which represents the path to the slice component and
-// return a slice of SubObjects as the first return value; whether the component exists or
-// not as the second return value, and errors as the third return value.
-func (o *SubObject) GetSliceN(fields ...string) (SliceSubObjects, bool, error) {
-	var mapVariant *internal.MapVariant
-	if len(fields) > 1 {
-		m, found, err := o.obj.GetNestedMap(fields[:len(fields)-1]...)
-		if err != nil || !found {
-			return nil, found, err
-		}
-		mapVariant = m
-	} else {
-		mapVariant = o.obj
-	}
-	sliceVal, found, err := mapVariant.GetNestedSlice(fields[len(fields)-1])
-	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
-	}
-	if !found {
-		return nil, found, nil
-	}
-	objects, err := sliceVal.Elements()
-	if err != nil {
-		return nil, found, err
-	}
-	var val []*SubObject
-	for _, obj := range objects {
-		val = append(val, &SubObject{obj: obj})
-	}
-	return val, true, nil
-}
-
-// GetSliceN accepts a slice of `fields` which represents the path to the slice component and
-// return a slice of SubObjects.
-// - It returns nil if the fields does not exist.
-// - It panics with ErrSubObjectFields error if the field is not a slice type.
-func (o *SubObject) GetSliceNOrDie(fields ...string) SliceSubObjects {
-	val, _, err := o.GetSliceN(fields...)
-	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
-	}
-	return val
+	return o.NestedSliceOrDie(k)
 }
 
 type SliceSubObjects []*SubObject
