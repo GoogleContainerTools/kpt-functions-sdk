@@ -57,7 +57,7 @@ func (o *KubeObject) GetOrDie(ptr interface{}, fields ...string) {
 }
 
 // GetString returns the string value, if the field exist and a potential error.
-func (o *KubeObject) GetString(fields ...string) (string, bool, error) {
+func (o *SubObject) GetString(fields ...string) (string, bool, error) {
 	var val string
 	found, err := o.Get(&val, fields...)
 	return val, found, err
