@@ -262,8 +262,8 @@ func (nodes yamlKeyValuePairs) Swap(i, j int) { nodes[i], nodes[j] = nodes[j], n
 // UpsertMap will return the field as a map if it exists and is a map,
 // otherwise it will insert a map at the specified field.
 // Note that if the value exists but is not a map, it will be replaced with a map.
-func (obj *MapVariant) UpsertMap(field string) *MapVariant {
-	m := obj.GetMap(field)
+func (o *MapVariant) UpsertMap(field string) *MapVariant {
+	m := o.GetMap(field)
 	if m != nil {
 		return m
 	}
@@ -276,15 +276,15 @@ func (obj *MapVariant) UpsertMap(field string) *MapVariant {
 	valueNode := &yaml.Node{
 		Kind: yaml.MappingNode,
 	}
-	obj.node.Content = append(obj.node.Content, keyNode, valueNode)
+	o.node.Content = append(o.node.Content, keyNode, valueNode)
 	return &MapVariant{node: valueNode}
 }
 
 // GetMap will return the field as a map if it exists and is a map,
 // otherwise it will return nil.
 // Note that if the value exists but is not a map, nil will be returned.
-func (obj *MapVariant) GetMap(field string) *MapVariant {
-	node, found := obj.getVariant(field)
+func (o *MapVariant) GetMap(field string) *MapVariant {
+	node, found := o.getVariant(field)
 
 	if found {
 		switch node := node.(type) {
