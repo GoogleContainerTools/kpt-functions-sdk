@@ -63,7 +63,7 @@ func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 			case *ErrSubObjectFields:
 				err = t
 			default:
-				err = fmt.Errorf("panic with %s", v)
+				panic(v)
 			}
 			rl.LogResult(err)
 			out, _ = rl.ToYAML()
