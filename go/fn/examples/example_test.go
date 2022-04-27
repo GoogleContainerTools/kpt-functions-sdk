@@ -26,7 +26,7 @@ var (
 )
 
 func ExampleKubeObject_mutatePrimitiveField() {
-	replicas, found, err := deployment.GetInt("spec", "replicas")
+	replicas, found, err := deployment.NestedInt64("spec", "replicas")
 	if err != nil { /* do something */
 	}
 	if !found { /* do something */
@@ -34,7 +34,7 @@ func ExampleKubeObject_mutatePrimitiveField() {
 
 	// mutate the replicas variable
 
-	err = deployment.Set(&replicas, "spec", "replicas")
+	err = deployment.SetNestedField(&replicas, "spec", "replicas")
 	if err != nil { /* do something */
 	}
 }
@@ -49,7 +49,7 @@ func ExampleKubeObject_mutatePrimitiveSlice() {
 
 	// mutate the finalizers slice
 
-	err = deployment.Set(finalizers, "metadata", "finalizers")
+	err = deployment.SetNestedField(finalizers, "metadata", "finalizers")
 	if err != nil { /* do something */
 	}
 }
@@ -64,7 +64,7 @@ func ExampleKubeObject_mutatePrimitiveMap() {
 
 	// mutate the data map
 
-	err = deployment.Set(data, "data")
+	err = deployment.SetNestedField(data, "data")
 	if err != nil { /* do something */
 	}
 }
@@ -79,7 +79,7 @@ func ExampleKubeObject_mutateStrongTypedField() {
 
 	// mutate the podTemplate object
 
-	err = deployment.Set(podTemplate, "spec", "template")
+	err = deployment.SetNestedField(podTemplate, "spec", "template")
 	if err != nil { /* do something */
 	}
 }
@@ -94,7 +94,7 @@ func ExampleKubeObject_mutateStrongTypedSlice() {
 
 	// mutate the podTemplate object
 
-	err = deployment.Set(containers, "spec", "template", "spec", "containers")
+	err = deployment.SetNestedField(containers, "spec", "template", "spec", "containers")
 	if err != nil { /* do something */
 	}
 }
