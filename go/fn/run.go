@@ -86,8 +86,13 @@ func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 func Execute(p ResourceListProcessor, r io.Reader, w io.Writer) error {
 	rw := &byteReadWriter{
 		kio.ByteReadWriter{
-			Reader:                r,
-			Writer:                w,
+			Reader: r,
+			Writer: w,
+			// We should not set the id annotation in the function, since we should not
+			// overwrite what the orchestrator set.
+			OmitReaderAnnotations: true,
+			// We should not remove the id annotations in the function, since the
+			// orchestrator (e.g. kpt) may need them.
 			KeepReaderAnnotations: true,
 		},
 	}
