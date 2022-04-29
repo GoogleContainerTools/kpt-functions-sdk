@@ -40,7 +40,8 @@ func injectLogger(rl *fn.ResourceList) (bool, error) {
 		return false, err
 	}
 	for i, obj := range rl.Items {
-		if obj.GetAPIVersion() == "apps/v1" && (obj.GetKind() == "Deployment" || obj.GetKind() == "StatefulSet" || obj.GetKind() == "DaemonSet" || obj.GetKind() == "ReplicaSet") {
+		if obj.IsGVK(appsv1, "Deployment") || obj.IsGVK(appsv1, "StatefulSet") ||
+			obj.IsGVK(appsv1, "DaemonSet") || obj.IsGVK(appsv1, "ReplicaSet") {
 			var containers []corev1.Container
 			obj.GetOrDie(&containers, "spec", "template", "spec", "containers")
 			foundTargetContainer := false
