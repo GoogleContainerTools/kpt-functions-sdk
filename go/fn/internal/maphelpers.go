@@ -89,7 +89,7 @@ func (o *MapVariant) GetNestedStringMap(fields ...string) (map[string]string, bo
 }
 
 func (o *MapVariant) SetNestedStringMap(m map[string]string, fields ...string) error {
-	return o.SetNestedMap(newStringMapVariant(m), fields...)
+	return o.SetNestedMap(NewStringMapVariant(m), fields...)
 }
 
 func (o *MapVariant) GetNestedScalar(fields ...string) (*scalarVariant, bool, error) {

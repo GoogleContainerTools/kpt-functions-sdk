@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package internal
+package internal_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	yaml2 "sigs.k8s.io/kustomize/kyaml/yaml"
@@ -50,14 +51,14 @@ spec:
             - containerPort: 80
 `
 
-func parseRaw(in []byte) ([]*MapVariant, error) {
+func parseRaw(in []byte) ([]*internal.MapVariant, error) {
 	d := yaml2.NewDecoder(bytes.NewBuffer(in))
 	node := &yaml2.Node{}
 	err := d.Decode(node)
 	if err != nil {
 		return nil, err
 	}
-	return extractObjects(node)
+	return internal.ExtractObjects(node)
 }
 
 func TestHelpers(t *testing.T) {
@@ -142,7 +143,7 @@ func TestHelpers(t *testing.T) {
 	mvs, err := containers.Elements()
 	assert.NoError(t, err)
 	assert.Len(t, mvs, 1)
-	containers.Add(newStringMapVariant(container))
+	containers.Add(internal.NewStringMapVariant(container))
 	containers, found, err = mv.GetNestedSlice("spec", "template", "spec", "containers")
 	assert.NoError(t, err)
 	assert.True(t, found)
@@ -179,7 +180,7 @@ func TestHelpers(t *testing.T) {
 		RunAsNonRoot:             &trueVar,
 		AllowPrivilegeEscalation: &falseVar,
 	}
-	scmv, err := TypedObjectToMapVariant(sc)
+	scmv, err := internal.TypedObjectToMapVariant(sc)
 	assert.NoError(t, err)
 	err = mv.SetNestedMap(scmv, "spec", "template", "spec", "securityContext")
 	assert.NoError(t, err)

@@ -32,7 +32,7 @@ func NewMap(node *yaml.Node) *MapVariant {
 	return &MapVariant{node: node}
 }
 
-func newStringMapVariant(m map[string]string) *MapVariant {
+func NewStringMapVariant(m map[string]string) *MapVariant {
 	node := &yaml.Node{
 		Kind: yaml.MappingNode,
 	}

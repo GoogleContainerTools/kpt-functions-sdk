@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package internal
+package internal_test
 
 import (
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"testing"
 
 	"sigs.k8s.io/kustomize/kyaml/yaml"
@@ -105,8 +106,8 @@ desiredReplicas: 1
 
 	for _, tc := range testcases {
 		rn := yaml.MustParse(tc.src)
-		mv := &MapVariant{node: rn.YNode()}
-		err := MapVariantToTypedObject(mv, tc.dst)
+		mv := internal.NewMap(rn.YNode())
+		err := internal.MapVariantToTypedObject(mv, tc.dst)
 		assert.NoError(t, err)
 		assert.Equal(t, tc.expected, tc.dst)
 	}
@@ -187,9 +188,9 @@ desiredReplicas: 1
 	}
 
 	for _, tc := range testcases {
-		mv, err := TypedObjectToMapVariant(tc.input)
+		mv, err := internal.TypedObjectToMapVariant(tc.input)
 		assert.NoError(t, err)
-		s, err := yaml.NewRNode(mv.node).String()
+		s, err := yaml.NewRNode(mv.Node()).String()
 		assert.NoError(t, err)
 		assert.Equal(t, tc.expected, s)
 	}
