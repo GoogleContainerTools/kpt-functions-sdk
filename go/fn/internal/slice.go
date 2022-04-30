@@ -43,7 +43,7 @@ func (v *sliceVariant) Clear() {
 }
 
 func (v *sliceVariant) Elements() ([]*MapVariant, error) {
-	return extractObjects(v.node.Content...)
+	return ExtractObjects(v.node.Content...)
 }
 
 func (v *sliceVariant) Add(node variant) {

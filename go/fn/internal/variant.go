@@ -97,13 +97,13 @@ func toVariant(n *yaml.Node) variant {
 	}
 }
 
-func extractObjects(nodes ...*yaml.Node) ([]*MapVariant, error) {
+func ExtractObjects(nodes ...*yaml.Node) ([]*MapVariant, error) {
 	var objects []*MapVariant
 
 	for _, node := range nodes {
 		switch node.Kind {
 		case yaml.DocumentNode:
-			children, err := extractObjects(node.Content...)
+			children, err := ExtractObjects(node.Content...)
 			if err != nil {
 				return nil, err
 			}

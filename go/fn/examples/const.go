@@ -14,27 +14,6 @@
 
 package example
 
-import (
-	"os"
-
-	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
+const (
+	appsv1 = "apps/v1"
 )
-
-// In this example, we read a field from the input object and print it to the log.
-
-func Example_aReadField() {
-	if err := fn.AsMain(fn.ResourceListProcessorFunc(readField)); err != nil {
-		os.Exit(1)
-	}
-}
-
-func readField(rl *fn.ResourceList) (bool, error) {
-	for _, obj := range rl.Items {
-		if obj.IsGVK("apps/v1", "Deployment") {
-			var replicas int
-			obj.GetOrDie(&replicas, "spec", "replicas")
-			fn.Logf("replicas is %v\n", replicas)
-		}
-	}
-	return true, nil
-}

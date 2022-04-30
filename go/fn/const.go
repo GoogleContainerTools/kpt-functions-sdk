@@ -39,5 +39,5 @@ const (
 	ConfigPrefix string = "config.kubernetes.io/"
 
 	// KptLocalConfig marks a KRM resource to be skipped from deploying to the cluster via `kpt live apply`.
-	KptLocalConfig = ConfigPrefix  + "local-config"
+	KptLocalConfig = ConfigPrefix + "local-config"
 )

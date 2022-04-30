@@ -168,7 +168,6 @@ func (o *SubObject) NestedSliceOrDie(fields ...string) SliceSubObjects {
 	return val
 }
 
-
 // NestedInt64 returns the int64 value, if the field exist and a potential error.
 func (o *SubObject) NestedMap(fields ...string) (*SubObject, bool, error) {
 	var variant internal.MapVariant
@@ -380,8 +379,6 @@ func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 	}
 	return nil
 }
-
-
 
 // LineComment returns the line comment, if the target field exist and a
 // potential error.

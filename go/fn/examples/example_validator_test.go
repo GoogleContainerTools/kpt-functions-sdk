@@ -32,7 +32,8 @@ func Example_validator() {
 func validator(rl *fn.ResourceList) (bool, error) {
 	var results fn.Results
 	for _, obj := range rl.Items {
-		if obj.GetAPIVersion() == "apps/v1" && (obj.GetKind() == "Deployment" || obj.GetKind() == "StatefulSet" || obj.GetKind() == "DaemonSet" || obj.GetKind() == "ReplicaSet") {
+		if obj.IsGVK(appsv1, "Deployment") || obj.IsGVK(appsv1, "StatefulSet") ||
+			obj.IsGVK(appsv1, "DaemonSet") || obj.IsGVK(appsv1, "ReplicaSet") {
 			var runAsNonRoot bool
 			obj.GetOrDie(&runAsNonRoot, "spec", "template", "spec", "securityContext", "runAsNonRoot")
 			if !runAsNonRoot {

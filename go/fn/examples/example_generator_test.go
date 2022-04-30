@@ -69,7 +69,7 @@ func generate(rl *fn.ResourceList) (bool, error) {
 
 func fetchDashboard(revision, id string) (string, error) {
 	url := fmt.Sprintf("https://grafana.com/api/dashboards/%s/revisions/%s/download", id, revision)
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) // nolint:gosec
 	if err != nil {
 		return "", err
 	}
