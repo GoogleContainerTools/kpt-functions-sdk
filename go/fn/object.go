@@ -20,6 +20,7 @@ import (
 	"strconv"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
+	_const "github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal/const"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
@@ -549,6 +550,22 @@ func (o *KubeObject) SetName(name string) {
 func (o *KubeObject) GetNamespace() string {
 	s, _, _ := o.obj.GetNestedString("metadata", "namespace")
 	return s
+}
+
+// IsNamespaceScoped tells whether a k8s resource is namespace scoped. If the KubeObject resource is a customized, it
+// determines the namespace scope by checking whether `metadata.namespace` is set.
+func (o *KubeObject) IsNamespaceScoped() bool {
+	tm := yaml.TypeMeta{Kind: o.GetKind(), APIVersion: o.GetAPIVersion()}
+	if nsScoped, ok := _const.PrecomputedIsNamespaceScoped[tm]; ok {
+		return nsScoped
+	}
+	// TODO(yuwenma): parse the resource openapi schema to know its scope status.
+	return o.HasNamespace()
+}
+
+// IsClusterScoped tells whether a resource is cluster scoped.
+func (o *KubeObject) IsClusterScoped() bool {
+	return !o.IsNamespaceScoped()
 }
 
 func (o *KubeObject) HasNamespace() bool {
