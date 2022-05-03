@@ -57,6 +57,21 @@ type ResourceList struct {
 	Results Results `yaml:"results,omitempty" json:"results,omitempty"`
 }
 
+// CheckResourceDuplication checks the GVKNN of resourceList.items to make sure they are unique. It returns errors if
+// found more than one resource having the same GVKNN.
+func CheckResourceDuplication(rl *ResourceList) error {
+	idMap := map[yaml.ResourceIdentifier]struct{}{}
+	for _, obj := range rl.Items {
+		id := obj.resourceIdentifier()
+		if _, ok := idMap[*id]; ok{
+				return fmt.Errorf("duplicate Resource(apiVersion=%v, kind=%v, Namespace=%v, Name=%v)",
+				obj.GetAPIVersion(), obj.GetKind(), obj.GetNamespace(), obj.GetName())
+		}
+		idMap[*id] = struct{}{}
+	}
+	return nil
+}
+
 // ParseResourceList parses a ResourceList from the input byte array.
 func ParseResourceList(in []byte) (*ResourceList, error) {
 	rl := &ResourceList{}

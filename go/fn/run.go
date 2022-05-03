@@ -58,8 +58,12 @@ func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 		v := recover()
 		if v != nil {
 			switch t := v.(type) {
+			case ErrKubeObjectFields:
+				err = &t
 			case *ErrKubeObjectFields:
 				err = t
+			case ErrSubObjectFields:
+				err = &t
 			case *ErrSubObjectFields:
 				err = t
 			default:
