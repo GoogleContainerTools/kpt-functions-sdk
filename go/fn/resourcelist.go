@@ -88,11 +88,16 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 	}
 	if found {
 		rl.FunctionConfig = asKubeObject(fc)
+	} else {
+		rl.FunctionConfig = NewEmptyKubeObject()
 	}
 
-	items, _, err := rlObj.obj.GetNestedSlice("items")
+	items, found, err := rlObj.obj.GetNestedSlice("items")
 	if err != nil {
 		return nil, fmt.Errorf("failed when tried to get items: %w", err)
+	}
+	if !found {
+		return rl, nil
 	}
 	objectItems, err := items.Elements()
 	if err != nil {
@@ -134,8 +139,7 @@ func (rl *ResourceList) toYNode() (*yaml.Node, error) {
 			return nil, err
 		}
 	}
-
-	if rl.FunctionConfig != nil {
+	if !rl.FunctionConfig.IsEmpty() {
 		if err := reMap.SetNestedMap(rl.FunctionConfig.node(), "functionConfig"); err != nil {
 			return nil, err
 		}
