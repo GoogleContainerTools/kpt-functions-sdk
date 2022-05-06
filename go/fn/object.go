@@ -307,11 +307,14 @@ func (o *SubObject) SetOrDie(val interface{}, fields ...string) {
 // use Get method and modify the underlying yaml.Node.
 func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 	err := func() error {
+		if val == nil {
+			return fmt.Errorf("the passed-in object must not be nil")
+		}
 		if o == nil {
 			return fmt.Errorf("the object doesn't exist")
 		}
-		if val == nil {
-			return fmt.Errorf("the passed-in object must not be nil")
+		if o.obj == nil {
+			o.obj = internal.NewMap(nil)
 		}
 		kind := reflect.ValueOf(val).Kind()
 		if kind == reflect.Ptr {
@@ -531,7 +534,7 @@ func (o *KubeObject) GetKind() string {
 }
 
 func (o *KubeObject) SetKind(kind string) {
-	if err := o.obj.SetNestedString(kind, "kind"); err != nil {
+	if err := o.SetNestedField(kind, "kind"); err != nil {
 		panic(fmt.Errorf("cannot set kind '%v': %v", kind, err))
 	}
 }
@@ -542,7 +545,7 @@ func (o *KubeObject) GetName() string {
 }
 
 func (o *KubeObject) SetName(name string) {
-	if err := o.obj.SetNestedString(name, "metadata", "name"); err != nil {
+	if err := o.SetNestedField(name, "metadata", "name"); err != nil {
 		panic(fmt.Errorf("cannot set metadata name '%v': %v", name, err))
 	}
 }
@@ -574,13 +577,13 @@ func (o *KubeObject) HasNamespace() bool {
 }
 
 func (o *KubeObject) SetNamespace(name string) {
-	if err := o.obj.SetNestedString(name, "metadata", "namespace"); err != nil {
+	if err := o.SetNestedField(name, "metadata", "namespace"); err != nil {
 		panic(fmt.Errorf("cannot set namespace '%v': %v", name, err))
 	}
 }
 
 func (o *KubeObject) SetAnnotation(k, v string) {
-	if err := o.obj.SetNestedString(v, "metadata", "annotations", k); err != nil {
+	if err := o.SetNestedField(v, "metadata", "annotations", k); err != nil {
 		panic(fmt.Errorf("cannot set metadata annotations '%v': %v", k, err))
 	}
 }
@@ -611,7 +614,7 @@ func (o *KubeObject) RemoveAnnotationsIfEmpty() error {
 }
 
 func (o *KubeObject) SetLabel(k, v string) {
-	if err := o.obj.SetNestedString(v, "metadata", "labels", k); err != nil {
+	if err := o.SetNestedField(v, "metadata", "labels", k); err != nil {
 		panic(fmt.Errorf("cannot set metadata labels '%v': %v", k, err))
 	}
 }
@@ -664,6 +667,14 @@ func (o KubeObjects) Less(i, j int) bool {
 	idStrI := fmt.Sprintf("%s %s %s %s", idi.GetAPIVersion(), idi.GetKind(), idi.GetNamespace(), idi.GetName())
 	idStrJ := fmt.Sprintf("%s %s %s %s", idj.GetAPIVersion(), idj.GetKind(), idj.GetNamespace(), idj.GetName())
 	return idStrI < idStrJ
+}
+
+func (o *KubeObject) IsEmpty() bool {
+	return yaml.IsYNodeEmptyMap(o.obj.Node())
+}
+
+func NewEmptyKubeObject() *KubeObject {
+	return &KubeObject{SubObject{internal.NewMap(nil)}}
 }
 
 func asKubeObject(obj *internal.MapVariant) *KubeObject {
