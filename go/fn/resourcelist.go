@@ -72,7 +72,8 @@ func CheckResourceDuplication(rl *ResourceList) error {
 	return nil
 }
 
-// ParseResourceList parses a ResourceList from the input byte array.
+// ParseResourceList parses a ResourceList from the input byte array. This function can be used to parse either KRM fn input
+// or KRM fn output
 func ParseResourceList(in []byte) (*ResourceList, error) {
 	rl := &ResourceList{}
 	rlObj, err := ParseKubeObject(in)
@@ -82,6 +83,7 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 	if rlObj.GetKind() != kio.ResourceListKind {
 		return nil, fmt.Errorf("input was of unexpected kind %q; expected ResourceList", rlObj.GetKind())
 	}
+	// Parse FunctionConfig. FunctionConfig can be empty, e.g. `kubeval` fn does not require a FunctionConfig.
 	fc, found, err := rlObj.obj.GetNestedMap("functionConfig")
 	if err != nil {
 		return nil, fmt.Errorf("failed when tried to get functionConfig: %w", err)
@@ -92,21 +94,22 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 		rl.FunctionConfig = NewEmptyKubeObject()
 	}
 
+	// Parse Items. Items can be empty, e.g. an input ResourceList for a generator function may not have items.
 	items, found, err := rlObj.obj.GetNestedSlice("items")
 	if err != nil {
 		return nil, fmt.Errorf("failed when tried to get items: %w", err)
 	}
-	if !found {
-		return rl, nil
-	}
-	objectItems, err := items.Elements()
-	if err != nil {
-		return nil, fmt.Errorf("failed to extract objects from items: %w", err)
-	}
-	for i := range objectItems {
-		rl.Items = append(rl.Items, asKubeObject(objectItems[i]))
+	if found {
+		objectItems, err := items.Elements()
+		if err != nil {
+			return nil, fmt.Errorf("failed to extract objects from items: %w", err)
+		}
+		for i := range objectItems {
+			rl.Items = append(rl.Items, asKubeObject(objectItems[i]))
+		}
 	}
 
+	// Parse Results. Results can be empty.
 	res, found, err := rlObj.obj.GetNestedSlice("results")
 	if err != nil {
 		return nil, fmt.Errorf("failed when tried to get results: %w", err)
@@ -119,7 +122,6 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 		}
 		rl.Results = results
 	}
-
 	return rl, nil
 }
 
