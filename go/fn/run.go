@@ -42,6 +42,9 @@ func AsMain(p ResourceListProcessor) error {
 		}
 		return err
 	}()
+	if err != nil {
+		Logf("failed to evaluate function: %v", err)
+	}
 	return err
 }
 
