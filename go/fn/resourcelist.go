@@ -63,8 +63,8 @@ func CheckResourceDuplication(rl *ResourceList) error {
 	idMap := map[yaml.ResourceIdentifier]struct{}{}
 	for _, obj := range rl.Items {
 		id := obj.resourceIdentifier()
-		if _, ok := idMap[*id]; ok{
-				return fmt.Errorf("duplicate Resource(apiVersion=%v, kind=%v, Namespace=%v, Name=%v)",
+		if _, ok := idMap[*id]; ok {
+			return fmt.Errorf("duplicate Resource(apiVersion=%v, kind=%v, Namespace=%v, Name=%v)",
 				obj.GetAPIVersion(), obj.GetKind(), obj.GetNamespace(), obj.GetName())
 		}
 		idMap[*id] = struct{}{}
@@ -96,10 +96,23 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 	}
 	objectItems, err := items.Elements()
 	if err != nil {
-		return nil, fmt.Errorf("failed extract objects from items: %w", err)
+		return nil, fmt.Errorf("failed to extract objects from items: %w", err)
 	}
 	for i := range objectItems {
 		rl.Items = append(rl.Items, asKubeObject(objectItems[i]))
+	}
+
+	res, found, err := rlObj.obj.GetNestedSlice("results")
+	if err != nil {
+		return nil, fmt.Errorf("failed when tried to get results: %w", err)
+	}
+	if found {
+		var results Results
+		err = res.Node().Decode(&results)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode results: %w", err)
+		}
+		rl.Results = results
 	}
 
 	return rl, nil
