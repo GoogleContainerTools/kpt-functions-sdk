@@ -1,0 +1,10 @@
+apiVersion: fn.kpt.dev/v1alpha1
+kind: StarlarkRun
+metadata:
+  name: set-annotation
+# EDIT THE SOURCE!
+# This should be your starlark script which preloads the `ResourceList` to `ctx.resource_list`
+source: |
+  for resource in ctx.resource_list["items"]:
+    if resource.get("kind") == "Deployment":
+      resource["metadata"]["annotations"]["managed-by"] = "kpt"
