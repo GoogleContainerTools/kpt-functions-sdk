@@ -1,5 +1,5 @@
 definitions:
-  Function:
+  dev.kpt.v1.Function:
     properties:
       configMap:
         additionalProperties:
@@ -21,7 +21,7 @@ definitions:
           `Exclude` are used to specify resources on which the function should NOT be executed.
           If not specified, all resources selected by `Selectors` are selected.
         items:
-          $ref: '#/definitions/Selector'
+          $ref: '#/definitions/dev.kpt.v1.Selector'
         type: array
         x-go-name: Exclusions
       exec:
@@ -59,13 +59,13 @@ definitions:
           `Selectors` are used to specify resources on which the function should be executed
           if not specified, all resources are selected
         items:
-          $ref: '#/definitions/Selector'
+          $ref: '#/definitions/dev.kpt.v1.Selector'
         type: array
         x-go-name: Selectors
     title: Function specifies a KRM function.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  Git:
+  dev.kpt.v1.Git:
     properties:
       directory:
         description: |-
@@ -86,7 +86,7 @@ definitions:
     title: Git is the user-specified locator for a package on Git.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  GitLock:
+  dev.kpt.v1.GitLock:
     properties:
       commit:
         description: |-
@@ -115,7 +115,7 @@ definitions:
     title: GitLock is the resolved locator for a package on Git.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  Inventory:
+  dev.kpt.v1.Inventory:
     description: All of the the parameters are required if any are set.
     properties:
       annotations:
@@ -144,7 +144,7 @@ definitions:
       to a cluster.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  NameMeta:
+  dev.kpt.v1.NameMeta:
     properties:
       name:
         description: Name is the metadata.name field of a Resource
@@ -157,7 +157,7 @@ definitions:
     title: NameMeta contains name information.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  ObjectMeta:
+  dev.kpt.v1.ObjectMeta:
     description: ObjectMeta contains metadata about a Resource
     properties:
       annotations:
@@ -182,11 +182,11 @@ definitions:
         x-go-name: Namespace
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  OriginType:
+  dev.kpt.v1.OriginType:
     title: OriginType defines the type of origin for a package.
     type: string
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  PackageInfo:
+  dev.kpt.v1.PackageInfo:
     description: |-
       These fields are not consumed by any functionality in kpt and are simply passed through.
       Note that like any other KRM resource, humans and automation can also use `metadata.labels` and
@@ -228,12 +228,12 @@ definitions:
       documentation, etc.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  Pipeline:
+  dev.kpt.v1.Pipeline:
     properties:
       mutators:
         description: Mutators defines a list of of KRM functions that mutate resources.
         items:
-          $ref: '#/definitions/Function'
+          $ref: '#/definitions/dev.kpt.v1.Function'
         type: array
         x-go-name: Mutators
       validators:
@@ -241,13 +241,13 @@ definitions:
           Validators defines a list of KRM functions that validate resources.
           Validators are not permitted to mutate resources.
         items:
-          $ref: '#/definitions/Function'
+          $ref: '#/definitions/dev.kpt.v1.Function'
         type: array
         x-go-name: Validators
     title: Pipeline declares a pipeline of functions used to mutate or validate resources.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  ResourceMeta:
+  dev.kpt.v1.ResourceMeta:
     properties:
       apiVersion:
         description: APIVersion is the apiVersion field of a Resource
@@ -258,11 +258,11 @@ definitions:
         type: string
         x-go-name: Kind
       metadata:
-        $ref: '#/definitions/ObjectMeta'
+        $ref: '#/definitions/dev.kpt.v1.ObjectMeta'
     title: ResourceMeta contains the metadata for a both Resource Type and Resource.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  Selector:
+  dev.kpt.v1.Selector:
     description: |-
       Selector specifies the selection criteria
       please update IsEmpty method if more properties are added
@@ -297,7 +297,7 @@ definitions:
         x-go-name: Namespace
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  TypeMeta:
+  dev.kpt.v1.TypeMeta:
     description: |-
       TypeMeta partially copies apimachinery/pkg/apis/meta/v1.TypeMeta
       No need for a direct dependence; the fields are stable.
@@ -312,52 +312,56 @@ definitions:
         x-go-name: Kind
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  UpdateStrategyType:
+  dev.kpt.v1.UpdateStrategyType:
     title: UpdateStrategyType defines the strategy for updating a package from upstream.
     type: string
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  Upstream:
+  dev.kpt.v1.Upstream:
     properties:
       git:
-        $ref: '#/definitions/Git'
+        $ref: '#/definitions/dev.kpt.v1.Git'
       type:
-        $ref: '#/definitions/OriginType'
+        $ref: '#/definitions/dev.kpt.v1.OriginType'
       updateStrategy:
-        $ref: '#/definitions/UpdateStrategyType'
+        $ref: '#/definitions/dev.kpt.v1.UpdateStrategyType'
     title: Upstream is a user-specified upstream locator for a package.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  UpstreamLock:
+  dev.kpt.v1.UpstreamLock:
     properties:
       git:
-        $ref: '#/definitions/GitLock'
+        $ref: '#/definitions/dev.kpt.v1.GitLock'
       type:
-        $ref: '#/definitions/OriginType'
+        $ref: '#/definitions/dev.kpt.v1.OriginType'
     title: UpstreamLock is a resolved locator for the last fetch of the package.
     type: object
     x-go-package: github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1
-  kptfile:
+  dev.kpt.v1.kptfile:
     properties:
       apiVersion:
         description: APIVersion is the apiVersion field of a Resource
         type: string
         x-go-name: APIVersion
       info:
-        $ref: '#/definitions/PackageInfo'
+        $ref: '#/definitions/dev.kpt.v1.PackageInfo'
       inventory:
-        $ref: '#/definitions/Inventory'
+        $ref: '#/definitions/dev.kpt.v1.Inventory'
       kind:
         description: Kind is the kind field of a Resource
         type: string
         x-go-name: Kind
       metadata:
-        $ref: '#/definitions/ObjectMeta'
+        $ref: '#/definitions/dev.kpt.v1.ObjectMeta'
       pipeline:
-        $ref: '#/definitions/Pipeline'
+        $ref: '#/definitions/dev.kpt.v1.Pipeline'
       upstream:
-        $ref: '#/definitions/Upstream'
+        $ref: '#/definitions/dev.kpt.v1.Upstream'
       upstreamLock:
-        $ref: '#/definitions/UpstreamLock'
+        $ref: '#/definitions/dev.kpt.v1.UpstreamLock'
+    x-kubernetes-group-version-kind:
+      - group: kpt.dev
+        kind: Kptfile
+        version: v1
     title: KptFile contains information about a package managed with kpt.
     type: object
     x-go-name: KptFile
