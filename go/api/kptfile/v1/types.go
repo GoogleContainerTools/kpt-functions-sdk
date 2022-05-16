@@ -19,6 +19,8 @@ package v1
 
 import (
 	"fmt"
+
+	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 const (
@@ -29,57 +31,32 @@ const (
 	KptFileAPIVersion = KptFileGroup + "/" + KptFileVersion
 )
 
-// ResourceMeta contains the metadata for a both Resource Type and Resource.
-type ResourceMeta struct {
-	TypeMeta `json:",inline" yaml:",inline"`
-	// ObjectMeta is the metadata field of a Resource
-	ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
-}
-
-// TypeMeta partially copies apimachinery/pkg/apis/meta/v1.TypeMeta
-// No need for a direct dependence; the fields are stable.
-type TypeMeta struct {
-	// APIVersion is the apiVersion field of a Resource
-	APIVersion string `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
-	// Kind is the kind field of a Resource
-	Kind string `json:"kind,omitempty" yaml:"kind,omitempty"`
-}
-
-// ObjectMeta contains metadata about a Resource
-type ObjectMeta struct {
-	NameMeta `json:",inline" yaml:",inline"`
-	// Labels is the metadata.labels field of a Resource
-	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
-	// Annotations is the metadata.annotations field of a Resource.
-	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
-}
-
-// NameMeta contains name information.
-type NameMeta struct {
-	// Name is the metadata.name field of a Resource
-	Name string `json:"name,omitempty" yaml:"name,omitempty"`
-	// Namespace is the metadata.namespace field of a Resource
-	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+// TypeMeta is the TypeMeta for KptFile instances.
+var TypeMeta = yaml.ResourceMeta{
+	TypeMeta: yaml.TypeMeta{
+		APIVersion: KptFileAPIVersion,
+		Kind:       KptFileKind,
+	},
 }
 
 // KptFile contains information about a package managed with kpt.
 // swagger:model kptfile
 type KptFile struct {
-	ResourceMeta `json:",inline" yaml:",inline"`
+	yaml.ResourceMeta `yaml:",inline" json:",inline"`
 
-	Upstream *Upstream `json:"upstream,omitempty" yaml:"upstream,omitempty"`
+	Upstream *Upstream `yaml:"upstream,omitempty" json:"upstream,omitempty"`
 
 	// UpstreamLock is a resolved locator for the last fetch of the package.
-	UpstreamLock *UpstreamLock `json:"upstreamLock,omitempty" yaml:"upstreamLock,omitempty"`
+	UpstreamLock *UpstreamLock `yaml:"upstreamLock,omitempty" json:"upstreamLock,omitempty"`
 
 	// Info contains metadata such as license, documentation, etc.
-	Info *PackageInfo `json:"info,omitempty" yaml:"info,omitempty"`
+	Info *PackageInfo `yaml:"info,omitempty" json:"info,omitempty"`
 
 	// Pipeline declares the pipeline of functions.
-	Pipeline *Pipeline `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+	Pipeline *Pipeline `yaml:"pipeline,omitempty" json:"pipeline,omitempty"`
 
 	// Inventory contains parameters for the inventory object used in apply.
-	Inventory *Inventory `json:"inventory,omitempty" yaml:"inventory,omitempty"`
+	Inventory *Inventory `yaml:"inventory,omitempty" json:"inventory,omitempty"`
 }
 
 // OriginType defines the type of origin for a package.
@@ -139,55 +116,55 @@ func UpdateStrategiesAsStrings() []string {
 // Upstream is a user-specified upstream locator for a package.
 type Upstream struct {
 	// Type is the type of origin.
-	Type OriginType `json:"type,omitempty" yaml:"type,omitempty"`
+	Type OriginType `yaml:"type,omitempty" json:"type,omitempty"`
 
 	// Git is the locator for a package stored on Git.
-	Git *Git `json:"git,omitempty" yaml:"git,omitempty"`
+	Git *Git `yaml:"git,omitempty" json:"git,omitempty"`
 
 	// UpdateStrategy declares how a package will be updated from upstream.
-	UpdateStrategy UpdateStrategyType `json:"updateStrategy,omitempty" yaml:"updateStrategy,omitempty"`
+	UpdateStrategy UpdateStrategyType `yaml:"updateStrategy,omitempty" json:"updateStrategy,omitempty"`
 }
 
 // Git is the user-specified locator for a package on Git.
 type Git struct {
 	// Repo is the git repository the package.
 	// e.g. 'https://github.com/kubernetes/examples.git'
-	Repo string `json:"repo,omitempty" yaml:"repo,omitempty"`
+	Repo string `yaml:"repo,omitempty" json:"repo,omitempty"`
 
 	// Directory is the sub directory of the git repository.
 	// e.g. 'staging/cockroachdb'
-	Directory string `json:"directory,omitempty" yaml:"directory,omitempty"`
+	Directory string `yaml:"directory,omitempty" json:"directory,omitempty"`
 
 	// Ref can be a Git branch, tag, or a commit SHA-1.
-	Ref string `json:"ref,omitempty" yaml:"ref,omitempty"`
+	Ref string `yaml:"ref,omitempty" json:"ref,omitempty"`
 }
 
 // UpstreamLock is a resolved locator for the last fetch of the package.
 type UpstreamLock struct {
 	// Type is the type of origin.
-	Type OriginType `json:"type,omitempty" yaml:"type,omitempty"`
+	Type OriginType `yaml:"type,omitempty" json:"type,omitempty"`
 
 	// Git is the resolved locator for a package on Git.
-	Git *GitLock `json:"git,omitempty" yaml:"git,omitempty"`
+	Git *GitLock `yaml:"git,omitempty" json:"git,omitempty"`
 }
 
 // GitLock is the resolved locator for a package on Git.
 type GitLock struct {
 	// Repo is the git repository that was fetched.
 	// e.g. 'https://github.com/kubernetes/examples.git'
-	Repo string `json:"repo,omitempty" yaml:"repo,omitempty"`
+	Repo string `yaml:"repo,omitempty" json:"repo,omitempty"`
 
 	// Directory is the sub directory of the git repository that was fetched.
 	// e.g. 'staging/cockroachdb'
-	Directory string `json:"directory,omitempty" yaml:"directory,omitempty"`
+	Directory string `yaml:"directory,omitempty" json:"directory,omitempty"`
 
 	// Ref can be a Git branch, tag, or a commit SHA-1 that was fetched.
 	// e.g. 'master'
-	Ref string `json:"ref,omitempty" yaml:"ref,omitempty"`
+	Ref string `yaml:"ref,omitempty" json:"ref,omitempty"`
 
 	// Commit is the SHA-1 for the last fetch of the package.
 	// This is set by kpt for bookkeeping purposes.
-	Commit string `json:"commit,omitempty" yaml:"commit,omitempty"`
+	Commit string `yaml:"commit,omitempty" json:"commit,omitempty"`
 }
 
 // PackageInfo contains optional information about the package such as license, documentation, etc.
@@ -196,25 +173,25 @@ type GitLock struct {
 // `metadata.annotations` as the extension mechanism.
 type PackageInfo struct {
 	// Site is the URL for package web page.
-	Site string `json:"site,omitempty" yaml:"site,omitempty"`
+	Site string `yaml:"site,omitempty" json:"site,omitempty"`
 
 	// Email is the list of emails for the package authors.
-	Emails []string `json:"emails,omitempty" yaml:"emails,omitempty"`
+	Emails []string `yaml:"emails,omitempty" json:"emails,omitempty"`
 
 	// SPDX license identifier (e.g. "Apache-2.0"). See: https://spdx.org/licenses/
-	License string `json:"license,omitempty" yaml:"license,omitempty"`
+	License string `yaml:"license,omitempty" json:"license,omitempty"`
 
 	// Relative slash-delimited path to the license file (e.g. LICENSE.txt)
-	LicenseFile string `json:"licenseFile,omitempty" yaml:"licenseFile,omitempty"`
+	LicenseFile string `yaml:"licenseFile,omitempty" json:"licenseFile,omitempty"`
 
 	// Description contains a short description of the package.
-	Description string `json:"description,omitempty" yaml:"description,omitempty"`
+	Description string `yaml:"description,omitempty" json:"description,omitempty"`
 
 	// Keywords is a list of keywords for this package.
-	Keywords []string `json:"keywords,omitempty" yaml:"keywords,omitempty"`
+	Keywords []string `yaml:"keywords,omitempty" json:"keywords,omitempty"`
 
 	// Man is the path to documentation about the package
-	Man string `json:"man,omitempty" yaml:"man,omitempty"`
+	Man string `yaml:"man,omitempty" json:"man,omitempty"`
 }
 
 // Subpackages declares a local or remote subpackage.
@@ -222,26 +199,40 @@ type Subpackage struct {
 	// Name of the immediate subdirectory relative to this Kptfile where the suppackage
 	// either exists (local subpackages) or will be fetched to (remote subpckages).
 	// This must be unique across all subpckages of a package.
-	LocalDir string `json:"localDir,omitempty" yaml:"localDir,omitempty"`
+	LocalDir string `yaml:"localDir,omitempty" json:"localDir,omitempty"`
 
 	// Upstream is a reference to where the subpackage should be fetched from.
 	// Whether a subpackage is local or remote is determined by whether Upstream is specified.
-	Upstream *Upstream `json:"upstream,omitempty" yaml:"upstream,omitempty"`
+	Upstream *Upstream `yaml:"upstream,omitempty" json:"upstream,omitempty"`
 }
 
 // Pipeline declares a pipeline of functions used to mutate or validate resources.
 type Pipeline struct {
+	//  Sources defines the source packages to resolve as input to the pipeline. Possible values:
+	//  a) A slash-separated, OS-agnostic relative package path which may include '.' and '..' e.g. './base', '../foo'
+	//     The source package is resolved recursively.
+	//  b) Resources in this package using '.'. Meta resources such as the Kptfile, Pipeline, and function configs
+	//     are excluded.
+	//  c) Resources in this package AND all resolved subpackages using './*'
+	//
+	// Resultant list of resources are ordered:
+	// - According to the order of sources specified in this array.
+	// - When using './*': Subpackages are resolved in alphanumerical order before package resources.
+	//
+	// When omitted, defaults to './*'.
+	// Sources []string `yaml:"sources,omitempty"`
+
 	// Following fields define the sequence of functions in the pipeline.
 	// Input of the first function is the resolved sources.
 	// Input of the second function is the output of the first function, and so on.
 	// Order of operation: mutators, validators
 
 	// Mutators defines a list of of KRM functions that mutate resources.
-	Mutators []Function `json:"mutators,omitempty" yaml:"mutators,omitempty"`
+	Mutators []Function `yaml:"mutators,omitempty" json:"mutators,omitempty"`
 
 	// Validators defines a list of KRM functions that validate resources.
 	// Validators are not permitted to mutate resources.
-	Validators []Function `json:"validators,omitempty" yaml:"validators,omitempty"`
+	Validators []Function `yaml:"validators,omitempty" json:"validators,omitempty"`
 }
 
 // String returns the string representation of Pipeline struct
@@ -275,27 +266,80 @@ type Function struct {
 	// e.g. The following resolves to gcr.io/kpt-fn/set-labels:
 	//
 	//	image: set-labels
-	Image string `json:"image,omitempty" yaml:"image,omitempty"`
+	Image string `yaml:"image,omitempty" json:"image,omitempty"`
+
+	// Exec specifies the function binary executable.
+	// The executable can be fully qualified or it must exists in the $PATH e.g:
+	//
+	// 	 exec: set-namespace
+	// 	 exec: /usr/local/bin/my-custom-fn
+	Exec string `yaml:"exec,omitempty" json:"exec,omitempty"`
 
 	// `ConfigPath` specifies a slash-delimited relative path to a file in the current directory
 	// containing a KRM resource used as the function config. This resource is
 	// excluded when resolving 'sources', and as a result cannot be operated on
 	// by the pipeline.
-	ConfigPath string `json:"configPath,omitempty" yaml:"configPath,omitempty"`
+	ConfigPath string `yaml:"configPath,omitempty" json:"configPath,omitempty"`
 
 	// `ConfigMap` is a convenient way to specify a function config of kind ConfigMap.
-	ConfigMap map[string]string `json:"configMap,omitempty" yaml:"configMap,omitempty"`
+	ConfigMap map[string]string `yaml:"configMap,omitempty" json:"configMap,omitempty"`
+
+	// `Name` is used to uniquely identify the function declaration
+	// this is primarily used for merging function declaration with upstream counterparts
+	Name string `yaml:"name,omitempty" json:"name,omitempty"`
+
+	// `Selectors` are used to specify resources on which the function should be executed
+	// if not specified, all resources are selected
+	Selectors []Selector `yaml:"selectors,omitempty" json:"selectors,omitempty"`
+
+	// `Exclude` are used to specify resources on which the function should NOT be executed.
+	// If not specified, all resources selected by `Selectors` are selected.
+	Exclusions []Selector `yaml:"exclude,omitempty" json:"exclude,omitempty"`
+}
+
+// Selector specifies the selection criteria
+// please update IsEmpty method if more properties are added
+type Selector struct {
+	// APIVersion of the target resources
+	APIVersion string `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"`
+	// Kind of the target resources
+	Kind string `yaml:"kind,omitempty" json:"kind,omitempty"`
+	// Name of the target resources
+	Name string `yaml:"name,omitempty" json:"name,omitempty"`
+	// Namespace of the target resources
+	Namespace string `yaml:"namespace,omitempty" json:"namespace,omitempty"`
+	// Labels on the target resources
+	Labels map[string]string `yaml:"labels,omitempty" json:"labels,omitempty"`
+	// Annotations on the target resources
+	Annotations map[string]string `yaml:"annotations,omitempty" json:"annotations,omitempty"`
+}
+
+// IsEmpty returns true of none of the selection criteria is specified
+func (s Selector) IsEmpty() bool {
+	return s.APIVersion == "" &&
+		s.Namespace == "" &&
+		s.Name == "" &&
+		s.Kind == "" &&
+		len(s.Labels) == 0 &&
+		len(s.Annotations) == 0
 }
 
 // Inventory encapsulates the parameters for the inventory resource applied to a cluster.
 // All of the the parameters are required if any are set.
 type Inventory struct {
 	// Namespace for the inventory resource.
-	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	Namespace string `yaml:"namespace,omitempty" json:"namespace,omitempty"`
 	// Name of the inventory resource.
-	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	Name string `yaml:"name,omitempty" json:"name,omitempty"`
 	// Unique label to identify inventory resource in cluster.
-	InventoryID string            `json:"inventoryID,omitempty" yaml:"inventoryID,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
-	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
+	InventoryID string            `yaml:"inventoryID,omitempty" json:"inventoryID,omitempty"`
+	Labels      map[string]string `yaml:"labels,omitempty" json:"labels,omitempty"`
+	Annotations map[string]string `yaml:"annotations,omitempty" json:"annotations,omitempty"`
+}
+
+func (i Inventory) IsValid() bool {
+	// Name and Namespace are required inventory fields, so we check these 2 fields.
+	// InventoryID is an optional field since we only store it locally if the user
+	// specifies one.
+	return i.Name != "" && i.Namespace != ""
 }
