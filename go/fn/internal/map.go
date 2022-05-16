@@ -46,7 +46,6 @@ type MapVariant struct {
 	node *yaml.Node
 }
 
-
 func (o *MapVariant) GetKind() variantKind {
 	return variantKindMap
 }

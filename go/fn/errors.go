@@ -47,7 +47,7 @@ func (e *errSubObjectFields) Error() string {
 }
 
 type errResultEnd struct {
-	obj    *KubeObject
+	obj     *KubeObject
 	message string
 }
 

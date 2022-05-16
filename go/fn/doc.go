@@ -34,7 +34,7 @@ A KRM function does the following things:
 
 In most cases, you only need to do #2 which is to use pre-defined ResourceListProcessor or use your own ResourceListProcessor
  and then pass it to AsMain. In the following example, we
-use a struct which implements the fn.FunctionRunner `Run` method
+use a struct which implements the fn.Runner `Run` method
 
 ```go
 package main
@@ -44,7 +44,7 @@ import (
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
-var _ fn.FunctionRunner = &YourKRMFn{}
+var _ fn.Runner = &YourKRMFn{}
 
 type YourKRMFn struct {
 	Field1 map[string]string `json:",inline,omitempty"`

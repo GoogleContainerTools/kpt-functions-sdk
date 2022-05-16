@@ -14,6 +14,6 @@
 
 package fn
 
-type FunctionRunner interface {
+type Runner interface {
 	Run(context *Context, functionConfig *KubeObject, items []*KubeObject)
 }

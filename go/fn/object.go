@@ -20,7 +20,6 @@ import (
 	"strconv"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
-	_const "github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal/const"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
@@ -624,7 +623,7 @@ func (o *KubeObject) GetNamespace() string {
 // determines the namespace scope by checking whether `metadata.namespace` is set.
 func (o *KubeObject) IsNamespaceScoped() bool {
 	tm := yaml.TypeMeta{Kind: o.GetKind(), APIVersion: o.GetAPIVersion()}
-	if nsScoped, ok := _const.PrecomputedIsNamespaceScoped[tm]; ok {
+	if nsScoped, ok := internal.PrecomputedIsNamespaceScoped[tm]; ok {
 		return nsScoped
 	}
 	// TODO(yuwenma): parse the resource openapi schema to know its scope status.

@@ -7,7 +7,7 @@ import (
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
-var _ fn.FunctionRunner = &SetLabels{}
+var _ fn.Runner = &SetLabels{}
 
 type SetLabels struct {
 	Labels map[string]string `json:"labels,omitempty"`

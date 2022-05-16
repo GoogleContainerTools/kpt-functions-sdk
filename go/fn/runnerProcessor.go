@@ -22,7 +22,7 @@ import (
 )
 
 type runnerProcessor struct {
-	fnRunner FunctionRunner
+	fnRunner Runner
 }
 
 func (r runnerProcessor) Process(rl *ResourceList) (bool, error) {
@@ -41,7 +41,7 @@ func (r *runnerProcessor) config(ctx *Context, o *KubeObject) {
 		var cm corev1.ConfigMap
 		o.AsOrDie(&cm)
 		fnRunnerElem := reflect.ValueOf(r.fnRunner).Elem()
-		for i:=0; i < fnRunnerElem.NumField(); i++ {
+		for i := 0; i < fnRunnerElem.NumField(); i++ {
 			if fnRunnerElem.Field(i).Kind() == reflect.Map {
 				fnRunnerElem.Field(i).Set(reflect.ValueOf(cm.Data))
 				break

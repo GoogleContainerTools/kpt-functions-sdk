@@ -1,10 +1,10 @@
-package _const
+package internal
 
 import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
-// precomputedIsNamespaceScoped copies the sigs.k8s.io/kustomize/kyaml/openapi precomputedIsNamespaceScoped
+// PrecomputedIsNamespaceScoped copies the sigs.k8s.io/kustomize/kyaml/openapi precomputedIsNamespaceScoped
 var PrecomputedIsNamespaceScoped = map[yaml.TypeMeta]bool{
 	{APIVersion: "admissionregistration.k8s.io/v1", Kind: "MutatingWebhookConfiguration"}:        false,
 	{APIVersion: "admissionregistration.k8s.io/v1", Kind: "ValidatingWebhookConfiguration"}:      false,
