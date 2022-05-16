@@ -19,8 +19,6 @@ package v1
 
 import (
 	"fmt"
-
-	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 const (
@@ -31,18 +29,43 @@ const (
 	KptFileAPIVersion = KptFileGroup + "/" + KptFileVersion
 )
 
-// TypeMeta is the TypeMeta for KptFile instances.
-var TypeMeta = yaml.ResourceMeta{
-	TypeMeta: yaml.TypeMeta{
-		APIVersion: KptFileAPIVersion,
-		Kind:       KptFileKind,
-	},
+// ResourceMeta contains the metadata for a both Resource Type and Resource.
+type ResourceMeta struct {
+	TypeMeta `json:",inline" yaml:",inline"`
+	// ObjectMeta is the metadata field of a Resource
+	Metadata ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+}
+
+// TypeMeta partially copies apimachinery/pkg/apis/meta/v1.TypeMeta
+// No need for a direct dependence; the fields are stable.
+type TypeMeta struct {
+	// APIVersion is the apiVersion field of a Resource
+	APIVersion string `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
+	// Kind is the kind field of a Resource
+	Kind string `json:"kind,omitempty" yaml:"kind,omitempty"`
+}
+
+// ObjectMeta contains metadata about a Resource
+type ObjectMeta struct {
+	NameMeta `json:",inline" yaml:",inline"`
+	// Labels is the metadata.labels field of a Resource
+	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	// Annotations is the metadata.annotations field of a Resource.
+	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
+}
+
+// NameMeta contains name information.
+type NameMeta struct {
+	// Name is the metadata.name field of a Resource
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Namespace is the metadata.namespace field of a Resource
+	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 }
 
 // KptFile contains information about a package managed with kpt.
 // swagger:model kptfile
 type KptFile struct {
-	yaml.ResourceMeta `yaml:",inline" json:",inline"`
+	ResourceMeta `yaml:",inline" json:",inline"`
 
 	Upstream *Upstream `yaml:"upstream,omitempty" json:"upstream,omitempty"`
 
