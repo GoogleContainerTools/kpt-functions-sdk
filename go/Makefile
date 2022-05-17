@@ -1,4 +1,4 @@
-.PHONY: fix vet fmt test lint license
+.PHONY: api fix vet fmt test lint license
 
 GOPATH := $(shell go env GOPATH)
 GOBIN := $(shell go env GOPATH)/bin
@@ -7,6 +7,7 @@ MODULES = $(shell find . -name 'go.mod' -print)
 
 all: fix fmt license lint test
 
+.PHONY: api
 api:
 	(which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0)
 	$(GOPATH)/bin/swagger generate spec -m -w api/kptfile/v1 -o ../openapi/kptfile.yaml
