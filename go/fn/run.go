@@ -24,11 +24,21 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
-// AsMain reads the resourceList in yaml format from stdin, evaluates the
-// function and write the updated resourceList in yaml to stdout. Errors if any
-// will be printed to stderr.
-func AsMain(p ResourceListProcessor) error {
+// AsMain evaluates the ResourceList from STDIN to STDOUT.
+// `input` can be
+// - a `ResourceListProcessor` which implements `Process` method
+// - a function `Runner` which implements `Run` method
+func AsMain(input interface{}) error {
 	err := func() error {
+		var p ResourceListProcessor
+		switch input := input.(type) {
+		case Runner:
+			p = runnerProcessor{fnRunner: input}
+		case ResourceListProcessorFunc:
+			p = input
+		default:
+			return fmt.Errorf("unknown input type %T", input)
+		}
 		in, err := ioutil.ReadAll(os.Stdin)
 		if err != nil {
 			return fmt.Errorf("unable to read from stdin: %v", err)
@@ -61,13 +71,17 @@ func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 		v := recover()
 		if v != nil {
 			switch t := v.(type) {
-			case ErrKubeObjectFields:
+			case errKubeObjectFields:
 				err = &t
-			case *ErrKubeObjectFields:
+			case *errKubeObjectFields:
 				err = t
-			case ErrSubObjectFields:
+			case errSubObjectFields:
 				err = &t
-			case *ErrSubObjectFields:
+			case *errSubObjectFields:
+				err = t
+			case errResultEnd:
+				err = &t
+			case *errResultEnd:
 				err = t
 			default:
 				panic(v)

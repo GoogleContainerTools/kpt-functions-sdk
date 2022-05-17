@@ -17,45 +17,54 @@ Package fn.provides an SDK for writing KRM functions in Go. The function
 specification is defined at:
 https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 
-Note: this package is an fn.package.
-
 A KRM functions can generate, mutate or validate Kubernetes resources in a
 ResourceList.
 
 The ResourceList type and the KubeObject type are the core part of this package.
-The ResourceList type maps to the ResourceList in the function spec. The
-KubeObject represent a kubernetes resource in a ResourceList, and it's the basic
+The ResourceList type maps to the ResourceList in the function spec.
+
+The KubeObject represent a kubernetes resource in a ResourceList, and it's the basic
 unit to perform most CRUD operations.
 
 A KRM function does the following things:
-
   1. read yaml bytes from stdin and convert it to a ResourceList
   2. perform mutation and validation on the resources in the ResourceList
   3. write the updated ResourceList out to stdout in yaml format
   4. Any diagnostic messages should be written to stderr
 
-ResourceListProcessor
+In most cases, you only need to do #2 which is to use pre-defined ResourceListProcessor or use your own ResourceListProcessor
+ and then pass it to AsMain. In the following example, we
+use a struct which implements the fn.Runner `Run` method
 
-In most cases, you only need to do #2 which is implementing a
-ResourceListProcessor and then pass it to AsMain. In the following example, we
-use ResourceListProcessorFunc that implements the ResourceListProcessor
-interface.
+```go
+package main
 
-  func main() {
-      if err := fn.AsMain(fn.ResourceListProcessorFunc(myfn)); err != nil {
-          os.Exit(1)
-      }
-  }
+import (
+	"fmt"
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
+)
 
-  func myfn(rl *fn.ResourceList) error {
-      fn.Log("log something")
-      // mutate or validate the ResourceList
-  }
+var _ fn.Runner = &YourKRMFn{}
 
-KubeObject
+type YourKRMFn struct {
+	Field1 map[string]string `json:",inline,omitempty"`
+}
 
-KubeObject hides all the details about yaml.Node and yaml.RNode. It is always
-recommended converting a KubeObject to a strong typed object or getting a field
-as a strong typed object. Then do the CRUD operation on the strong typed objects.
+// Add your function logic in run.
+// `resourcelist.functionConfig` is assigned to YourKRMFn object. Your functionConfig kind shall be `YourKRMFn` or `ConfigMap` (limited usage)
+// `resourcelist.items` is the passed-in `items` parameter.
+// `resourcellist.result` is empty, you can add result via `ctx` methods like `AddGeneralResult`, `AddErrResultAndDie`.
+func (r *YourKRMFn) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items []*fn.KubeObject) {
+	for _, o := range items {
+		// Your code
+	}
+}
+
+func main() {
+	if err := fn.AsMain(&YourKRMFn{}); err != nil {
+		os.Exit(1)
+	}
+}
+```
 */
 package fn

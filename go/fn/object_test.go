@@ -2,14 +2,17 @@ package fn
 
 import (
 	"reflect"
+	"sort"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestIsNamespaceScoped(t *testing.T) {
-	testdata := map[string]struct{
-		input []byte
+	testdata := map[string]struct {
+		input    []byte
 		expected bool
- 	}{
+	}{
 		"k8s resource, namespace scoped but unset": {
 			input: []byte(`
 apiVersion: v1
@@ -66,9 +69,10 @@ metadata:
 var noFnConfigResourceList = []byte(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 `)
+
 func TestNilFnConfigResourceList(t *testing.T) {
 	rl, _ := ParseResourceList(noFnConfigResourceList)
-	if rl.FunctionConfig == nil	{
+	if rl.FunctionConfig == nil {
 		t.Errorf("Empty functionConfig in ResourceList should still be initialized to avoid nil pointer error")
 	}
 	if !rl.FunctionConfig.IsEmpty() {
@@ -134,7 +138,7 @@ func TestNilFnConfigResourceList(t *testing.T) {
 	}
 }
 
-var deploymentResourceList =  []byte(`apiVersion: config.kubernetes.io/v1
+var deploymentResourceList = []byte(`apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 items:
 - apiVersion: apps/v1
@@ -173,6 +177,7 @@ items:
     - test1
     - test2
 `)
+
 func TestGetNestedFields(t *testing.T) {
 	rl, _ := ParseResourceList(deploymentResourceList)
 	deployment := rl.Items[0]
@@ -186,11 +191,11 @@ func TestGetNestedFields(t *testing.T) {
 	if stringVal := deployment.NestedStringOrDie("spec", "strategy", "type"); stringVal != "Recreate" {
 		t.Errorf("deployment .spec.strategy.type expected to be `Recreate`, got %v", stringVal)
 	}
-	if stringMapVal := deployment.NestedStringMapOrDie("spec", "template", "spec", "nodeSelector"); !reflect.DeepEqual(stringMapVal, map[string]string{"disktype": "ssd"}){
+	if stringMapVal := deployment.NestedStringMapOrDie("spec", "template", "spec", "nodeSelector"); !reflect.DeepEqual(stringMapVal, map[string]string{"disktype": "ssd"}) {
 		t.Errorf("deployment .spec.template.spec.nodeSelector expected to get {`disktype`: `ssd`}, got %v", stringMapVal)
 	}
 	if sliceVal := deployment.NestedSliceOrDie("spec", "template", "spec", "containers"); sliceVal[0].NestedStringOrDie("name") != "nginx" {
-		t.Errorf("deployment .spec.template.spec.containers[0].name expected to get `nginx`, got %v", sliceVal[0].NestedStringOrDie("name") )
+		t.Errorf("deployment .spec.template.spec.containers[0].name expected to get `nginx`, got %v", sliceVal[0].NestedStringOrDie("name"))
 	}
 	if stringSliceVal := deployment.NestedStringSliceOrDie("spec", "fakeStringSlice"); !reflect.DeepEqual(stringSliceVal, []string{"test1", "test2"}) {
 		t.Errorf("deployment .spec.fakeStringSlice expected to get [`test1`, `test2`], got %v", stringSliceVal)
@@ -211,7 +216,7 @@ func TestGetNestedFields(t *testing.T) {
 		t.Errorf("deployment .spec.template.spec.nodeSelector expected to get {`disktype`: `ssd`}, got %v", stringMapVal.GetString("disktype"))
 	}
 	if sliceVal := tmplSpec.GetSlice("containers"); sliceVal[0].GetString("name") != "nginx" {
-		t.Errorf("deployment .spec.template.spec.containers[0].name expected to get `nginx`, got %v", sliceVal[0].NestedStringOrDie("name") )
+		t.Errorf("deployment .spec.template.spec.containers[0].name expected to get `nginx`, got %v", sliceVal[0].NestedStringOrDie("name"))
 	}
 }
 
@@ -222,11 +227,60 @@ func TestSetNestedFields(t *testing.T) {
 		t.Errorf("KubeObject .source expected to get \"some starlark script...\", got %v", stringVal)
 	}
 	o.SetNestedStringMapOrDie(map[string]string{"tag1": "abc", "tag2": "test1"}, "tags")
-	if stringMapVal := o.NestedStringOrDie("tags", "tag2") ; stringMapVal != "test1" {
+	if stringMapVal := o.NestedStringOrDie("tags", "tag2"); stringMapVal != "test1" {
 		t.Errorf("KubeObject .tags.tag2 expected to get `test1`, got %v", stringMapVal)
 	}
 	o.SetNestedStringSliceOrDie([]string{"lable1", "lable2"}, "labels")
 	if stringSliceVal := o.NestedStringSliceOrDie("labels"); !reflect.DeepEqual(stringSliceVal, []string{"lable1", "lable2"}) {
 		t.Errorf("KubeObject .labels expected to get [`lable1`, `lable2`], got %v", stringSliceVal)
+	}
+}
+
+func generate(t *testing.T) *KubeObject {
+	doc := `
+apiVersion: v1
+kind: ConfigMap
+data:
+  foo: bar
+  foo2: bar2
+`
+
+	o, err := ParseKubeObject([]byte(doc))
+	if err != nil {
+		t.Fatalf("failed to parse object: %v", err)
+	}
+
+	return o
+}
+
+func TestUpsertMap(t *testing.T) {
+	o := generate(t)
+	data := o.UpsertMap("data")
+
+	entries, err := data.obj.Entries()
+	if err != nil {
+		t.Fatalf("entries failed: %v", err)
+	}
+	var got []string
+	for k := range entries {
+		got = append(got, k)
+	}
+	sort.Strings(got)
+
+	want := []string{"foo", "foo2"}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Unexpected result (-want, +got): %s", diff)
+	}
+}
+
+func TestGetMap(t *testing.T) {
+	o := generate(t)
+	got := o.GetMap("data")
+	if got == nil {
+		t.Errorf("unexpected value for GetMap(%q); got %v, want non-nil", "data", got)
+	}
+	got = o.GetMap("notExists")
+	if got != nil {
+		t.Errorf("unexpected value for GetMap(%q); got %v, want nil", "notExists", got)
 	}
 }

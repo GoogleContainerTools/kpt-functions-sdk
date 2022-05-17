@@ -20,7 +20,6 @@ import (
 	"strconv"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
-	_const "github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal/const"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
@@ -53,7 +52,7 @@ func ParseKubeObject(in []byte) (*KubeObject, error) {
 func (o *SubObject) GetOrDie(ptr interface{}, fields ...string) {
 	_, err := o.Get(ptr, fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 }
 
@@ -69,7 +68,7 @@ func (o *SubObject) NestedBool(fields ...string) (bool, bool, error) {
 func (o *SubObject) NestedBoolOrDie(fields ...string) bool {
 	val, _, err := o.NestedBool(fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	return val
 }
@@ -86,7 +85,7 @@ func (o *SubObject) NestedString(fields ...string) (string, bool, error) {
 func (o *SubObject) NestedStringOrDie(fields ...string) string {
 	val, _, err := o.NestedString(fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	return val
 }
@@ -103,7 +102,7 @@ func (o *SubObject) NestedFloat64(fields ...string) (float64, bool, error) {
 func (o *SubObject) NestedFloat64OrDie(fields ...string) float64 {
 	val, _, err := o.NestedFloat64(fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	return val
 }
@@ -120,7 +119,7 @@ func (o *SubObject) NestedInt64(fields ...string) (int64, bool, error) {
 func (o *SubObject) NestedInt64OrDie(fields ...string) int64 {
 	val, _, err := o.NestedInt64(fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	return val
 }
@@ -141,7 +140,7 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 	}
 	sliceVal, found, err := mapVariant.GetNestedSlice(fields[len(fields)-1])
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	if !found {
 		return nil, found, nil
@@ -160,11 +159,11 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 // NestedSliceOrDie accepts a slice of `fields` which represents the path to the slice component and
 // return a slice of SubObjects.
 // - It returns nil if the fields does not exist.
-// - It panics with ErrSubObjectFields error if the field is not a slice type.
+// - It panics with errSubObjectFields error if the field is not a slice type.
 func (o *SubObject) NestedSliceOrDie(fields ...string) SliceSubObjects {
 	val, _, err := o.NestedSlice(fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	return val
 }
@@ -184,7 +183,7 @@ func (o *SubObject) NestedStringMap(fields ...string) (map[string]string, bool, 
 func (o *SubObject) NestedStringMapOrDie(fields ...string) map[string]string {
 	val, _, err := o.NestedStringMap(fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	return val
 }
@@ -204,7 +203,7 @@ func (o *SubObject) NestedStringSlice(fields ...string) ([]string, bool, error) 
 func (o *SubObject) NestedStringSliceOrDie(fields ...string) []string {
 	val, _, err := o.NestedStringSlice(fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 	return val
 }
@@ -213,7 +212,7 @@ func (o *SubObject) NestedStringSliceOrDie(fields ...string) []string {
 // encounters any error.
 func (o *SubObject) RemoveNestedFieldOrDie(fields ...string) {
 	if _, err := o.RemoveNestedField(fields...); err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 }
 
@@ -318,7 +317,7 @@ func (o *SubObject) Get(ptr interface{}, fields ...string) (bool, error) {
 // It will panic if it encounters any error.
 func (o *SubObject) SetOrDie(val interface{}, fields ...string) {
 	if err := o.SetNestedField(val, fields...); err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 }
 
@@ -408,7 +407,7 @@ func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 func (o *SubObject) SetNestedStringOrDie(value string, fields ...string) {
 	err := o.SetNestedString(value, fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 }
 
@@ -421,7 +420,7 @@ func (o *SubObject) SetNestedString(value string, fields ...string) error {
 func (o *SubObject) SetNestedStringMapOrDie(value map[string]string, fields ...string) {
 	err := o.SetNestedStringMap(value, fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 }
 
@@ -434,7 +433,7 @@ func (o *SubObject) SetNestedStringMap(value map[string]string, fields ...string
 func (o *SubObject) SetNestedStringSliceOrDie(value []string, fields ...string) {
 	err := o.SetNestedStringSlice(value, fields...)
 	if err != nil {
-		panic(ErrSubObjectFields{fields: fields})
+		panic(errSubObjectFields{fields: fields})
 	}
 }
 
@@ -495,7 +494,7 @@ func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
 // be a pointer to a typed object. It will panic if it encounters an error.
 func (o *KubeObject) AsOrDie(ptr interface{}) {
 	if err := o.As(ptr); err != nil {
-		panic(ErrKubeObjectFields{obj: o, fields: nil})
+		panic(errKubeObjectFields{obj: o, fields: nil})
 	}
 }
 
@@ -531,6 +530,12 @@ func (o *KubeObject) String() string {
 	doc := internal.NewDoc([]*yaml.Node{o.obj.Node()}...)
 	s, _ := doc.ToYAML()
 	return string(s)
+}
+
+// ShortString provides a human readable information for the KubeObject Identifier in the form of GVKNN.
+func (o *KubeObject) ShortString() string {
+	return fmt.Sprintf("Resource(apiVersion=%v, kind=%v, namespace=%v, name=%v)",
+		o.GetAPIVersion(), o.GetKind(), o.GetNamespace(), o.GetName())
 }
 
 // resourceIdentifier returns the resource identifier including apiVersion, kind,
@@ -618,7 +623,7 @@ func (o *KubeObject) GetNamespace() string {
 // determines the namespace scope by checking whether `metadata.namespace` is set.
 func (o *KubeObject) IsNamespaceScoped() bool {
 	tm := yaml.TypeMeta{Kind: o.GetKind(), APIVersion: o.GetAPIVersion()}
-	if nsScoped, ok := _const.PrecomputedIsNamespaceScoped[tm]; ok {
+	if nsScoped, ok := internal.PrecomputedIsNamespaceScoped[tm]; ok {
 		return nsScoped
 	}
 	// TODO(yuwenma): parse the resource openapi schema to know its scope status.
@@ -747,4 +752,66 @@ func (o *KubeObject) node() *internal.MapVariant {
 func rnodeToKubeObject(rn *yaml.RNode) *KubeObject {
 	mapVariant := internal.NewMap(rn.YNode())
 	return &KubeObject{SubObject{mapVariant}}
+}
+
+// SubObject represents a map within a KubeObject
+type SubObject struct {
+	obj *internal.MapVariant
+}
+
+func (o *SubObject) UpsertMap(k string) *SubObject {
+	m := o.obj.UpsertMap(k)
+	return &SubObject{obj: m}
+}
+
+// GetMap accepts a single key `k` whose value is expected to be a map. It returns
+// the map in the form of a SubObject pointer.
+// It panic with ErrSubObjectFields error if the field cannot be represented as a SubObject.
+func (o *SubObject) GetMap(k string) *SubObject {
+	var variant yaml.RNode
+	found, err := o.Get(&variant, k)
+	if err != nil || !found {
+		return nil
+	}
+	return &SubObject{obj: internal.NewMap(variant.YNode())}
+}
+
+// GetBool accepts a single key `k` whose value is expected to be a boolean. It returns
+// the int value of the `k`. It panic with errSubObjectFields error if the
+// field is not an integer type.
+func (o *SubObject) GetBool(k string) bool {
+	return o.NestedBoolOrDie(k)
+}
+
+// GetInt accepts a single key `k` whose value is expected to be an integer. It returns
+// the int value of the `k`. It panic with errSubObjectFields error if the
+// field is not an integer type.
+func (o *SubObject) GetInt(k string) int64 {
+	return o.NestedInt64OrDie(k)
+}
+
+// GetString accepts a single key `k` whose value is expected to be a string. It returns
+// the value of the `k`. It panic with errSubObjectFields error if the
+// field is not a string type.
+func (o *SubObject) GetString(k string) string {
+	return o.NestedStringOrDie(k)
+}
+
+// GetSlice accepts a single key `k` whose value is expected to be a slice. It returns
+// the value as a slice of SubObject. It panic with errSubObjectFields error if the
+// field is not a slice type.
+func (o *SubObject) GetSlice(k string) SliceSubObjects {
+	return o.NestedSliceOrDie(k)
+}
+
+type SliceSubObjects []*SubObject
+
+// MarshalJSON provides the custom encoding format for encode.json. This is used
+// when KubeObject `Set` a slice of SubObjects.
+func (s *SliceSubObjects) MarshalJSON() ([]byte, error) {
+	node := &yaml.Node{Kind: yaml.SequenceNode}
+	for _, subObject := range *s {
+		node.Content = append(node.Content, subObject.obj.Node())
+	}
+	return yaml.NewRNode(node).MarshalJSON()
 }
