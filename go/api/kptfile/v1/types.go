@@ -33,7 +33,7 @@ const (
 type ResourceMeta struct {
 	TypeMeta `json:",inline" yaml:",inline"`
 	// ObjectMeta is the metadata field of a Resource
-	Metadata ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	ObjectMeta `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 }
 
 // TypeMeta partially copies apimachinery/pkg/apis/meta/v1.TypeMeta
