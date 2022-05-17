@@ -169,20 +169,40 @@ func (o *SubObject) NestedSliceOrDie(fields ...string) SliceSubObjects {
 	return val
 }
 
-// NestedInt64 returns the int64 value, if the field exist and a potential error.
-func (o *SubObject) NestedMap(fields ...string) (*SubObject, bool, error) {
-	var variant internal.MapVariant
+// NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
+func (o *SubObject) NestedStringMap(fields ...string) (map[string]string, bool, error) {
+	var variant map[string]string
 	found, err := o.Get(&variant, fields...)
 	if err != nil || !found {
 		return nil, found, err
 	}
-	return &SubObject{obj: &variant}, found, err
+	return variant, found, err
 }
 
-// NestedInt64OrDie returns the string value at fields. An empty string will be
-// returned if the field is not found. It will panic if encountering any errors.
-func (o *SubObject) NestedMapOrDie(fields ...string) *SubObject {
-	val, _, err := o.NestedMap(fields...)
+// NestedStringMapOrDie returns a map[string]string value of a nested field, if the fields does not exist, it returns
+// empty map[string]string. It will panic if the fields are not map[string]string type.
+func (o *SubObject) NestedStringMapOrDie(fields ...string) map[string]string {
+	val, _, err := o.NestedStringMap(fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+	return val
+}
+
+// NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
+func (o *SubObject) NestedStringSlice(fields ...string) ([]string, bool, error) {
+	var variant []string
+	found, err := o.Get(&variant, fields...)
+	if err != nil || !found {
+		return nil, found, err
+	}
+	return variant, found, err
+}
+
+// NestedMapOrDie returns a map[string]string value of a nested field.
+// It will panic if the fields are not map[string]string type.
+func (o *SubObject) NestedStringSliceOrDie(fields ...string) []string {
+	val, _, err := o.NestedStringSlice(fields...)
 	if err != nil {
 		panic(ErrSubObjectFields{fields: fields})
 	}
@@ -191,15 +211,15 @@ func (o *SubObject) NestedMapOrDie(fields ...string) *SubObject {
 
 // RemoveNestedFieldOrDie removes the field located by fields if found. It will panic if it
 // encounters any error.
-func (o *KubeObject) RemoveNestedFieldOrDie(fields ...string) {
+func (o *SubObject) RemoveNestedFieldOrDie(fields ...string) {
 	if _, err := o.RemoveNestedField(fields...); err != nil {
-		panic(ErrKubeObjectFields{obj: o, fields: fields})
+		panic(ErrSubObjectFields{fields: fields})
 	}
 }
 
 // RemoveNestedField removes the field located by fields if found. It returns if the field
 // is found and a potential error.
-func (o *KubeObject) RemoveNestedField(fields ...string) (bool, error) {
+func (o *SubObject) RemoveNestedField(fields ...string) (bool, error) {
 	found, err := func() (bool, error) {
 		if o == nil {
 			return false, fmt.Errorf("the object doesn't exist")
@@ -382,6 +402,45 @@ func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 		return fmt.Errorf("unable to set %v at fields %v with error: %w", val, fields, err)
 	}
 	return nil
+}
+
+// SetNestedStringOrDie sets the `fields` value to string `value`. It panics if the fields type is not string.
+func (o *SubObject) SetNestedStringOrDie(value string, fields ...string) {
+	err := o.SetNestedString(value, fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+}
+
+// SetNestedStringOrDie sets the `fields` value to string `value`. It returns error if the fields type is not string.
+func (o *SubObject) SetNestedString(value string, fields ...string) error {
+	return o.SetNestedField(value, fields...)
+}
+
+// SetNestedStringMapOrDie sets the `fields` value to map[string]string `value`. It panics if the fields type is not map[string]string.
+func (o *SubObject) SetNestedStringMapOrDie(value map[string]string, fields ...string) {
+	err := o.SetNestedStringMap(value, fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+}
+
+// SetNestedStringMap sets the `fields` value to map[string]string `value`. It returns error if the fields type is not map[string]string.
+func (o *SubObject) SetNestedStringMap(value map[string]string, fields ...string) error {
+	return o.SetNestedField(value, fields...)
+}
+
+// SetNestedStringSliceOrDie sets the `fields` value to []string `value`. It panics if the fields type is not []string.
+func (o *SubObject) SetNestedStringSliceOrDie(value []string, fields ...string) {
+	err := o.SetNestedStringSlice(value, fields...)
+	if err != nil {
+		panic(ErrSubObjectFields{fields: fields})
+	}
+}
+
+// SetNestedStringSlice sets the `fields` value to []string `value`. It returns error if the fields type is not []string.
+func (o *SubObject) SetNestedStringSlice(value []string, fields ...string) error {
+	return o.SetNestedField(value, fields...)
 }
 
 // LineComment returns the line comment, if the target field exist and a

@@ -33,7 +33,12 @@ func (o *SubObject) UpsertMap(k string) *SubObject {
 // the map in the form of a SubObject pointer.
 // It panic with ErrSubObjectFields error if the field cannot be represented as a SubObject.
 func (o *SubObject) GetMap(k string) *SubObject {
-	return o.NestedMapOrDie(k)
+	var variant yaml.RNode
+	found, err := o.Get(&variant, k)
+	if err != nil || !found {
+		return nil
+	}
+	return &SubObject{obj: internal.NewMap(variant.YNode())}
 }
 
 // GetBool accepts a single key `k` whose value is expected to be a boolean. It returns

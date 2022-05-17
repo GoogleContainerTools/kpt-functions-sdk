@@ -31,9 +31,25 @@ func Example_aReadField() {
 func readField(rl *fn.ResourceList) (bool, error) {
 	for _, obj := range rl.Items {
 		if obj.IsGVK("apps/v1", "Deployment") {
-			var replicas int
-			obj.GetOrDie(&replicas, "spec", "replicas")
+
+			// Style 1: like using unstrucuted.Unstructured, get/set the value from field paths*
+			replicas := obj.NestedInt64OrDie("spec", "replicas")
 			fn.Logf("replicas is %v\n", replicas)
+			paused := obj.NestedBoolOrDie("spec", "paused")
+			fn.Logf("paused is %v\n", paused)
+			// Update strategy from Recreate to RollingUpdate.
+			if strategy := obj.NestedStringOrDie("spec", "strategy", "type"); strategy == "Recreate" {
+				obj.SetNestedStringOrDie("RollingUpdate", "spec", "strategy", "type")
+			}
+
+			// Style 2: operate each resource layer via `GetMap`
+			spec := obj.GetMap("spec")
+			replicas = spec.GetInt("replicas")
+			fn.Logf("replicas is %v\n", replicas)
+			nodeSelector := spec.GetMap("template").GetMap("spec").GetMap("nodeSelector")
+			if nodeSelector.GetString("disktype") != "ssd" {
+				nodeSelector.SetNestedStringOrDie("ssd", "disktype")
+			}
 		}
 	}
 	return true, nil
