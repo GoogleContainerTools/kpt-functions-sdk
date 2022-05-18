@@ -22,7 +22,6 @@ import (
 
 // This example implements a function that validate resources to ensure
 // spec.template.spec.securityContext.runAsNonRoot is set in workload APIs.
-
 func Example_validator() {
 	if err := fn.AsMain(fn.ResourceListProcessorFunc(validator)); err != nil {
 		os.Exit(1)
