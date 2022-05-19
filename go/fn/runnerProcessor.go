@@ -17,8 +17,6 @@ package fn
 import (
 	"fmt"
 	"reflect"
-
-	corev1 "k8s.io/api/core/v1"
 )
 
 type runnerProcessor struct {
@@ -38,12 +36,11 @@ func (r *runnerProcessor) config(ctx *Context, o *KubeObject) {
 	case o.IsEmpty():
 		ctx.Result("`FunctionConfig` is not given", Info)
 	case o.IsGVK("v1", "ConfigMap"):
-		var cm corev1.ConfigMap
-		o.AsOrDie(&cm)
+		data := o.NestedStringMapOrDie("data")
 		fnRunnerElem := reflect.ValueOf(r.fnRunner).Elem()
 		for i := 0; i < fnRunnerElem.NumField(); i++ {
 			if fnRunnerElem.Field(i).Kind() == reflect.Map {
-				fnRunnerElem.Field(i).Set(reflect.ValueOf(cm.Data))
+				fnRunnerElem.Field(i).Set(reflect.ValueOf(data))
 				break
 			}
 		}
