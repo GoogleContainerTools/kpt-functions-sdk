@@ -13,58 +13,66 @@
 // limitations under the License.
 
 /*
-Package fn.provides an SDK for writing KRM functions in Go. The function
-specification is defined at:
-https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
+Package fn provides the SDK to write KRM functions.
 
-A KRM functions can generate, mutate or validate Kubernetes resources in a
-ResourceList.
+Before you start
 
-The ResourceList type and the KubeObject type are the core part of this package.
+This fn SDK requires some basic KRM function Specification knowledge. To make the best usage of your time, we recommend
+you to be familiar with "ResourceList" before moving forward.
+
+  The KRM Function Specification, or "ResourceList", defines the standards of the inter-process communication between
+  the orchestrator (i.e. kpt CLI) and functions.
+
+See KRM Function Specification reference in https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
+
+KRM Function
+
+A KRM function can mutate and/or validate Kubernetes resources in a ResourceList.
+
+The ResourceList type and the KubeObject type are the core parts of this package.
 The ResourceList type maps to the ResourceList in the function spec.
 
-The KubeObject represent a kubernetes resource in a ResourceList, and it's the basic
-unit to perform most CRUD operations.
+Read more about how to use KRM functions in https://kpt.dev/book/04-using-functions/
 
-A KRM function does the following things:
-  1. read yaml bytes from stdin and convert it to a ResourceList
-  2. perform mutation and validation on the resources in the ResourceList
-  3. write the updated ResourceList out to stdout in yaml format
-  4. Any diagnostic messages should be written to stderr
+Read more about how to develop a KRM function in https://kpt.dev/book/05-developing-functions/
 
-In most cases, you only need to do #2 which is to use pre-defined ResourceListProcessor or use your own ResourceListProcessor
- and then pass it to AsMain. In the following example, we
-use a struct which implements the fn.Runner `Run` method
+A general workflow is:
+  1. Reads the "ResourceList" object from STDIN.
+  2. Gets the function configs from the "ResourceList.FunctionConfig".
+  3. Mutate or validate the Kubernetes YAML resources from the "ResourceList.Items" field with the function configs.
+  4. Writes the modified "ResourceList" to STDOUT.
+  5. Write function message to "ResourceList.Results" with severity "Info", "Warning" or "Error"
 
-```go
-package main
+KubeObject
 
-import (
-	"fmt"
-	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
-)
+The KubeObject is the basic unit to perform operations on KRM resources.
 
-var _ fn.Runner = &YourKRMFn{}
+In the "AsMain", both "Items" and "FunctionConfig"
+are converted to the KubeObject(s).
 
-type YourKRMFn struct {
-	Field1 map[string]string `json:",inline,omitempty"`
-}
+If you are familiar with unstructured.Unstructured, using KubeObject is as simple as using unstructured.Unstructured.
+You can call function like `NestedStringOrDie` `SetNestedStringMap`, etc.
 
-// Add your function logic in run.
-// `resourcelist.functionConfig` is assigned to YourKRMFn object. Your functionConfig kind shall be `YourKRMFn` or `ConfigMap` (limited usage)
-// `resourcelist.items` is the passed-in `items` parameter.
-// `resourcellist.result` is empty, you can add result via `ctx` methods like `AddGeneralResult`, `AddErrResultAndDie`.
-func (r *YourKRMFn) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items []*fn.KubeObject) {
-	for _, o := range items {
-		// Your code
-	}
-}
+Except that KubeObject will not have pass-in interface arguments, nor will return an interface.
+Instead, you shall treat each KubeObject field (slice, or non-string map）as SubObject.
 
-func main() {
-	if err := fn.AsMain(&YourKRMFn{}); err != nil {
-		os.Exit(1)
-	}
-}
-```
+SubObject also have most of the KubeObject methods, except the MetaType or NameType specific methods like "GetNamespace", "SetLabel".
+This is because SubObject is designed as a sub object of KubeObject. SubObject to KubeObject is like `spec` section to `Deployment`.
+You can get the Deployment name from `metadata.name`, KubeObject.GetName() or KubeObject.NestedString("metadata", "name").
+But you cannot get "metadata.name" from a Deployment "spec". For "spec" SubObject, you can get the ".replicas" field by
+SubObject.NestedInt64("replicas")
+
+Besides unstructured style, another way to use KubeObject is to purely work on the KubeObject/SubObject by calling
+"GetMap", "GetSlice", "UpsertMap" which expects the return to be SubObject(s) pointer.
+
+AsMain
+
+"AsMain" is the main entrypoint. In most cases, you only need to provide the mutator or validation logic and have AsMain
+handles the ResourceList parsing, KRM resource field type detection, read from STDIN and write to STDOUT.
+
+"AsMain" accepts a struct that either implement the ResourceListProcessor interface or Runner interface.
+
+See github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/examples for detailed usage.
+
 */
 package fn

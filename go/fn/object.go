@@ -403,6 +403,32 @@ func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 	return nil
 }
 
+// SetNestedIntOrDie sets the `fields` value to int `value`. It panics if the fields type is not int.
+func (o *SubObject) SetNestedIntOrDie(value int, fields ...string) {
+	err := o.SetNestedInt(value, fields...)
+	if err != nil {
+		panic(errSubObjectFields{fields: fields})
+	}
+}
+
+// SetNestedInt sets the `fields` value to int `value`. It returns error if the fields type is not int.
+func (o *SubObject) SetNestedInt(value int, fields ...string) error {
+	return o.SetNestedField(value, fields...)
+}
+
+// SetNestedBoolOrDie sets the `fields` value to bool `value`. It panics if the fields type is not bool.
+func (o *SubObject) SetNestedBoolOrDie(value bool, fields ...string) {
+	err := o.SetNestedBool(value, fields...)
+	if err != nil {
+		panic(errSubObjectFields{fields: fields})
+	}
+}
+
+// SetNestedBool sets the `fields` value to bool `value`. It returns error if the fields type is not bool.
+func (o *SubObject) SetNestedBool(value bool, fields ...string) error {
+	return o.SetNestedField(value, fields...)
+}
+
 // SetNestedStringOrDie sets the `fields` value to string `value`. It panics if the fields type is not string.
 func (o *SubObject) SetNestedStringOrDie(value string, fields ...string) {
 	err := o.SetNestedString(value, fields...)
@@ -492,15 +518,15 @@ func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
 
 // AsOrDie converts a KubeObject to the desired typed object. ptr must
 // be a pointer to a typed object. It will panic if it encounters an error.
-func (o *KubeObject) AsOrDie(ptr interface{}) {
+func (o *SubObject) AsOrDie(ptr interface{}) {
 	if err := o.As(ptr); err != nil {
-		panic(errKubeObjectFields{obj: o, fields: nil})
+		panic(errSubObjectFields{fields: nil})
 	}
 }
 
 // As converts a KubeObject to the desired typed object. ptr must be
 // a pointer to a typed object.
-func (o *KubeObject) As(ptr interface{}) error {
+func (o *SubObject) As(ptr interface{}) error {
 	err := func() error {
 		if o == nil {
 			return fmt.Errorf("the object doesn't exist")

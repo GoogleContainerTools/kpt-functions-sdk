@@ -31,7 +31,6 @@ func Example_aReadField() {
 func readField(rl *fn.ResourceList) (bool, error) {
 	for _, obj := range rl.Items {
 		if obj.IsGVK("apps/v1", "Deployment") {
-
 			// Style 1: like using unstrucuted.Unstructured, get/set the value from field paths*
 			replicas := obj.NestedInt64OrDie("spec", "replicas")
 			fn.Logf("replicas is %v\n", replicas)
