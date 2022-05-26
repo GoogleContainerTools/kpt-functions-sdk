@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIsNamespaceScoped(t *testing.T) {
@@ -283,4 +284,149 @@ func TestGetMap(t *testing.T) {
 	if got != nil {
 		t.Errorf("unexpected value for GetMap(%q); got %v, want nil", "notExists", got)
 	}
+}
+
+func TestSelectors(t *testing.T) {
+	deployment := `
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: default
+  labels:
+    abc: def
+    foo: baz
+  annotations:
+    bar: foo
+`
+	service := `
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: example
+  namespace: my-namespace
+  labels:
+    foo: baz
+  annotations:
+    foo: bar
+`
+	d, err := ParseKubeObject([]byte(deployment))
+	assert.NoError(t, err)
+	s, err := ParseKubeObject([]byte(service))
+	assert.NoError(t, err)
+	input := KubeObjects{d, s}
+
+	// select all resources with labels foo=baz
+	items := input.SelectByLabels(map[string]string{"foo": "baz"})
+	assert.Equal(t, items.String(), `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: default
+  labels:
+    abc: def
+    foo: baz
+  annotations:
+    bar: foo
+---
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: example
+  namespace: my-namespace
+  labels:
+    foo: baz
+  annotations:
+    foo: bar`)
+
+	// select all deployments
+	items = input.SelectByGvk("apps/v1", "Deployment")
+	assert.Equal(t, items.String(), `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: default
+  labels:
+    abc: def
+    foo: baz
+  annotations:
+    bar: foo`)
+
+	// exclude all services
+	items = input.ExcludeByGvk("apps/v1", "Service")
+	assert.Equal(t, items.String(), `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: default
+  labels:
+    abc: def
+    foo: baz
+  annotations:
+    bar: foo`)
+
+	// include resources with the label abc: def
+	items = input.SelectByLabels(map[string]string{"abc": "def"})
+	assert.Equal(t, items.String(), `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: default
+  labels:
+    abc: def
+    foo: baz
+  annotations:
+    bar: foo`)
+
+	// exclude all resources with the annotation foo=bar
+	items = input.ExcludeByAnnotations(map[string]string{"foo": "bar"})
+	assert.Equal(t, items.String(), `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: default
+  labels:
+    abc: def
+    foo: baz
+  annotations:
+    bar: foo`)
+
+	// include resources named 'example' that are Not in namespace default
+	items = input.SelectByName("example").ExcludeByNamespace("default")
+	assert.Equal(t, items.String(), `apiVersion: apps/v1
+kind: Service
+metadata:
+  name: example
+  namespace: my-namespace
+  labels:
+    foo: baz
+  annotations:
+    foo: bar`)
+
+	// add the label "g=h" to all resources with annotation "bar=foo"
+	items = input.SelectByAnnotations(map[string]string{"bar": "foo"})
+	for _, obj := range items {
+		obj.SetLabel("g", "h")
+	}
+	assert.Equal(t, input.String(), `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+  namespace: default
+  labels:
+    abc: def
+    foo: baz
+    g: h
+  annotations:
+    bar: foo
+---
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: example
+  namespace: my-namespace
+  labels:
+    foo: baz
+  annotations:
+    foo: bar`)
 }

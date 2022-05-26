@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
@@ -690,6 +691,18 @@ func (o *KubeObject) GetAnnotation(k string) string {
 	return v
 }
 
+// HasAnnotations returns whether the KubeObject has the provided annotations
+func (o *KubeObject) HasAnnotations(annotations map[string]string) bool {
+	kubeObjectLabels := o.GetAnnotations()
+	for k, v := range annotations {
+		kubeObjectValue, found := kubeObjectLabels[k]
+		if !found || kubeObjectValue != v {
+			return false
+		}
+	}
+	return true
+}
+
 // RemoveAnnotationsIfEmpty removes the annotations field when it has zero annotations.
 func (o *KubeObject) RemoveAnnotationsIfEmpty() error {
 	annotations, found, err := o.obj.GetNestedStringMap("metadata", "annotations")
@@ -719,6 +732,18 @@ func (o *KubeObject) GetLabel(k string) string {
 func (o *KubeObject) GetLabels() map[string]string {
 	v, _, _ := o.obj.GetNestedStringMap("metadata", "labels")
 	return v
+}
+
+// HasLabels returns whether the KubeObject has the provided labels
+func (o *KubeObject) HasLabels(labels map[string]string) bool {
+	kubeObjectLabels := o.GetLabels()
+	for k, v := range labels {
+		kubeObjectValue, found := kubeObjectLabels[k]
+		if !found || kubeObjectValue != v {
+			return false
+		}
+	}
+	return true
 }
 
 func (o *KubeObject) PathAnnotation() string {
@@ -757,6 +782,107 @@ func (o KubeObjects) Less(i, j int) bool {
 	idStrI := fmt.Sprintf("%s %s %s %s", idi.GetAPIVersion(), idi.GetKind(), idi.GetNamespace(), idi.GetName())
 	idStrJ := fmt.Sprintf("%s %s %s %s", idj.GetAPIVersion(), idj.GetKind(), idj.GetNamespace(), idj.GetName())
 	return idStrI < idStrJ
+}
+
+func (o KubeObjects) String() string {
+	var elems []string
+	for _, obj := range o {
+		elems = append(elems, strings.TrimSpace(obj.String()))
+	}
+	return strings.Join(elems, "\n---\n")
+}
+
+// Select will return the subset of objects in KubeObjects such that f(object) returns 'true'.
+func (o KubeObjects) Select(f func(o *KubeObject) bool) KubeObjects {
+	var result KubeObjects
+	for _, obj := range o {
+		if f(obj) {
+			result = append(result, obj)
+		}
+	}
+	return result
+}
+
+// SelectByGvk will return the subset of objects that matches the provided GVK.
+func (o KubeObjects) SelectByGvk(apiVersion, kind string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return o.IsGVK(apiVersion, kind)
+	})
+}
+
+// ExcludeByGvk will return the subset of objects that do not match the provided GVK.
+func (o KubeObjects) ExcludeByGvk(apiVersion, kind string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return !o.IsGVK(apiVersion, kind)
+	})
+}
+
+// SelectByName will return the subset of objects that matches the provided name.
+func (o KubeObjects) SelectByName(name string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return o.GetName() == name
+	})
+}
+
+// ExcludeByName will return the subset of objects that do not match the provided name.
+func (o KubeObjects) ExcludeByName(name string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return o.GetName() != name
+	})
+}
+
+// SelectByNamespace will return the subset of objects that matches the provided namespace.
+func (o KubeObjects) SelectByNamespace(namespace string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return o.GetNamespace() == namespace
+	})
+}
+
+// ExcludeByNamespace will return the subset of objects that do not match the provided namespace.
+func (o KubeObjects) ExcludeByNamespace(namespace string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return o.GetNamespace() != namespace
+	})
+}
+
+// SelectByLabels will return the subset of objects that matches the provided labels.
+func (o KubeObjects) SelectByLabels(labels map[string]string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return o.HasLabels(labels)
+	})
+}
+
+// ExcludeByLabels will return the subset of objects that do not match the provided labels.
+func (o KubeObjects) ExcludeByLabels(labels map[string]string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return !o.HasLabels(labels)
+	})
+}
+
+// SelectByAnnotations will return the subset of objects that matches the provided labels.
+func (o KubeObjects) SelectByAnnotations(annotations map[string]string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return o.HasAnnotations(annotations)
+	})
+}
+
+// ExcludeByAnnotations will return the subset of objects that do not match the provided labels.
+func (o KubeObjects) ExcludeByAnnotations(annotations map[string]string) KubeObjects {
+	return o.Select(func(o *KubeObject) bool {
+		return !o.HasAnnotations(annotations)
+	})
+}
+
+// SelectMetaResources will return the subset of objects that are meta resources. Currently, this
+// is just the Kptfile.
+func (o KubeObjects) SelectMetaResources() KubeObjects {
+	return o.SelectByGvk("kpt.dev/v1", "Kptfile")
+}
+
+// ExcludeMetaResources will return the subset of objects that are not meta resources. Currently, this
+// is just the Kptfile.
+func (o KubeObjects) ExcludeMetaResources() KubeObjects {
+	return o.ExcludeByGvk("kpt.dev/v1", "Kptfile")
 }
 
 func (o *KubeObject) IsEmpty() bool {

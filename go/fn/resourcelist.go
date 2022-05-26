@@ -33,7 +33,7 @@ type ResourceList struct {
 	// Items will be a slice containing the Deployment and Service resources
 	// Mutating functions will alter this field during processing.
 	// This field is required.
-	Items []*KubeObject `yaml:"items" json:"items"`
+	Items KubeObjects `yaml:"items" json:"items"`
 
 	// FunctionConfig is the ResourceList.functionConfig input value.
 	//
@@ -178,7 +178,7 @@ func (rl *ResourceList) ToYAML() ([]byte, error) {
 
 // Sort sorts the ResourceList.items by apiVersion, kind, namespace and name.
 func (rl *ResourceList) Sort() {
-	sort.Sort(KubeObjects(rl.Items))
+	sort.Sort(rl.Items)
 }
 
 // UpsertObjectToItems adds an object to ResourceList.items. The input object can
