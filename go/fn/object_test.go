@@ -310,14 +310,24 @@ metadata:
   annotations:
     foo: bar
 `
+	kptfile := `
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: example-2
+  annotations:
+    bar: foo
+`
 	d, err := ParseKubeObject([]byte(deployment))
 	assert.NoError(t, err)
 	s, err := ParseKubeObject([]byte(service))
 	assert.NoError(t, err)
-	input := KubeObjects{d, s}
+	k, err := ParseKubeObject([]byte(kptfile))
+	assert.NoError(t, err)
+	input := KubeObjects{d, s, k}
 
 	// select all resources with labels foo=baz
-	items := input.SelectByLabels(map[string]string{"foo": "baz"})
+	items := input.Where(HasLabels(map[string]string{"foo": "baz"}))
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -340,7 +350,7 @@ metadata:
     foo: bar`)
 
 	// select all deployments
-	items = input.SelectByGvk("apps/v1", "Deployment")
+	items = input.Where(IsGVK("apps/v1", "Deployment"))
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -352,8 +362,8 @@ metadata:
   annotations:
     bar: foo`)
 
-	// exclude all services
-	items = input.ExcludeByGvk("apps/v1", "Service")
+	// exclude all services and meta resources
+	items = input.WhereNot(IsGVK("apps/v1", "Service")).WhereNot(IsMetaResource())
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -366,7 +376,7 @@ metadata:
     bar: foo`)
 
 	// include resources with the label abc: def
-	items = input.SelectByLabels(map[string]string{"abc": "def"})
+	items = input.Where(HasLabels(map[string]string{"abc": "def"}))
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -379,7 +389,7 @@ metadata:
     bar: foo`)
 
 	// exclude all resources with the annotation foo=bar
-	items = input.ExcludeByAnnotations(map[string]string{"foo": "bar"})
+	items = input.WhereNot(HasAnnotations(map[string]string{"foo": "bar"}))
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -389,10 +399,17 @@ metadata:
     abc: def
     foo: baz
   annotations:
+    bar: foo
+---
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: example-2
+  annotations:
     bar: foo`)
 
 	// include resources named 'example' that are Not in namespace default
-	items = input.SelectByName("example").ExcludeByNamespace("default")
+	items = input.Where(IsName("example")).WhereNot(IsNamespace("default"))
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Service
 metadata:
@@ -404,7 +421,7 @@ metadata:
     foo: bar`)
 
 	// add the label "g=h" to all resources with annotation "bar=foo"
-	items = input.SelectByAnnotations(map[string]string{"bar": "foo"})
+	items = input.Where(HasAnnotations(map[string]string{"bar": "foo"}))
 	for _, obj := range items {
 		obj.SetLabel("g", "h")
 	}
@@ -428,5 +445,14 @@ metadata:
   labels:
     foo: baz
   annotations:
-    foo: bar`)
+    foo: bar
+---
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: example-2
+  annotations:
+    bar: foo
+  labels:
+    g: h`)
 }

@@ -679,19 +679,19 @@ func (o *KubeObject) SetAnnotation(k, v string) {
 	}
 }
 
-// Annotations returns all annotations.
+// GetAnnotations returns all annotations.
 func (o *KubeObject) GetAnnotations() map[string]string {
 	v, _, _ := o.obj.GetNestedStringMap("metadata", "annotations")
 	return v
 }
 
-// Annotation returns one annotation with key k.
+// GetAnnotation returns one annotation with key k.
 func (o *KubeObject) GetAnnotation(k string) string {
 	v, _, _ := o.obj.GetNestedString("metadata", "annotations", k)
 	return v
 }
 
-// HasAnnotations returns whether the KubeObject has the provided annotations
+// HasAnnotations returns whether the KubeObject has all the given annotations.
 func (o *KubeObject) HasAnnotations(annotations map[string]string) bool {
 	kubeObjectLabels := o.GetAnnotations()
 	for k, v := range annotations {
@@ -734,7 +734,7 @@ func (o *KubeObject) GetLabels() map[string]string {
 	return v
 }
 
-// HasLabels returns whether the KubeObject has the provided labels
+// HasLabels returns whether the KubeObject has all the given labels
 func (o *KubeObject) HasLabels(labels map[string]string) bool {
 	kubeObjectLabels := o.GetLabels()
 	for k, v := range labels {
@@ -792,8 +792,8 @@ func (o KubeObjects) String() string {
 	return strings.Join(elems, "\n---\n")
 }
 
-// Select will return the subset of objects in KubeObjects such that f(object) returns 'true'.
-func (o KubeObjects) Select(f func(o *KubeObject) bool) KubeObjects {
+// Where will return the subset of objects in KubeObjects such that f(object) returns 'true'.
+func (o KubeObjects) Where(f func(o *KubeObject) bool) KubeObjects {
 	var result KubeObjects
 	for _, obj := range o {
 		if f(obj) {
@@ -803,86 +803,56 @@ func (o KubeObjects) Select(f func(o *KubeObject) bool) KubeObjects {
 	return result
 }
 
-// SelectByGvk will return the subset of objects that matches the provided GVK.
-func (o KubeObjects) SelectByGvk(apiVersion, kind string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
+// WhereNot will return the subset of objects in KubeObjects such that f(object) returns 'false'.
+func (o KubeObjects) WhereNot(f func(o *KubeObject) bool) KubeObjects {
+	var result KubeObjects
+	for _, obj := range o {
+		if !f(obj) {
+			result = append(result, obj)
+		}
+	}
+	return result
+}
+
+// IsGVK returns a function that checks if a KubeObject has a certain GVK.
+func IsGVK(apiVersion, kind string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
 		return o.IsGVK(apiVersion, kind)
-	})
+	}
 }
 
-// ExcludeByGvk will return the subset of objects that do not match the provided GVK.
-func (o KubeObjects) ExcludeByGvk(apiVersion, kind string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
-		return !o.IsGVK(apiVersion, kind)
-	})
-}
-
-// SelectByName will return the subset of objects that matches the provided name.
-func (o KubeObjects) SelectByName(name string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
+// IsName returns a function that checks if a KubeObject has a certain name.
+func IsName(name string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
 		return o.GetName() == name
-	})
+	}
 }
 
-// ExcludeByName will return the subset of objects that do not match the provided name.
-func (o KubeObjects) ExcludeByName(name string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
-		return o.GetName() != name
-	})
-}
-
-// SelectByNamespace will return the subset of objects that matches the provided namespace.
-func (o KubeObjects) SelectByNamespace(namespace string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
+// IsNamespace returns a function that checks if a KubeObject has a certain namespace.
+func IsNamespace(namespace string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
 		return o.GetNamespace() == namespace
-	})
+	}
 }
 
-// ExcludeByNamespace will return the subset of objects that do not match the provided namespace.
-func (o KubeObjects) ExcludeByNamespace(namespace string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
-		return o.GetNamespace() != namespace
-	})
-}
-
-// SelectByLabels will return the subset of objects that matches the provided labels.
-func (o KubeObjects) SelectByLabels(labels map[string]string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
+// HasLabels returns a function that checks if a KubeObject has all the given labels.
+func HasLabels(labels map[string]string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
 		return o.HasLabels(labels)
-	})
+	}
 }
 
-// ExcludeByLabels will return the subset of objects that do not match the provided labels.
-func (o KubeObjects) ExcludeByLabels(labels map[string]string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
-		return !o.HasLabels(labels)
-	})
-}
-
-// SelectByAnnotations will return the subset of objects that matches the provided labels.
-func (o KubeObjects) SelectByAnnotations(annotations map[string]string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
+// HasAnnotations returns a function that checks if a KubeObject has all the given annotations.
+func HasAnnotations(annotations map[string]string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
 		return o.HasAnnotations(annotations)
-	})
+	}
 }
 
-// ExcludeByAnnotations will return the subset of objects that do not match the provided labels.
-func (o KubeObjects) ExcludeByAnnotations(annotations map[string]string) KubeObjects {
-	return o.Select(func(o *KubeObject) bool {
-		return !o.HasAnnotations(annotations)
-	})
-}
-
-// SelectMetaResources will return the subset of objects that are meta resources. Currently, this
-// is just the Kptfile.
-func (o KubeObjects) SelectMetaResources() KubeObjects {
-	return o.SelectByGvk("kpt.dev/v1", "Kptfile")
-}
-
-// ExcludeMetaResources will return the subset of objects that are not meta resources. Currently, this
-// is just the Kptfile.
-func (o KubeObjects) ExcludeMetaResources() KubeObjects {
-	return o.ExcludeByGvk("kpt.dev/v1", "Kptfile")
+// IsMetaResource returns a function that checks if a KubeObject is a meta resource. For now
+// this just includes the Kptfile
+func IsMetaResource() func(*KubeObject) bool {
+	return IsGVK("kpt.dev/v1", "Kptfile")
 }
 
 func (o *KubeObject) IsEmpty() bool {
