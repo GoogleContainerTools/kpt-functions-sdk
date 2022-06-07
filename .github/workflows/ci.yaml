@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest]
-        node-version: [12.x, 14.x]
+        node-version: [14.x, 16.x]
         package: [kpt-functions, create-kpt-functions, init-package, hello-world, demo-functions]
     runs-on: ${{ matrix.platform }}
     steps:
