@@ -793,7 +793,7 @@ func (o KubeObjects) String() string {
 }
 
 // Where will return the subset of objects in KubeObjects such that f(object) returns 'true'.
-func (o KubeObjects) Where(f func(o *KubeObject) bool) KubeObjects {
+func (o KubeObjects) Where(f func(*KubeObject) bool) KubeObjects {
 	var result KubeObjects
 	for _, obj := range o {
 		if f(obj) {
@@ -803,15 +803,17 @@ func (o KubeObjects) Where(f func(o *KubeObject) bool) KubeObjects {
 	return result
 }
 
-// WhereNot will return the subset of objects in KubeObjects such that f(object) returns 'false'.
-func (o KubeObjects) WhereNot(f func(o *KubeObject) bool) KubeObjects {
-	var result KubeObjects
-	for _, obj := range o {
-		if !f(obj) {
-			result = append(result, obj)
-		}
+// Not returns will return a function that returns the opposite of f(object), i.e. !f(object)
+func Not(f func(*KubeObject) bool) func(o *KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return !f(o)
 	}
-	return result
+}
+
+// WhereNot will return the subset of objects in KubeObjects such that f(object) returns 'false'.
+// This is a shortcut for Where(Not(f)).
+func (o KubeObjects) WhereNot(f func(o *KubeObject) bool) KubeObjects {
+	return o.Where(Not(f))
 }
 
 // IsGVK returns a function that checks if a KubeObject has a certain GVK.
