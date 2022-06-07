@@ -350,7 +350,7 @@ metadata:
     foo: bar`)
 
 	// select all deployments
-	items = input.Where(IsGVK("apps/v1", "Deployment"))
+	items = input.Where(IsGVK("apps", "v1", "Deployment"))
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -363,7 +363,7 @@ metadata:
     bar: foo`)
 
 	// exclude all services and meta resources
-	items = input.WhereNot(IsGVK("apps/v1", "Service")).WhereNot(IsMetaResource())
+	items = input.WhereNot(IsGVK("apps", "v1", "Service")).WhereNot(IsMetaResource())
 	assert.Equal(t, items.String(), `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -421,8 +421,7 @@ metadata:
     foo: bar`)
 
 	// add the label "g=h" to all resources with annotation "bar=foo"
-	items = input.Where(HasAnnotations(map[string]string{"bar": "foo"}))
-	for _, obj := range items {
+	for _, obj := range input.Where(HasAnnotations(map[string]string{"bar": "foo"})) {
 		obj.SetLabel("g", "h")
 	}
 	assert.Equal(t, input.String(), `apiVersion: apps/v1

@@ -584,8 +584,16 @@ func (o *KubeObject) resourceIdentifier() *yaml.ResourceIdentifier {
 	}
 }
 
-// IsGVK compares the given apiVersion and kind with KubeObject's apiVersion and Kind.
-func (o *KubeObject) IsGVK(apiVersion, kind string) bool {
+// IsGVK compares the given group, version, and kind with KubeObject's apiVersion and Kind.
+func (o *KubeObject) IsGVK(group, version, kind string) bool {
+	var apiVersion string
+	switch {
+	case group == "":
+		apiVersion = version
+	default:
+		apiVersion = group + "/" + version
+	}
+
 	if o.GetAPIVersion() == apiVersion && o.GetKind() == kind {
 		return true
 	}
@@ -817,9 +825,9 @@ func (o KubeObjects) WhereNot(f func(o *KubeObject) bool) KubeObjects {
 }
 
 // IsGVK returns a function that checks if a KubeObject has a certain GVK.
-func IsGVK(apiVersion, kind string) func(*KubeObject) bool {
+func IsGVK(group, version, kind string) func(*KubeObject) bool {
 	return func(o *KubeObject) bool {
-		return o.IsGVK(apiVersion, kind)
+		return o.IsGVK(group, version, kind)
 	}
 }
 
@@ -854,7 +862,7 @@ func HasAnnotations(annotations map[string]string) func(*KubeObject) bool {
 // IsMetaResource returns a function that checks if a KubeObject is a meta resource. For now
 // this just includes the Kptfile
 func IsMetaResource() func(*KubeObject) bool {
-	return IsGVK("kpt.dev/v1", "Kptfile")
+	return IsGVK("kpt.dev", "v1", "Kptfile")
 }
 
 func (o *KubeObject) IsEmpty() bool {
