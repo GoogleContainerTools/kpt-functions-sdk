@@ -30,14 +30,11 @@ func Example_validator() {
 
 func validator(rl *fn.ResourceList) (bool, error) {
 	var results fn.Results
-	for _, obj := range rl.Items {
-		if obj.IsGVK(appsv1, "Deployment") || obj.IsGVK(appsv1, "StatefulSet") ||
-			obj.IsGVK(appsv1, "DaemonSet") || obj.IsGVK(appsv1, "ReplicaSet") {
-			var runAsNonRoot bool
-			obj.GetOrDie(&runAsNonRoot, "spec", "template", "spec", "securityContext", "runAsNonRoot")
-			if !runAsNonRoot {
-				results = append(results, fn.ConfigObjectResult("`spec.template.spec.securityContext.runAsNonRoot` must be set to true", obj, fn.Error))
-			}
+	for _, obj := range rl.Items.Where(hasDesiredGVK) {
+		var runAsNonRoot bool
+		obj.GetOrDie(&runAsNonRoot, "spec", "template", "spec", "securityContext", "runAsNonRoot")
+		if !runAsNonRoot {
+			results = append(results, fn.ConfigObjectResult("`spec.template.spec.securityContext.runAsNonRoot` must be set to true", obj, fn.Error))
 		}
 	}
 	return true, results

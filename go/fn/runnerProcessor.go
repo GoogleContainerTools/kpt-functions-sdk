@@ -35,7 +35,7 @@ func (r *runnerProcessor) config(ctx *Context, o *KubeObject) {
 	switch true {
 	case o.IsEmpty():
 		ctx.Result("`FunctionConfig` is not given", Info)
-	case o.IsGVK("v1", "ConfigMap"):
+	case o.IsGVK("", "v1", "ConfigMap"):
 		data := o.NestedStringMapOrDie("data")
 		fnRunnerElem := reflect.ValueOf(r.fnRunner).Elem()
 		for i := 0; i < fnRunnerElem.NumField(); i++ {
@@ -44,7 +44,7 @@ func (r *runnerProcessor) config(ctx *Context, o *KubeObject) {
 				break
 			}
 		}
-	case o.IsGVK("fn.kpt.dev/v1alpha1", fnName):
+	case o.IsGVK("fn.kpt.dev", "v1alpha1", fnName):
 		o.AsOrDie(r.fnRunner)
 	default:
 		ctx.ResultErrAndDie(fmt.Sprintf("unknown FunctionConfig `%v`, expect %v", o.GetKind(), fnName), o)

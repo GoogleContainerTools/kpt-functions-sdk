@@ -39,28 +39,26 @@ func injectLogger(rl *fn.ResourceList) (bool, error) {
 	if err := rl.FunctionConfig.As(&li); err != nil {
 		return false, err
 	}
-	for i, obj := range rl.Items {
-		if obj.IsGVK(appsv1, "Deployment") || obj.IsGVK(appsv1, "StatefulSet") ||
-			obj.IsGVK(appsv1, "DaemonSet") || obj.IsGVK(appsv1, "ReplicaSet") {
-			var containers []corev1.Container
-			obj.GetOrDie(&containers, "spec", "template", "spec", "containers")
-			foundTargetContainer := false
-			for j, container := range containers {
-				if container.Name == li.ContainerName {
-					containers[j].Image = li.ImageName
-					foundTargetContainer = true
-					break
-				}
+	for i, obj := range rl.Items.Where(hasDesiredGVK) {
+		var containers []corev1.Container
+		obj.GetOrDie(&containers, "spec", "template", "spec", "containers")
+		foundTargetContainer := false
+		for j, container := range containers {
+			if container.Name == li.ContainerName {
+				containers[j].Image = li.ImageName
+				foundTargetContainer = true
+				break
 			}
-			if !foundTargetContainer {
-				c := corev1.Container{
-					Name:  li.ContainerName,
-					Image: li.ImageName,
-				}
-				containers = append(containers, c)
-			}
-			rl.Items[i].SetOrDie(containers, "spec", "template", "spec", "containers")
 		}
+		if !foundTargetContainer {
+			c := corev1.Container{
+				Name:  li.ContainerName,
+				Image: li.ImageName,
+			}
+			containers = append(containers, c)
+		}
+		rl.Items[i].SetOrDie(containers, "spec", "template", "spec", "containers")
+
 	}
 	return true, nil
 }

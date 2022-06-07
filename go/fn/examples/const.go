@@ -14,6 +14,14 @@
 
 package example
 
+import "github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
+
 const (
-	appsv1 = "apps/v1"
+	apps = "apps"
+	v1   = "v1"
 )
+
+func hasDesiredGVK(obj *fn.KubeObject) bool {
+	return obj.IsGVK(apps, v1, "Deployment") || obj.IsGVK(apps, v1, "StatefulSet") ||
+		obj.IsGVK(apps, v1, "DaemonSet") || obj.IsGVK(apps, v1, "ReplicaSet")
+}
