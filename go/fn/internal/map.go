@@ -19,7 +19,6 @@ import (
 	"log"
 	"sort"
 
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
@@ -292,7 +291,7 @@ func (o *MapVariant) GetMap(field string) *MapVariant {
 			return node
 
 		default:
-			klog.Warningf("getting value of unexpected type, got %T, want map", node)
+			log.Fatalf("getting value of unexpected type, got %T, want map", node)
 		}
 	}
 
