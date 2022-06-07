@@ -4,10 +4,6 @@ go 1.17
 
 require (
 	github.com/google/go-cmp v0.5.5
-	// We must not include any core k8s modules (e.g. k8s.io/apimachinery) in
-	// the dependencies, depending on them will likely to cause version skew for
-	// consumers. The dependencies for tests and examples should be isolated.
-	k8s.io/klog/v2 v2.60.1
 	sigs.k8s.io/kustomize/kyaml v0.13.6
 )
 
@@ -16,7 +12,6 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
-	github.com/go-logr/logr v1.2.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/swag v0.19.5 // indirect
