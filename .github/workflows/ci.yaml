@@ -78,3 +78,7 @@ jobs:
       run: |
         cd go
         make all
+    - name: Test typegen
+      run: |
+        cd ts/typegen
+        make all
