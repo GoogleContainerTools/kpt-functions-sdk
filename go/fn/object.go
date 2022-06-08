@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
@@ -583,8 +584,16 @@ func (o *KubeObject) resourceIdentifier() *yaml.ResourceIdentifier {
 	}
 }
 
-// IsGVK compares the given apiVersion and kind with KubeObject's apiVersion and Kind.
-func (o *KubeObject) IsGVK(apiVersion, kind string) bool {
+// IsGVK compares the given group, version, and kind with KubeObject's apiVersion and Kind.
+func (o *KubeObject) IsGVK(group, version, kind string) bool {
+	var apiVersion string
+	switch {
+	case group == "":
+		apiVersion = version
+	default:
+		apiVersion = group + "/" + version
+	}
+
 	if o.GetAPIVersion() == apiVersion && o.GetKind() == kind {
 		return true
 	}
@@ -678,16 +687,28 @@ func (o *KubeObject) SetAnnotation(k, v string) {
 	}
 }
 
-// Annotations returns all annotations.
+// GetAnnotations returns all annotations.
 func (o *KubeObject) GetAnnotations() map[string]string {
 	v, _, _ := o.obj.GetNestedStringMap("metadata", "annotations")
 	return v
 }
 
-// Annotation returns one annotation with key k.
+// GetAnnotation returns one annotation with key k.
 func (o *KubeObject) GetAnnotation(k string) string {
 	v, _, _ := o.obj.GetNestedString("metadata", "annotations", k)
 	return v
+}
+
+// HasAnnotations returns whether the KubeObject has all the given annotations.
+func (o *KubeObject) HasAnnotations(annotations map[string]string) bool {
+	kubeObjectLabels := o.GetAnnotations()
+	for k, v := range annotations {
+		kubeObjectValue, found := kubeObjectLabels[k]
+		if !found || kubeObjectValue != v {
+			return false
+		}
+	}
+	return true
 }
 
 // RemoveAnnotationsIfEmpty removes the annotations field when it has zero annotations.
@@ -719,6 +740,18 @@ func (o *KubeObject) GetLabel(k string) string {
 func (o *KubeObject) GetLabels() map[string]string {
 	v, _, _ := o.obj.GetNestedStringMap("metadata", "labels")
 	return v
+}
+
+// HasLabels returns whether the KubeObject has all the given labels
+func (o *KubeObject) HasLabels(labels map[string]string) bool {
+	kubeObjectLabels := o.GetLabels()
+	for k, v := range labels {
+		kubeObjectValue, found := kubeObjectLabels[k]
+		if !found || kubeObjectValue != v {
+			return false
+		}
+	}
+	return true
 }
 
 func (o *KubeObject) PathAnnotation() string {
@@ -757,6 +790,79 @@ func (o KubeObjects) Less(i, j int) bool {
 	idStrI := fmt.Sprintf("%s %s %s %s", idi.GetAPIVersion(), idi.GetKind(), idi.GetNamespace(), idi.GetName())
 	idStrJ := fmt.Sprintf("%s %s %s %s", idj.GetAPIVersion(), idj.GetKind(), idj.GetNamespace(), idj.GetName())
 	return idStrI < idStrJ
+}
+
+func (o KubeObjects) String() string {
+	var elems []string
+	for _, obj := range o {
+		elems = append(elems, strings.TrimSpace(obj.String()))
+	}
+	return strings.Join(elems, "\n---\n")
+}
+
+// Where will return the subset of objects in KubeObjects such that f(object) returns 'true'.
+func (o KubeObjects) Where(f func(*KubeObject) bool) KubeObjects {
+	var result KubeObjects
+	for _, obj := range o {
+		if f(obj) {
+			result = append(result, obj)
+		}
+	}
+	return result
+}
+
+// Not returns will return a function that returns the opposite of f(object), i.e. !f(object)
+func Not(f func(*KubeObject) bool) func(o *KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return !f(o)
+	}
+}
+
+// WhereNot will return the subset of objects in KubeObjects such that f(object) returns 'false'.
+// This is a shortcut for Where(Not(f)).
+func (o KubeObjects) WhereNot(f func(o *KubeObject) bool) KubeObjects {
+	return o.Where(Not(f))
+}
+
+// IsGVK returns a function that checks if a KubeObject has a certain GVK.
+func IsGVK(group, version, kind string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return o.IsGVK(group, version, kind)
+	}
+}
+
+// IsName returns a function that checks if a KubeObject has a certain name.
+func IsName(name string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return o.GetName() == name
+	}
+}
+
+// IsNamespace returns a function that checks if a KubeObject has a certain namespace.
+func IsNamespace(namespace string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return o.GetNamespace() == namespace
+	}
+}
+
+// HasLabels returns a function that checks if a KubeObject has all the given labels.
+func HasLabels(labels map[string]string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return o.HasLabels(labels)
+	}
+}
+
+// HasAnnotations returns a function that checks if a KubeObject has all the given annotations.
+func HasAnnotations(annotations map[string]string) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return o.HasAnnotations(annotations)
+	}
+}
+
+// IsMetaResource returns a function that checks if a KubeObject is a meta resource. For now
+// this just includes the Kptfile
+func IsMetaResource() func(*KubeObject) bool {
+	return IsGVK("kpt.dev", "v1", "Kptfile")
 }
 
 func (o *KubeObject) IsEmpty() bool {

@@ -35,10 +35,8 @@ func updateReplicas(rl *fn.ResourceList) (bool, error) {
 	}
 	var replicas int
 	rl.FunctionConfig.GetOrDie(&replicas, "replicas")
-	for i, obj := range rl.Items {
-		if obj.IsGVK("apps/v1", "Deployment") {
-			rl.Items[i].SetOrDie(replicas, "spec", "replicas")
-		}
+	for i := range rl.Items.Where(fn.IsGVK("apps", "v1", "Deployment")) {
+		rl.Items[i].SetOrDie(replicas, "spec", "replicas")
 	}
 	return true, nil
 }
