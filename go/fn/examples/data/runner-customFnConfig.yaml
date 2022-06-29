@@ -1,0 +1,14 @@
+apiVersion: config.kubernetes.io/v1
+kind: ResourceList
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: example
+functionConfig:
+  apiVersion: fn.kpt.dev/v1alpha1
+  kind: CustomFnConfig
+  metadata:
+    name: runner-fn-config
+  owner: kpt
+  org: google

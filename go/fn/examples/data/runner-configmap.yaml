@@ -1,0 +1,15 @@
+apiVersion: config.kubernetes.io/v1
+kind: ResourceList
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: example
+functionConfig:
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: customConfig
+  data:
+    owner: kpt
+    org: google

@@ -15,5 +15,5 @@
 package fn
 
 type Runner interface {
-	Run(context *Context, functionConfig *KubeObject, items []*KubeObject)
+	Run(context *Context, functionConfig *KubeObject, items KubeObjects)
 }

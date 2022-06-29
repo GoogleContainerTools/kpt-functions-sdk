@@ -19,43 +19,108 @@ import (
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
-var _ fn.Runner = &SetLabels{}
+var _ fn.Runner = &CustomFnConfig{}
 
-type SetLabels struct {
-	Labels map[string]string `json:"labels,omitempty"`
+type CustomFnConfig struct {
+	Owner string
+	Org   string
 }
 
 // Run is the main function logic.
 // `ctx` provides easy methods to add info, error or warning result to `ResourceList.Results`.
 // `items` is parsed from the STDIN "ResourceList.Items".
-// `functionConfig` is from the STDIN "ResourceList.FunctionConfig". The value has been assigned to the r.Labels
-//  the functionConfig is validated to have kind "SetLabels" and apiVersion "fn.kpt.dev/v1alpha1"
-func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items []*fn.KubeObject) {
+// `functionConfig` is from the STDIN "ResourceList.FunctionConfig". The value is parsed from a `CustomFnConfig` type
+// "owner" and "org" field.
+func (r *CustomFnConfig) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn.KubeObjects) {
 	for _, o := range items {
-		for k, newLabel := range r.Labels {
-			o.SetLabel(k, newLabel)
+		o.SetName(r.Owner)
+		o.SetNamespace(r.Org)
+	}
+	ctx.ResultInfo("updated namespace and name", nil)
+}
+
+// This example uses a CustomFnConfig object, which implements `Runner.Run` methods.
+func Example_asMainCustomFnConfig() {
+	file, _ := os.Open("./data/runner-customFnConfig.yaml")
+	defer file.Close()
+	os.Stdin = file
+
+	if err := fn.AsMain(&CustomFnConfig{}); err != nil {
+		os.Exit(1)
+	}
+	// Output:
+	// apiVersion: config.kubernetes.io/v1
+	// kind: ResourceList
+	// items:
+	// - apiVersion: v1
+	//   kind: Service
+	//   metadata:
+	//     name: kpt
+	//     namespace: google
+	// functionConfig:
+	//   apiVersion: fn.kpt.dev/v1alpha1
+	//   kind: CustomFnConfig
+	//   metadata:
+	//     name: runner-fn-config
+	//   owner: kpt
+	//   org: google
+	// results:
+	// - message: updated namespace and name
+	//   severity: info
+}
+
+func Example_asMainConfigMap() {
+	file, _ := os.Open("./data/runner-configmap.yaml")
+	defer file.Close()
+	os.Stdin = file
+
+	if err := fn.AsMain(&CustomFnConfig{}); err != nil {
+		os.Exit(1)
+	}
+	// Output:
+	// apiVersion: config.kubernetes.io/v1
+	// kind: ResourceList
+	// items:
+	// - apiVersion: v1
+	//   kind: Service
+	//   metadata:
+	//     name: kpt
+	//     namespace: google
+	// functionConfig:
+	//   apiVersion: v1
+	//   kind: ConfigMap
+	//   metadata:
+	//     name: customConfig
+	//   data:
+	//     owner: kpt
+	//     org: google
+	// results:
+	// - message: updated namespace and name
+	//   severity: info
+}
+
+var _ fn.Runner = &SetLabels{}
+
+type SetLabels struct {
+	Data map[string]string
+}
+
+// Run is the main function logic.
+// `ctx` provides easy methods to add info, error or warning result to `ResourceList.Results`.
+// `items` is parsed from the STDIN "ResourceList.Items".
+// `functionConfig` is from the STDIN "ResourceList.FunctionConfig". The value is parsed from a `ConfigMap` type
+// "data" field.
+func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn.KubeObjects) {
+	for _, o := range items {
+		for k, v := range r.Data {
+			o.SetLabel(k, v)
 		}
 	}
 	ctx.ResultInfo("updated labels", nil)
 }
 
-// This example uses a SetLabels object, which implements `Runner.Run` methods.
-//
-// The input from ./data/setlabels-resourcelist.yaml:
-// apiVersion: config.kubernetes.io/v1
-// kind: ResourceList
-// items:
-//   - apiVersion: v1
-//     kind: Service
-//     metadata:
-//       name: example
-// functionConfig:
-//   apiVersion: fn.kpt.dev/v1alpha1
-//   kind: SetLabels
-//   metadata:
-//     name: setlabel-fn-config
-func Example_asMain() {
-	file, _ := os.Open("./data/setlabels-resourcelist.yaml")
+func Example_asMain_configMapData() {
+	file, _ := os.Open("./data/runner-configmap-general.yaml")
 	defer file.Close()
 	os.Stdin = file
 
@@ -70,11 +135,17 @@ func Example_asMain() {
 	//   kind: Service
 	//   metadata:
 	//     name: example
+	//     labels:
+	//       project-id: kpt-dev
+	//       managed-by: kpt
 	// functionConfig:
-	//   apiVersion: fn.kpt.dev/v1alpha1
-	//   kind: SetLabels
+	//   apiVersion: v1
+	//   kind: ConfigMap
 	//   metadata:
-	//     name: setlabel-fn-config
+	//     name: runner-fn-config
+	//   data:
+	//     project-id: kpt-dev
+	//     managed-by: kpt
 	// results:
 	// - message: updated labels
 	//   severity: info
