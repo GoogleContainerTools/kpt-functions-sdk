@@ -5,6 +5,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/go-errors/errors"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 )
@@ -234,6 +235,38 @@ func TestSetNestedFields(t *testing.T) {
 	o.SetNestedStringSliceOrDie([]string{"lable1", "lable2"}, "labels")
 	if stringSliceVal := o.NestedStringSliceOrDie("labels"); !reflect.DeepEqual(stringSliceVal, []string{"lable1", "lable2"}) {
 		t.Errorf("KubeObject .labels expected to get [`lable1`, `lable2`], got %v", stringSliceVal)
+	}
+}
+
+func TestInternalAnnotationsUntouchable(t *testing.T) {
+	o := NewEmptyKubeObject()
+	// Verify the "upstream-identifier" annotation cannot be changed via SetNestedStringMap
+	o.SetNestedStringMap(map[string]string{"owner": "kpt"}, "metadata", "annotations")
+	if stringMapVal := o.NestedStringMapOrDie("metadata", "annotations"); !reflect.DeepEqual(stringMapVal, map[string]string{"owner": "kpt"}) {
+		t.Errorf("annotations cannot be set via SetNestedStringMap, got %v", stringMapVal)
+	}
+	err := o.SetNestedStringMap(map[string]string{UpstreamIdentifier: "apps|Deployment|default|dp"}, "metadata", "annotations")
+	if !errors.Is(ErrAttemptToTouchUpstreamIdentifier{}, err) {
+		t.Errorf("set internal annotation via SetNestedStringMap() failed, expect %e, got %e", ErrAttemptToTouchUpstreamIdentifier{}, err)
+	}
+
+	// Verify the "upstream-identifier" annotation cannot be changed via SetAnnotation
+	o.SetAnnotation("owner", "kpt")
+	if o.GetAnnotation("owner") != "kpt" {
+		t.Errorf("annotations cannot be set via SetAnnotation(), got %v", o.GetAnnotation("owner"))
+	}
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("set internal annotation via SetAnnotation() expect panic (%v), got pass",
+				ErrAttemptToTouchUpstreamIdentifier{})
+		}
+	}()
+	o.SetAnnotation(UpstreamIdentifier, "apps|Deployment|default|dp")
+
+	// Verify the "upstream-identifier" annotation cannot be changed via SetNestedField
+	err = o.SetNestedField(map[string]string{UpstreamIdentifier: "apps|Deployment|default|dp"}, "metadata", "annotations")
+	if !errors.Is(ErrAttemptToTouchUpstreamIdentifier{}, err) {
+		t.Errorf("set internal annotation via SetNestedField() failed, expect %e, got %e", ErrAttemptToTouchUpstreamIdentifier{}, err)
 	}
 }
 

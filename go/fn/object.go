@@ -322,10 +322,21 @@ func (o *SubObject) SetOrDie(val interface{}, fields ...string) {
 	}
 }
 
+// onLockedFields locks the SubObject fields which are expected for kpt internal use only.
+func (o *SubObject) onLockedFields(val interface{}, fields ...string) error {
+	if o.hasUpstreamIdentifier(val, fields...) {
+		return ErrAttemptToTouchUpstreamIdentifier{}
+	}
+	return nil
+}
+
 // SetNestedField sets a nested field located by fields to the value provided as val. val
 // should not be a yaml.RNode. If you want to deal with yaml.RNode, you should
 // use Get method and modify the underlying yaml.Node.
 func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
+	if err := o.onLockedFields(val, fields...); err != nil {
+		return err
+	}
 	err := func() error {
 		if val == nil {
 			return fmt.Errorf("the passed-in object must not be nil")
@@ -682,6 +693,10 @@ func (o *KubeObject) SetNamespace(name string) {
 }
 
 func (o *KubeObject) SetAnnotation(k, v string) {
+	// Keep upstream-identifier untouched from users
+	if k == UpstreamIdentifier {
+		panic(ErrAttemptToTouchUpstreamIdentifier{})
+	}
 	if err := o.SetNestedField(v, "metadata", "annotations", k); err != nil {
 		panic(fmt.Errorf("cannot set metadata annotations '%v': %v", k, err))
 	}

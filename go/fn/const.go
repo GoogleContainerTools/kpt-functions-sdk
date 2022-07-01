@@ -41,3 +41,18 @@ const (
 	// KptLocalConfig marks a KRM resource to be skipped from deploying to the cluster via `kpt live apply`.
 	KptLocalConfig = ConfigPrefix + "local-config"
 )
+
+// For Kpt use only constants
+const (
+	// KptUseOnlyPrefix is the prefix of kpt-only annotations. Users are not expected to touch these annotations.
+	KptUseOnlyPrefix = "internal.kpt.dev/"
+
+	// UpstreamIdentifier is the annotation to record a resource's upstream origin.
+	// It is in the form of <GROUP>|<KIND>|<NAMESPACE>|<NAME>
+	UpstreamIdentifier = KptUseOnlyPrefix + "upstream-identifier"
+
+	// UnknownNamespace is the special char for cluster-scoped or unknown-scoped resources. This is only used in upstream-identifier
+	UnknownNamespace = "~C"
+	// DefaultNamespace is the actual namespace value if a namespace-scoped resource has its namespace field unspecified.
+	DefaultNamespace = "default"
+)
