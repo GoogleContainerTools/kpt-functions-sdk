@@ -3,6 +3,7 @@ module github.com/GoogleContainerTools/kpt-functions-sdk/go/fn
 go 1.17
 
 require (
+	github.com/go-errors/errors v1.0.1
 	github.com/google/go-cmp v0.5.7
 	github.com/stretchr/testify v1.7.1
 	// We must not include any core k8s modules (e.g. k8s.io/apimachinery) in
@@ -16,7 +17,6 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-logr/logr v1.2.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect

@@ -57,3 +57,17 @@ func (e *errResultEnd) Error() string {
 	}
 	return fmt.Sprintf("function is terminated: %v", e.message)
 }
+
+type ErrAttemptToTouchUpstreamIdentifier struct{}
+
+func (ErrAttemptToTouchUpstreamIdentifier) Error() string {
+	return fmt.Sprintf("annotation %v is managed by kpt and should not be modified", UpstreamIdentifier)
+}
+
+type ErrInternalAnnotation struct {
+	Message string
+}
+
+func (e *ErrInternalAnnotation) Error() string {
+	return e.Message
+}

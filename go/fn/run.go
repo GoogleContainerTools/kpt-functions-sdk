@@ -83,6 +83,14 @@ func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
 				err = &t
 			case *errResultEnd:
 				err = t
+			case ErrAttemptToTouchUpstreamIdentifier:
+				err = &t
+			case *ErrAttemptToTouchUpstreamIdentifier:
+				err = t
+			case ErrInternalAnnotation:
+				err = &t
+			case *ErrInternalAnnotation:
+				err = t
 			default:
 				panic(v)
 			}
