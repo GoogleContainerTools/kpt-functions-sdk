@@ -595,26 +595,27 @@ func (o *KubeObject) resourceIdentifier() *yaml.ResourceIdentifier {
 	}
 }
 
+func match(GVKStr string, oStr string) bool {
+	if GVKStr == "" {
+		return true
+	}
+	return oStr == GVKStr
+}
+
 // IsGVK compares the given group, version, and kind with KubeObject's apiVersion and Kind.
 func (o *KubeObject) IsGVK(group, version, kind string) bool {
-	var apiVersion string
-	switch {
-	case group == "":
-		apiVersion = version
-	default:
-		apiVersion = group + "/" + version
+	oGroup := ""
+	oVersion := ""
+	apiVersion := o.GetAPIVersion()
+	if strings.Contains(apiVersion, "/") {
+		// has both group and version
+		apiVersionSlice := strings.Split(apiVersion, "/")
+		oGroup = apiVersionSlice[0]
+		oVersion = apiVersionSlice[1]
+	} else {
+		oVersion = apiVersion
 	}
-
-	if o.GetAPIVersion() == apiVersion && o.GetKind() == kind {
-		return true
-	}
-	if apiVersion == "" && o.GetKind() == kind {
-		return true
-	}
-	if kind == "" && o.GetAPIVersion() == apiVersion {
-		return true
-	}
-	return false
+	return match(group, oGroup) && match(version, oVersion) && match(kind, o.GetKind())
 }
 
 // IsLocalConfig checks the "config.kubernetes.io/local-config" field to tell
