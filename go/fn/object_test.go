@@ -10,6 +10,86 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGVK(t *testing.T) {
+	input := []byte(`
+apiVersion: apps/v3
+kind: StatefulSet
+metadata:
+  name: my-config
+spec:
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          testkey: testvalue
+`)
+	result, _ := ParseKubeObject(input)
+	if result.IsGVK("apps", "", "StatefulSet") != true {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+
+	if result.IsGVK("", "v3", "StatefulSet") != true {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+
+	if result.IsGVK("apps", "v3", "") != true {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+
+	if result.IsGVK("", "", "StatefulSet") != true {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+
+	if result.IsGVK("", "", "") != true {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+
+	if result.IsGVK("appWrong", "", "") != false {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+
+	if result.IsGVK("", "", "Service") != false {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+
+	if result.IsGVK("", "v1", "") != false {
+		t.Errorf("wildcard matching failed for isGVK")
+	}
+}
+
+func TestGVKNoGroup(t *testing.T) {
+	input := []byte(`
+apiVersion: v3
+kind: StatefulSet
+metadata:
+  name: my-config
+spec:
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          testkey: testvalue
+`)
+	result, _ := ParseKubeObject(input)
+	if result.IsGVK("apps", "", "StatefulSet") != true {
+		t.Errorf("wildcard matching failed when only version and no group")
+	}
+
+	if result.IsGVK("", "v3", "StatefulSet") != true {
+		t.Errorf("wildcard matching failed when only version and no group")
+	}
+
+	if result.IsGVK("apps", "v3", "StatefulSet") != true {
+		t.Errorf("wildcard matching failed when only version and no group")
+	}
+
+	if result.IsGVK("apps", "v1", "StatefulSet") != false {
+		t.Errorf("wildcard matching failed when only version and no group")
+	}
+
+	if result.IsGVK("", "v1", "StatefulSet") != false {
+		t.Errorf("wildcard matching failed when only version and no group")
+	}
+}
+
 func TestIsNamespaceScoped(t *testing.T) {
 	testdata := map[string]struct {
 		input    []byte
