@@ -10,8 +10,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type GVKTest struct {
+	group   string
+	version string
+	kind    string
+	resultA bool
+	resultB bool
+	resultC bool
+}
+
 func TestGVK(t *testing.T) {
-	input := []byte(`
+	inputA := []byte(`
 apiVersion: apps/v3
 kind: StatefulSet
 metadata:
@@ -22,42 +31,8 @@ spec:
         labels:
           testkey: testvalue
 `)
-	result, _ := ParseKubeObject(input)
-	if result.IsGVK("apps", "", "StatefulSet") != true {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
 
-	if result.IsGVK("", "v3", "StatefulSet") != true {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
-
-	if result.IsGVK("apps", "v3", "") != true {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
-
-	if result.IsGVK("", "", "StatefulSet") != true {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
-
-	if result.IsGVK("", "", "") != true {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
-
-	if result.IsGVK("appWrong", "", "") != false {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
-
-	if result.IsGVK("", "", "Service") != false {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
-
-	if result.IsGVK("", "v1", "") != false {
-		t.Errorf("wildcard matching failed for isGVK")
-	}
-}
-
-func TestGVKNoGroup(t *testing.T) {
-	input := []byte(`
+	inputB := []byte(`
 apiVersion: v3
 kind: StatefulSet
 metadata:
@@ -68,26 +43,43 @@ spec:
         labels:
           testkey: testvalue
 `)
-	result, _ := ParseKubeObject(input)
-	if result.IsGVK("apps", "", "StatefulSet") != true {
-		t.Errorf("wildcard matching failed when only version and no group")
+
+	inputC := []byte(`
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: my-config
+spec:
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          testkey: testvalue
+`)
+	testcases := map[string]GVKTest{}
+	testcases["1"] = GVKTest{"apps", "", "StatefulSet", true, true, false}
+	testcases["2"] = GVKTest{"", "v3", "StatefulSet", true, true, false}
+	testcases["3"] = GVKTest{"apps", "v3", "StatefulSet", true, true, false}
+	testcases["4"] = GVKTest{"", "", "StatefulSet", true, true, false}
+	testcases["5"] = GVKTest{"", "", "", true, true, true}
+	testcases["6"] = GVKTest{"appWrong", "", "", false, true, false}
+	testcases["7"] = GVKTest{"", "", "Service", false, false, true}
+	testcases["8"] = GVKTest{"", "v1", "", false, false, true}
+
+	resourceA, _ := ParseKubeObject(inputA)
+	resourceB, _ := ParseKubeObject(inputB)
+	resourceC, _ := ParseKubeObject(inputC)
+	for testname, data := range testcases {
+		if resourceA.IsGVK(data.group, data.version, data.kind) != data.resultA {
+			t.Errorf("Test case " + testname + " resourceA failed for isGVK")
+		}
+		if resourceB.IsGVK(data.group, data.version, data.kind) != data.resultB {
+			t.Errorf("Test case " + testname + " resourceB failed for isGVK")
+		}
+		if resourceC.IsGVK(data.group, data.version, data.kind) != data.resultC {
+			t.Errorf("Test case " + testname + " resourceC failed for isGVK")
+		}
 	}
 
-	if result.IsGVK("", "v3", "StatefulSet") != true {
-		t.Errorf("wildcard matching failed when only version and no group")
-	}
-
-	if result.IsGVK("apps", "v3", "StatefulSet") != true {
-		t.Errorf("wildcard matching failed when only version and no group")
-	}
-
-	if result.IsGVK("apps", "v1", "StatefulSet") != false {
-		t.Errorf("wildcard matching failed when only version and no group")
-	}
-
-	if result.IsGVK("", "v1", "StatefulSet") != false {
-		t.Errorf("wildcard matching failed when only version and no group")
-	}
 }
 
 func TestIsNamespaceScoped(t *testing.T) {
