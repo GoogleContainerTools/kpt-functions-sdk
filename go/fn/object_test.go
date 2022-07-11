@@ -20,7 +20,7 @@ type GVKTest struct {
 }
 
 func TestGVK(t *testing.T) {
-	inputA := []byte(`
+	input := []byte(`
 apiVersion: apps/v3
 kind: StatefulSet
 metadata:
@@ -32,7 +32,7 @@ spec:
           testkey: testvalue
 `)
 
-	inputB := []byte(`
+	input_noGroup := []byte(`
 apiVersion: v3
 kind: StatefulSet
 metadata:
@@ -44,7 +44,7 @@ spec:
           testkey: testvalue
 `)
 
-	inputC := []byte(`
+	input_differentKind := []byte(`
 apiVersion: apps/v1
 kind: Service
 metadata:
@@ -65,18 +65,18 @@ spec:
 	testcases["7"] = GVKTest{"", "", "Service", false, false, true}
 	testcases["8"] = GVKTest{"", "v1", "", false, false, true}
 
-	resourceA, _ := ParseKubeObject(inputA)
-	resourceB, _ := ParseKubeObject(inputB)
-	resourceC, _ := ParseKubeObject(inputC)
+	resource, _ := ParseKubeObject(input)
+	resource_noGroup, _ := ParseKubeObject(input_noGroup)
+	resource_diffKind, _ := ParseKubeObject(input_differentKind)
 	for testname, data := range testcases {
-		if resourceA.IsGVK(data.group, data.version, data.kind) != data.resultA {
-			t.Errorf("Test case " + testname + " resourceA failed for isGVK")
+		if resource.IsGVK(data.group, data.version, data.kind) != data.resultA {
+			t.Errorf("Test case " + testname + " resource failed for isGVK")
 		}
-		if resourceB.IsGVK(data.group, data.version, data.kind) != data.resultB {
-			t.Errorf("Test case " + testname + " resourceB failed for isGVK")
+		if resource_noGroup.IsGVK(data.group, data.version, data.kind) != data.resultB {
+			t.Errorf("Test case " + testname + " resource_noGroup failed for isGVK")
 		}
-		if resourceC.IsGVK(data.group, data.version, data.kind) != data.resultC {
-			t.Errorf("Test case " + testname + " resourceC failed for isGVK")
+		if resource_diffKind.IsGVK(data.group, data.version, data.kind) != data.resultC {
+			t.Errorf("Test case " + testname + " resource_diffKind failed for isGVK")
 		}
 	}
 
