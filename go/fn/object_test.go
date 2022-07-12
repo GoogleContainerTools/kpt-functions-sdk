@@ -11,15 +11,18 @@ import (
 )
 
 type GVKTest struct {
-	group   string
-	version string
-	kind    string
-	resultA bool
-	resultB bool
-	resultC bool
+	resource         *KubeObject
+	resourceNoGroup  *KubeObject
+	resourceDiffKind *KubeObject
+	group            string
+	version          string
+	kind             string
+	result           bool
+	resultNoGroup    bool
+	resultDiffKind   bool
 }
 
-func TestGVK(t *testing.T) {
+func TestIsGVK(t *testing.T) {
 	input := []byte(`
 apiVersion: apps/v3
 kind: StatefulSet
@@ -32,7 +35,7 @@ spec:
           testkey: testvalue
 `)
 
-	input_noGroup := []byte(`
+	inputNoGroup := []byte(`
 apiVersion: v3
 kind: StatefulSet
 metadata:
@@ -44,7 +47,7 @@ spec:
           testkey: testvalue
 `)
 
-	input_differentKind := []byte(`
+	inputDifferentKind := []byte(`
 apiVersion: apps/v1
 kind: Service
 metadata:
@@ -55,29 +58,47 @@ spec:
         labels:
           testkey: testvalue
 `)
-	testcases := map[string]GVKTest{}
-	testcases["1"] = GVKTest{"apps", "", "StatefulSet", true, true, false}
-	testcases["2"] = GVKTest{"", "v3", "StatefulSet", true, true, false}
-	testcases["3"] = GVKTest{"apps", "v3", "StatefulSet", true, true, false}
-	testcases["4"] = GVKTest{"", "", "StatefulSet", true, true, false}
-	testcases["5"] = GVKTest{"", "", "", true, true, true}
-	testcases["6"] = GVKTest{"appWrong", "", "", false, true, false}
-	testcases["7"] = GVKTest{"", "", "Service", false, false, true}
-	testcases["8"] = GVKTest{"", "v1", "", false, false, true}
-
 	resource, _ := ParseKubeObject(input)
-	resource_noGroup, _ := ParseKubeObject(input_noGroup)
-	resource_diffKind, _ := ParseKubeObject(input_differentKind)
-	for testname, data := range testcases {
-		if resource.IsGVK(data.group, data.version, data.kind) != data.resultA {
-			t.Errorf("Test case " + testname + " resource failed for isGVK")
-		}
-		if resource_noGroup.IsGVK(data.group, data.version, data.kind) != data.resultB {
-			t.Errorf("Test case " + testname + " resource_noGroup failed for isGVK")
-		}
-		if resource_diffKind.IsGVK(data.group, data.version, data.kind) != data.resultC {
-			t.Errorf("Test case " + testname + " resource_diffKind failed for isGVK")
-		}
+	resourceNoGroup, _ := ParseKubeObject(inputNoGroup)
+	resourceDiffKind, _ := ParseKubeObject(inputDifferentKind)
+	testcases := map[string]GVKTest{}
+	testcases["no version"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"apps", "", "StatefulSet",
+		true, true, false}
+	testcases["no group"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"", "v3", "StatefulSet",
+		true, true, false}
+	testcases["no kind"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"apps", "v3", "",
+		true, true, false}
+	testcases["no fields"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"", "", "",
+		true, true, true}
+	testcases["all fields"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"apps", "v3", "StatefulSet",
+		true, true, false}
+	testcases["only kind"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"", "", "StatefulSet",
+		true, true, false}
+	testcases["only group"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"appWrong", "", "",
+		false, true, false}
+	testcases["only version"] = GVKTest{
+		resource, resourceNoGroup, resourceDiffKind,
+		"", "v1", "",
+		false, false, true}
+
+	for testName, data := range testcases {
+		assert.Equal(t, resource.IsGVK(data.group, data.version, data.kind), data.result, testName+",resource")
+		assert.Equal(t, resourceNoGroup.IsGVK(data.group, data.version, data.kind), data.resultNoGroup, testName+",resourceNoGroup")
+		assert.Equal(t, resourceDiffKind.IsGVK(data.group, data.version, data.kind), data.resultDiffKind, testName+",resourceDiffKind")
 	}
 
 }
