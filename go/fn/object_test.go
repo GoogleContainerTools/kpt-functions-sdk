@@ -10,18 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type GVKTest struct {
-	resource         *KubeObject
-	resourceNoGroup  *KubeObject
-	resourceDiffKind *KubeObject
-	group            string
-	version          string
-	kind             string
-	result           bool
-	resultNoGroup    bool
-	resultDiffKind   bool
-}
-
 func TestIsGVK(t *testing.T) {
 	input := []byte(`
 apiVersion: apps/v3
@@ -61,41 +49,60 @@ spec:
 	resource, _ := ParseKubeObject(input)
 	resourceNoGroup, _ := ParseKubeObject(inputNoGroup)
 	resourceDiffKind, _ := ParseKubeObject(inputDifferentKind)
-	testcases := map[string]GVKTest{}
-	testcases["no version"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"apps", "", "StatefulSet",
-		true, true, false}
-	testcases["no group"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"", "v3", "StatefulSet",
-		true, true, false}
-	testcases["no kind"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"apps", "v3", "",
-		true, true, false}
-	testcases["no fields"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"", "", "",
-		true, true, true}
-	testcases["all fields"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"apps", "v3", "StatefulSet",
-		true, true, false}
-	testcases["only kind"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"", "", "StatefulSet",
-		true, true, false}
-	testcases["only group"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"appWrong", "", "",
-		false, true, false}
-	testcases["only version"] = GVKTest{
-		resource, resourceNoGroup, resourceDiffKind,
-		"", "v1", "",
-		false, false, true}
+	testCases := map[string]struct {
+		resource         *KubeObject
+		resourceNoGroup  *KubeObject
+		resourceDiffKind *KubeObject
+		group            string
+		version          string
+		kind             string
+		result           bool
+		resultNoGroup    bool
+		resultDiffKind   bool
+	}{
+		"no version": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "apps", version: "", kind: "StatefulSet",
+			result: true, resultNoGroup: true, resultDiffKind: false,
+		},
+		"no group": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "", version: "v3", kind: "StatefulSet",
+			result: true, resultNoGroup: true, resultDiffKind: false,
+		},
+		"no kind": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "apps", version: "v3", kind: "",
+			result: true, resultNoGroup: true, resultDiffKind: false,
+		},
+		"no fields": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "", version: "", kind: "",
+			result: true, resultNoGroup: true, resultDiffKind: true,
+		},
+		"all fields": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "apps", version: "v3", kind: "StatefulSet",
+			result: true, resultNoGroup: true, resultDiffKind: false,
+		},
+		"only kind": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "", version: "", kind: "StatefulSet",
+			result: true, resultNoGroup: true, resultDiffKind: false,
+		},
+		"only group": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "appWrong", version: "", kind: "",
+			result: false, resultNoGroup: true, resultDiffKind: false,
+		},
+		"only version": {
+			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
+			group: "", version: "v1", kind: "",
+			result: false, resultNoGroup: false, resultDiffKind: true,
+		},
+	}
 
-	for testName, data := range testcases {
+	for testName, data := range testCases {
 		assert.Equal(t, resource.IsGVK(data.group, data.version, data.kind), data.result, testName+",resource")
 		assert.Equal(t, resourceNoGroup.IsGVK(data.group, data.version, data.kind), data.resultNoGroup, testName+",resourceNoGroup")
 		assert.Equal(t, resourceDiffKind.IsGVK(data.group, data.version, data.kind), data.resultDiffKind, testName+",resourceDiffKind")
