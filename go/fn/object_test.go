@@ -60,42 +60,42 @@ spec:
 		resultNoGroup    bool
 		resultDiffKind   bool
 	}{
-		"no version": {
+		"IsGVK provided with no version, should match all versions": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "apps", version: "", kind: "StatefulSet",
 			result: true, resultNoGroup: true, resultDiffKind: false,
 		},
-		"no group": {
+		"IsGVK provided with no group, should match all groups": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "", version: "v3", kind: "StatefulSet",
 			result: true, resultNoGroup: true, resultDiffKind: false,
 		},
-		"no kind": {
+		"IsGVK provided with no kind, should match all kinds": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "apps", version: "v3", kind: "",
 			result: true, resultNoGroup: true, resultDiffKind: false,
 		},
-		"no fields": {
+		"IsGVK provided with no fields, should match all resources": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "", version: "", kind: "",
 			result: true, resultNoGroup: true, resultDiffKind: true,
 		},
-		"all fields": {
+		"IsGVK provided with all fields, can only match if the resource has the same field value or the field is nil": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "apps", version: "v3", kind: "StatefulSet",
 			result: true, resultNoGroup: true, resultDiffKind: false,
 		},
-		"only kind": {
+		"IsGVK provided with only kind, can only match if the kind is the same or kind is nil": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "", version: "", kind: "StatefulSet",
 			result: true, resultNoGroup: true, resultDiffKind: false,
 		},
-		"only group": {
+		"IsGVK provided with only group, can only match if the group is the same or group is nil": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "appWrong", version: "", kind: "",
 			result: false, resultNoGroup: true, resultDiffKind: false,
 		},
-		"only version": {
+		"IsGVK provided with only version, can only match if the version is the same or version is nil": {
 			resource: resource, resourceNoGroup: resourceNoGroup, resourceDiffKind: resourceDiffKind,
 			group: "", version: "v1", kind: "",
 			result: false, resultNoGroup: false, resultDiffKind: true,
