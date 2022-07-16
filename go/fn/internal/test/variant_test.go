@@ -15,8 +15,10 @@
 package internal_test
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -111,7 +113,7 @@ desiredReplicas: 1
 	}
 }
 
-func TestTypedObjectToMapVariant(t *testing.T) {
+func TestNewFromTypedObject(t *testing.T) {
 	testcases := []struct {
 		name     string
 		input    interface{}
@@ -215,11 +217,48 @@ status: {}
 	}
 
 	for _, tc := range testcases {
-		mv, err := internal.TypedObjectToMapVariant(tc.input)
+		mv, err := fn.NewFromTypedObject(tc.input)
 		assert.NoError(t, err)
-		s, err := yaml.NewRNode(mv.Node()).String()
-		assert.NoError(t, err)
+		s := mv.String()
 		assert.Equal(t, tc.expected, s)
+	}
+}
+
+func TestBadNewFromTypedObject(t *testing.T) {
+	input := []corev1.ConfigMap{
+		{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "v1",
+				Kind:       "ConfigMap",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-cm",
+				Namespace: "my-ns",
+			},
+			Data: map[string]string{
+				"foo": "bar",
+			},
+		},
+		{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "v1",
+				Kind:       "ConfigMap",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-cm2",
+				Namespace: "my-ns2",
+			},
+			Data: map[string]string{
+				"foo2": "bar2",
+			},
+		},
+	}
+	_, err := fn.NewFromTypedObject(input)
+	if err == nil {
+		t.Errorf("expect error, got nil")
+	}
+	if !strings.Contains(err.Error(), "got reflect.Slice") {
+		t.Errorf("got unexpected error %v", err)
 	}
 }
 
