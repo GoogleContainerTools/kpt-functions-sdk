@@ -10,6 +10,179 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestIsGVK(t *testing.T) {
+	input := []byte(`
+apiVersion: apps/v3
+kind: StatefulSet
+metadata:
+  name: my-config
+spec:
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          testkey: testvalue
+`)
+
+	inputNoGroup := []byte(`
+apiVersion: v3
+kind: StatefulSet
+metadata:
+  name: my-config
+spec:
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          testkey: testvalue
+`)
+
+	inputMismatch := []byte(`
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: my-config
+spec:
+  volumeClaimTemplates:
+    - metadata:
+        labels:
+          testkey: testvalue
+`)
+	resource, _ := ParseKubeObject(input)
+	resourceNoGroup, _ := ParseKubeObject(inputNoGroup)
+	resourceMismatch, _ := ParseKubeObject(inputMismatch)
+	testCases := map[string]struct {
+		resource         *KubeObject
+		resourceNoGroup  *KubeObject
+		resourceDiffKind *KubeObject
+		group            string
+		version          string
+		kind             string
+		// this is the expected result for the resource with matched group, version, kind
+		expect bool
+		// this is the expected result for the resource with no group, matched version and kind
+		expectNoGroup bool
+		// this is the expected result for the resource with mismatch version and kind
+		expectMismatch bool
+	}{
+		"IsGVK provided with no version, should match all versions": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "apps",
+			version: "",
+			kind:    "StatefulSet",
+
+			expect:         true,
+			expectNoGroup:  true,
+			expectMismatch: false,
+		},
+		"IsGVK provided with no group, should match all groups": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "",
+			version: "v3",
+			kind:    "StatefulSet",
+
+			expect:         true,
+			expectNoGroup:  true,
+			expectMismatch: false,
+		},
+		"IsGVK provided with no kind, should match all kinds": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "apps",
+			version: "v3",
+			kind:    "",
+
+			expect:         true,
+			expectNoGroup:  true,
+			expectMismatch: false,
+		},
+		"IsGVK provided with no fields, should match all resources": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "",
+			version: "",
+			kind:    "",
+
+			expect:         true,
+			expectNoGroup:  true,
+			expectMismatch: true,
+		},
+		"IsGVK provided with all fields, can only match if the resource has the same field value or the field is nil": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "apps",
+			version: "v3",
+			kind:    "StatefulSet",
+
+			expect:         true,
+			expectNoGroup:  true,
+			expectMismatch: false,
+		},
+		"IsGVK provided with only kind, can only match if the kind is the same or kind is nil": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "",
+			version: "",
+			kind:    "StatefulSet",
+
+			expect:         true,
+			expectNoGroup:  true,
+			expectMismatch: false,
+		},
+		"IsGVK provided with only group, can only match if the group is the same or group is nil": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "appWrong",
+			version: "",
+			kind:    "",
+
+			expect:         false,
+			expectNoGroup:  true,
+			expectMismatch: false,
+		},
+		"IsGVK provided with only version, can only match if the version is the same or version is nil": {
+			resource:         resource,
+			resourceNoGroup:  resourceNoGroup,
+			resourceDiffKind: resourceMismatch,
+
+			group:   "",
+			version: "v1",
+			kind:    "",
+
+			expect:         false,
+			expectNoGroup:  false,
+			expectMismatch: true,
+		},
+	}
+
+	for testName, data := range testCases {
+		t.Run(testName+"/resource", func(t *testing.T) {
+			assert.Equal(t, resource.IsGVK(data.group, data.version, data.kind), data.expect)
+		})
+		t.Run(testName+"/resourceNoGroup", func(t *testing.T) {
+			assert.Equal(t, resourceNoGroup.IsGVK(data.group, data.version, data.kind), data.expectNoGroup)
+		})
+		t.Run(testName+"/resourceMismatch", func(t *testing.T) {
+			assert.Equal(t, resourceMismatch.IsGVK(data.group, data.version, data.kind), data.expectMismatch)
+		})
+	}
+
+}
+
 func TestIsNamespaceScoped(t *testing.T) {
 	testdata := map[string]struct {
 		input    []byte
@@ -303,7 +476,7 @@ func TestUpsertMap(t *testing.T) {
 
 	want := []string{"foo", "foo2"}
 	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("Unexpected result (-want, +got): %s", diff)
+		t.Errorf("Unexpected expect (-want, +got): %s", diff)
 	}
 }
 

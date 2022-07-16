@@ -597,24 +597,17 @@ func (o *KubeObject) resourceIdentifier() *yaml.ResourceIdentifier {
 
 // IsGVK compares the given group, version, and kind with KubeObject's apiVersion and Kind.
 func (o *KubeObject) IsGVK(group, version, kind string) bool {
-	var apiVersion string
-	switch {
-	case group == "":
-		apiVersion = version
-	default:
-		apiVersion = group + "/" + version
+	oGroup, oVersion := ParseGroupVersion(o.GetAPIVersion())
+	if o.GetKind() != "" && kind != "" && o.GetKind() != kind {
+		return false
 	}
-
-	if o.GetAPIVersion() == apiVersion && o.GetKind() == kind {
-		return true
+	if oGroup != "" && group != "" && oGroup != group {
+		return false
 	}
-	if apiVersion == "" && o.GetKind() == kind {
-		return true
+	if oVersion != "" && version != "" && oVersion != version {
+		return false
 	}
-	if kind == "" && o.GetAPIVersion() == apiVersion {
-		return true
-	}
-	return false
+	return true
 }
 
 // IsLocalConfig checks the "config.kubernetes.io/local-config" field to tell
