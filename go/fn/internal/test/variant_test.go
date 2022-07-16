@@ -183,6 +183,35 @@ metadata:
 desiredReplicas: 1
 `,
 		},
+		{
+			name: "k8s built in pod type",
+			input: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "v1",
+					Kind:       "Pod",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "my-pod",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Name:  "container",
+						Image: "test",
+					}},
+				},
+			},
+			expected: `apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: container
+    image: test
+    resources: {}
+status: {}
+`,
+		},
 	}
 
 	for _, tc := range testcases {

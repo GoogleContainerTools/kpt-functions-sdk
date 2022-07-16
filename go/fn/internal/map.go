@@ -195,6 +195,18 @@ func (o *MapVariant) sortFields() error {
 }
 
 func sortFields(ynode *yaml.Node) error {
+	if ynode.Kind == yaml.SequenceNode {
+		for _, child := range ynode.Content {
+			if err := sortFields(child); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if ynode.Kind != yaml.MappingNode {
+		return nil
+	}
+
 	pairs, err := ynodeToYamlKeyValuePairs(ynode)
 	if err != nil {
 		return fmt.Errorf("unable to sort fields in yaml: %w", err)
