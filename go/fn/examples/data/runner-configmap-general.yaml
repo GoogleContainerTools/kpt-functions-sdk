@@ -6,7 +6,10 @@ items:
     metadata:
       name: example
 functionConfig:
-  apiVersion: fn.kpt.dev/v1alpha1
-  kind: SetLabels
+  apiVersion: v1
+  kind: ConfigMap
   metadata:
-    name: setlabel-fn-config
+    name: runner-fn-config
+  data:
+    project-id: kpt-dev
+    managed-by: kpt
