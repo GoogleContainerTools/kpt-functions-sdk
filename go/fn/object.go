@@ -556,7 +556,18 @@ func (o *SubObject) As(ptr interface{}) error {
 
 // NewFromTypedObject construct a KubeObject from a typed object (e.g. corev1.Pod)
 func NewFromTypedObject(v interface{}) (*KubeObject, error) {
-	m, err := internal.TypedObjectToMapVariant(v)
+	kind := reflect.ValueOf(v).Kind()
+	if kind == reflect.Ptr {
+		kind = reflect.TypeOf(v).Elem().Kind()
+	}
+	var err error
+	var m *internal.MapVariant
+	switch kind {
+	case reflect.Struct, reflect.Map:
+		m, err = internal.TypedObjectToMapVariant(v)
+	case reflect.Slice:
+		return nil, fmt.Errorf("The typed object should be of a reflect.Struct or reflect.Map, got reflect.Slice")
+	}
 	if err != nil {
 		return nil, err
 	}
