@@ -30,7 +30,7 @@ type SetLabels struct {
 // `items` is parsed from the STDIN "ResourceList.Items".
 // `functionConfig` is from the STDIN "ResourceList.FunctionConfig". The value has been assigned to the r.Labels
 //  the functionConfig is validated to have kind "SetLabels" and apiVersion "fn.kpt.dev/v1alpha1"
-func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items []*fn.KubeObject) {
+func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn.KubeObjects) {
 	for _, o := range items {
 		for k, newLabel := range r.Labels {
 			o.SetLabel(k, newLabel)
