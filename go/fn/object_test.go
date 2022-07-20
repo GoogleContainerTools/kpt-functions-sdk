@@ -170,6 +170,7 @@ spec:
 	}
 
 	for testName, data := range testCases {
+		data := data
 		t.Run(testName+"/resource", func(t *testing.T) {
 			assert.Equal(t, resource.IsGVK(data.group, data.version, data.kind), data.expect)
 		})
@@ -180,7 +181,6 @@ spec:
 			assert.Equal(t, resourceMismatch.IsGVK(data.group, data.version, data.kind), data.expectMismatch)
 		})
 	}
-
 }
 
 func TestIsNamespaceScoped(t *testing.T) {
@@ -414,7 +414,7 @@ func TestSetNestedFields(t *testing.T) {
 func TestInternalAnnotationsUntouchable(t *testing.T) {
 	o := NewEmptyKubeObject()
 	// Verify the "upstream-identifier" annotation cannot be changed via SetNestedStringMap
-	o.SetNestedStringMap(map[string]string{"owner": "kpt"}, "metadata", "annotations")
+	o.SetNestedStringMapOrDie(map[string]string{"owner": "kpt"}, "metadata", "annotations")
 	if stringMapVal := o.NestedStringMapOrDie("metadata", "annotations"); !reflect.DeepEqual(stringMapVal, map[string]string{"owner": "kpt"}) {
 		t.Errorf("annotations cannot be set via SetNestedStringMap, got %v", stringMapVal)
 	}
