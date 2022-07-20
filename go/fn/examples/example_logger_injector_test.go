@@ -58,7 +58,6 @@ func injectLogger(rl *fn.ResourceList) (bool, error) {
 			containers = append(containers, c)
 		}
 		rl.Items[i].SetOrDie(containers, "spec", "template", "spec", "containers")
-
 	}
 	return true, nil
 }
