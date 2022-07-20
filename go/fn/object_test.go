@@ -1,6 +1,7 @@
 package fn
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"testing"
@@ -9,6 +10,120 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestWrongKRM(t *testing.T) {
+	input := `
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  volumeClaimTemplates:
+    - metadata:
+        name: www
+        labels:
+          key: www
+`
+	parseInput, err := ParseKubeObject([]byte(input))
+	defer func() {
+		// if we run into a panic, we still need to log the error to Results,
+		// and return the ResourceList and error.
+		v := recover()
+		if v != nil {
+			switch t := v.(type) {
+			case errKubeObjectFields:
+				err = &t
+			case *errKubeObjectFields:
+				err = t
+			case errSubObjectFields:
+				err = &t
+			case *errSubObjectFields:
+				err = t
+			case errResultEnd:
+				err = &t
+			case *errResultEnd:
+				err = t
+			case ErrAttemptToTouchUpstreamIdentifier:
+				err = &t
+			case *ErrAttemptToTouchUpstreamIdentifier:
+				err = t
+			case ErrInternalAnnotation:
+				err = &t
+			case *ErrInternalAnnotation:
+				err = t
+			default:
+				panic(v)
+			}
+		}
+		expected := "SubObject has unmatched field type: `metadata`, relative path to parent kubeObject(group=apps, version=, kind=StatefulSet) is ``"
+		assert.Equal(t, err.Error(), expected)
+	}()
+	_, _, err = parseInput.NestedSlice("metadata")
+}
+
+func TestWrongKRMWithSubObject(t *testing.T) {
+	input := `
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  volumeClaimTemplates:
+    - metadata:
+        name: www
+        labels:
+          key: www
+`
+	parseInput, err := ParseKubeObject([]byte(input))
+	defer func() {
+		// if we run into a panic, we still need to log the error to Results,
+		// and return the ResourceList and error.
+		v := recover()
+		if v != nil {
+			switch t := v.(type) {
+			case errKubeObjectFields:
+				err = &t
+			case *errKubeObjectFields:
+				err = t
+			case errSubObjectFields:
+				err = &t
+			case *errSubObjectFields:
+				err = t
+			case errResultEnd:
+				err = &t
+			case *errResultEnd:
+				err = t
+			case ErrAttemptToTouchUpstreamIdentifier:
+				err = &t
+			case *ErrAttemptToTouchUpstreamIdentifier:
+				err = t
+			case ErrInternalAnnotation:
+				err = &t
+			case *ErrInternalAnnotation:
+				err = t
+			default:
+				panic(v)
+			}
+		}
+		fmt.Println(err.Error())
+		expected := "SubObject has unmatched field type: `serviceName`, relative path to parent kubeObject(group=apps, version=v1, kind=StatefulSet) is `spec`"
+		assert.Equal(t, err.Error(), expected)
+	}()
+	subObj := parseInput.GetMap("spec")
+	_, _, err = subObj.NestedSlice("serviceName")
+}
 
 func TestIsGVK(t *testing.T) {
 	input := []byte(`

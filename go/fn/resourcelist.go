@@ -128,7 +128,7 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 // toYNode converts the ResourceList to the yaml.Node representation.
 func (rl *ResourceList) toYNode() (*yaml.Node, error) {
 	reMap := internal.NewMap(nil)
-	reObj := &KubeObject{SubObject{reMap}}
+	reObj := &KubeObject{SubObject: SubObject{obj: reMap}}
 	reObj.SetAPIVersion(kio.ResourceListAPIVersion)
 	reObj.SetKind(kio.ResourceListKind)
 
