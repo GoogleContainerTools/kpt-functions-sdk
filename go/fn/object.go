@@ -540,7 +540,7 @@ func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
 // be a pointer to a typed object. It will panic if it encounters an error.
 func (o *SubObject) AsOrDie(ptr interface{}) {
 	if err := o.As(ptr); err != nil {
-		panic(errSubObjectFields{fields: nil})
+		panic(errSubObjectFields{obj: o, fields: nil})
 	}
 }
 
