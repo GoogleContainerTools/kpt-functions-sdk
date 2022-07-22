@@ -61,7 +61,7 @@ spec:
 				panic(v)
 			}
 		}
-		expected := "SubObject has unmatched field type: `metadata`, relative path to parent kubeObject(group=apps, version=, kind=StatefulSet) is ``"
+		expected := "SubObject has unmatched field type: `metadata`, relative path to parent kubeObject(group=apps, version=v1, kind=StatefulSet) is ``"
 		assert.Equal(t, err.Error(), expected)
 	}()
 	_, _, err = parseInput.NestedSlice("metadata")
