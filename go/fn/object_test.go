@@ -661,3 +661,74 @@ metadata:
   labels:
     g: h`)
 }
+
+func TestGetRootKptfile(t *testing.T) {
+	nestedPkgResourceList := []byte(`apiVersion: config.kubernetes.io/v1
+kind: ResourceList
+items:
+- apiVersion: kpt.dev/v1
+  kind: Kptfile
+  metadata:
+    name: ghost-root
+    annotations:
+      config.kubernetes.io/local-config: "true"
+      config.kubernetes.io/index: '0'
+      config.kubernetes.io/path: 'Kptfile'
+      internal.config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: 'Kptfile'
+      internal.config.kubernetes.io/seqindent: 'wide'
+- apiVersion: kpt.dev/v1
+  kind: Kptfile
+  metadata:
+    name: ghost-app
+    labels:
+      app.kubernetes.io/name: ghost-app
+    annotations:
+      config.kubernetes.io/local-config: "true"
+      config.kubernetes.io/index: '0'
+      config.kubernetes.io/path: 'ghost-app/Kptfile'
+      internal.config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: 'ghost-app/Kptfile'
+      internal.config.kubernetes.io/seqindent: 'wide'
+- apiVersion: kpt.dev/v1
+  kind: Kptfile
+  metadata:
+    name: mariadb
+    labels:
+      app.kubernetes.io/name: mariadb
+    annotations:
+      config.kubernetes.io/local-config: "true"
+      config.kubernetes.io/index: '0'
+      config.kubernetes.io/path: 'mariadb/Kptfile'
+      internal.config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: 'mariadb/Kptfile'
+      internal.config.kubernetes.io/seqindent: 'wide'
+`)
+	rl, _ := ParseResourceList(nestedPkgResourceList)
+	kptfile := rl.Items.GetRootKptfile()
+	assert.NotEmpty(t, kptfile)
+	assert.Equal(t, "ghost-root", kptfile.GetName())
+}
+
+func TestEmptyGetRootKptfile(t *testing.T) {
+	noKptfileInResourceList := []byte(`apiVersion: config.kubernetes.io/v1
+kind: ResourceList
+items:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata: # kpt-merge: /kptfile.kpt.dev
+    name: kptfile.kpt.dev
+    annotations:
+      config.kubernetes.io/local-config: "true"
+      internal.kpt.dev/upstream-identifier: '|ConfigMap|default|kptfile.kpt.dev'
+      config.kubernetes.io/index: '0'
+      config.kubernetes.io/path: 'package-context.yaml'
+      internal.config.kubernetes.io/index: '0'
+      internal.config.kubernetes.io/path: 'package-context.yaml'
+      internal.config.kubernetes.io/seqindent: 'compact'
+  data:
+    name: ghost21`)
+	rl, _ := ParseResourceList(noKptfileInResourceList)
+	kptfile := rl.Items.GetRootKptfile()
+	assert.Empty(t, kptfile)
+}

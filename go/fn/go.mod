@@ -3,6 +3,7 @@ module github.com/GoogleContainerTools/kpt-functions-sdk/go/fn
 go 1.17
 
 require (
+	github.com/GoogleContainerTools/kpt-functions-sdk/go/api v0.0.0-20220720212527-133180134b93
 	github.com/go-errors/errors v1.0.1
 	github.com/google/go-cmp v0.5.7
 	github.com/stretchr/testify v1.7.1
@@ -11,6 +12,7 @@ require (
 	// consumers. The dependencies for tests and examples should be isolated.
 	k8s.io/klog/v2 v2.60.1
 	sigs.k8s.io/kustomize/kyaml v0.13.7-0.20220418212550-9d5491c2e20c
+
 )
 
 require (
