@@ -56,3 +56,16 @@ const (
 	// DefaultNamespace is the actual namespace value if a namespace-scoped resource has its namespace field unspecified.
 	DefaultNamespace = "default"
 )
+
+// For KPT Function Configuration
+const (
+	// KptFunctionGroup is the group name for the KRM resource which defines the configuration of a function execution.
+	// See KRM function specification `ResourceList.FunctionConfig`
+	KptFunctionGroup = "fn.kpt.dev"
+	// KptFunctionGroup is the version for the KRM resource which defines the configuration of a function execution.
+	// See KRM function specification `ResourceList.FunctionConfig`
+	KptFunctionVersion = "v1alpha1"
+	// KptFunctionGroup is the ApiVersion for the KRM resource which defines the configuration of a function execution.
+	// See KRM function specification `ResourceList.FunctionConfig`
+	KptFunctionApiVersion = KptFunctionGroup + "/" + KptFunctionVersion
+)

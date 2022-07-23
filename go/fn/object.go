@@ -16,10 +16,12 @@ package fn
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
 
+	v1 "github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1"
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
@@ -848,6 +850,25 @@ func IsGVK(group, version, kind string) func(*KubeObject) bool {
 	return func(o *KubeObject) bool {
 		return o.IsGVK(group, version, kind)
 	}
+}
+
+// GetRootKptfile returns the root Kptfile. Nested kpt packages can have multiple Kptfile files of the same GVKNN.
+func (o KubeObjects) GetRootKptfile() *KubeObject {
+	kptfiles := o.Where(IsGVK(v1.KptFileGroup, v1.KptFileVersion, v1.KptFileKind))
+	if len(kptfiles) == 0 {
+		return nil
+	}
+	minDepths := math.MaxInt32
+	var rootKptfile *KubeObject
+	for _, kf := range kptfiles {
+		path := kf.GetAnnotation(PathAnnotation)
+		depths := len(strings.Split(path, "/"))
+		if depths <= minDepths {
+			minDepths = depths
+			rootKptfile = kf
+		}
+	}
+	return rootKptfile
 }
 
 // IsName returns a function that checks if a KubeObject has a certain name.
