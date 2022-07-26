@@ -633,6 +633,15 @@ func (o *KubeObject) IsLocalConfig() bool {
 	return true
 }
 
+// IsLocalConfig is a function that can be used by `Where` to filter out local config
+func IsLocalConfig(o *KubeObject) bool {
+	isLocalConfig := o.GetAnnotation(KptLocalConfig)
+	if isLocalConfig == "" || isLocalConfig == "false" {
+		return false
+	}
+	return true
+}
+
 func (o *KubeObject) GetAPIVersion() string {
 	apiVersion, _, _ := o.obj.GetNestedString("apiVersion")
 	return apiVersion
