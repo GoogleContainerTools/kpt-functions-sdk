@@ -633,7 +633,7 @@ func (o *KubeObject) IsLocalConfig() bool {
 	return true
 }
 
-// IsLocalConfig is a function that can be used by `Where` to filter out local config
+// IsLocalConfig determines whether a KubeObject (or KRM resource) has the config.kubernetes.io/local-config: true annotation
 func IsLocalConfig(o *KubeObject) bool {
 	isLocalConfig := o.GetAnnotation(KptLocalConfig)
 	if isLocalConfig == "" || isLocalConfig == "false" {

@@ -183,6 +183,35 @@ spec:
 	}
 }
 
+func TestIsLocalConfig(t *testing.T) {
+	functionConfig := []byte(`
+apiVersion: fn.kpt.dev/v1alpha1
+kind: SetLabels
+metadata:
+ name: my-config
+ annotations:
+   config.kubernetes.io/local-config: "true"
+labels:
+ color: orange
+ fruit: apple
+`)
+	item := []byte(`
+apiVersion: v1
+kind: Service
+metadata:
+ name: whatever
+ labels:
+   app: myApp
+`)
+	rl := &ResourceList{}
+	config, _ := ParseKubeObject(functionConfig)
+	itemObj, _ := ParseKubeObject(item)
+	rl.Items = []*KubeObject{config, itemObj}
+	for _, o := range rl.Items.WhereNot(IsLocalConfig) {
+		assert.Equal(t, o.GetString("kind"), "Service")
+	}
+}
+
 func TestIsNamespaceScoped(t *testing.T) {
 	testdata := map[string]struct {
 		input    []byte
