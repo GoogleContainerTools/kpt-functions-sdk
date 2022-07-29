@@ -34,6 +34,8 @@ func AsMain(input interface{}) error {
 		switch input := input.(type) {
 		case Runner:
 			p = runnerProcessor{fnRunner: input}
+		case *Runner:
+			p = runnerProcessor{fnRunner: *input}
 		case ResourceListProcessorFunc:
 			p = input
 		default:
