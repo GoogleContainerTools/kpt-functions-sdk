@@ -184,16 +184,17 @@ spec:
 }
 
 func TestIsLocalConfig(t *testing.T) {
-	functionConfig := []byte(`
-apiVersion: fn.kpt.dev/v1alpha1
-kind: SetLabels
+	kptFile := []byte(`
+apiVersion: kpt.dev/v1
+kind: Kptfile
 metadata:
- name: my-config
- annotations:
-   config.kubernetes.io/local-config: "true"
-labels:
- color: orange
- fruit: apple
+  name: example
+  annotations:
+    config.kubernetes.io/local-config: "true"
+pipeline:
+  mutators:
+    - image: gcr.io/kpt-fn/set-labels:unstable
+      configPath: fn-config.yaml
 `)
 	item := []byte(`
 apiVersion: v1
@@ -204,9 +205,9 @@ metadata:
    app: myApp
 `)
 	rl := &ResourceList{}
-	config, _ := ParseKubeObject(functionConfig)
-	itemObj, _ := ParseKubeObject(item)
-	rl.Items = []*KubeObject{config, itemObj}
+	kptFileItem, _ := ParseKubeObject(kptFile)
+	serviceItem, _ := ParseKubeObject(item)
+	rl.Items = []*KubeObject{kptFileItem, serviceItem}
 	for _, o := range rl.Items.WhereNot(IsLocalConfig) {
 		assert.Equal(t, o.GetString("kind"), "Service")
 	}
