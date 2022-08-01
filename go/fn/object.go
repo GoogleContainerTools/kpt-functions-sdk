@@ -635,11 +635,7 @@ func (o *KubeObject) IsLocalConfig() bool {
 
 // IsLocalConfig determines whether a KubeObject (or KRM resource) has the config.kubernetes.io/local-config: true annotation
 func IsLocalConfig(o *KubeObject) bool {
-	isLocalConfig := o.GetAnnotation(KptLocalConfig)
-	if isLocalConfig == "" || isLocalConfig == "false" {
-		return false
-	}
-	return true
+	return o.IsLocalConfig()
 }
 
 func (o *KubeObject) GetAPIVersion() string {
