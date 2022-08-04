@@ -988,6 +988,7 @@ func (o *SubObject) GetSlice(k string) SliceSubObjects {
 	return o.NestedSliceOrDie(k)
 }
 
+// SetSlice set a slice of SubObject to the given fieldPath. It upsert the existing slice value.
 func (o *SubObject) SetSlice(objects SliceSubObjects, fields ...string) error {
 	return o.SetNestedField(objects, fields...)
 }
