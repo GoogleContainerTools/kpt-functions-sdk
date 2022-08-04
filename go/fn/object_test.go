@@ -213,6 +213,39 @@ metadata:
 	}
 }
 
+func TestSetSlice(t *testing.T) {
+	var original = []byte(`apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  apiGroup: testing.group
+`)
+
+	var input = []byte(`apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  apiGroup: rbac.authorization.k8s.io
+- kind: Admin
+  apiGroup: rbac.authorization.k8s.io
+`)
+	originalObj, _ := ParseKubeObject(original)
+	inputObj, _ := ParseKubeObject(input)
+	inputSlice := inputObj.GetSlice("subjects")
+	if err := originalObj.SetSlice(inputSlice, "subjects"); err != nil {
+		t.Errorf("get slice error")
+	}
+	result := originalObj.GetSlice("subjects")[0].NestedStringOrDie("apiGroup")
+	expected := "rbac.authorization.k8s.io"
+	assert.Equal(t, result, expected)
+}
+
 func TestIsNamespaceScoped(t *testing.T) {
 	testdata := map[string]struct {
 		input    []byte
