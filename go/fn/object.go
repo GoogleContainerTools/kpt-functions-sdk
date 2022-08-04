@@ -362,13 +362,6 @@ func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 			}
 			return o.obj.SetNestedMap(m, fields...)
 		case reflect.Slice:
-			if valSliceSubObj, ok := val.(SliceSubObjects); ok {
-				s := internal.NewSliceVariant()
-				for _, element := range valSliceSubObj {
-					s.Add(element.obj)
-				}
-				return o.obj.SetNestedSlice(s, fields...)
-			}
 			s, err := internal.TypedObjectToSliceVariant(val)
 			if err != nil {
 				return err
@@ -988,9 +981,13 @@ func (o *SubObject) GetSlice(k string) SliceSubObjects {
 	return o.NestedSliceOrDie(k)
 }
 
-// SetSlice set a slice of SubObject to the given fieldPath. It upsert the existing slice value.
-func (o *SubObject) SetSlice(objects SliceSubObjects, fields ...string) error {
-	return o.SetNestedField(objects, fields...)
+// SetSlice set a slice of SubObject to the given fieldPath. It upserts the existing slice value.
+func (o *SubObject) SetSlice(objects SliceSubObjects, fields string) error {
+	s := internal.NewSliceVariant()
+	for _, element := range objects {
+		s.Add(element.obj)
+	}
+	return o.obj.SetNestedSlice(s, fields)
 }
 
 type SliceSubObjects []*SubObject
