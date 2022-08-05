@@ -217,14 +217,14 @@ func TestSetSlice(t *testing.T) {
 	var original = []byte(`apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: read-pods
+  name: write-pods
   namespace: default
 subjects:
 - kind: User
   apiGroup: testing.group
 `)
 
-	var input = []byte(`apiVersion: rbac.authorization.k8s.io/v1
+	var other = []byte(`apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: read-pods
@@ -239,7 +239,7 @@ subjects:
 	var expected = `apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: read-pods
+  name: write-pods
   namespace: default
 subjects:
 - kind: User
@@ -248,7 +248,7 @@ subjects:
   apiGroup: rbac.authorization.k8s.io
 `
 	originalObj, _ := ParseKubeObject(original)
-	inputObj, _ := ParseKubeObject(input)
+	inputObj, _ := ParseKubeObject(other)
 	inputSlice := inputObj.GetSlice("subjects")
 	if err := originalObj.SetSlice(inputSlice, "subjects"); err != nil {
 		t.Errorf("get slice error")

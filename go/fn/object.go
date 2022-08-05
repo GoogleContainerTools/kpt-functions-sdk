@@ -981,13 +981,13 @@ func (o *SubObject) GetSlice(k string) SliceSubObjects {
 	return o.NestedSliceOrDie(k)
 }
 
-// SetSlice set a slice of SubObject to the given fieldPath. It upserts the existing slice value.
-func (o *SubObject) SetSlice(objects SliceSubObjects, fields string) error {
+// SetSlice replaces the SliceSubObjects to the given field. It creates the field if not exists. If returns error if the field exists but not a slice type.
+func (o *SubObject) SetSlice(objects SliceSubObjects, field string) error {
 	s := internal.NewSliceVariant()
 	for _, element := range objects {
 		s.Add(element.obj)
 	}
-	return o.obj.SetNestedSlice(s, fields)
+	return o.obj.SetNestedSlice(s, field)
 }
 
 type SliceSubObjects []*SubObject
