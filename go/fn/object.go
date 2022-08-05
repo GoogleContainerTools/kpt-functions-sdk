@@ -981,7 +981,7 @@ func (o *SubObject) GetSlice(k string) SliceSubObjects {
 	return o.NestedSliceOrDie(k)
 }
 
-// SetSlice replaces the SliceSubObjects to the given field. It creates the field if not exists. If returns error if the field exists but not a slice type.
+// SetSlice sets the SliceSubObjects to the given field. It creates the field if not exists. If returns error if the field exists but not a slice type.
 func (o *SubObject) SetSlice(objects SliceSubObjects, field string) error {
 	s := internal.NewSliceVariant()
 	for _, element := range objects {

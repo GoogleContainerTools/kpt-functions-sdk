@@ -8,6 +8,7 @@ import (
 	"github.com/go-errors/errors"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIsGVK(t *testing.T) {
@@ -247,12 +248,12 @@ subjects:
 - kind: Admin
   apiGroup: rbac.authorization.k8s.io
 `
-	originalObj, _ := ParseKubeObject(original)
-	otherObj, _ := ParseKubeObject(other)
+	originalObj, err := ParseKubeObject(original)
+	require.NoError(t, err)
+	otherObj, err := ParseKubeObject(other)
+	require.NoError(t, err)
 	slicesToAdd := otherObj.GetSlice("subjects")
-	if err := originalObj.SetSlice(slicesToAdd, "subjects"); err != nil {
-		t.Errorf("get slice error")
-	}
+	require.NoError(t, originalObj.SetSlice(slicesToAdd, "subjects"))
 	assert.Equal(t, originalObj.String(), expected)
 }
 
