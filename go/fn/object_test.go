@@ -248,9 +248,9 @@ subjects:
   apiGroup: rbac.authorization.k8s.io
 `
 	originalObj, _ := ParseKubeObject(original)
-	inputObj, _ := ParseKubeObject(other)
-	inputSlice := inputObj.GetSlice("subjects")
-	if err := originalObj.SetSlice(inputSlice, "subjects"); err != nil {
+	otherObj, _ := ParseKubeObject(other)
+	slicesToAdd := otherObj.GetSlice("subjects")
+	if err := originalObj.SetSlice(slicesToAdd, "subjects"); err != nil {
 		t.Errorf("get slice error")
 	}
 	assert.Equal(t, originalObj.String(), expected)
