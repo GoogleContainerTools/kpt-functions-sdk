@@ -154,14 +154,6 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 	}
 	var val []*SubObject
 	for _, obj := range objects {
-		if o.nodePath == nil {
-			oGroup, oVersion := ParseGroupVersion(o.GetString("apiVersion"))
-			val = append(val, &SubObject{obj: obj, gvk: &ResourceIdentifier{
-				Group:   oGroup,
-				Version: oVersion,
-				Kind:    o.GetString("kind"),
-			}, nodePath: append(o.nodePath, fields...)})
-		}
 		val = append(val, &SubObject{obj: obj, gvk: o.gvk, nodePath: append(o.nodePath, fields...)})
 	}
 	return val, true, nil
@@ -967,20 +959,6 @@ func (o *SubObject) GetMap(k string) *SubObject {
 	if err != nil || !found {
 		return nil
 	}
-	// this SubObject is the root kubeObject
-	if o.nodePath == nil {
-		oGroup, oVersion := ParseGroupVersion(o.GetString("apiVersion"))
-		return &SubObject{
-			obj: internal.NewMap(variant.YNode()),
-			gvk: &ResourceIdentifier{
-				Group:   oGroup,
-				Version: oVersion,
-				Kind:    o.GetString("kind"),
-			},
-			nodePath: append(o.nodePath, k),
-		}
-	}
-	// otherwise store the SubObject's relative path
 	return &SubObject{obj: internal.NewMap(variant.YNode()), gvk: o.gvk, nodePath: append(o.nodePath, k)}
 }
 
