@@ -981,6 +981,15 @@ func (o *SubObject) GetSlice(k string) SliceSubObjects {
 	return o.NestedSliceOrDie(k)
 }
 
+// SetSlice sets the SliceSubObjects to the given field. It creates the field if not exists. If returns error if the field exists but not a slice type.
+func (o *SubObject) SetSlice(objects SliceSubObjects, field string) error {
+	s := internal.NewSliceVariant()
+	for _, element := range objects {
+		s.Add(element.obj)
+	}
+	return o.obj.SetNestedSlice(s, field)
+}
+
 type SliceSubObjects []*SubObject
 
 // MarshalJSON provides the custom encoding format for encode.json. This is used

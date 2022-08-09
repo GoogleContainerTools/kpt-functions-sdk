@@ -8,6 +8,7 @@ import (
 	"github.com/go-errors/errors"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIsGVK(t *testing.T) {
@@ -211,6 +212,49 @@ metadata:
 	for _, o := range rl.Items.WhereNot(IsLocalConfig) {
 		assert.Equal(t, o.GetString("kind"), "Service")
 	}
+}
+
+func TestSetSlice(t *testing.T) {
+	var original = []byte(`apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: write-pods
+  namespace: default
+subjects:
+- kind: User
+  apiGroup: testing.group
+`)
+
+	var other = []byte(`apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  apiGroup: rbac.authorization.k8s.io
+- kind: Admin
+  apiGroup: rbac.authorization.k8s.io
+`)
+
+	var expected = `apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: write-pods
+  namespace: default
+subjects:
+- kind: User
+  apiGroup: rbac.authorization.k8s.io
+- kind: Admin
+  apiGroup: rbac.authorization.k8s.io
+`
+	originalObj, err := ParseKubeObject(original)
+	require.NoError(t, err)
+	otherObj, err := ParseKubeObject(other)
+	require.NoError(t, err)
+	slicesToAdd := otherObj.GetSlice("subjects")
+	require.NoError(t, originalObj.SetSlice(slicesToAdd, "subjects"))
+	assert.Equal(t, originalObj.String(), expected)
 }
 
 func TestIsNamespaceScoped(t *testing.T) {
