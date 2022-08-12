@@ -18,8 +18,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-
-	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 // Context provides a series of functions to add `Result` to `ResourceList.Results`.
@@ -92,7 +90,7 @@ type Result struct {
 
 	// ResourceRef is a reference to a resource.
 	// Required fields: apiVersion, kind, name.
-	ResourceRef *yaml.ResourceIdentifier `yaml:"resourceRef,omitempty" json:"resourceRef,omitempty"`
+	ResourceRef *ResourceIdentifier `yaml:"resourceRef,omitempty" json:"resourceRef,omitempty"`
 
 	// Field is a reference to the field in a resource this result refers to
 	Field *Field `yaml:"field,omitempty" json:"field,omitempty"`
@@ -114,8 +112,11 @@ func (i Result) String() string {
 	identifier := i.ResourceRef
 	var idStringList []string
 	if identifier != nil {
-		if identifier.APIVersion != "" {
-			idStringList = append(idStringList, identifier.APIVersion)
+		if identifier.Group != "" {
+			idStringList = append(idStringList, identifier.Group)
+		}
+		if identifier.Version != "" {
+			idStringList = append(idStringList, identifier.Version)
 		}
 		if identifier.Kind != "" {
 			idStringList = append(idStringList, identifier.Kind)
@@ -279,18 +280,9 @@ func ErrorConfigObjectResult(err error, obj *KubeObject) *Result {
 
 func ConfigObjectResult(msg string, obj *KubeObject, severity Severity) *Result {
 	return &Result{
-		Message:  msg,
-		Severity: severity,
-		ResourceRef: &yaml.ResourceIdentifier{
-			TypeMeta: yaml.TypeMeta{
-				APIVersion: obj.GetAPIVersion(),
-				Kind:       obj.GetKind(),
-			},
-			NameMeta: yaml.NameMeta{
-				Name:      obj.GetName(),
-				Namespace: obj.GetNamespace(),
-			},
-		},
+		Message:     msg,
+		Severity:    severity,
+		ResourceRef: obj.GetId(),
 		File: &File{
 			Path:  obj.PathAnnotation(),
 			Index: obj.IndexAnnotation(),
