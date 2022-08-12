@@ -82,10 +82,10 @@ const (
 
 // ResourceRef fills the ResourceRef field in Results
 type ResourceRef struct {
-	APIVersion string
-	Kind       string
-	Name       string
-	Namespace  string
+	APIVersion string `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"`
+	Kind       string `yaml:"kind,omitempty" json:"kind,omitempty"`
+	Name       string `yaml:"name,omitempty" json:"name,omitempty"`
+	Namespace  string `yaml:"namespace,omitempty" json:"namespace,omitempty"`
 }
 
 // Result defines a validation result
