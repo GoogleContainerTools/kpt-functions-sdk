@@ -80,6 +80,7 @@ const (
 	Info Severity = "info"
 )
 
+// ResourceRef fills the ResourceRef field in Results
 type ResourceRef struct {
 	APIVersion string
 	Kind       string
