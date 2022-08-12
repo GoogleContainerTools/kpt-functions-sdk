@@ -39,11 +39,12 @@ func (e *errKubeObjectFields) Error() string {
 
 // errSubObjectFields raises if the SubObject operation panics.
 type errSubObjectFields struct {
+	obj    *SubObject
 	fields []string
 }
 
 func (e *errSubObjectFields) Error() string {
-	return fmt.Sprintf("SubObject has unmatched field type: `%v", strings.Join(e.fields, "/"))
+	return fmt.Sprintf("SubObject has unmatched field type: `%v`, relative path to parent kubeObject(group=%v, version=%v, kind=%v) is `%v`", strings.Join(e.fields, "/"), e.obj.gvk.Group, e.obj.gvk.Version, e.obj.gvk.Kind, strings.Join(e.obj.nodePath, "/"))
 }
 
 type errResultEnd struct {

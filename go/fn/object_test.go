@@ -11,6 +11,89 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// processError recover the error catch by panic
+func processError(t *testing.T, expected string, err error) {
+	v := recover()
+	if v != nil {
+		switch t := v.(type) {
+		case errKubeObjectFields:
+			err = &t
+		case *errKubeObjectFields:
+			err = t
+		case errSubObjectFields:
+			err = &t
+		case *errSubObjectFields:
+			err = t
+		case errResultEnd:
+			err = &t
+		case *errResultEnd:
+			err = t
+		case ErrAttemptToTouchUpstreamIdentifier:
+			err = &t
+		case *ErrAttemptToTouchUpstreamIdentifier:
+			err = t
+		case ErrInternalAnnotation:
+			err = &t
+		case *ErrInternalAnnotation:
+			err = t
+		default:
+			panic(v)
+		}
+	}
+	assert.Equal(t, err.Error(), expected)
+}
+
+func TestWrongKRM(t *testing.T) {
+	input := `
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  volumeClaimTemplates:
+    - metadata:
+        name: www
+        labels:
+          key: www
+`
+	parseInput, err := ParseKubeObject([]byte(input))
+	expectedKRMError := "SubObject has unmatched field type: `metadata`, relative path to parent kubeObject(group=apps, version=v1, kind=StatefulSet) is ``"
+	defer processError(t, expectedKRMError, err)
+	_, _, err = parseInput.NestedSlice("metadata")
+}
+
+func TestWrongKRMWithSubObject(t *testing.T) {
+	input := `
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  volumeClaimTemplates:
+    - metadata:
+        name: www
+        labels:
+          key: www
+`
+	parseInput, err := ParseKubeObject([]byte(input))
+	expectedKRMError := "SubObject has unmatched field type: `serviceName`, relative path to parent kubeObject(group=apps, version=v1, kind=StatefulSet) is `spec`"
+	defer processError(t, expectedKRMError, err)
+	subObj := parseInput.GetMap("spec")
+	_, _, err = subObj.NestedSlice("serviceName")
+}
+
 func TestIsGVK(t *testing.T) {
 	input := []byte(`
 apiVersion: apps/v3

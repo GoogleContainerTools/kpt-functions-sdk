@@ -55,7 +55,7 @@ func ParseKubeObject(in []byte) (*KubeObject, error) {
 func (o *SubObject) GetOrDie(ptr interface{}, fields ...string) {
 	_, err := o.Get(ptr, fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -71,7 +71,7 @@ func (o *SubObject) NestedBool(fields ...string) (bool, bool, error) {
 func (o *SubObject) NestedBoolOrDie(fields ...string) bool {
 	val, _, err := o.NestedBool(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	return val
 }
@@ -88,7 +88,7 @@ func (o *SubObject) NestedString(fields ...string) (string, bool, error) {
 func (o *SubObject) NestedStringOrDie(fields ...string) string {
 	val, _, err := o.NestedString(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	return val
 }
@@ -105,7 +105,7 @@ func (o *SubObject) NestedFloat64(fields ...string) (float64, bool, error) {
 func (o *SubObject) NestedFloat64OrDie(fields ...string) float64 {
 	val, _, err := o.NestedFloat64(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	return val
 }
@@ -122,7 +122,7 @@ func (o *SubObject) NestedInt64(fields ...string) (int64, bool, error) {
 func (o *SubObject) NestedInt64OrDie(fields ...string) int64 {
 	val, _, err := o.NestedInt64(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	return val
 }
@@ -143,7 +143,7 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 	}
 	sliceVal, found, err := mapVariant.GetNestedSlice(fields[len(fields)-1])
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	if !found {
 		return nil, found, nil
@@ -154,7 +154,7 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 	}
 	var val []*SubObject
 	for _, obj := range objects {
-		val = append(val, &SubObject{obj: obj})
+		val = append(val, &SubObject{obj: obj, gvk: o.gvk, nodePath: append(o.nodePath, fields...)})
 	}
 	return val, true, nil
 }
@@ -166,7 +166,7 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 func (o *SubObject) NestedSliceOrDie(fields ...string) SliceSubObjects {
 	val, _, err := o.NestedSlice(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	return val
 }
@@ -186,7 +186,7 @@ func (o *SubObject) NestedStringMap(fields ...string) (map[string]string, bool, 
 func (o *SubObject) NestedStringMapOrDie(fields ...string) map[string]string {
 	val, _, err := o.NestedStringMap(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	return val
 }
@@ -206,7 +206,7 @@ func (o *SubObject) NestedStringSlice(fields ...string) ([]string, bool, error) 
 func (o *SubObject) NestedStringSliceOrDie(fields ...string) []string {
 	val, _, err := o.NestedStringSlice(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 	return val
 }
@@ -215,7 +215,7 @@ func (o *SubObject) NestedStringSliceOrDie(fields ...string) []string {
 // encounters any error.
 func (o *SubObject) RemoveNestedFieldOrDie(fields ...string) {
 	if _, err := o.RemoveNestedField(fields...); err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -320,7 +320,7 @@ func (o *SubObject) Get(ptr interface{}, fields ...string) (bool, error) {
 // It will panic if it encounters any error.
 func (o *SubObject) SetOrDie(val interface{}, fields ...string) {
 	if err := o.SetNestedField(val, fields...); err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -421,7 +421,7 @@ func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 func (o *SubObject) SetNestedIntOrDie(value int, fields ...string) {
 	err := o.SetNestedInt(value, fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -434,7 +434,7 @@ func (o *SubObject) SetNestedInt(value int, fields ...string) error {
 func (o *SubObject) SetNestedBoolOrDie(value bool, fields ...string) {
 	err := o.SetNestedBool(value, fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -447,7 +447,7 @@ func (o *SubObject) SetNestedBool(value bool, fields ...string) error {
 func (o *SubObject) SetNestedStringOrDie(value string, fields ...string) {
 	err := o.SetNestedString(value, fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -460,7 +460,7 @@ func (o *SubObject) SetNestedString(value string, fields ...string) error {
 func (o *SubObject) SetNestedStringMapOrDie(value map[string]string, fields ...string) {
 	err := o.SetNestedStringMap(value, fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -473,7 +473,7 @@ func (o *SubObject) SetNestedStringMap(value map[string]string, fields ...string
 func (o *SubObject) SetNestedStringSliceOrDie(value []string, fields ...string) {
 	err := o.SetNestedStringSlice(value, fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		panic(errSubObjectFields{obj: o, fields: fields})
 	}
 }
 
@@ -534,7 +534,7 @@ func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
 // be a pointer to a typed object. It will panic if it encounters an error.
 func (o *SubObject) AsOrDie(ptr interface{}) {
 	if err := o.As(ptr); err != nil {
-		panic(errSubObjectFields{fields: nil})
+		panic(errSubObjectFields{obj: o, fields: nil})
 	}
 }
 
@@ -915,11 +915,22 @@ func (o *KubeObject) IsEmpty() bool {
 }
 
 func NewEmptyKubeObject() *KubeObject {
-	return &KubeObject{SubObject{internal.NewMap(nil)}}
+	return &KubeObject{SubObject: SubObject{obj: internal.NewMap(nil)}}
 }
 
 func asKubeObject(obj *internal.MapVariant) *KubeObject {
-	return &KubeObject{SubObject{obj}}
+	kind, _, _ := obj.GetNestedString("kind")
+	apiVersion, _, _ := obj.GetNestedString("apiVersion")
+	group, version := ParseGroupVersion(apiVersion)
+	if kind != "" || group != "" || version != "" {
+		return &KubeObject{SubObject: SubObject{obj: obj, gvk: &ResourceIdentifier{
+			Group:   group,
+			Version: version,
+			Kind:    kind,
+		}}}
+	}
+	// will not go to this line as KubeObject contains GVK for sure
+	return &KubeObject{SubObject: SubObject{obj: obj}}
 }
 
 func (o *KubeObject) node() *internal.MapVariant {
@@ -928,17 +939,20 @@ func (o *KubeObject) node() *internal.MapVariant {
 
 func rnodeToKubeObject(rn *yaml.RNode) *KubeObject {
 	mapVariant := internal.NewMap(rn.YNode())
-	return &KubeObject{SubObject{mapVariant}}
+	return asKubeObject(mapVariant)
+	//return &KubeObject{SubObject: SubObject{obj: mapVariant}}
 }
 
 // SubObject represents a map within a KubeObject
 type SubObject struct {
-	obj *internal.MapVariant
+	obj      *internal.MapVariant
+	gvk      *ResourceIdentifier // the identifier
+	nodePath []string            // the relative path to the kubeObject
 }
 
 func (o *SubObject) UpsertMap(k string) *SubObject {
 	m := o.obj.UpsertMap(k)
-	return &SubObject{obj: m}
+	return &SubObject{gvk: o.gvk, nodePath: o.nodePath, obj: m}
 }
 
 // GetMap accepts a single key `k` whose value is expected to be a map. It returns
@@ -950,7 +964,7 @@ func (o *SubObject) GetMap(k string) *SubObject {
 	if err != nil || !found {
 		return nil
 	}
-	return &SubObject{obj: internal.NewMap(variant.YNode())}
+	return &SubObject{obj: internal.NewMap(variant.YNode()), gvk: o.gvk, nodePath: append(o.nodePath, k)}
 }
 
 // GetBool accepts a single key `k` whose value is expected to be a boolean. It returns
