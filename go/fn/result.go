@@ -299,3 +299,21 @@ func ConfigObjectResult(msg string, obj *KubeObject, severity Severity) *Result 
 		},
 	}
 }
+
+func ConfigObjectResultWithField(msg string, obj *KubeObject, severity Severity, field *Field) *Result {
+	return &Result{
+		Message:  msg,
+		Severity: severity,
+		ResourceRef: &ResourceRef{
+			APIVersion: obj.GetAPIVersion(),
+			Kind:       obj.GetKind(),
+			Name:       obj.GetName(),
+			Namespace:  obj.GetNamespace(),
+		},
+		Field: field,
+		File: &File{
+			Path:  obj.PathAnnotation(),
+			Index: obj.IndexAnnotation(),
+		},
+	}
+}
