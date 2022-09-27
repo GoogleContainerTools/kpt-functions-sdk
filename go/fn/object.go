@@ -23,6 +23,7 @@ import (
 
 	v1 "github.com/GoogleContainerTools/kpt-functions-sdk/go/api/kptfile/v1"
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
@@ -606,6 +607,16 @@ func (o *KubeObject) resourceIdentifier() *yaml.ResourceIdentifier {
 			Namespace: ns,
 		},
 	}
+}
+
+// GroupVersionKind returns the schema.GroupVersionKind for the specified object.
+func (o *KubeObject) GroupVersionKind() schema.GroupVersionKind {
+	gv, err := schema.ParseGroupVersion(o.GetAPIVersion())
+	if err != nil {
+		return schema.GroupVersionKind{}
+	}
+	gvk := gv.WithKind(o.GetKind())
+	return gvk
 }
 
 // IsGVK compares the given group, version, and kind with KubeObject's apiVersion and Kind.

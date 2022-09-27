@@ -7,7 +7,8 @@ require (
 	github.com/go-errors/errors v1.0.1
 	github.com/google/go-cmp v0.5.7
 	github.com/stretchr/testify v1.7.1
-	// We must not include any core k8s modules (e.g. k8s.io/apimachinery) in
+	k8s.io/apimachinery v0.24.0
+	// We must not include any core k8s APIs (e.g. k8s.io/api) in
 	// the dependencies, depending on them will likely to cause version skew for
 	// consumers. The dependencies for tests and examples should be isolated.
 	k8s.io/klog/v2 v2.60.1
@@ -23,6 +24,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/josharian/intern v1.0.0 // indirect

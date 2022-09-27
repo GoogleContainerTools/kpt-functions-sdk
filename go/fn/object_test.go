@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func TestIsGVK(t *testing.T) {
@@ -805,4 +806,20 @@ items:
 	rl, _ := ParseResourceList(noKptfileInResourceList)
 	kptfile := rl.Items.GetRootKptfile()
 	assert.Empty(t, kptfile)
+}
+
+func TestGroupVersionKind(t *testing.T) {
+	input := []byte(`
+apiVersion: apps/v2
+kind: StatefulSet
+metadata:
+  name: my-config
+`)
+
+	resource, _ := ParseKubeObject(input)
+	got := resource.GroupVersionKind()
+	want := schema.GroupVersionKind{Group: "apps", Version: "v2", Kind: "StatefulSet"}
+	if got != want {
+		t.Fatalf("unexpected result from GroupVersionKind(); got %v; want %v", got, want)
+	}
 }
