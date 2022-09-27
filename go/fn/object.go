@@ -870,7 +870,7 @@ func IsGVK(group, version, kind string) func(*KubeObject) bool {
 
 // GetRootKptfile returns the root Kptfile. Nested kpt packages can have multiple Kptfile files of the same GVKNN.
 func (o KubeObjects) GetRootKptfile() *KubeObject {
-	kptfiles := o.Where(IsGVK(v1.KptFileGroup, v1.KptFileVersion, v1.KptFileKind))
+	kptfiles := o.Where(IsGVK(v1.KptFileGVK))
 	if len(kptfiles) == 0 {
 		return nil
 	}
