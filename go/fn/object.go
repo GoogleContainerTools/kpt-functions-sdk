@@ -619,16 +619,33 @@ func (o *KubeObject) GroupVersionKind() schema.GroupVersionKind {
 	return gvk
 }
 
+// GroupKind returns the schema.GroupKind for the specified object.
+func (o *KubeObject) GroupKind() schema.GroupKind {
+	return o.GroupVersionKind().GroupKind()
+}
+
+// IsGroupVersionKind compares the given group, version, and kind with KubeObject's apiVersion and Kind.
+func (o *KubeObject) IsGroupVersionKind(gvk schema.GroupVersionKind) bool {
+	return o.GroupVersionKind() == gvk
+}
+
+// IsGroupKind compares the given group and kind with KubeObject's apiVersion and Kind.
+func (o *KubeObject) IsGroupKind(gk schema.GroupKind) bool {
+	return o.GroupKind() == gk
+}
+
 // IsGVK compares the given group, version, and kind with KubeObject's apiVersion and Kind.
+// It only matches on specified arguments, for example if the group is empty this will match any group.
+// Deprecated: Prefer exact matching with IsGroupVersionKind or IsGroupKind
 func (o *KubeObject) IsGVK(group, version, kind string) bool {
-	oGroup, oVersion := ParseGroupVersion(o.GetAPIVersion())
-	if o.GetKind() != "" && kind != "" && o.GetKind() != kind {
+	gvk := o.GroupVersionKind()
+	if gvk.Kind != "" && kind != "" && gvk.Kind != kind {
 		return false
 	}
-	if oGroup != "" && group != "" && oGroup != group {
+	if gvk.Group != "" && group != "" && gvk.Group != group {
 		return false
 	}
-	if oVersion != "" && version != "" && oVersion != version {
+	if gvk.Version != "" && version != "" && gvk.Version != version {
 		return false
 	}
 	return true
@@ -862,9 +879,24 @@ func (o KubeObjects) WhereNot(f func(o *KubeObject) bool) KubeObjects {
 }
 
 // IsGVK returns a function that checks if a KubeObject has a certain GVK.
+// Deprecated: Prefer exact matching with IsGroupVersionKind or IsGroupKind
 func IsGVK(group, version, kind string) func(*KubeObject) bool {
 	return func(o *KubeObject) bool {
 		return o.IsGVK(group, version, kind)
+	}
+}
+
+// IsGroupVersionKind returns a function that checks if a KubeObject has a certain GroupVersionKind.
+func IsGroupVersionKind(gvk schema.GroupVersionKind) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return o.IsGroupVersionKind(gvk)
+	}
+}
+
+// IsGroupKind returns a function that checks if a KubeObject has a certain GroupKind.
+func IsGroupKind(gk schema.GroupKind) func(*KubeObject) bool {
+	return func(o *KubeObject) bool {
+		return o.IsGroupKind(gk)
 	}
 }
 
