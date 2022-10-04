@@ -1,6 +1,6 @@
 module github.com/GoogleContainerTools/kpt-functions-sdk/go/fn
 
-go 1.17
+go 1.18
 
 require (
 	github.com/GoogleContainerTools/kpt-functions-sdk/go/api v0.0.0-20220720212527-133180134b93
