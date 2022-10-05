@@ -1,6 +1,6 @@
 module github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/examples
 
-go 1.17
+go 1.18
 
 replace github.com/GoogleContainerTools/kpt-functions-sdk/go/fn v0.0.0 => ../
 

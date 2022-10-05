@@ -17,7 +17,6 @@ package fn
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"sigs.k8s.io/kustomize/kyaml/errors"
@@ -41,7 +40,7 @@ func AsMain(input interface{}) error {
 		default:
 			return fmt.Errorf("unknown input type %T", input)
 		}
-		in, err := ioutil.ReadAll(os.Stdin)
+		in, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			return fmt.Errorf("unable to read from stdin: %v", err)
 		}
