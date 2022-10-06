@@ -15,28 +15,44 @@
 package fn
 
 import (
-	"fmt"
+	"context"
 	"reflect"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+func WithContext(ctx context.Context, runner Runner) ResourceListProcessor {
+	return runnerProcessor{ctx: ctx, fnRunner: runner}
+}
+
 type runnerProcessor struct {
+	ctx      context.Context
 	fnRunner Runner
 }
 
 func (r runnerProcessor) Process(rl *ResourceList) (bool, error) {
-	ctx := &Context{results: &rl.Results}
-	r.config(ctx, rl.FunctionConfig)
-	r.fnRunner.Run(ctx, rl.FunctionConfig, rl.Items)
-	return true, nil
+	fnCtx := &Context{ctx: r.ctx}
+	results := new(Results)
+	if ok := r.config(rl.FunctionConfig, results); !ok {
+		rl.Results = append(rl.Results, *results...)
+		return false, nil
+	}
+	pass := r.fnRunner.Run(fnCtx, rl.FunctionConfig, rl.Items, results)
+	rl.Results = append(rl.Results, *results...)
+	return pass, nil
 }
 
-func (r *runnerProcessor) config(ctx *Context, o *KubeObject) {
+func (r *runnerProcessor) config(o *KubeObject, results *Results) bool {
 	fnName := reflect.ValueOf(r.fnRunner).Elem().Type().Name()
 	switch true {
 	case o.IsEmpty():
-		ctx.Result("`FunctionConfig` is not given", Info)
-	case o.IsGVK("", "v1", "ConfigMap"):
-		data := o.NestedStringMapOrDie("data")
+		results.Infof("`FunctionConfig` is not given")
+	case o.IsGroupKind(schema.GroupKind{Kind: "ConfigMap"}):
+		data, _, err := o.NestedStringMap("data")
+		if err != nil {
+			results.ErrorE(err)
+			return false
+		}
 		fnRunnerElem := reflect.ValueOf(r.fnRunner).Elem()
 		for i := 0; i < fnRunnerElem.NumField(); i++ {
 			if fnRunnerElem.Field(i).Kind() == reflect.Map {
@@ -44,9 +60,15 @@ func (r *runnerProcessor) config(ctx *Context, o *KubeObject) {
 				break
 			}
 		}
-	case o.IsGVK("fn.kpt.dev", "v1alpha1", fnName):
-		o.AsOrDie(r.fnRunner)
+	case o.IsGroupVersionKind(schema.GroupVersionKind{Group: "fn.kpt.dev", Version: "v1alpha1", Kind: fnName}):
+		err := o.As(r.fnRunner)
+		if err != nil {
+			results.ErrorE(err)
+			return false
+		}
 	default:
-		ctx.ResultErrAndDie(fmt.Sprintf("unknown FunctionConfig `%v`, expect %v", o.GetKind(), fnName), o)
+		results.Errorf("unknown FunctionConfig `%v`, expect %v", o.GetKind(), fnName)
+		return false
 	}
+	return true
 }

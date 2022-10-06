@@ -15,5 +15,13 @@
 package fn
 
 type Runner interface {
-	Run(context *Context, functionConfig *KubeObject, items KubeObjects)
+	// Run passes the `functionConfig` and `items` from input ResourceList to allow you to do operations.
+	// Args:
+	//    items: We intentionally do not allow you to add or delete KubeObject from "items", you can only modify
+	// the items, because we expect you to use Runner only for transformer or validator functions.
+	//    results: You can use `ErrorE` `Errorf` `Infof` `Warningf` `WarningE` to add user message to `Results`.
+	// Returns:
+	//    return a boolean to tell whether the execution should be considered as PASS or FAIL. CLI like kpt will
+	// display the corresponding message.
+	Run(context *Context, functionConfig *KubeObject, items KubeObjects, results *Results) bool
 }
