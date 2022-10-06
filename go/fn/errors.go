@@ -19,43 +19,13 @@ import (
 	"strings"
 )
 
+const pathDelimitor = "."
+
 // ErrMissingFnConfig raises error if a required functionConfig is missing.
 type ErrMissingFnConfig struct{}
 
 func (ErrMissingFnConfig) Error() string {
 	return "unable to find the functionConfig in the resourceList"
-}
-
-// errKubeObjectFields raises if the KubeObject operation panics.
-type errKubeObjectFields struct {
-	obj    *KubeObject
-	fields []string
-}
-
-func (e *errKubeObjectFields) Error() string {
-	return fmt.Sprintf("Resource(apiVersion=%v, kind=%v, Name=%v) has unmatched field type: `%v",
-		e.obj.GetAPIVersion(), e.obj.GetKind(), e.obj.GetName(), strings.Join(e.fields, "/"))
-}
-
-// errSubObjectFields raises if the SubObject operation panics.
-type errSubObjectFields struct {
-	fields []string
-}
-
-func (e *errSubObjectFields) Error() string {
-	return fmt.Sprintf("SubObject has unmatched field type: `%v", strings.Join(e.fields, "/"))
-}
-
-type errResultEnd struct {
-	obj     *KubeObject
-	message string
-}
-
-func (e *errResultEnd) Error() string {
-	if e.obj != nil {
-		return fmt.Sprintf("function is terminated by %v: %v", e.obj.ShortString(), e.message)
-	}
-	return fmt.Sprintf("function is terminated: %v", e.message)
 }
 
 type ErrAttemptToTouchUpstreamIdentifier struct{}
@@ -70,4 +40,26 @@ type ErrInternalAnnotation struct {
 
 func (e *ErrInternalAnnotation) Error() string {
 	return e.Message
+}
+
+// NewErrUnmatchedField returns a ErrUnmatchedField error with the specific field path of a KubeObject that has the mismatched data type.
+func NewErrUnmatchedField(obj SubObject, fields []string, expectedFieldType any) *ErrUnmatchedField {
+	relativefields := strings.Join(fields, pathDelimitor)
+	obj.fieldpath += pathDelimitor + relativefields
+	return &ErrUnmatchedField{
+		SubObject: &obj, DataType: fmt.Sprintf("%T", expectedFieldType),
+	}
+}
+
+// ErrUnmatchedField defines the error when a KubeObject's field paths has a different data type as expected
+// e.g. ConfigMap `.data` is string map. If the a ConfigMap KubeObject calls `NestedInt("data")`, this error should raise.
+type ErrUnmatchedField struct {
+	SubObject *SubObject
+	DataType  string
+}
+
+// Error returns the message to guide users
+func (e *ErrUnmatchedField) Error() string {
+	return fmt.Sprintf("Resource(apiVersion=%v, kind=%v) has unmatched field type %q in fieldpath %v",
+		e.SubObject.parentGVK.GroupVersion(), e.SubObject.parentGVK.Kind, e.DataType, e.SubObject.fieldpath)
 }

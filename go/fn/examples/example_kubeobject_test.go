@@ -29,18 +29,24 @@ func Example_kubeObjectMutatePrimitiveField() {
 	replicas := spec.GetInt("replicas")
 	// mutate the replicas variable
 
-	spec.SetNestedIntOrDie(int(replicas))
+	err := spec.SetNestedInt(int(replicas))
+	if err != nil {
+		panic(err)
+	}
 }
 
 func Example_kubeObjectMutatePrimitiveSlice() {
-	finalizers := deployment.NestedStringSliceOrDie("metadata", "finalizers")
+	finalizers, _, _ := deployment.NestedStringSlice("metadata", "finalizers")
 	// mutate the finalizers slice
 
-	deployment.SetNestedStringSliceOrDie(finalizers, "metadata", "finalizers")
+	err := deployment.SetNestedStringSlice(finalizers, "metadata", "finalizers")
+	if err != nil {
+		panic(err)
+	}
 }
 
 func Example_kubeObjectMutatePrimitiveMap() {
-	data := configMap.NestedStringMapOrDie("data")
+	data, _, _ := configMap.NestedStringMap("data")
 	// mutate the data map
 
 	err := deployment.SetNestedStringMap(data, "data")
@@ -52,17 +58,21 @@ func Example_kubeObjectMutateStrongTypedField() {
 	var newPodTemplate corev1.PodTemplate
 	curPodTemplate := configMap.GetMap("spec").GetMap("template")
 	// Assign the current PodTemplate value to newPodTemplate
-	// Use AsOrDie to AsMain handles the errors.
-	curPodTemplate.AsOrDie(&newPodTemplate)
+	// Use As to AsMain handles the errors.
+	err := curPodTemplate.As(&newPodTemplate)
+	if err != nil {
+		panic(err)
+	}
 	// mutate the newPodTemplate object
-	err := deployment.SetNestedField(newPodTemplate, "spec", "template")
+	err = deployment.SetNestedField(newPodTemplate, "spec", "template")
 	if err != nil { /* do something */
+		panic(err)
 	}
 }
 
 func Example_kubeObjectMutateStrongTypedSlice() {
 	var containers []corev1.Container
-	found, err := deployment.Get(&containers, "spec", "template", "spec", "containers")
+	found, err := deployment.NestedResource(&containers, "spec", "template", "spec", "containers")
 	if err != nil { /* do something */
 	}
 	if !found { /* do something */

@@ -16,7 +16,19 @@ package internal
 
 import (
 	"fmt"
+
+	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
+
+func (o *MapVariant) GetRNode(fields ...string) (*yaml.RNode, bool, error) {
+	rn := &yaml.RNode{}
+	val, found, err := o.GetNestedValue(fields...)
+	if err != nil || !found {
+		return nil, found, err
+	}
+	rn.SetYNode(val.Node())
+	return rn, found, err
+}
 
 func (o *MapVariant) GetNestedValue(fields ...string) (variant, bool, error) {
 	current := o

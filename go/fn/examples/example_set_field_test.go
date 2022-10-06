@@ -32,7 +32,9 @@ func setField(rl *fn.ResourceList) (bool, error) {
 	for _, obj := range rl.Items {
 		if obj.GetAPIVersion() == "apps/v1" && obj.GetKind() == "Deployment" {
 			replicas := 10
-			obj.SetOrDie(&replicas, "spec", "replicas")
+			if err := obj.SetNestedField(&replicas, "spec", "replicas"); err != nil {
+				return false, err
+			}
 		}
 	}
 	return true, nil

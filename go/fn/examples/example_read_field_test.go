@@ -31,13 +31,15 @@ func Example_aReadField() {
 func readField(rl *fn.ResourceList) (bool, error) {
 	for _, obj := range rl.Items.Where(fn.IsGVK("apps", "v1", "Deployment")) {
 		// Style 1: like using unstrucuted.Unstructured, get/set the value from field paths*
-		replicas := obj.NestedInt64OrDie("spec", "replicas")
+		replicas, _, _ := obj.NestedInt64("spec", "replicas")
 		fn.Logf("replicas is %v\n", replicas)
-		paused := obj.NestedBoolOrDie("spec", "paused")
+		paused, _, _ := obj.NestedBool("spec", "paused")
 		fn.Logf("paused is %v\n", paused)
 		// Update strategy from Recreate to RollingUpdate.
-		if strategy := obj.NestedStringOrDie("spec", "strategy", "type"); strategy == "Recreate" {
-			obj.SetNestedStringOrDie("RollingUpdate", "spec", "strategy", "type")
+		if strategy, _, _ := obj.NestedString("spec", "strategy", "type"); strategy == "Recreate" {
+			if err := obj.SetNestedString("RollingUpdate", "spec", "strategy", "type"); err != nil {
+				return false, err
+			}
 		}
 
 		// Style 2: operate each resource layer via `GetMap`
@@ -46,7 +48,9 @@ func readField(rl *fn.ResourceList) (bool, error) {
 		fn.Logf("replicas is %v\n", replicas)
 		nodeSelector := spec.GetMap("template").GetMap("spec").GetMap("nodeSelector")
 		if nodeSelector.GetString("disktype") != "ssd" {
-			nodeSelector.SetNestedStringOrDie("ssd", "disktype")
+			if err := nodeSelector.SetNestedString("ssd", "disktype"); err != nil {
+				return false, err
+			}
 		}
 	}
 	return true, nil
