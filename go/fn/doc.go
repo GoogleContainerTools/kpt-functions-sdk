@@ -15,17 +15,17 @@
 /*
 Package fn provides the SDK to write KRM functions.
 
-Before you start
+# Before you start
 
 This fn SDK requires some basic KRM function Specification knowledge. To make the best usage of your time, we recommend
 you to be familiar with "ResourceList" before moving forward.
 
-  The KRM Function Specification, or "ResourceList", defines the standards of the inter-process communication between
-  the orchestrator (i.e. kpt CLI) and functions.
+	The KRM Function Specification, or "ResourceList", defines the standards of the inter-process communication between
+	the orchestrator (i.e. kpt CLI) and functions.
 
 See KRM Function Specification reference in https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md
 
-KRM Function
+# KRM Function
 
 A KRM function can mutate and/or validate Kubernetes resources in a ResourceList.
 
@@ -37,13 +37,13 @@ Read more about how to use KRM functions in https://kpt.dev/book/04-using-functi
 Read more about how to develop a KRM function in https://kpt.dev/book/05-developing-functions/
 
 A general workflow is:
-  1. Reads the "ResourceList" object from STDIN.
-  2. Gets the function configs from the "ResourceList.FunctionConfig".
-  3. Mutate or validate the Kubernetes YAML resources from the "ResourceList.Items" field with the function configs.
-  4. Writes the modified "ResourceList" to STDOUT.
-  5. Write function message to "ResourceList.Results" with severity "Info", "Warning" or "Error"
+ 1. Reads the "ResourceList" object from STDIN.
+ 2. Gets the function configs from the "ResourceList.FunctionConfig".
+ 3. Mutate or validate the Kubernetes YAML resources from the "ResourceList.Items" field with the function configs.
+ 4. Writes the modified "ResourceList" to STDOUT.
+ 5. Write function message to "ResourceList.Results" with severity "Info", "Warning" or "Error"
 
-KubeObject
+# KubeObject
 
 The KubeObject is the basic unit to perform operations on KRM resources.
 
@@ -65,7 +65,7 @@ SubObject.NestedInt64("replicas")
 Besides unstructured style, another way to use KubeObject is to purely work on the KubeObject/SubObject by calling
 "GetMap", "GetSlice", "UpsertMap" which expects the return to be SubObject(s) pointer.
 
-AsMain
+# AsMain
 
 "AsMain" is the main entrypoint. In most cases, you only need to provide the mutator or validation logic and have AsMain
 handles the ResourceList parsing, KRM resource field type detection, read from STDIN and write to STDOUT.
@@ -73,6 +73,5 @@ handles the ResourceList parsing, KRM resource field type detection, read from S
 "AsMain" accepts a struct that either implement the ResourceListProcessor interface or Runner interface.
 
 See github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/examples for detailed usage.
-
 */
 package fn

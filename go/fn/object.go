@@ -64,93 +64,70 @@ func ParseKubeObject(in []byte) (*KubeObject, error) {
 	return obj, nil
 }
 
-// GetOrDie gets the value for a nested field located by fields. A pointer must
-// be passed in, and the value will be stored in ptr. If the field doesn't
-// exist, the ptr will be set to nil. It will panic if it encounters any error.
-func (o *SubObject) GetOrDie(ptr interface{}, fields ...string) {
-	_, err := o.Get(ptr, fields...)
-	if err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
-}
-
 // NestedBool returns the bool value, if the field exist and a potential error.
 func (o *SubObject) NestedBool(fields ...string) (bool, bool, error) {
-	var val bool
-	found, err := o.Get(&val, fields...)
-	return val, found, err
-}
-
-// NestedBoolOrDie returns the bool value at `fields`. An empty string will be
-// returned if the field is not found. It will panic if encountering any errors.
-func (o *SubObject) NestedBoolOrDie(fields ...string) bool {
-	val, _, err := o.NestedBool(fields...)
+	b, found, err := o.obj.GetNestedBool(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		var val bool
+		return val, found, NewErrUnmatchedField(*o, fields, val)
 	}
-	return val
+	return b, found, nil
 }
 
 // NestedString returns the string value, if the field exist and a potential error.
 func (o *SubObject) NestedString(fields ...string) (string, bool, error) {
-	var val string
-	found, err := o.Get(&val, fields...)
-	return val, found, err
-}
-
-// NestedStringOrDie returns the string value at fields. An empty string will be
-// returned if the field is not found. It will panic if encountering any errors.
-func (o *SubObject) NestedStringOrDie(fields ...string) string {
-	val, _, err := o.NestedString(fields...)
+	s, found, err := o.obj.GetNestedString(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		var val string
+		return val, found, NewErrUnmatchedField(*o, fields, val)
 	}
-	return val
+	return s, found, nil
 }
 
 // NestedFloat64 returns the float64 value, if the field exist and a potential error.
 func (o *SubObject) NestedFloat64(fields ...string) (float64, bool, error) {
-	var val float64
-	found, err := o.Get(&val, fields...)
-	return val, found, err
-}
-
-// NestedFloat64OrDie returns the string value at fields. 0 will be
-// returned if the field is not found. It will panic if encountering any errors.
-func (o *SubObject) NestedFloat64OrDie(fields ...string) float64 {
-	val, _, err := o.NestedFloat64(fields...)
+	f, found, err := o.obj.GetNestedFloat(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		var val float64
+		return val, found, NewErrUnmatchedField(*o, fields, val)
 	}
-	return val
+	return f, found, nil
 }
 
 // NestedInt64 returns the int64 value, if the field exist and a potential error.
 func (o *SubObject) NestedInt64(fields ...string) (int64, bool, error) {
-	var val int64
-	found, err := o.Get(&val, fields...)
-	return val, found, err
+	i, found, err := o.obj.GetNestedInt(fields...)
+	if err != nil {
+		var val int64
+		return val, found, NewErrUnmatchedField(*o, fields, val)
+	}
+	return int64(i), found, nil
 }
 
-// NestedInt64OrDie returns the string value at fields. An empty string will be
-// returned if the field is not found. It will panic if encountering any errors.
-func (o *SubObject) NestedInt64OrDie(fields ...string) int64 {
-	val, _, err := o.NestedInt64(fields...)
+// NestedInt returns the int64 value, if the field exist and a potential error.
+func (o *SubObject) NestedInt(fields ...string) (int, bool, error) {
+	i, found, err := o.obj.GetNestedInt(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		var val int
+		return val, found, NewErrUnmatchedField(*o, fields, val)
 	}
-	return val
+	return i, found, nil
 }
 
 // NestedSlice accepts a slice of `fields` which represents the path to the slice component and
 // return a slice of SubObjects as the first return value; whether the component exists or
 // not as the second return value, and errors as the third return value.
 func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error) {
+	// Expect a struct like SubObject.
+	var obj struct{}
 	var mapVariant *internal.MapVariant
 	if len(fields) > 1 {
 		m, found, err := o.obj.GetNestedMap(fields[:len(fields)-1]...)
-		if err != nil || !found {
-			return nil, found, err
+		if err != nil {
+			return nil, found, NewErrUnmatchedField(*o, fields, obj)
+		}
+		if !found {
+			return nil, found, nil
 		}
 		mapVariant = m
 	} else {
@@ -158,7 +135,7 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 	}
 	sliceVal, found, err := mapVariant.GetNestedSlice(fields[len(fields)-1])
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		return nil, found, NewErrUnmatchedField(*o, fields, obj)
 	}
 	if !found {
 		return nil, found, nil
@@ -174,64 +151,67 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 	return val, true, nil
 }
 
-// NestedSliceOrDie accepts a slice of `fields` which represents the path to the slice component and
-// return a slice of SubObjects.
-// - It returns nil if the fields does not exist.
-// - It panics with errSubObjectFields error if the field is not a slice type.
-func (o *SubObject) NestedSliceOrDie(fields ...string) SliceSubObjects {
-	val, _, err := o.NestedSlice(fields...)
+// NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
+func (o *SubObject) NestedSubObject(fields ...string) (SubObject, bool, error) {
+	var variant SubObject
+	m, found, err := o.obj.GetNestedMap(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		return variant, found, NewErrUnmatchedField(*o, fields, variant)
 	}
-	return val
+	if !found {
+		return variant, found, nil
+	}
+	err = m.Node().Decode(variant)
+	return variant, true, err
+}
+
+// NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
+func (o *SubObject) NestedResource(ptr interface{}, fields ...string) (bool, error) {
+	if ptr == nil || reflect.ValueOf(ptr).Kind() != reflect.Ptr {
+		return false, fmt.Errorf("ptr must be a pointer to an object")
+	}
+	k := reflect.TypeOf(ptr).Elem().Kind()
+	if k != reflect.Struct && k != reflect.Map {
+		return false, fmt.Errorf("expect struct or map, got %T", ptr)
+	}
+	m, found, err := o.obj.GetNestedMap(fields...)
+	if err != nil {
+		o.fieldpath = o.fieldpath + "." + strings.Join(fields, ".")
+		return found, NewErrUnmatchedField(*o, fields, ptr)
+	}
+	if !found {
+		return found, nil
+	}
+	err = m.Node().Decode(ptr)
+	return true, err
 }
 
 // NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
 func (o *SubObject) NestedStringMap(fields ...string) (map[string]string, bool, error) {
 	var variant map[string]string
-	found, err := o.Get(&variant, fields...)
-	if err != nil || !found {
-		return nil, found, err
+	m, found, err := o.obj.GetNestedMap(fields...)
+	if err != nil {
+		return variant, found, NewErrUnmatchedField(*o, fields, variant)
 	}
+	if !found {
+		return variant, false, nil
+	}
+	err = m.Node().Decode(&variant)
 	return variant, found, err
 }
 
-// NestedStringMapOrDie returns a map[string]string value of a nested field, if the fields does not exist, it returns
-// empty map[string]string. It will panic if the fields are not map[string]string type.
-func (o *SubObject) NestedStringMapOrDie(fields ...string) map[string]string {
-	val, _, err := o.NestedStringMap(fields...)
-	if err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
-	return val
-}
-
-// NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
+// NestedStringSlice returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
 func (o *SubObject) NestedStringSlice(fields ...string) ([]string, bool, error) {
 	var variant []string
-	found, err := o.Get(&variant, fields...)
-	if err != nil || !found {
-		return nil, found, err
-	}
-	return variant, found, err
-}
-
-// NestedMapOrDie returns a map[string]string value of a nested field.
-// It will panic if the fields are not map[string]string type.
-func (o *SubObject) NestedStringSliceOrDie(fields ...string) []string {
-	val, _, err := o.NestedStringSlice(fields...)
+	s, found, err := o.obj.GetNestedSlice(fields...)
 	if err != nil {
-		panic(errSubObjectFields{fields: fields})
+		return variant, found, NewErrUnmatchedField(*o, fields, variant)
 	}
-	return val
-}
-
-// RemoveNestedFieldOrDie removes the field located by fields if found. It will panic if it
-// encounters any error.
-func (o *SubObject) RemoveNestedFieldOrDie(fields ...string) {
-	if _, err := o.RemoveNestedField(fields...); err != nil {
-		panic(errSubObjectFields{fields: fields})
+	if !found {
+		return variant, false, nil
 	}
+	err = s.Node().Decode(&variant)
+	return variant, true, err
 }
 
 // RemoveNestedField removes the field located by fields if found. It returns if the field
@@ -247,96 +227,6 @@ func (o *SubObject) RemoveNestedField(fields ...string) (bool, error) {
 		return found, fmt.Errorf("unable to remove fields %v with error: %w", fields, err)
 	}
 	return found, nil
-}
-
-// Get gets the value for a nested field located by fields. A pointer must be
-// passed in, and the value will be stored in ptr. ptr can be a concrete type
-// (e.g. string, []corev1.Container, []string, corev1.Pod, map[string]string) or
-// a yaml.RNode. yaml.RNode should be used if you are dealing with comments that
-// is more than what LineComment, HeadComment, SetLineComment and
-// SetHeadComment can handle. It returns if the field is found and a
-// potential error.
-func (o *SubObject) Get(ptr interface{}, fields ...string) (bool, error) {
-	found, err := func() (bool, error) {
-		if o == nil {
-			return false, fmt.Errorf("the object doesn't exist")
-		}
-		if ptr == nil || reflect.ValueOf(ptr).Kind() != reflect.Ptr {
-			return false, fmt.Errorf("ptr must be a pointer to an object")
-		}
-
-		if rn, ok := ptr.(*yaml.RNode); ok {
-			val, found, err := o.obj.GetNestedValue(fields...)
-			if err != nil || !found {
-				return found, err
-			}
-			rn.SetYNode(val.Node())
-			return found, err
-		}
-
-		switch k := reflect.TypeOf(ptr).Elem().Kind(); k {
-		case reflect.Struct, reflect.Map:
-			m, found, err := o.obj.GetNestedMap(fields...)
-			if err != nil || !found {
-				return found, err
-			}
-			err = m.Node().Decode(ptr)
-			return found, err
-		case reflect.Slice:
-			s, found, err := o.obj.GetNestedSlice(fields...)
-			if err != nil || !found {
-				return found, err
-			}
-			err = s.Node().Decode(ptr)
-			return found, err
-		case reflect.String:
-			s, found, err := o.obj.GetNestedString(fields...)
-			if err != nil || !found {
-				return found, err
-			}
-			*(ptr.(*string)) = s
-			return found, nil
-		case reflect.Int, reflect.Int64:
-			i, found, err := o.obj.GetNestedInt(fields...)
-			if err != nil || !found {
-				return found, err
-			}
-			if k == reflect.Int {
-				*(ptr.(*int)) = i
-			} else if k == reflect.Int64 {
-				*(ptr.(*int64)) = int64(i)
-			}
-			return found, nil
-		case reflect.Float64:
-			f, found, err := o.obj.GetNestedFloat(fields...)
-			if err != nil || !found {
-				return found, err
-			}
-			*(ptr.(*float64)) = f
-			return found, nil
-		case reflect.Bool:
-			b, found, err := o.obj.GetNestedBool(fields...)
-			if err != nil || !found {
-				return found, err
-			}
-			*(ptr.(*bool)) = b
-			return found, nil
-		default:
-			return false, fmt.Errorf("unhandled kind %s", k)
-		}
-	}()
-	if err != nil {
-		return found, fmt.Errorf("unable to get fields %v as %T with error: %w", fields, ptr, err)
-	}
-	return found, nil
-}
-
-// SetOrDie sets a nested field located by fields to the value provided as val.
-// It will panic if it encounters any error.
-func (o *SubObject) SetOrDie(val interface{}, fields ...string) {
-	if err := o.SetNestedField(val, fields...); err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
 }
 
 // onLockedFields locks the SubObject fields which are expected for kpt internal use only.
@@ -432,25 +322,9 @@ func (o *SubObject) SetNestedField(val interface{}, fields ...string) error {
 	return nil
 }
 
-// SetNestedIntOrDie sets the `fields` value to int `value`. It panics if the fields type is not int.
-func (o *SubObject) SetNestedIntOrDie(value int, fields ...string) {
-	err := o.SetNestedInt(value, fields...)
-	if err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
-}
-
 // SetNestedInt sets the `fields` value to int `value`. It returns error if the fields type is not int.
 func (o *SubObject) SetNestedInt(value int, fields ...string) error {
 	return o.SetNestedField(value, fields...)
-}
-
-// SetNestedBoolOrDie sets the `fields` value to bool `value`. It panics if the fields type is not bool.
-func (o *SubObject) SetNestedBoolOrDie(value bool, fields ...string) {
-	err := o.SetNestedBool(value, fields...)
-	if err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
 }
 
 // SetNestedBool sets the `fields` value to bool `value`. It returns error if the fields type is not bool.
@@ -458,38 +332,14 @@ func (o *SubObject) SetNestedBool(value bool, fields ...string) error {
 	return o.SetNestedField(value, fields...)
 }
 
-// SetNestedStringOrDie sets the `fields` value to string `value`. It panics if the fields type is not string.
-func (o *SubObject) SetNestedStringOrDie(value string, fields ...string) {
-	err := o.SetNestedString(value, fields...)
-	if err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
-}
-
-// SetNestedStringOrDie sets the `fields` value to string `value`. It returns error if the fields type is not string.
+// SetNestedString sets the `fields` value to string `value`. It returns error if the fields type is not string.
 func (o *SubObject) SetNestedString(value string, fields ...string) error {
 	return o.SetNestedField(value, fields...)
-}
-
-// SetNestedStringMapOrDie sets the `fields` value to map[string]string `value`. It panics if the fields type is not map[string]string.
-func (o *SubObject) SetNestedStringMapOrDie(value map[string]string, fields ...string) {
-	err := o.SetNestedStringMap(value, fields...)
-	if err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
 }
 
 // SetNestedStringMap sets the `fields` value to map[string]string `value`. It returns error if the fields type is not map[string]string.
 func (o *SubObject) SetNestedStringMap(value map[string]string, fields ...string) error {
 	return o.SetNestedField(value, fields...)
-}
-
-// SetNestedStringSliceOrDie sets the `fields` value to []string `value`. It panics if the fields type is not []string.
-func (o *SubObject) SetNestedStringSliceOrDie(value []string, fields ...string) {
-	err := o.SetNestedStringSlice(value, fields...)
-	if err != nil {
-		panic(errSubObjectFields{fields: fields})
-	}
 }
 
 // SetNestedStringSlice sets the `fields` value to []string `value`. It returns error if the fields type is not []string.
@@ -500,8 +350,7 @@ func (o *SubObject) SetNestedStringSlice(value []string, fields ...string) error
 // LineComment returns the line comment, if the target field exist and a
 // potential error.
 func (o *KubeObject) LineComment(fields ...string) (string, bool, error) {
-	rn := &yaml.RNode{}
-	found, err := o.Get(rn, fields...)
+	rn, found, err := o.obj.GetRNode(fields...)
 	if !found || err != nil {
 		return "", found, err
 	}
@@ -511,8 +360,7 @@ func (o *KubeObject) LineComment(fields ...string) (string, bool, error) {
 // HeadComment returns the head comment, if the target field exist and a
 // potential error.
 func (o *KubeObject) HeadComment(fields ...string) (string, bool, error) {
-	rn := &yaml.RNode{}
-	found, err := o.Get(rn, fields...)
+	rn, found, err := o.obj.GetRNode(fields...)
 	if !found || err != nil {
 		return "", found, err
 	}
@@ -520,8 +368,7 @@ func (o *KubeObject) HeadComment(fields ...string) (string, bool, error) {
 }
 
 func (o *KubeObject) SetLineComment(comment string, fields ...string) error {
-	rn := &yaml.RNode{}
-	found, err := o.Get(rn, fields...)
+	rn, found, err := o.obj.GetRNode(fields...)
 	if err != nil {
 		return err
 	}
@@ -533,8 +380,7 @@ func (o *KubeObject) SetLineComment(comment string, fields ...string) error {
 }
 
 func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
-	rn := &yaml.RNode{}
-	found, err := o.Get(rn, fields...)
+	rn, found, err := o.obj.GetRNode(fields...)
 	if err != nil {
 		return err
 	}
@@ -543,14 +389,6 @@ func (o *KubeObject) SetHeadComment(comment string, fields ...string) error {
 	}
 	rn.YNode().HeadComment = comment
 	return nil
-}
-
-// AsOrDie converts a KubeObject to the desired typed object. ptr must
-// be a pointer to a typed object. It will panic if it encounters an error.
-func (o *SubObject) AsOrDie(ptr interface{}) {
-	if err := o.As(ptr); err != nil {
-		panic(errSubObjectFields{fields: nil})
-	}
 }
 
 // As converts a KubeObject to the desired typed object. ptr must be
@@ -583,7 +421,8 @@ func NewFromTypedObject(v interface{}) (*KubeObject, error) {
 	case reflect.Struct, reflect.Map:
 		m, err = internal.TypedObjectToMapVariant(v)
 	case reflect.Slice:
-		return nil, fmt.Errorf("The typed object should be of a reflect.Struct or reflect.Map, got reflect.Slice")
+		return nil, fmt.Errorf(
+			"the typed object should be of a reflect.Struct or reflect.Map, got reflect.Slice")
 	}
 	if err != nil {
 		return nil, err
@@ -685,10 +524,8 @@ func (o *KubeObject) GetAPIVersion() string {
 	return apiVersion
 }
 
-func (o *KubeObject) SetAPIVersion(apiVersion string) {
-	if err := o.obj.SetNestedString(apiVersion, "apiVersion"); err != nil {
-		panic(fmt.Errorf("cannot set apiVersion '%v': %v", apiVersion, err))
-	}
+func (o *KubeObject) SetAPIVersion(apiVersion string) error {
+	return o.obj.SetNestedString(apiVersion, "apiVersion")
 }
 
 func (o *KubeObject) GetKind() string {
@@ -696,10 +533,8 @@ func (o *KubeObject) GetKind() string {
 	return kind
 }
 
-func (o *KubeObject) SetKind(kind string) {
-	if err := o.SetNestedField(kind, "kind"); err != nil {
-		panic(fmt.Errorf("cannot set kind '%v': %v", kind, err))
-	}
+func (o *KubeObject) SetKind(kind string) error {
+	return o.SetNestedField(kind, "kind")
 }
 
 func (o *KubeObject) GetName() string {
@@ -707,10 +542,8 @@ func (o *KubeObject) GetName() string {
 	return s
 }
 
-func (o *KubeObject) SetName(name string) {
-	if err := o.SetNestedField(name, "metadata", "name"); err != nil {
-		panic(fmt.Errorf("cannot set metadata name '%v': %v", name, err))
-	}
+func (o *KubeObject) SetName(name string) error {
+	return o.SetNestedField(name, "metadata", "name")
 }
 
 func (o *KubeObject) GetNamespace() string {
@@ -739,20 +572,19 @@ func (o *KubeObject) HasNamespace() bool {
 	return found
 }
 
-func (o *KubeObject) SetNamespace(name string) {
-	if err := o.SetNestedField(name, "metadata", "namespace"); err != nil {
-		panic(fmt.Errorf("cannot set namespace '%v': %v", name, err))
-	}
+func (o *KubeObject) SetNamespace(name string) error {
+	return o.SetNestedField(name, "metadata", "namespace")
 }
 
-func (o *KubeObject) SetAnnotation(k, v string) {
+func (o *KubeObject) SetAnnotation(k, v string) error {
 	// Keep upstream-identifier untouched from users
 	if k == UpstreamIdentifier {
-		panic(ErrAttemptToTouchUpstreamIdentifier{})
+		return ErrAttemptToTouchUpstreamIdentifier{}
 	}
 	if err := o.SetNestedField(v, "metadata", "annotations", k); err != nil {
-		panic(fmt.Errorf("cannot set metadata annotations '%v': %v", k, err))
+		return fmt.Errorf("cannot set metadata annotations '%v': %v", k, err)
 	}
+	return nil
 }
 
 // GetAnnotations returns all annotations.
@@ -792,10 +624,8 @@ func (o *KubeObject) RemoveAnnotationsIfEmpty() error {
 	return nil
 }
 
-func (o *KubeObject) SetLabel(k, v string) {
-	if err := o.SetNestedField(v, "metadata", "labels", k); err != nil {
-		panic(fmt.Errorf("cannot set metadata labels '%v': %v", k, err))
-	}
+func (o *KubeObject) SetLabel(k, v string) error {
+	return o.SetNestedField(v, "metadata", "labels", k)
 }
 
 // Label returns one label with key k.
@@ -972,11 +802,16 @@ func (o *KubeObject) IsEmpty() bool {
 }
 
 func NewEmptyKubeObject() *KubeObject {
-	return &KubeObject{SubObject{internal.NewMap(nil)}}
+	subObject := SubObject{parentGVK: schema.GroupVersionKind{}, obj: internal.NewMap(nil), fieldpath: ""}
+	return &KubeObject{subObject}
 }
 
-func asKubeObject(obj *internal.MapVariant) *KubeObject {
-	return &KubeObject{SubObject{obj}}
+func asKubeObject(mapVariant *internal.MapVariant) *KubeObject {
+	group, _, _ := mapVariant.GetNestedString("group")
+	version, _, _ := mapVariant.GetNestedString("version")
+	kind, _, _ := mapVariant.GetNestedString("kind")
+	gvk := schema.GroupVersionKind{Group: group, Version: version, Kind: kind}
+	return &KubeObject{SubObject{parentGVK: gvk, obj: mapVariant, fieldpath: ""}}
 }
 
 func (o *KubeObject) node() *internal.MapVariant {
@@ -985,57 +820,64 @@ func (o *KubeObject) node() *internal.MapVariant {
 
 func rnodeToKubeObject(rn *yaml.RNode) *KubeObject {
 	mapVariant := internal.NewMap(rn.YNode())
-	return &KubeObject{SubObject{mapVariant}}
+	return asKubeObject(mapVariant)
 }
 
 // SubObject represents a map within a KubeObject
 type SubObject struct {
-	obj *internal.MapVariant
+	parentGVK schema.GroupVersionKind
+	fieldpath string
+	obj       *internal.MapVariant
 }
 
 func (o *SubObject) UpsertMap(k string) *SubObject {
 	m := o.obj.UpsertMap(k)
-	return &SubObject{obj: m}
+	return &SubObject{obj: m, parentGVK: o.parentGVK, fieldpath: o.fieldpath + "." + k}
 }
 
 // GetMap accepts a single key `k` whose value is expected to be a map. It returns
 // the map in the form of a SubObject pointer.
 // It panic with ErrSubObjectFields error if the field cannot be represented as a SubObject.
 func (o *SubObject) GetMap(k string) *SubObject {
-	var variant yaml.RNode
-	found, err := o.Get(&variant, k)
+	var rn yaml.RNode
+	val, found, err := o.obj.GetNestedValue(k)
 	if err != nil || !found {
 		return nil
 	}
-	return &SubObject{obj: internal.NewMap(variant.YNode())}
+	rn.SetYNode(val.Node())
+	return &SubObject{obj: internal.NewMap(rn.YNode()), parentGVK: o.parentGVK, fieldpath: o.fieldpath + "." + k}
 }
 
 // GetBool accepts a single key `k` whose value is expected to be a boolean. It returns
 // the int value of the `k`. It panic with errSubObjectFields error if the
 // field is not an integer type.
 func (o *SubObject) GetBool(k string) bool {
-	return o.NestedBoolOrDie(k)
+	val, _, _ := o.NestedBool(k)
+	return val
 }
 
 // GetInt accepts a single key `k` whose value is expected to be an integer. It returns
 // the int value of the `k`. It panic with errSubObjectFields error if the
 // field is not an integer type.
 func (o *SubObject) GetInt(k string) int64 {
-	return o.NestedInt64OrDie(k)
+	val, _, _ := o.NestedInt64(k)
+	return val
 }
 
 // GetString accepts a single key `k` whose value is expected to be a string. It returns
 // the value of the `k`. It panic with errSubObjectFields error if the
 // field is not a string type.
 func (o *SubObject) GetString(k string) string {
-	return o.NestedStringOrDie(k)
+	val, _, _ := o.NestedString(k)
+	return val
 }
 
 // GetSlice accepts a single key `k` whose value is expected to be a slice. It returns
 // the value as a slice of SubObject. It panic with errSubObjectFields error if the
 // field is not a slice type.
 func (o *SubObject) GetSlice(k string) SliceSubObjects {
-	return o.NestedSliceOrDie(k)
+	val, _, _ := o.NestedSlice(k)
+	return val
 }
 
 // SetSlice sets the SliceSubObjects to the given field. It creates the field if not exists. If returns error if the field exists but not a slice type.
@@ -1057,4 +899,10 @@ func (s *SliceSubObjects) MarshalJSON() ([]byte, error) {
 		node.Content = append(node.Content, subObject.obj.Node())
 	}
 	return yaml.NewRNode(node).MarshalJSON()
+}
+
+// DEPRECATED: Please use type-aware functions instead.
+// To parse struct object, please use `NestedResource`.
+func (o *SubObject) Get(_ interface{}, _ ...string) (bool, error) {
+	return false, fmt.Errorf("unsupported")
 }

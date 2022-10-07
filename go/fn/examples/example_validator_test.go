@@ -32,7 +32,9 @@ func validator(rl *fn.ResourceList) (bool, error) {
 	var results fn.Results
 	for _, obj := range rl.Items.Where(hasDesiredGVK) {
 		var runAsNonRoot bool
-		obj.GetOrDie(&runAsNonRoot, "spec", "template", "spec", "securityContext", "runAsNonRoot")
+		if _, err := obj.NestedResource(&runAsNonRoot, "spec", "template", "spec", "securityContext", "runAsNonRoot"); err != nil {
+			return false, err
+		}
 		if !runAsNonRoot {
 			results = append(results, fn.ConfigObjectResult("`spec.template.spec.securityContext.runAsNonRoot` must be set to true", obj, fn.Error))
 		}

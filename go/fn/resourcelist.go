@@ -9,6 +9,7 @@ import (
 	"sort"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn/internal"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
@@ -128,9 +129,13 @@ func ParseResourceList(in []byte) (*ResourceList, error) {
 // toYNode converts the ResourceList to the yaml.Node representation.
 func (rl *ResourceList) toYNode() (*yaml.Node, error) {
 	reMap := internal.NewMap(nil)
-	reObj := &KubeObject{SubObject{reMap}}
-	reObj.SetAPIVersion(kio.ResourceListAPIVersion)
-	reObj.SetKind(kio.ResourceListKind)
+	reObj := &KubeObject{SubObject{obj: reMap, parentGVK: schema.GroupVersionKind{}, fieldpath: ""}}
+	if err := reObj.SetAPIVersion(kio.ResourceListAPIVersion); err != nil {
+		return nil, err
+	}
+	if err := reObj.SetKind(kio.ResourceListKind); err != nil {
+		return nil, err
+	}
 
 	if rl.Items != nil && len(rl.Items) > 0 {
 		itemsSlice := internal.NewSliceVariant()

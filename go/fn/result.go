@@ -140,6 +140,7 @@ func (r *Results) Errorf(format string, a ...any) {
 
 // ErrorE writes the `error` as an Error level `result` to the results slice.
 // e.g.
+//
 //	err := error.New("test)
 //	results.ErrorE(err)
 func (r *Results) ErrorE(err error) {
@@ -149,6 +150,7 @@ func (r *Results) ErrorE(err error) {
 
 // Infof writes an Info level `result` to the results slice. It accepts arguments according to a format specifier.
 // e.g.
+//
 //	results.Infof("update %v %q ", "ConfigMap", "kptfile.kpt.dev")
 func (r *Results) Infof(format string, a ...any) {
 	infoResult := &Result{Severity: Info, Message: fmt.Sprintf(format, a...)}
@@ -157,6 +159,7 @@ func (r *Results) Infof(format string, a ...any) {
 
 // Warningf writes a Warning level `result` to the results slice. It accepts arguments according to a format specifier.
 // e.g.
+//
 //	results.Warningf("bad kind %q", "invalid")
 func (r *Results) Warningf(format string, a ...any) {
 	warnResult := &Result{Severity: Warning, Message: fmt.Sprintf(format, a...)}

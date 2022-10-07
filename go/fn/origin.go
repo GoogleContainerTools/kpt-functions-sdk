@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -90,13 +90,13 @@ func (o *KubeObject) GetId() *ResourceIdentifier {
 	}
 }
 
-func parseUpstreamIdentifier(upstreamId string) *ResourceIdentifier {
+func parseUpstreamIdentifier(upstreamId string) (*ResourceIdentifier, error) {
 	upstreamId = strings.TrimSpace(upstreamId)
 	r := regexp.MustCompile(upstreamIdentifierRegexPattern)
 	match := r.FindStringSubmatch(upstreamId)
 	if match == nil {
-		panic(ErrInternalAnnotation{Message: fmt.Sprintf("annotation %v: %v is in bad format. expect %q",
-			UpstreamIdentifier, upstreamId, upstreamIdentifierFormat)})
+		return nil, &ErrInternalAnnotation{Message: fmt.Sprintf("annotation %v: %v is in bad format. expect %q",
+			UpstreamIdentifier, upstreamId, upstreamIdentifierFormat)}
 	}
 	matchGroups := make(map[string]string)
 	for i, name := range r.SubexpNames() {
@@ -109,18 +109,18 @@ func parseUpstreamIdentifier(upstreamId string) *ResourceIdentifier {
 		Kind:      matchGroups[regexPatternKind],
 		Namespace: matchGroups[regexPatterNamespace],
 		Name:      matchGroups[regexPatternName],
-	}
+	}, nil
 }
 
 // GetOriginId provides the `ResourceIdentifier` to identify the upstream origin of a KRM resource.
 // This origin is generated and maintained by kpt pkg management and is stored in the `internal.kpt.dev/upstream-identiifer` annotation.
 // If a resource does not have an upstream origin, we use its current meta resource ID instead.
-func (o *KubeObject) GetOriginId() *ResourceIdentifier {
+func (o *KubeObject) GetOriginId() (*ResourceIdentifier, error) {
 	upstreamId := o.GetAnnotation(UpstreamIdentifier)
 	if upstreamId != "" {
 		return parseUpstreamIdentifier(upstreamId)
 	}
-	return o.GetId()
+	return o.GetId(), nil
 }
 
 // HasUpstreamOrigin tells whether a resource is sourced from an upstream package resource.

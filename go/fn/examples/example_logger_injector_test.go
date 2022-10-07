@@ -41,7 +41,10 @@ func injectLogger(rl *fn.ResourceList) (bool, error) {
 	}
 	for i, obj := range rl.Items.Where(hasDesiredGVK) {
 		var containers []corev1.Container
-		obj.GetOrDie(&containers, "spec", "template", "spec", "containers")
+		found, err := obj.NestedResource(&containers, "spec", "template", "spec", "containers")
+		if err != nil || !found {
+			return found, err
+		}
 		foundTargetContainer := false
 		for j, container := range containers {
 			if container.Name == li.ContainerName {
@@ -57,7 +60,9 @@ func injectLogger(rl *fn.ResourceList) (bool, error) {
 			}
 			containers = append(containers, c)
 		}
-		rl.Items[i].SetOrDie(containers, "spec", "template", "spec", "containers")
+		if err = rl.Items[i].SetNestedField(containers, "spec", "template", "spec", "containers"); err != nil {
+			return false, nil
+		}
 	}
 	return true, nil
 }
