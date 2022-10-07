@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//    http://www.apache.org/licenses/LICENSE-2.0
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,13 +17,13 @@ import (
 	"context"
 	"os"
 
-    "github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
 var _ fn.Runner = &SetLabels{}
 
 type SetLabels struct {
-    Labels map[string]string `json:"labels,omitempty"`
+	Labels map[string]string `json:"labels,omitempty"`
 }
 
 // Run is the main function logic.
@@ -51,7 +51,6 @@ func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn
 //     kind: Service
 //     metadata:
 //       name: example
-//
 // functionConfig:
 //	apiVersion: fn.kpt.dev/v1alpha1
 //	kind: SetLabels
