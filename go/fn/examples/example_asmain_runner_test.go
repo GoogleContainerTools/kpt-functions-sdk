@@ -14,6 +14,7 @@
 package example
 
 import (
+	"context"
 	"os"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
@@ -30,13 +31,14 @@ type SetLabels struct {
 // `items` is parsed from the STDIN "ResourceList.Items".
 // `functionConfig` is from the STDIN "ResourceList.FunctionConfig". The value has been assigned to the r.Labels
 //  the functionConfig is validated to have kind "SetLabels" and apiVersion "fn.kpt.dev/v1alpha1"
-func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn.KubeObjects) {
+func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn.KubeObjects, results *fn.Results) bool {
 	for _, o := range items {
 		for k, newLabel := range r.Labels {
 			o.SetLabel(k, newLabel)
 		}
 	}
-	ctx.ResultInfo("updated labels", nil)
+	results.Infof("updated labels")
+	return true
 }
 
 // This example uses a SetLabels object, which implements `Runner.Run` methods.
@@ -54,12 +56,12 @@ func (r *SetLabels) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn
 //   kind: SetLabels
 //   metadata:
 //     name: setlabel-fn-config
-func Example_asMain() {
+func main() {
 	file, _ := os.Open("./data/setlabels-resourcelist.yaml")
 	defer file.Close()
 	os.Stdin = file
-
-	if err := fn.AsMain(&SetLabels{}); err != nil {
+	ctx := context.TODO()
+	if err := fn.AsMain(fn.WithContext(ctx, &SetLabels{})); err != nil {
 		os.Exit(1)
 	}
 	// Output:

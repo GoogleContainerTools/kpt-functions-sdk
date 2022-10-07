@@ -20,54 +20,6 @@ import (
 	"strings"
 )
 
-// Context provides a series of functions to add `Result` to `ResourceList.Results`.
-type Context struct {
-	results *Results
-}
-
-func (c *Context) Result(message string, severity Severity) {
-	*c.results = append(*c.results, &Result{Message: message, Severity: severity})
-}
-
-// AddErrResultAndDie adds an Error `Result` and terminates the KRM function run. `KubeObject` can be nil.
-func (c *Context) ResultErrAndDie(message string, o *KubeObject) {
-	c.ResultErr(message, o)
-	panic(errResultEnd{obj: o, message: message})
-}
-
-// AddErrResult adds an Error `Result` and continues the KRM function run. `KubeObject` can be nil.
-func (c *Context) ResultErr(message string, o *KubeObject) {
-	var r *Result
-	if o != nil {
-		r = ConfigObjectResult(message, o, Error)
-	} else {
-		r = GeneralResult(message, Error)
-	}
-	*c.results = append(*c.results, r)
-}
-
-// AddErrResult adds an Info `Result`. `KubeObject` can be nil.
-func (c *Context) ResultInfo(message string, o *KubeObject) {
-	var r *Result
-	if o != nil {
-		r = ConfigObjectResult(message, o, Info)
-	} else {
-		r = GeneralResult(message, Info)
-	}
-	*c.results = append(*c.results, r)
-}
-
-// AddErrResult adds an Info `Result`. `KubeObject` can be nil.
-func (c *Context) ResultWarn(message string, o *KubeObject) {
-	var r *Result
-	if o != nil {
-		r = ConfigObjectResult(message, o, Warning)
-	} else {
-		r = GeneralResult(message, Info)
-	}
-	*c.results = append(*c.results, r)
-}
-
 // Severity indicates the severity of the Result
 type Severity string
 
@@ -178,18 +130,66 @@ type Field struct {
 
 type Results []*Result
 
+// Errorf writes an Error level `result` to the results slice. It accepts arguments according to a format specifier.
+// e.g.
+// results.Errorf("bad kind %v", "invalid")
+func (r *Results) Errorf(format string, a ...any) {
+	errResult := &Result{Severity: Error, Message: fmt.Sprintf(format, a...)}
+	*r = append(*r, errResult)
+}
+
+// ErrorE writes the `error` as an Error level `result` to the results slice.
+// e.g.
+//	err := error.New("test)
+//	results.ErrorE(err)
+func (r *Results) ErrorE(err error) {
+	errResult := &Result{Severity: Error, Message: err.Error()}
+	*r = append(*r, errResult)
+}
+
+// Infof writes an Info level `result` to the results slice. It accepts arguments according to a format specifier.
+// e.g.
+//	results.Infof("update %v %q ", "ConfigMap", "kptfile.kpt.dev")
+func (r *Results) Infof(format string, a ...any) {
+	infoResult := &Result{Severity: Info, Message: fmt.Sprintf(format, a...)}
+	*r = append(*r, infoResult)
+}
+
+// Warningf writes a Warning level `result` to the results slice. It accepts arguments according to a format specifier.
+// e.g.
+//	results.Warningf("bad kind %q", "invalid")
+func (r *Results) Warningf(format string, a ...any) {
+	warnResult := &Result{Severity: Warning, Message: fmt.Sprintf(format, a...)}
+	*r = append(*r, warnResult)
+}
+
+// WarningE writes an error as a Warning level `result` to the results slice.
+// Normally this function can be used for cases that need error tolerance.
+func (r *Results) WarningE(err error) {
+	warnResult := &Result{Severity: Warning, Message: err.Error()}
+	*r = append(*r, warnResult)
+}
+
+func (r *Results) String() string {
+	var results []string
+	for _, result := range *r {
+		results = append(results, result.String())
+	}
+	return strings.Join(results, "\n---\n")
+}
+
 // Error enables Results to be returned as an error
-func (e Results) Error() string {
+func (r Results) Error() string {
 	var msgs []string
-	for _, i := range e {
+	for _, i := range r {
 		msgs = append(msgs, i.String())
 	}
 	return strings.Join(msgs, "\n\n")
 }
 
 // ExitCode provides the exit code based on the result's severity
-func (e Results) ExitCode() int {
-	for _, i := range e {
+func (r Results) ExitCode() int {
+	for _, i := range r {
 		if i.Severity == Error {
 			return 1
 		}
@@ -198,15 +198,15 @@ func (e Results) ExitCode() int {
 }
 
 // Sort performs an in place stable sort of Results
-func (e Results) Sort() {
-	sort.SliceStable(e, func(i, j int) bool {
-		if fileLess(e, i, j) != 0 {
-			return fileLess(e, i, j) < 0
+func (r Results) Sort() {
+	sort.SliceStable(r, func(i, j int) bool {
+		if fileLess(r, i, j) != 0 {
+			return fileLess(r, i, j) < 0
 		}
-		if severityLess(e, i, j) != 0 {
-			return severityLess(e, i, j) < 0
+		if severityLess(r, i, j) != 0 {
+			return severityLess(r, i, j) < 0
 		}
-		return resultToString(*e[i]) < resultToString(*e[j])
+		return resultToString(*r[i]) < resultToString(*r[j])
 	})
 }
 
