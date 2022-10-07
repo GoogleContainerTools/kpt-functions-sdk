@@ -31,7 +31,7 @@ type runnerProcessor struct {
 }
 
 func (r runnerProcessor) Process(rl *ResourceList) (bool, error) {
-	fnCtx := &Context{ctx: r.ctx}
+	fnCtx := &Context{Context: r.ctx}
 	results := new(Results)
 	if ok := r.config(rl.FunctionConfig, results); !ok {
 		rl.Results = append(rl.Results, *results...)

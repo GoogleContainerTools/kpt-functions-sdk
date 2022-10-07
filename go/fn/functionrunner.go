@@ -15,10 +15,11 @@
 package fn
 
 type Runner interface {
-	// Run passes the `functionConfig` and `items` from input ResourceList to allow you to do operations.
+	// Run provides the entrypoint to allow you make changes to input `resourcelist.Items`
 	// Args:
-	//    items: We intentionally do not allow you to add or delete KubeObject from "items", you can only modify
-	// the items, because we expect you to use Runner only for transformer or validator functions.
+	//    items: The KRM resources in the form of a slice of KubeObject.
+	//       Note: You can only modify the existing items but not add or delete items.
+	//       We intentionally design the method this way to make the Runner be used as a Transformer or Validator, but not a Generator.
 	//    results: You can use `ErrorE` `Errorf` `Infof` `Warningf` `WarningE` to add user message to `Results`.
 	// Returns:
 	//    return a boolean to tell whether the execution should be considered as PASS or FAIL. CLI like kpt will
