@@ -431,7 +431,7 @@ func NewFromTypedObject(v interface{}) (*KubeObject, error) {
 }
 
 // String serializes the object in yaml format.
-func (o *KubeObject) String() string {
+func (o *SubObject) String() string {
 	doc := internal.NewDoc([]*yaml.Node{o.obj.Node()}...)
 	s, _ := doc.ToYAML()
 	return string(s)
