@@ -1,3 +1,17 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package fn
 
 import (
@@ -18,7 +32,7 @@ type SetTest struct {
 	Arg map[string]string
 }
 
-func (*SetTest) Run(*Context, *KubeObject, KubeObjects,*Results) bool {
+func (*SetTest) Run(*Context, *KubeObject, KubeObjects, *Results) bool {
 	return true
 }
 
@@ -26,12 +40,11 @@ func (s *SetTest) GetArgs() string {
 	return fmt.Sprintf("%v", s.Arg)
 }
 
-
 type SetTestNoMapString struct {
 	Arg string `yaml:"args" json:"args"`
 }
 
-func (*SetTestNoMapString) Run(*Context, *KubeObject, KubeObjects,*Results) bool {
+func (*SetTestNoMapString) Run(*Context, *KubeObject, KubeObjects, *Results) bool {
 	return true
 }
 
@@ -40,10 +53,10 @@ func (s *SetTestNoMapString) GetArgs() string {
 }
 
 func TestProcess(t *testing.T) {
-	testdata := map[string]struct{
+	testdata := map[string]struct {
 		resourceList []byte
-		expectedOk bool
-		expectedErr string
+		expectedOk   bool
+		expectedErr  string
 	}{
 		"functionConfig is empty": {
 			resourceList: []byte(`
@@ -51,7 +64,7 @@ apiVersion: config.kubernetes.io/v1
 kind: ResourceList
 functionConfig: {}
 `),
-			expectedOk: true,
+			expectedOk:  true,
 			expectedErr: "[info]: `FunctionConfig` is not given",
 		},
 		"functionConfig is create by kpt but actually is empty": {
@@ -65,7 +78,7 @@ functionConfig:
     name: function-input
   data: {}
 `),
-			expectedOk: true,
+			expectedOk:  true,
 			expectedErr: "[info]: `FunctionConfig` is not given",
 		},
 		"functionConfig error": {
@@ -79,7 +92,7 @@ functionConfig:
     name: function-input
   data: wrong-type
 `),
-			expectedOk: false,
+			expectedOk:  false,
 			expectedErr: "[error]: Resource(apiVersion=, kind=ConfigMap) has unmatched field type \"map[string]string\" in fieldpath .data",
 		},
 		"functionConfig pass": {
@@ -95,27 +108,26 @@ functionConfig:
     k1: v1
     k2: v2
 `),
-			expectedOk: true,
+			expectedOk:  true,
 			expectedErr: "",
 		},
-
 	}
 	for description, test := range testdata {
 		fnConfig := &SetTest{}
 		r := runnerProcessor{ctx: context.TODO(), fnRunner: fnConfig}
 		rl, _ := ParseResourceList(test.resourceList)
 		actualOk, _ := r.Process(rl)
-		assert.Equal(t, actualOk,  test.expectedOk, description)
+		assert.Equal(t, actualOk, test.expectedOk, description)
 		assert.Equal(t, test.expectedErr, rl.Results.String(), description)
 	}
 }
 
 func TestRunnerConfig(t *testing.T) {
-	testdata := map[string]struct{
-		fnConfig []byte
-		expectedErr  string
+	testdata := map[string]struct {
+		fnConfig             []byte
+		expectedErr          string
 		expectedArgsToString string
-		runner SetTestWithArgs
+		runner               SetTestWithArgs
 	}{
 		"functionConfig is ConfigMap, invalid data": {
 			fnConfig: []byte(`
@@ -125,7 +137,7 @@ metadata:
   name: test
 data: wrong-type
 `),
-			runner: &SetTest{},
+			runner:      &SetTest{},
 			expectedErr: "Resource(apiVersion=, kind=ConfigMap) has unmatched field type \"map[string]string\" in fieldpath .data",
 		},
 		"functionConfig is ConfigMap, value assigned to Runner arg": {
@@ -138,7 +150,7 @@ data:
     k1: v1
     k2: v2
 `),
-			runner: &SetTest{},
+			runner:      &SetTest{},
 			expectedErr: "",
 			expectedArgsToString: fmt.Sprintf("%v", map[string]string{
 				"k1": "v1",
@@ -167,8 +179,8 @@ kind: SetTestNoMapString
 metadata:
   name: test
 `),
-			runner: &SetTestNoMapString{},
-			expectedErr: "unknown FunctionConfig `SetTestNoMapString.badgroup`, expect `SetTestNoMapString.fn.kpt.dev` or `ConfigMap.v1`",
+			runner:               &SetTestNoMapString{},
+			expectedErr:          "unknown FunctionConfig `SetTestNoMapString.badgroup`, expect `SetTestNoMapString.fn.kpt.dev` or `ConfigMap.v1`",
 			expectedArgsToString: "",
 		},
 		"functionConfig is custom kind, assign the value to runner": {
@@ -179,8 +191,8 @@ metadata:
   name: test
 args: test
 `),
-			runner: &SetTestNoMapString{},
-			expectedErr: "",
+			runner:               &SetTestNoMapString{},
+			expectedErr:          "",
 			expectedArgsToString: "test",
 		},
 	}

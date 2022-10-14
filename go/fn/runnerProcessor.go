@@ -35,7 +35,7 @@ type runnerProcessor struct {
 // (Configmap with empty `data`) if user does not provide the actual FunctionConfig. Ideally, kpt should pass in an empty
 // FunctionConfig object.
 func EmptyFunctionConfig(o *KubeObject) bool {
-	data, found, err :=  o.NestedStringMap("data")
+	data, found, err := o.NestedStringMap("data")
 	// Some other type
 	if !found || err != nil {
 		return false
@@ -45,13 +45,13 @@ func EmptyFunctionConfig(o *KubeObject) bool {
 
 // Process assigns the ResourceList.FunctionConfig to Runner's attributes, and calls the Runner.Run methods (main method)
 // to run functions. The r.fnRunner accepts three kinds of functionConfig value:
-// 1. no function config, it only runs fnRunner.Run
-// 2. ConfigMap type, it requires the Runner instance to have one contributes of type map[string]string to receive the ConfigMap `.data` value.
-// 3. Runner type, it uses the Runner struct name as the FunctionConfig Kind. e.g. if the Runner is `SetNamespace`,
-//   the FunctionConfig should be `{"Kind": "SetNamespace", "apiVersion": "fn.kpt.dev/v1alpha1"}
+//  1. no function config, it only runs fnRunner.Run
+//  2. ConfigMap type, it requires the Runner instance to have one contributes of type map[string]string to receive the ConfigMap `.data` value.
+//  3. Runner type, it uses the Runner struct name as the FunctionConfig Kind. e.g. if the Runner is `SetNamespace`,
+//     the FunctionConfig should be `{"Kind": "SetNamespace", "apiVersion": "fn.kpt.dev/v1alpha1"}
 func (r runnerProcessor) Process(rl *ResourceList) (bool, error) {
 	// Validate and Parse the input FunctionConfig to r.fnRunner
-	if rl.FunctionConfig.IsEmpty() || EmptyFunctionConfig(rl.FunctionConfig){
+	if rl.FunctionConfig.IsEmpty() || EmptyFunctionConfig(rl.FunctionConfig) {
 		// functions may not need functionConfig.
 		rl.Results.Infof("`FunctionConfig` is not given")
 	} else {
@@ -78,8 +78,8 @@ func (r *runnerProcessor) config(o *KubeObject) error {
 	}
 	switch o.GroupKind() {
 	case schema.GroupKind{Kind: "ConfigMap"}:
-		data, found, err := o.NestedStringMap("data")
-		if !found || err != nil {
+		data, _, err := o.NestedStringMap("data")
+		if data == nil {
 			return err
 		}
 		return assignCMDataToFn(r.fnRunner, data)
@@ -93,7 +93,7 @@ func (r *runnerProcessor) config(o *KubeObject) error {
 func asFnName(runner Runner) string {
 	// Validate the fnRunner type to avoid panic.
 	kind := reflect.ValueOf(runner).Kind()
-	if kind !=  reflect.Interface && kind != reflect.Ptr {
+	if kind != reflect.Interface && kind != reflect.Ptr {
 		return ""
 	}
 	return reflect.ValueOf(runner).Elem().Type().Name()
@@ -101,7 +101,7 @@ func asFnName(runner Runner) string {
 
 func assignCMDataToFn(runner Runner, data map[string]string) error {
 	obj := reflect.ValueOf(runner).Elem()
-	if obj.Kind() != reflect.Struct{
+	if obj.Kind() != reflect.Struct {
 		return fmt.Errorf("the ConfigMap is not of a struct, got %v", obj.Kind().String())
 	}
 	stringMap := reflect.MapOf(reflect.TypeOf("string"), reflect.TypeOf("string"))
@@ -113,6 +113,6 @@ func assignCMDataToFn(runner Runner, data map[string]string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("unable to assign the given ConfigMap `.data` to FunctionConfig %v. please make sure the %v " +
+	return fmt.Errorf("unable to assign the given ConfigMap `.data` to FunctionConfig %v. please make sure the %v "+
 		"has a field of type map[string]string", asFnName(runner), asFnName(runner))
 }

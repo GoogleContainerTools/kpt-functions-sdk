@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,14 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+set -o errexit
+set -o nounset
+set -o pipefail
 
-FROM golang:1.17-alpine3.15
-ENV CGO_ENABLED=0
-WORKDIR /go/src/
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN go build -o /usr/local/bin/function ./
-FROM alpine:3.15
-COPY --from=0 /usr/local/bin/function /usr/local/bin/function
-ENTRYPOINT ["function"]
+make go
+
+changes=$(git status --porcelain)
+if [ -n "${changes}" ]; then
+  echo "ERROR: files are not to date; please run: hack/generate.sh"
+  echo "changed files:"
+  printf "%s" "${changes}\n"
+  echo "git diff:"
+  git --no-pager diff
+  exit 1
+fi
