@@ -1,11 +1,10 @@
-.PHONY: api fix vet fmt test lint license
+.PHONY: all
+all: fix vet fmt test lint license
 
 GOPATH := $(shell go env GOPATH)
 GOBIN := $(shell go env GOPATH)/bin
 OUT_DIR := .out
 MODULES = $(shell find . -name 'go.mod' -print)
-
-all: fix fmt license lint test
 
 .PHONY: api
 api:
@@ -18,7 +17,7 @@ fix: $(MODULES)
 
 .PHONY: fmt
 fmt: $(MODULES)
-	@for f in $(^D); do (cd $$f; echo "Formatting $$f"; gofmt -s -w .); done
+	@for f in $(^D); do (cd $$f; echo "Formatting $$f"; go fmt ./...); done
 
 .PHONY: lint
 lint: $(MODULES)
