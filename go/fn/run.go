@@ -59,7 +59,15 @@ func AsMain(input interface{}) error {
 
 // Run evaluates the function. input must be a resourceList in yaml format. An
 // updated resourceList will be returned.
-func Run(p ResourceListProcessor, input []byte) (out []byte, err error) {
+func Run(p ResourceListProcessor, input []byte) ([]byte, error) {
+	switch input := p.(type) {
+	case runnerProcessor:
+		p = input
+	case ResourceListProcessorFunc:
+		p = input
+	default:
+		return nil, fmt.Errorf("unknown input type %T", input)
+	}
 	rl, err := ParseResourceList(input)
 	if err != nil {
 		return nil, err
