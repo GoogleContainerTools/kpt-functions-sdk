@@ -16,6 +16,7 @@ package testhelpers
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -67,6 +68,11 @@ func RunGoldenTests(t *testing.T, basedir string, krmFunction fn.ResourceListPro
 				if strings.HasPrefix(f.Name(), "_") {
 					continue
 				}
+				// Users can put other types of files to the test dir, but they won't be read.
+				// A default kpt package contains README file.
+				if !IsValidYAMLOrKptfile(f.Name()) {
+					continue
+				}
 				fileItems := mustParseFile(t, filepath.Join(dir, f.Name()))
 				items = append(items, fileItems...)
 			}
@@ -75,31 +81,38 @@ func RunGoldenTests(t *testing.T, basedir string, krmFunction fn.ResourceListPro
 
 			var functionConfig *fn.KubeObject
 			if len(config) == 0 {
-				functionConfig = nil
+				functionConfig = fn.NewEmptyKubeObject()
 			} else if len(config) == 1 {
 				functionConfig = config[0]
 			} else {
 				t.Fatalf("found multiple config objects in %s", filepath.Join(dir, "_fnconfig.yaml"))
 			}
-
 			rl := &fn.ResourceList{Items: items, FunctionConfig: functionConfig}
-			success, err := krmFunction.Process(rl)
+			_, err = krmFunction.Process(rl)
 			if err != nil {
 				t.Fatalf("run failed unexpectedly: %v", err)
 			}
-			if !success {
-				t.Fatalf("run did not succeed")
-			}
-
 			rlYAML, err := rl.ToYAML()
 			if err != nil {
 				t.Fatalf("failed to convert resource list to yaml: %v", err)
 			}
-
 			p := filepath.Join(dir, "_expected.yaml")
 			CompareGoldenFile(t, p, rlYAML)
 		})
 	}
+}
+
+func IsValidYAMLOrKptfile(fname string) bool {
+	if strings.HasSuffix(fname, ".yaml") {
+		return true
+	}
+	if strings.HasSuffix(fname, ".yml") {
+		return true
+	}
+	if fname == "Kptfile" {
+		return true
+	}
+	return false
 }
 
 // MustReadFile reads the data from "expectedPath"
@@ -119,8 +132,7 @@ func CompareGoldenFile(t *testing.T, expectedPath string, got []byte) {
 		if err == nil && bytes.Equal(b, got) {
 			return
 		}
-
-		if err := os.WriteFile(expectedPath, got, 0600); err != nil {
+		if err = os.WriteFile(expectedPath, got, 0600); err != nil {
 			t.Fatalf("failed to write golden output %s: %v", expectedPath, err)
 		}
 		t.Errorf("wrote output to %s", expectedPath)
@@ -251,7 +263,11 @@ func CompareFile(t *testing.T, expectDir, actualDir string, relPath string) {
 }
 
 func mustParseFile(t *testing.T, path string) fn.KubeObjects {
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
 	b := MustReadFile(t, path)
+
 	objects, err := fn.ParseKubeObjects(b)
 	if err != nil {
 		t.Fatalf("failed to parse objects from file %q: %v", path, err)
