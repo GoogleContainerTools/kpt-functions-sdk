@@ -23,3 +23,4 @@ command -v addlicense || go install github.com/google/addlicense@v1.0.0
 # ./*glob* or -- *glob* which can't be recoganized by addlicese.
 # See https://www.shellcheck.net/wiki/SC2035
 find . -print0 | xargs "$GOBIN"/addlicense -y 2022 -l apache -ignore [0-9a-z]**/**/_expected.yaml
+
