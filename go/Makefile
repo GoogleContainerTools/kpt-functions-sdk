@@ -8,7 +8,7 @@ MODULES = $(shell find . -name 'go.mod' -print)
 
 .PHONY: api
 api:
-	(which swagger || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0)
+	(which swagger || go run github.com/go-swagger/go-swagger/cmd/swagger@v0.27.0)
 	$(GOPATH)/bin/swagger generate spec -m -w api/kptfile/v1 -o ../openapi/kptfile.yaml
 
 .PHONY: fix
@@ -23,8 +23,7 @@ fmt: $(MODULES)
 lint: $(MODULES)
 	@for f in $(^D); do \
 	(cd $$f; echo "Checking golangci-lint $$f"; \
-	(which $(GOPATH)/bin/golangci-lint || go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1); \
-	$(GOPATH)/bin/golangci-lint run ./...); \
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1 run ./...); \
 	done
 
 .PHONY: test
