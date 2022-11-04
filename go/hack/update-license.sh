@@ -17,4 +17,10 @@
 # don't add licenses to the site directory, it will break the docs
 # and will add them to the theme which is a submodule (bad)
 command -v addlicense || go install github.com/google/addlicense@v1.0.0
-find . -print0 | xargs "$GOBIN"/addlicense -y 2022 -l apache
+# - `addlicense` skips the .yaml files (specifically for golden test _expected.yaml) to avoid the conflict where
+# the `addlicense` adds unexpected license header that fails the golden tests diff-comparison in _expected.yaml.
+# - the [0-9a-z] is a trick to avoid using `**/**/*.yaml` directly which hits the shellcheck SC2035. SC2035 only accepts
+# ./*glob* or -- *glob* which can't be recoganized by addlicese.
+# See https://www.shellcheck.net/wiki/SC2035
+find . -print0 | xargs "$GOBIN"/addlicense -y 2022 -l apache -ignore [0-9a-z]**/**/_expected.yaml
+

@@ -15,24 +15,33 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"os"
 
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 )
 
-// EDIT THIS FUNCTION!
-// This is the main logic. rl is the input `ResourceList` which has the `FunctionConfig` and `Items` fields.
-// You can modify the `Items` and add result information to `rl.Result`.
-func Run(rl *fn.ResourceList) (bool, error) {
-    // Your code
+var _ fn.Runner = &YourFunction{}
+
+// TODO: Change to your functionConfig "Kind" name.
+type YourFunction struct {
+	FnConfigBool bool
+	FnConfigInt  int
+	FnConfigFoo  string
+}
+
+// Run is the main function logic.
+// `items` is parsed from the STDIN "ResourceList.Items".
+// `functionConfig` is from the STDIN "ResourceList.FunctionConfig". The value has been assigned to the r attributes
+// `results` is the "ResourceList.Results" that you can write result info to.
+func (r *YourFunction) Run(ctx *fn.Context, functionConfig *fn.KubeObject, items fn.KubeObjects, results *fn.Results) bool {
+	// TODO: Write your code.
+	return true
 }
 
 func main() {
-	// CUSTOMIZE IF NEEDED
-	// `AsMain` accepts a `ResourceListProcessor` interface.
-	// You can explore other `ResourceListProcessor` structs in the SDK or define your own.
-	if err := fn.AsMain(fn.ResourceListProcessorFunc(Run)); err != nil {
+	runner := fn.WithContext(context.Background(), &YourFunction{})
+	if err := fn.AsMain(runner); err != nil {
 		os.Exit(1)
 	}
 }
