@@ -15,14 +15,12 @@
 package commands
 
 import (
-	"bytes"
 	"context"
 	"embed"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/heroku/color"
 	"github.com/spf13/cobra"
@@ -30,80 +28,120 @@ import (
 
 //go:embed embed/Dockerfile
 var f embed.FS
+var execCmdFn = execCmd
+var execLookPathFn = exec.LookPath
 
 const (
-	ImageTag              = "function:latest"
+	// Builder Type
+	Ko     = "ko"
+	Docker = "docker"
+
+	// Docker constant variables
+	Image                 = "function:latest"
 	DockerfilePath        = "Dockerfile"
-	builtinDockerfilePath = "embed/Dockerfile"
+	BuiltinDockerfilePath = "embed/Dockerfile"
+
+	// Ko constant variables
+	KoDockerRepoEnvVar = "KO_DOCKER_REPO"
+	KoLocalRepo        = "ko.local"
 )
 
-func NewBuildCmd(ctx context.Context) *cobra.Command {
+func NewBuildRunner(ctx context.Context) *BuildRunner {
 	r := &BuildRunner{
-		ctx: ctx,
+		ctx:    ctx,
+		Ko:     &KoBuilder{},
+		Docker: &DockerBuilder{},
 	}
 	r.Command = &cobra.Command{
-		Use:     "build",
-		Short:   "build the KRM function as a docker image",
-		PreRunE: r.PreRunE,
-		RunE:    r.RunE,
+		Use:   "build",
+		Short: "build your KRM function to a container image",
+		RunE:  r.RunE,
 	}
-	r.Command.Flags().StringVarP(&r.Tag, "tag", "t", ImageTag,
-		"the docker image tag")
-	r.Command.Flags().StringVarP(&r.DockerfilePath, "file", "f", "",
-		"Name of the Dockerfile. If not given, using a default builtin Dockerfile")
-	return r.Command
+	r.Command.Flags().StringVarP(&r.BuilderType, "builder", "b", Ko,
+		"the image builder. `ko` is the default builder, which requires `go build`; `docker` is accepted, and "+
+			" requires you to have docker installed and running")
+	r.Command.Flags().StringVarP(&r.Docker.Image, "image", "i", Image,
+		fmt.Sprintf("the image (with tag), default to %v", Image))
+	r.Command.Flags().StringVarP(&r.Docker.DockerfilePath, "dockerfile", "f", "",
+		"path to the Dockerfile. If not given, using a default builtin Dockerfile")
+	r.Command.Flags().StringVarP(&r.Ko.Repo, "repo", "r", "",
+		"the image repo. default to ko.local")
+	r.Command.Flags().StringVarP(&r.Ko.Tag, "tag", "t", "latest",
+		"the ko image tag")
+	// TODO: Docker CLI uses `--tag` flag to refer to "image:tag", which could be confusing but broadly accepted.
+	// We should better guide users on how to use "tag" and "image" flags for kfn.
+	// Here we use "tag" for ko <tag> (same as `ko build --tag`) and "image" for docker <image:tag> (same as `docker build --tag`)
+	return r
 }
 
 type BuildRunner struct {
 	ctx     context.Context
 	Command *cobra.Command
 
-	Tag            string
+	BuilderType string
+	Tag         string
+	Ko          *KoBuilder
+	Docker      *DockerBuilder
+}
+
+type Builder interface {
+	Build() error
+	Validate() error
+}
+
+type DockerBuilder struct {
+	Image          string
 	DockerfilePath string
 }
 
-func (r *BuildRunner) PreRunE(cmd *cobra.Command, args []string) error {
-	if err := r.requireDocker(); err != nil {
-		return err
-	}
-	if !r.dockerfileExist() {
-		err := r.createDockerfile()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+type KoBuilder struct {
+	Repo string
+	Tag  string
 }
 
 func (r *BuildRunner) RunE(cmd *cobra.Command, args []string) error {
-	return r.runDockerBuild()
-}
-
-func (r *BuildRunner) runDockerBuild() error {
-	args := []string{"build", ".", "-f", r.DockerfilePath, "--tag", r.Tag}
-	cmd := exec.Command("docker", args...)
-	var out, errout bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &errout
-	err := cmd.Run()
-	if err != nil {
-		color.Red(strings.TrimSpace(errout.String()))
+	var builder Builder
+	switch r.BuilderType {
+	case Docker:
+		builder = r.Docker
+	case Ko:
+		builder = r.Ko
+	}
+	if err := builder.Validate(); err != nil {
 		return err
 	}
-	color.Green(out.String())
-	color.Green("Image %v builds successfully. Now you can publish the image", r.Tag)
+	return builder.Build()
+}
+
+func (r *DockerBuilder) Build() error {
+	args := []string{"build", ".", "-f", r.DockerfilePath, "--tag", r.Image}
+	err := execCmdFn(nil, "docker", args...)
+	if err != nil {
+		return err
+	}
+	color.Green("Image %v built successfully. Now you can publish the image", r.Image)
 	return nil
 }
 
-func (r *BuildRunner) requireDocker() error {
-	_, err := exec.LookPath("docker")
+func (r *DockerBuilder) Validate() error {
+	if err := r.validateDockerInstalled(); err != nil {
+		return err
+	}
+	if r.dockerfileExists() {
+		return nil
+	}
+	return r.createDockerfile()
+}
+
+func (r *DockerBuilder) validateDockerInstalled() error {
+	_, err := execLookPathFn("docker")
 	if err != nil {
 		return fmt.Errorf("kfn requires that `docker` is installed and on the PATH")
 	}
 	return nil
 }
 
-func (r *BuildRunner) dockerfileExist() bool {
+func (r *DockerBuilder) dockerfileExists() bool {
 	if r.DockerfilePath == "" {
 		r.DockerfilePath = DockerfilePath
 	}
@@ -114,14 +152,80 @@ func (r *BuildRunner) dockerfileExist() bool {
 	return true
 }
 
-func (r *BuildRunner) createDockerfile() error {
-	dockerfileContent, err := f.ReadFile(builtinDockerfilePath)
+func (r *DockerBuilder) createDockerfile() error {
+	dockerfileContent, err := f.ReadFile(BuiltinDockerfilePath)
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(DockerfilePath, dockerfileContent, 0644); err != nil {
+	if err = os.WriteFile(DockerfilePath, dockerfileContent, 0644); err != nil {
 		return err
 	}
-	color.Green("created Dockerfile")
+	fmt.Println("created Dockerfile")
 	return nil
+}
+
+func (r *KoBuilder) GuaranteeKoInstalled() error {
+	_, err := execLookPathFn("ko")
+	if err == nil {
+		return nil
+	}
+	gobin := os.Getenv("GOBIN")
+	if gobin == "" && os.Getenv("GOPATH") != "" {
+		gobin = os.Getenv("GOPATH") + "/bin"
+	}
+	if gobin == "" && os.Getenv("HOME") != "" {
+		gobin = os.Getenv("HOME") + "/go/bin"
+	}
+	var envs []string
+	if gobin != "" {
+		envs = []string{"GOBIN" + "=" + gobin}
+	}
+	if err = execCmdFn(envs, "go", "install", "github.com/google/ko@latest"); err != nil {
+		return err
+	}
+	fmt.Println("successfully installed ko")
+	return nil
+}
+func (r *KoBuilder) Build() error {
+	args := []string{"build", "-B", "--tags", r.Tag}
+	envs := []string{KoDockerRepoEnvVar + "=" + r.Repo}
+	err := execCmdFn(envs, "ko", args...)
+	if err != nil {
+		return err
+	}
+
+	if r.Repo == KoLocalRepo {
+		color.Green("Image built successfully. Now you can publish the image")
+	} else {
+		color.Green("Image built and pushed successfully")
+	}
+	return nil
+}
+
+func (r *KoBuilder) Validate() error {
+	if err := r.GuaranteeKoInstalled(); err != nil {
+		return err
+	}
+	// Find KO_DOCKER_REPO value from multiple places for `ko build`.
+	if r.Repo != "" {
+		return nil
+	}
+	if repo, ok := os.LookupEnv(KoDockerRepoEnvVar); ok {
+		r.Repo = repo
+		return nil
+	}
+	r.Repo = "ko.local"
+	return nil
+}
+
+func execCmd(envs []string, name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	if len(envs) != 0 {
+		cmd.Env = os.Environ()
+		cmd.Env = append(cmd.Env, envs...)
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	return err
 }
