@@ -29,8 +29,8 @@ func main() {
 		Short: "a CLI tool to edit your own KRM functions with ease",
 	}
 	ctx := context.Background()
-	cmd.AddCommand(commands.NewInitCmd(ctx))
-	cmd.AddCommand(commands.NewBuildCmd(ctx))
+	cmd.AddCommand(commands.NewInitRunner(ctx).Command)
+	cmd.AddCommand(commands.NewBuildRunner(ctx).Command)
 	err = cmd.Execute()
 	if err != nil {
 		os.Exit(1)

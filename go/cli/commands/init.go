@@ -29,7 +29,7 @@ const (
 	DefaultPkgName = "function"
 )
 
-func NewInitCmd(ctx context.Context) *cobra.Command {
+func NewInitRunner(ctx context.Context) *InitRunner {
 	r := &InitRunner{
 		ctx: ctx,
 	}
@@ -41,7 +41,7 @@ func NewInitCmd(ctx context.Context) *cobra.Command {
 	}
 	r.Command.Flags().StringVarP(&r.FnPkgPath, "fnPkg", "", DefaultFnPkg,
 		"a kpt package that contains a basic KRM function source code to get start")
-	return r.Command
+	return r
 }
 
 // InitRunner initializes a KRM function project from a scaffolded `kpt pkg`.
