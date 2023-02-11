@@ -15,6 +15,7 @@
 package swagger
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -77,6 +78,9 @@ func (p parser) parseProperties(definitionMeta DefinitionMeta, model map[string]
 				Name:    strings.Join(append(propertyDefinitionMeta.Namespace, propertyType), "."),
 				Package: definitionMeta.Package,
 			}
+		} else if isArray(propertyMap) {
+			name := fmt.Sprintf("%sItem", strings.Title(name)) //nolint:staticcheck
+			typ = p.parseArrayWithName(definitionMeta, name, propertyMap)
 		} else {
 			typ = p.parseType(definitionMeta, propertyMap)
 		}

@@ -16,30 +16,32 @@ package swagger
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
 func TestSwagger(t *testing.T) {
 	// Ensures real Swagger definitions are actually parseable. Will be updated as type generation is made more
 	// sophisticated.
-	testCases := []struct {
+	testCases := map[string]struct {
 		name string
 		path string
 	}{
-		{
-			name: "1.13.0",
+		"k8s 1.13.0": {
 			path: "testdata/swagger-v1.13.0.json",
 		},
-		{
-			name: "1.14.3",
+		"k8s 1.14.3": {
 			path: "testdata/swagger-v1.14.3.json",
+		},
+		"two arrays in the same spec": {
+			path: "testdata/two-arrays-swagger.json",
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			bytes, err := ioutil.ReadFile(tc.path)
+	for tn := range testCases {
+		tc := testCases[tn]
+		t.Run(tn, func(t *testing.T) {
+			bytes, err := os.ReadFile(tc.path)
 			if err != nil {
 				t.Fatal(err)
 			}

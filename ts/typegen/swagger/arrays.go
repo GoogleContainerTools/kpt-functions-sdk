@@ -39,12 +39,24 @@ func (a Array) NestedTypes() []Object {
 	return a.Nested
 }
 
+func isArray(m map[string]interface{}) bool {
+	typ, found := getString("type", m)
+	if !found {
+		return false
+	}
+	return typ == ARRAY
+}
+
 func (p parser) parseArray(definitionMeta DefinitionMeta, o map[string]interface{}) Array {
+	return p.parseArrayWithName(definitionMeta, "Item", o)
+}
+
+func (p parser) parseArrayWithName(definitionMeta DefinitionMeta, name string, o map[string]interface{}) Array {
 	itemsMap := getRequiredMap("items", o)
 	if isObject(itemsMap) {
 		description, _ := getString("description", itemsMap)
 		meta := DefinitionMeta{
-			Name:        "Item",
+			Name:        name,
 			Package:     definitionMeta.Package,
 			Namespace:   append(definitionMeta.Namespace, definitionMeta.Name),
 			Description: description,
@@ -53,7 +65,7 @@ func (p parser) parseArray(definitionMeta DefinitionMeta, o map[string]interface
 		return Array{
 			Items: Ref{
 				Package: definitionMeta.Package,
-				Name:    strings.Join(append(meta.Namespace, "Item"), "."),
+				Name:    strings.Join(append(meta.Namespace, name), "."),
 			},
 			Nested: []Object{object},
 		}

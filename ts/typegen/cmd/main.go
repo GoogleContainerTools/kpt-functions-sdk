@@ -16,7 +16,6 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -42,7 +41,7 @@ var mainCmd = &cobra.Command{
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		swaggerPath := args[0]
-		bytes, err := ioutil.ReadFile(swaggerPath)
+		bytes, err := os.ReadFile(swaggerPath)
 		if err != nil {
 			return errors.Wrap(err, "unable to find Swagger file")
 		}
@@ -90,7 +89,7 @@ func printTS(outPath string, refObjects map[swagger.Ref]swagger.Object, definiti
 			contents = append(contents, lang.PrintDefinition(definition))
 		}
 
-		err := ioutil.WriteFile(filepath.Join(outPath, pkg+".ts"), []byte(strings.Join(contents, "\n\n")), 0644)
+		err := os.WriteFile(filepath.Join(outPath, pkg+".ts"), []byte(strings.Join(contents, "\n\n")), 0644)
 		if err != nil {
 			return err
 		}
