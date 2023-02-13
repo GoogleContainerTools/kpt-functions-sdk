@@ -21,7 +21,6 @@ import "github.com/GoogleContainerTools/kpt-functions-sdk/ts/typegen/swagger"
 // Implementors of Language must satisfy the following properties:
 //
 // 1) The order Definitions are printed in a file MUST have no impact on whether code compiles/works.
-//
 type Language interface {
 	// File returns the relative path to definition's client code.
 	File(definition swagger.Definition) string
