@@ -20,5 +20,5 @@ set -xeuo pipefail
 
 VERSION=${1#*-v};
 
-cd go/.out
+cd ts/typegen/.out
 gsutil cp -- *.tar.gz gs://kpt-functions/v"${VERSION}"
