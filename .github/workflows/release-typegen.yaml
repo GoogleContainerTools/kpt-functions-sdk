@@ -8,30 +8,22 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    env:
-      GOPATH: /home/runner/work/kpt-functions-sdk/ts/typegen
-      GO111MODULE: on
     steps:
-      - name: Set up Go 1.17
-        uses: actions/setup-go@v1
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.17
-        id: go
-      - name: Check out code into GOPATH
-        uses: actions/checkout@v1
-        with:
-          path: go/src/github.com/GoogleContainerTools/kpt-functions-sdk
+          go-version: 1.19
+      - name: Check out code
+        uses: actions/checkout@v3
       - name: Build, Test, Lint
         run: |
           cd ts/typegen
           make package-typegen
-      - name: Set up gcloud
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@877d4953d2c70a0ba7ef3290ae968eb24af233bb # 0.6.0
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
         with:
-          version: '388.0.0'
-          # TODO: service_account_email and service_account_key are being deprecated.
-          # We should migrate it to google-github-actions/auth at some time.
-          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
       - name: Upload binaries
         run: ./ts/scripts/publish-bins.sh $GITHUB_REF
