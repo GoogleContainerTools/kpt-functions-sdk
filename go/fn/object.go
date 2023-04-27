@@ -151,7 +151,7 @@ func (o *SubObject) NestedSlice(fields ...string) (SliceSubObjects, bool, error)
 	return val, true, nil
 }
 
-// NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.
+// NestedSubObject returns with a SubObject representing the YAML subtree under the path specified by `fields“
 func (o *SubObject) NestedSubObject(fields ...string) (SubObject, bool, error) {
 	var variant SubObject
 	m, found, err := o.obj.GetNestedMap(fields...)
@@ -161,8 +161,13 @@ func (o *SubObject) NestedSubObject(fields ...string) (SubObject, bool, error) {
 	if !found {
 		return variant, found, nil
 	}
-	err = m.Node().Decode(variant)
-	return variant, true, err
+
+	var rn yaml.RNode
+	rn.SetYNode(m.Node())
+	variant.obj = internal.NewMap(rn.YNode())
+	variant.parentGVK = o.parentGVK
+	variant.fieldpath = o.fieldpath + "." + strings.Join(fields, ".")
+	return variant, true, nil
 }
 
 // NestedMap returns a map[string]string value of a nested field, false if not found and an error if not a map[string]string type.

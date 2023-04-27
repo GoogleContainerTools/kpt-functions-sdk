@@ -476,6 +476,11 @@ func TestGetNestedFields(t *testing.T) {
 	if intVal := spec.GetInt("replicas"); intVal != 3 {
 		t.Errorf("deployment .spec.replicas expected to be 3, got %v", intVal)
 	}
+
+	strategy, _, _ := deployment.NestedSubObject("spec", "strategy")
+	if stringVal := strategy.GetString("type"); stringVal != "Recreate" {
+		t.Errorf("deployment .spec.strategy.type expected to be `Recreate`, got %v", stringVal)
+	}
 	if boolVal := spec.GetBool("paused"); boolVal != true {
 		t.Errorf("deployment .spec.paused expected to be true, got %v", boolVal)
 	}
