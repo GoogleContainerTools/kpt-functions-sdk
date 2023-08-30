@@ -2,7 +2,7 @@ module github.com/GoogleContainerTools/kpt-functions-sdk/go/api
 
 go 1.18
 
-require gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+require gopkg.in/yaml.v3 v3.0.0
 
 require (
 	github.com/kr/pretty v0.2.0 // indirect
