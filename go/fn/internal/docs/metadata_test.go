@@ -38,7 +38,7 @@ func genStringSlice() gopter.Gen {
 
 // genMetadata generates arbitrary valid Metadata structs.
 func genMetadata() gopter.Gen {
-	return gen.Struct(reflect.TypeOf(Metadata{}), map[string]gopter.Gen{
+	return gen.Struct(reflect.TypeFor[Metadata](), map[string]gopter.Gen{
 		"Image":              genSafeString(),
 		"Description":        genSafeString(),
 		"Tags":               genStringSlice(),

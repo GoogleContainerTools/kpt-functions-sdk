@@ -25,8 +25,8 @@ import (
 // minLen and maxLen (inclusive). It mirrors rapid.SliceOfN(elem, minLen, maxLen)
 // for the string element generators used by these property tests.
 func genBoundedSlice(elem gopter.Gen, minLen, maxLen int) gopter.Gen {
-	stringSliceType := reflect.TypeOf([]string{})
-	return gen.IntRange(minLen, maxLen).FlatMap(func(n interface{}) gopter.Gen {
+	stringSliceType := reflect.TypeFor[[]string]()
+	return gen.IntRange(minLen, maxLen).FlatMap(func(n any) gopter.Gen {
 		return gen.SliceOfN(n.(int), elem)
 	}, stringSliceType)
 }

@@ -36,7 +36,7 @@ type kvPair struct {
 // genKVPair generates a YAML-safe key/value pair. Values are alphanumeric only
 // so they cannot be misinterpreted by the YAML parser.
 func genKVPair() gopter.Gen {
-	return gen.Struct(reflect.TypeOf(kvPair{}), map[string]gopter.Gen{
+	return gen.Struct(reflect.TypeFor[kvPair](), map[string]gopter.Gen{
 		"Key":   gen.RegexMatch(`[a-z][a-z0-9]{1,8}`),
 		"Value": gen.RegexMatch(`[a-zA-Z0-9]{1,15}`),
 	})
@@ -46,7 +46,7 @@ func genKVPair() gopter.Gen {
 // is between minLen and maxLen (inclusive). sliceType is the reflect type of the
 // resulting slice (e.g. reflect.TypeOf([]kvPair{})).
 func genBoundedSliceOfN(elementGen gopter.Gen, minLen, maxLen int, sliceType reflect.Type) gopter.Gen {
-	return gen.IntRange(minLen, maxLen).FlatMap(func(n interface{}) gopter.Gen {
+	return gen.IntRange(minLen, maxLen).FlatMap(func(n any) gopter.Gen {
 		return gen.SliceOfN(n.(int), elementGen)
 	}, sliceType)
 }
@@ -55,11 +55,11 @@ func genBoundedSliceOfN(elementGen gopter.Gen, minLen, maxLen int, sliceType ref
 // name and namespace. ConfigMaps are used because they are simple, always valid
 // KRM resources that don't require complex schemas.
 func genKRMResource() gopter.Gen {
-	return gen.Struct(reflect.TypeOf(configMapParts{}), map[string]gopter.Gen{
+	return gen.Struct(reflect.TypeFor[configMapParts](), map[string]gopter.Gen{
 		"Name":      gen.RegexMatch(`[a-z][a-z0-9]{2,12}`),
 		"Namespace": gen.RegexMatch(`[a-z][a-z0-9]{2,8}`),
 		// Generate 1-3 data entries.
-		"Entries": genBoundedSliceOfN(genKVPair(), 1, 3, reflect.TypeOf([]kvPair{})),
+		"Entries": genBoundedSliceOfN(genKVPair(), 1, 3, reflect.TypeFor[[]kvPair]()),
 	}).Map(func(parts configMapParts) string {
 		var dataLines strings.Builder
 		for _, e := range parts.Entries {
@@ -84,7 +84,7 @@ type configMapParts struct {
 
 // genKRMResourceList generates a slice of 1-5 valid KRM YAML resource strings.
 func genKRMResourceList() gopter.Gen {
-	return genBoundedSliceOfN(genKRMResource(), 1, 5, reflect.TypeOf([]string{}))
+	return genBoundedSliceOfN(genKRMResource(), 1, 5, reflect.TypeFor[[]string]())
 }
 
 func TestProperty6_FileModeEquivalence(t *testing.T) {

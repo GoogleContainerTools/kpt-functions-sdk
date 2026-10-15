@@ -57,7 +57,7 @@ func genArbitrarySectionContent() gopter.Gen {
 }
 
 func genArbitraryMetadata() gopter.Gen {
-	return gen.Struct(reflect.TypeOf(Metadata{}), map[string]gopter.Gen{
+	return gen.Struct(reflect.TypeFor[Metadata](), map[string]gopter.Gen{
 		"Image":              gen.RegexMatch(`[a-z0-9./:_-]{0,50}`),
 		"Description":        gen.RegexMatch(`[a-zA-Z0-9 .,;:!?-]{0,80}`),
 		"Tags":               genBoundedSlice(gen.RegexMatch(`[a-z0-9-]{1,20}`), 0, 5),
@@ -108,7 +108,7 @@ func TestProperty4_HelpOutputExcludesCobraBoilerplate(t *testing.T) {
 // genDocMetadata generates non-empty metadata with realistic field values so
 // that every field is guaranteed to appear in the rendered doc JSON.
 func genDocMetadata() gopter.Gen {
-	return gen.Struct(reflect.TypeOf(Metadata{}), map[string]gopter.Gen{
+	return gen.Struct(reflect.TypeFor[Metadata](), map[string]gopter.Gen{
 		"Image":              gen.RegexMatch(`gcr\.io/[a-z0-9-]{3,20}/[a-z0-9-]{3,20}:v[0-9]+\.[0-9]+`),
 		"Description":        genNonEmptySectionContent(),
 		"Tags":               genBoundedSlice(gen.RegexMatch(`[a-z]{3,10}`), 1, 5),
