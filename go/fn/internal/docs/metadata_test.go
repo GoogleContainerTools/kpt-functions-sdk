@@ -15,36 +15,37 @@
 package docs
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
+	"github.com/leanovate/gopter"
+	"github.com/leanovate/gopter/gen"
+	"github.com/leanovate/gopter/prop"
 	"go.yaml.in/yaml/v3"
-	"pgregory.net/rapid"
 )
 
 // genSafeString generates simple alphanumeric strings suitable for YAML values
 // that will not cause quoting or escaping issues.
-func genSafeString() *rapid.Generator[string] {
-	return rapid.StringMatching(`[a-zA-Z0-9][a-zA-Z0-9 ./_-]{0,50}`)
+func genSafeString() gopter.Gen {
+	return gen.RegexMatch(`[a-zA-Z0-9][a-zA-Z0-9 ./_-]{0,50}`)
 }
 
 // genStringSlice generates a slice of safe strings (0–5 elements).
-func genStringSlice() *rapid.Generator[[]string] {
-	return rapid.SliceOfN(genSafeString(), 0, 5)
+func genStringSlice() gopter.Gen {
+	return genBoundedSlice(genSafeString(), 0, 5)
 }
 
 // genMetadata generates arbitrary valid Metadata structs.
-func genMetadata() *rapid.Generator[Metadata] {
-	return rapid.Custom(func(t *rapid.T) Metadata {
-		return Metadata{
-			Image:              genSafeString().Draw(t, "image"),
-			Description:        genSafeString().Draw(t, "description"),
-			Tags:               genStringSlice().Draw(t, "tags"),
-			SourceURL:          genSafeString().Draw(t, "sourceURL"),
-			ExamplePackageURLs: genStringSlice().Draw(t, "examplePackageURLs"),
-			License:            genSafeString().Draw(t, "license"),
-			Hidden:             rapid.Bool().Draw(t, "hidden"),
-		}
+func genMetadata() gopter.Gen {
+	return gen.Struct(reflect.TypeFor[Metadata](), map[string]gopter.Gen{
+		"Image":              genSafeString(),
+		"Description":        genSafeString(),
+		"Tags":               genStringSlice(),
+		"SourceURL":          genSafeString(),
+		"ExamplePackageURLs": genStringSlice(),
+		"License":            genSafeString(),
+		"Hidden":             gen.Bool(),
 	})
 }
 
@@ -239,56 +240,62 @@ func TestParseMetadata_HiddenFieldPropagation(t *testing.T) {
 // --- Property-Based Tests ---
 
 func TestProperty2_MetadataYAMLRoundTrip(t *testing.T) {
-	rapid.Check(t, func(t *rapid.T) {
-		original := genMetadata().Draw(t, "metadata")
+	properties := gopter.NewProperties(nil)
 
-		// Serialize to YAML
-		data, err := yaml.Marshal(&original)
-		if err != nil {
-			t.Fatalf("failed to marshal Metadata to YAML: %v", err)
-		}
-
-		// Parse back with ParseMetadata
-		parsed, err := ParseMetadata(data)
-		if err != nil {
-			t.Fatalf("ParseMetadata failed on valid YAML: %v\nYAML:\n%s", err, string(data))
-		}
-
-		// Assert equivalence for each field
-		if parsed.Image != original.Image {
-			t.Fatalf("Image mismatch:\n  got:  %q\n  want: %q", parsed.Image, original.Image)
-		}
-		if parsed.Description != original.Description {
-			t.Fatalf("Description mismatch:\n  got:  %q\n  want: %q", parsed.Description, original.Description)
-		}
-		if parsed.SourceURL != original.SourceURL {
-			t.Fatalf("SourceURL mismatch:\n  got:  %q\n  want: %q", parsed.SourceURL, original.SourceURL)
-		}
-		if parsed.License != original.License {
-			t.Fatalf("License mismatch:\n  got:  %q\n  want: %q", parsed.License, original.License)
-		}
-		if parsed.Hidden != original.Hidden {
-			t.Fatalf("Hidden mismatch:\n  got:  %v\n  want: %v", parsed.Hidden, original.Hidden)
-		}
-
-		// Compare Tags slices
-		if len(parsed.Tags) != len(original.Tags) {
-			t.Fatalf("Tags length mismatch:\n  got:  %v\n  want: %v", parsed.Tags, original.Tags)
-		}
-		for i := range original.Tags {
-			if parsed.Tags[i] != original.Tags[i] {
-				t.Fatalf("Tags[%d] mismatch:\n  got:  %q\n  want: %q", i, parsed.Tags[i], original.Tags[i])
+	properties.Property("Metadata survives a YAML round trip", prop.ForAll(
+		func(original Metadata) string {
+			// Serialize to YAML
+			data, err := yaml.Marshal(&original)
+			if err != nil {
+				return fmt.Sprintf("failed to marshal Metadata to YAML: %v", err)
 			}
-		}
 
-		// Compare ExamplePackageURLs slices
-		if len(parsed.ExamplePackageURLs) != len(original.ExamplePackageURLs) {
-			t.Fatalf("ExamplePackageURLs length mismatch:\n  got:  %v\n  want: %v", parsed.ExamplePackageURLs, original.ExamplePackageURLs)
-		}
-		for i := range original.ExamplePackageURLs {
-			if parsed.ExamplePackageURLs[i] != original.ExamplePackageURLs[i] {
-				t.Fatalf("ExamplePackageURLs[%d] mismatch:\n  got:  %q\n  want: %q", i, parsed.ExamplePackageURLs[i], original.ExamplePackageURLs[i])
+			// Parse back with ParseMetadata
+			parsed, err := ParseMetadata(data)
+			if err != nil {
+				return fmt.Sprintf("ParseMetadata failed on valid YAML: %v\nYAML:\n%s", err, string(data))
 			}
-		}
-	})
+
+			// Assert equivalence for each field
+			if parsed.Image != original.Image {
+				return fmt.Sprintf("Image mismatch:\n  got:  %q\n  want: %q", parsed.Image, original.Image)
+			}
+			if parsed.Description != original.Description {
+				return fmt.Sprintf("Description mismatch:\n  got:  %q\n  want: %q", parsed.Description, original.Description)
+			}
+			if parsed.SourceURL != original.SourceURL {
+				return fmt.Sprintf("SourceURL mismatch:\n  got:  %q\n  want: %q", parsed.SourceURL, original.SourceURL)
+			}
+			if parsed.License != original.License {
+				return fmt.Sprintf("License mismatch:\n  got:  %q\n  want: %q", parsed.License, original.License)
+			}
+			if parsed.Hidden != original.Hidden {
+				return fmt.Sprintf("Hidden mismatch:\n  got:  %v\n  want: %v", parsed.Hidden, original.Hidden)
+			}
+
+			// Compare Tags slices
+			if len(parsed.Tags) != len(original.Tags) {
+				return fmt.Sprintf("Tags length mismatch:\n  got:  %v\n  want: %v", parsed.Tags, original.Tags)
+			}
+			for i := range original.Tags {
+				if parsed.Tags[i] != original.Tags[i] {
+					return fmt.Sprintf("Tags[%d] mismatch:\n  got:  %q\n  want: %q", i, parsed.Tags[i], original.Tags[i])
+				}
+			}
+
+			// Compare ExamplePackageURLs slices
+			if len(parsed.ExamplePackageURLs) != len(original.ExamplePackageURLs) {
+				return fmt.Sprintf("ExamplePackageURLs length mismatch:\n  got:  %v\n  want: %v", parsed.ExamplePackageURLs, original.ExamplePackageURLs)
+			}
+			for i := range original.ExamplePackageURLs {
+				if parsed.ExamplePackageURLs[i] != original.ExamplePackageURLs[i] {
+					return fmt.Sprintf("ExamplePackageURLs[%d] mismatch:\n  got:  %q\n  want: %q", i, parsed.ExamplePackageURLs[i], original.ExamplePackageURLs[i])
+				}
+			}
+			return ""
+		},
+		genMetadata(),
+	))
+
+	properties.TestingRun(t)
 }

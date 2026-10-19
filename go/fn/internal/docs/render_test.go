@@ -18,18 +18,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/leanovate/gopter"
+	"github.com/leanovate/gopter/gen"
+	"github.com/leanovate/gopter/prop"
 	"github.com/stretchr/testify/require"
-	"pgregory.net/rapid"
 )
 
 // genNonEmptySectionContent generates arbitrary non-empty strings that do not
 // contain mdtogo markers or newlines that would break containment checks.
-func genNonEmptySectionContent() *rapid.Generator[string] {
-	return rapid.Custom(func(t *rapid.T) string {
-		s := rapid.StringMatching(`[a-zA-Z0-9 .,;:!?(){}\[\]'"/_-]{1,100}`).Draw(t, "content")
+func genNonEmptySectionContent() gopter.Gen {
+	return gen.RegexMatch(`[a-zA-Z0-9 .,;:!?(){}\[\]'"/_-]{1,100}`).Map(func(s string) string {
 		// Ensure the generated content does not accidentally contain marker strings.
 		s = strings.ReplaceAll(s, "<!--mdtogo:", "")
 		s = strings.ReplaceAll(s, "<!--", "")
@@ -44,9 +46,8 @@ func genNonEmptySectionContent() *rapid.Generator[string] {
 
 // genArbitrarySectionContent generates arbitrary strings (possibly empty) for
 // use in property tests that don't require non-empty content.
-func genArbitrarySectionContent() *rapid.Generator[string] {
-	return rapid.Custom(func(t *rapid.T) string {
-		s := rapid.StringMatching(`[a-zA-Z0-9 .,;:!?(){}\[\]'"/_-]{0,100}`).Draw(t, "content")
+func genArbitrarySectionContent() gopter.Gen {
+	return gen.RegexMatch(`[a-zA-Z0-9 .,;:!?(){}\[\]'"/_-]{0,100}`).Map(func(s string) string {
 		// Ensure the generated content does not accidentally contain the
 		// forbidden strings we're testing for.
 		s = strings.ReplaceAll(s, "Usage:", "")
@@ -55,58 +56,76 @@ func genArbitrarySectionContent() *rapid.Generator[string] {
 	})
 }
 
-func genArbitraryMetadata() *rapid.Generator[Metadata] {
-	return rapid.Custom(func(t *rapid.T) Metadata {
-		return Metadata{
-			Image:       rapid.StringMatching(`[a-z0-9./:_-]{0,50}`).Draw(t, "image"),
-			Description: rapid.StringMatching(`[a-zA-Z0-9 .,;:!?-]{0,80}`).Draw(t, "description"),
-			Tags: rapid.SliceOfN(
-				rapid.StringMatching(`[a-z0-9-]{1,20}`), 0, 5,
-			).Draw(t, "tags"),
-			SourceURL:          rapid.StringMatching(`https?://[a-z0-9./_ -]{0,50}`).Draw(t, "sourceURL"),
-			ExamplePackageURLs: rapid.SliceOfN(rapid.StringMatching(`https?://[a-z0-9./_-]{0,50}`), 0, 3).Draw(t, "exampleURLs"),
-			License:            rapid.StringMatching(`[A-Za-z0-9. -]{0,20}`).Draw(t, "license"),
-			Hidden:             rapid.Bool().Draw(t, "hidden"),
-		}
+func genArbitraryMetadata() gopter.Gen {
+	return gen.Struct(reflect.TypeFor[Metadata](), map[string]gopter.Gen{
+		"Image":              gen.RegexMatch(`[a-z0-9./:_-]{0,50}`),
+		"Description":        gen.RegexMatch(`[a-zA-Z0-9 .,;:!?-]{0,80}`),
+		"Tags":               genBoundedSlice(gen.RegexMatch(`[a-z0-9-]{1,20}`), 0, 5),
+		"SourceURL":          gen.RegexMatch(`https?://[a-z0-9./_ -]{0,50}`),
+		"ExamplePackageURLs": genBoundedSlice(gen.RegexMatch(`https?://[a-z0-9./_-]{0,50}`), 0, 3),
+		"License":            gen.RegexMatch(`[A-Za-z0-9. -]{0,20}`),
+		"Hidden":             gen.Bool(),
 	})
 }
 
 func TestProperty4_HelpOutputExcludesCobraBoilerplate(t *testing.T) {
-	rapid.Check(t, func(t *rapid.T) {
-		// Generate arbitrary sections (may be empty).
-		sections := Sections{
-			Short:    genArbitrarySectionContent().Draw(t, "short"),
-			Long:     genArbitrarySectionContent().Draw(t, "long"),
-			Examples: genArbitrarySectionContent().Draw(t, "examples"),
-		}
+	properties := gopter.NewProperties(nil)
 
-		// Generate arbitrary metadata.
-		meta := genArbitraryMetadata().Draw(t, "metadata")
+	properties.Property("help output excludes cobra boilerplate", prop.ForAll(
+		func(short, long, examples string, meta Metadata) string {
+			// Generate arbitrary sections (may be empty).
+			sections := Sections{
+				Short:    short,
+				Long:     long,
+				Examples: examples,
+			}
 
-		// Render help output.
-		var buf bytes.Buffer
-		require.NoError(t, RenderHelp(&buf, sections, meta), "RenderHelp failed")
-		output := buf.String()
+			// Render help output.
+			var buf bytes.Buffer
+			if err := RenderHelp(&buf, sections, meta); err != nil {
+				return fmt.Sprintf("RenderHelp failed: %v", err)
+			}
+			output := buf.String()
 
-		// Assert that the help output does NOT contain cobra-style boilerplate.
-		if strings.Contains(output, "Usage:") {
-			t.Fatalf("help output contains forbidden 'Usage:' boilerplate\n  Output: %q", output)
-		}
-		if strings.Contains(output, "Flags:") {
-			t.Fatalf("help output contains forbidden 'Flags:' boilerplate\n  Output: %q", output)
-		}
+			// Assert that the help output does NOT contain cobra-style boilerplate.
+			if strings.Contains(output, "Usage:") {
+				return fmt.Sprintf("help output contains forbidden 'Usage:' boilerplate\n  Output: %q", output)
+			}
+			if strings.Contains(output, "Flags:") {
+				return fmt.Sprintf("help output contains forbidden 'Flags:' boilerplate\n  Output: %q", output)
+			}
+			return ""
+		},
+		genArbitrarySectionContent(),
+		genArbitrarySectionContent(),
+		genArbitrarySectionContent(),
+		genArbitraryMetadata(),
+	))
+
+	properties.TestingRun(t)
+}
+
+// genDocMetadata generates non-empty metadata with realistic field values so
+// that every field is guaranteed to appear in the rendered doc JSON.
+func genDocMetadata() gopter.Gen {
+	return gen.Struct(reflect.TypeFor[Metadata](), map[string]gopter.Gen{
+		"Image":              gen.RegexMatch(`gcr\.io/[a-z0-9-]{3,20}/[a-z0-9-]{3,20}:v[0-9]+\.[0-9]+`),
+		"Description":        genNonEmptySectionContent(),
+		"Tags":               genBoundedSlice(gen.RegexMatch(`[a-z]{3,10}`), 1, 5),
+		"SourceURL":          gen.RegexMatch(`https://github\.com/[a-z0-9-]{3,20}/[a-z0-9-]{3,20}`),
+		"ExamplePackageURLs": genBoundedSlice(gen.RegexMatch(`https://github\.com/[a-z0-9-]{3,20}/[a-z0-9-]{3,20}`), 1, 3),
+		"License":            gen.OneConstOf("Apache-2.0", "MIT", "BSD-3-Clause"),
+		"Hidden":             gen.Bool(),
 	})
 }
 
 func TestProperty5_DocJSONContainsAllRequiredFields(t *testing.T) {
-	rapid.Check(t, func(t *rapid.T) {
-		// Generate non-empty section content for README markers.
-		short := genNonEmptySectionContent().Draw(t, "short")
-		long := genNonEmptySectionContent().Draw(t, "long")
-		examples := genNonEmptySectionContent().Draw(t, "examples")
+	properties := gopter.NewProperties(nil)
 
-		// Format a README with valid mdtogo markers.
-		readme := fmt.Sprintf(`<!--mdtogo:Short-->
+	properties.Property("doc JSON contains all required fields", prop.ForAll(
+		func(short, long, examples string, meta Metadata) string {
+			// Format a README with valid mdtogo markers.
+			readme := fmt.Sprintf(`<!--mdtogo:Short-->
 %s
 <!--mdtogo-->
 
@@ -119,89 +138,82 @@ func TestProperty5_DocJSONContainsAllRequiredFields(t *testing.T) {
 <!--mdtogo-->
 `, short, long, examples)
 
-		// Parse the README to get sections.
-		sections := ParseMarkers([]byte(readme))
+			// Parse the README to get sections.
+			sections := ParseMarkers([]byte(readme))
 
-		// Generate non-empty metadata fields to ensure all appear in output.
-		meta := Metadata{
-			Image:       rapid.StringMatching(`gcr\.io/[a-z0-9-]{3,20}/[a-z0-9-]{3,20}:v[0-9]+\.[0-9]+`).Draw(t, "image"),
-			Description: genNonEmptySectionContent().Draw(t, "description"),
-			Tags: rapid.SliceOfN(
-				rapid.StringMatching(`[a-z]{3,10}`), 1, 5,
-			).Draw(t, "tags"),
-			SourceURL:          rapid.StringMatching(`https://github\.com/[a-z0-9-]{3,20}/[a-z0-9-]{3,20}`).Draw(t, "sourceURL"),
-			ExamplePackageURLs: rapid.SliceOfN(rapid.StringMatching(`https://github\.com/[a-z0-9-]{3,20}/[a-z0-9-]{3,20}`), 1, 3).Draw(t, "exampleURLs"),
-			License:            rapid.SampledFrom([]string{"Apache-2.0", "MIT", "BSD-3-Clause"}).Draw(t, "license"),
-			Hidden:             rapid.Bool().Draw(t, "hidden"),
-		}
-
-		// Render doc JSON output.
-		var buf bytes.Buffer
-		err := RenderDoc(&buf, sections, meta)
-		if err != nil {
-			t.Fatalf("RenderDoc returned error: %v", err)
-		}
-
-		// Decode the JSON output.
-		var output DocOutput
-		if err := json.Unmarshal(buf.Bytes(), &output); err != nil {
-			t.Fatalf("failed to decode doc JSON: %v\n  Raw: %s", err, buf.String())
-		}
-
-		// Assert all non-empty source values from README appear in output.
-		if output.Short != sections.Short {
-			t.Fatalf("doc JSON 'short' mismatch\n  expected: %q\n  got: %q", sections.Short, output.Short)
-		}
-		if output.Long != sections.Long {
-			t.Fatalf("doc JSON 'long' mismatch\n  expected: %q\n  got: %q", sections.Long, output.Long)
-		}
-		if output.Examples != sections.Examples {
-			t.Fatalf("doc JSON 'examples' mismatch\n  expected: %q\n  got: %q", sections.Examples, output.Examples)
-		}
-
-		// Assert all non-empty source values from metadata appear in output.
-		if output.Image != meta.Image {
-			t.Fatalf("doc JSON 'image' mismatch\n  expected: %q\n  got: %q", meta.Image, output.Image)
-		}
-		if output.Description != meta.Description {
-			t.Fatalf("doc JSON 'description' mismatch\n  expected: %q\n  got: %q", meta.Description, output.Description)
-		}
-		if len(output.Tags) != len(meta.Tags) {
-			t.Fatalf("doc JSON 'tags' length mismatch\n  expected: %v\n  got: %v", meta.Tags, output.Tags)
-		}
-		for i, tag := range meta.Tags {
-			if output.Tags[i] != tag {
-				t.Fatalf("doc JSON 'tags[%d]' mismatch\n  expected: %q\n  got: %q", i, tag, output.Tags[i])
+			// Render doc JSON output.
+			var buf bytes.Buffer
+			if err := RenderDoc(&buf, sections, meta); err != nil {
+				return fmt.Sprintf("RenderDoc returned error: %v", err)
 			}
-		}
-		if output.SourceURL != meta.SourceURL {
-			t.Fatalf("doc JSON 'sourceURL' mismatch\n  expected: %q\n  got: %q", meta.SourceURL, output.SourceURL)
-		}
-		if len(output.ExamplePackageURLs) != len(meta.ExamplePackageURLs) {
-			t.Fatalf("doc JSON 'examplePackageURLs' length mismatch\n  expected: %v\n  got: %v", meta.ExamplePackageURLs, output.ExamplePackageURLs)
-		}
-		for i, url := range meta.ExamplePackageURLs {
-			if output.ExamplePackageURLs[i] != url {
-				t.Fatalf("doc JSON 'examplePackageURLs[%d]' mismatch\n  expected: %q\n  got: %q", i, url, output.ExamplePackageURLs[i])
+
+			// Decode the JSON output.
+			var output DocOutput
+			if err := json.Unmarshal(buf.Bytes(), &output); err != nil {
+				return fmt.Sprintf("failed to decode doc JSON: %v\n  Raw: %s", err, buf.String())
 			}
-		}
-		if output.License != meta.License {
-			t.Fatalf("doc JSON 'license' mismatch\n  expected: %q\n  got: %q", meta.License, output.License)
-		}
-		if output.Hidden != meta.Hidden {
-			t.Fatalf("doc JSON 'hidden' mismatch\n  expected: %v\n  got: %v", meta.Hidden, output.Hidden)
-		}
-	})
+
+			// Assert all non-empty source values from README appear in output.
+			if output.Short != sections.Short {
+				return fmt.Sprintf("doc JSON 'short' mismatch\n  expected: %q\n  got: %q", sections.Short, output.Short)
+			}
+			if output.Long != sections.Long {
+				return fmt.Sprintf("doc JSON 'long' mismatch\n  expected: %q\n  got: %q", sections.Long, output.Long)
+			}
+			if output.Examples != sections.Examples {
+				return fmt.Sprintf("doc JSON 'examples' mismatch\n  expected: %q\n  got: %q", sections.Examples, output.Examples)
+			}
+
+			// Assert all non-empty source values from metadata appear in output.
+			if output.Image != meta.Image {
+				return fmt.Sprintf("doc JSON 'image' mismatch\n  expected: %q\n  got: %q", meta.Image, output.Image)
+			}
+			if output.Description != meta.Description {
+				return fmt.Sprintf("doc JSON 'description' mismatch\n  expected: %q\n  got: %q", meta.Description, output.Description)
+			}
+			if len(output.Tags) != len(meta.Tags) {
+				return fmt.Sprintf("doc JSON 'tags' length mismatch\n  expected: %v\n  got: %v", meta.Tags, output.Tags)
+			}
+			for i, tag := range meta.Tags {
+				if output.Tags[i] != tag {
+					return fmt.Sprintf("doc JSON 'tags[%d]' mismatch\n  expected: %q\n  got: %q", i, tag, output.Tags[i])
+				}
+			}
+			if output.SourceURL != meta.SourceURL {
+				return fmt.Sprintf("doc JSON 'sourceURL' mismatch\n  expected: %q\n  got: %q", meta.SourceURL, output.SourceURL)
+			}
+			if len(output.ExamplePackageURLs) != len(meta.ExamplePackageURLs) {
+				return fmt.Sprintf("doc JSON 'examplePackageURLs' length mismatch\n  expected: %v\n  got: %v", meta.ExamplePackageURLs, output.ExamplePackageURLs)
+			}
+			for i, url := range meta.ExamplePackageURLs {
+				if output.ExamplePackageURLs[i] != url {
+					return fmt.Sprintf("doc JSON 'examplePackageURLs[%d]' mismatch\n  expected: %q\n  got: %q", i, url, output.ExamplePackageURLs[i])
+				}
+			}
+			if output.License != meta.License {
+				return fmt.Sprintf("doc JSON 'license' mismatch\n  expected: %q\n  got: %q", meta.License, output.License)
+			}
+			if output.Hidden != meta.Hidden {
+				return fmt.Sprintf("doc JSON 'hidden' mismatch\n  expected: %v\n  got: %v", meta.Hidden, output.Hidden)
+			}
+			return ""
+		},
+		genNonEmptySectionContent(),
+		genNonEmptySectionContent(),
+		genNonEmptySectionContent(),
+		genDocMetadata(),
+	))
+
+	properties.TestingRun(t)
 }
 
 func TestProperty3_HelpOutputContainsParsedSections(t *testing.T) {
-	rapid.Check(t, func(t *rapid.T) {
-		short := genNonEmptySectionContent().Draw(t, "short")
-		long := genNonEmptySectionContent().Draw(t, "long")
-		examples := genNonEmptySectionContent().Draw(t, "examples")
+	properties := gopter.NewProperties(nil)
 
-		// Format a README with valid mdtogo markers.
-		readme := fmt.Sprintf(`<!--mdtogo:Short-->
+	properties.Property("help output contains parsed sections", prop.ForAll(
+		func(short, long, examples string) string {
+			// Format a README with valid mdtogo markers.
+			readme := fmt.Sprintf(`<!--mdtogo:Short-->
 %s
 <!--mdtogo-->
 
@@ -214,25 +226,34 @@ func TestProperty3_HelpOutputContainsParsedSections(t *testing.T) {
 <!--mdtogo-->
 `, short, long, examples)
 
-		// Parse the README to get sections (same as runtime would).
-		sections := ParseMarkers([]byte(readme))
+			// Parse the README to get sections (same as runtime would).
+			sections := ParseMarkers([]byte(readme))
 
-		// Render help output.
-		var buf bytes.Buffer
-		require.NoError(t, RenderHelp(&buf, sections, Metadata{}), "RenderHelp failed")
-		output := buf.String()
+			// Render help output.
+			var buf bytes.Buffer
+			if err := RenderHelp(&buf, sections, Metadata{}); err != nil {
+				return fmt.Sprintf("RenderHelp failed: %v", err)
+			}
+			output := buf.String()
 
-		// Assert that the help output contains each parsed section.
-		if !strings.Contains(output, sections.Short) {
-			t.Fatalf("help output does not contain Short section\n  Short: %q\n  Output: %q", sections.Short, output)
-		}
-		if !strings.Contains(output, sections.Long) {
-			t.Fatalf("help output does not contain Long section\n  Long: %q\n  Output: %q", sections.Long, output)
-		}
-		if !strings.Contains(output, sections.Examples) {
-			t.Fatalf("help output does not contain Examples section\n  Examples: %q\n  Output: %q", sections.Examples, output)
-		}
-	})
+			// Assert that the help output contains each parsed section.
+			if !strings.Contains(output, sections.Short) {
+				return fmt.Sprintf("help output does not contain Short section\n  Short: %q\n  Output: %q", sections.Short, output)
+			}
+			if !strings.Contains(output, sections.Long) {
+				return fmt.Sprintf("help output does not contain Long section\n  Long: %q\n  Output: %q", sections.Long, output)
+			}
+			if !strings.Contains(output, sections.Examples) {
+				return fmt.Sprintf("help output does not contain Examples section\n  Examples: %q\n  Output: %q", sections.Examples, output)
+			}
+			return ""
+		},
+		genNonEmptySectionContent(),
+		genNonEmptySectionContent(),
+		genNonEmptySectionContent(),
+	))
+
+	properties.TestingRun(t)
 }
 
 // --- Unit Tests for Renderers ---
